@@ -44,7 +44,16 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DateTimeColumnTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SchemaTester.cs" />
+    <Compile Include="SeparatedValueParserTester.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FlatFileReaders\FlatFileReaders.csproj">
+      <Project>{A1C961D9-8FBE-41E1-A5E2-498B3920A8E8}</Project>
+      <Name>FlatFileReaders</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
