@@ -22,7 +22,7 @@ I am in the process of writing the code for this project.
 
 Completed:
 * Implement a CSV parser
-    * Support overwriting separator string (command by default).
+    * Support overwriting separator string (comma by default).
     * Support double quotes
         * Support escaping double quotes
         * Support new-lines within double quotes
