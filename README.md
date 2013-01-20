@@ -34,7 +34,7 @@ FlatFileReaders makes it easy to read a file just like you'd read a query result
     }
 	
     // The DataTable Approach
-    DataTable customerTable = new DataTable();
+    DataTable customerTable = new DataTable("Customer");
     using (IParser parser = new SeparatedValueParser(@"C:\path\to\file.csv", schema))
     {
         customerTable.ReadFlatFile(parser);
