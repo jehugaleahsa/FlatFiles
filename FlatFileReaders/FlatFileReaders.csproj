@@ -42,8 +42,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BooleanColumn.cs" />
+    <Compile Include="ByteArrayColumn.cs" />
+    <Compile Include="ByteColumn.cs" />
+    <Compile Include="CharColumn.cs" />
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
+    <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="Int64Column.cs" />
+    <Compile Include="Int16Column.cs" />
+    <Compile Include="GuidColumn.cs" />
+    <Compile Include="SingleColumn.cs" />
+    <Compile Include="DoubleColumn.cs" />
+    <Compile Include="DecimalColumn.cs" />
     <Compile Include="DataTableExtensions.cs" />
     <Compile Include="DateTimeColumn.cs" />
     <Compile Include="FixedLengthParser.cs" />

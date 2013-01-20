@@ -17,17 +17,17 @@ namespace FlatFileReaders
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
         public static void ReadFlatFile(this DataTable table, IParser parser)
         {
+            if (table == null)
+            {
+                throw new ArgumentNullException("table");
+            }
+            if (parser == null)
+            {
+                throw new ArgumentNullException("parser");
+            }
             table.Reset();
-            try
-            {
-                table.BeginLoadData();
-                FlatFileReader reader = new FlatFileReader(parser);
-                table.Load(reader, LoadOption.OverwriteChanges);
-            }
-            finally
-            {
-                table.EndLoadData();
-            }
+            FlatFileReader reader = new FlatFileReader(parser);
+            table.Load(reader, LoadOption.OverwriteChanges);
         }
     }
 }
