@@ -38,3 +38,4 @@ using System;
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
+[assembly: InternalsVisibleTo("FlatFileReaders.Test")]

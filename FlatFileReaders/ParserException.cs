@@ -10,14 +10,6 @@ namespace FlatFileReaders
     public sealed class ParserException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of a ParserException.
-        /// </summary>
-        internal ParserException()
-            : base(Resources.InvalidRecordFormat)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of a ParserException, recording which record caused the error.
         /// </summary>
         /// <param name="recordNumber">The position of the record with the invalid format.</param>

@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
 
 namespace FlatFileReaders.Test
 {
@@ -12,38 +11,101 @@ namespace FlatFileReaders.Test
     public class SeparatedValueParserTester
     {
         /// <summary>
-        /// If we try to pass a null stream to the parser, an exception should be thrown.
+        /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_NullStream_Throws()
+        public void TestCtor_TextNull_Throws()
         {
-            Stream stream = null;
-            new SeparatedValueParser(stream);
+            string text = null;
+            new SeparatedValueParser(text);
         }
 
         /// <summary>
-        /// If we try to pass a null stream to the parser, an exception should be thrown.
+        /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Options_NullStream_Throws()
+        public void TestCtor_Schema_TextNull_Throws()
         {
-            Stream stream = null;
+            string text = null;
+            Schema schema = new Schema();
+            new SeparatedValueParser(text, schema);
+        }
+
+        /// <summary>
+        /// If we try to pass null text to the parser, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestCtor_Options_TextNull_Throws()
+        {
+            string text = null;
             SeparatedValueParserOptions options = new SeparatedValueParserOptions();
-            new SeparatedValueParser(stream, options);
+            new SeparatedValueParser(text, options);
         }
 
         /// <summary>
-        /// If we try to pass a null stream to the parser, an exception should be thrown.
+        /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_NullOptions_Throws()
+        public void TestCtor_Options_Schema_TextNull_Throws()
         {
-            Stream stream = new MemoryStream();
+            string text = null;
+            Schema schema = new Schema();
+            SeparatedValueParserOptions options = new SeparatedValueParserOptions();
+            new SeparatedValueParser(text, schema, options);
+        }
+
+        /// <summary>
+        /// If we trying to pass a null schema, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestCtor_SchemaNull_Throws()
+        {
+            string text = String.Empty;
+            Schema schema = null;
+            new SeparatedValueParser(text, schema);
+        }
+
+        /// <summary>
+        /// If we trying to pass a null schema, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestCtor_Options_SchemaNull_Throws()
+        {
+            string text = String.Empty;
+            Schema schema = null;
+            SeparatedValueParserOptions options = new SeparatedValueParserOptions();
+            new SeparatedValueParser(text, schema, options);
+        }
+
+        /// <summary>
+        /// If we try to pass null options to the parser, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestCtor_OptionsNull_Throws()
+        {
+            string text = "";
             SeparatedValueParserOptions options = null;
-            new SeparatedValueParser(stream, options);
+            new SeparatedValueParser(text, options);
+        }
+
+        /// <summary>
+        /// If we try to pass null options to the parser, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestCtor_Schema_OptionsNull_Throws()
+        {
+            string text = "";
+            Schema schema = new Schema();
+            SeparatedValueParserOptions options = null;
+            new SeparatedValueParser(text, schema, options);
         }
 
         /// <summary>
@@ -52,12 +114,11 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestRead_SingleRecord_ReturnsTrueOnce()
         {
-            Stream stream = getRecordStream("a", "b", "c");
-            SeparatedValueParser parser = new SeparatedValueParser(stream);
+            SeparatedValueParser parser = new SeparatedValueParser("a,b,c");
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
-            string[] actual = parser.GetValues();
+            object[] actual = parser.GetValues();
             CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
             canRead = parser.Read();
             Assert.IsFalse(canRead, "No more records should have been read.");
@@ -70,9 +131,9 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestRead_GetValuesWithoutReading_Throws()
         {
-            Stream stream = getRecordStream("a", "b", "c");
-            SeparatedValueParser parser = new SeparatedValueParser(stream);
-            string[] values = parser.GetValues();
+            string text = "a,b,c";
+            SeparatedValueParser parser = new SeparatedValueParser(text);
+            parser.GetValues();
         }
 
         /// <summary>
@@ -81,12 +142,12 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestRead_MultipleCallsToValues_ReturnsSameValues()
         {
-            Stream stream = getRecordStream("a", "b", "c");
-            SeparatedValueParser parser = new SeparatedValueParser(stream);
+            string text = "a,b,c";
+            SeparatedValueParser parser = new SeparatedValueParser(text);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
-            string[] actual = parser.GetValues();
+            object[] actual = parser.GetValues();
             CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
             actual = parser.GetValues();
             CollectionAssert.AreEqual(expected, actual, "The same values were not returned multiple times.");
@@ -99,13 +160,13 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestRead_ValuesAfterEndOfFile_Throws()
         {
-            Stream stream = getRecordStream("a", "b", "c");
-            SeparatedValueParser parser = new SeparatedValueParser(stream);
+            string text = "a,b,c";
+            SeparatedValueParser parser = new SeparatedValueParser(text);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             canRead = parser.Read();
             Assert.IsFalse(canRead, "We should have reached the end of the file.");
-            string[] actual = parser.GetValues();
+            parser.GetValues();
         }
 
         /// <summary>
@@ -115,9 +176,9 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestGetSchema_NotExtracted_Throws()
         {
-            Stream stream = getRecordStream("a", "b", "c");
+            string text = "a,b,c";
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = false };
-            SeparatedValueParser parser = new SeparatedValueParser(stream, options);
+            IParser parser = new SeparatedValueParser(text, options);
             parser.GetSchema();
         }
 
@@ -127,19 +188,82 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestGetSchema_Extracted_ReturnsColumnNames()
         {
-            Stream stream = getRecordStream("a", "b", "c");
+            string text = "a,b,c";
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
-            SeparatedValueParser parser = new SeparatedValueParser(stream, options);
-            string[] names = parser.GetSchema();
+            IParser parser = new SeparatedValueParser(text, options);
+            Schema schema = parser.GetSchema();
+            Assert.IsTrue(schema.ColumnDefinitions.All(d => d is StringColumn), "Not all of the columns were treated as strings.");
+            string[] actual = schema.ColumnDefinitions.Select(d => d.ColumnName).ToArray();
             string[] expected = new string[] { "a", "b", "c" };
-            CollectionAssert.AreEqual(expected, names, "The schema was not extracted as expected.");
+            CollectionAssert.AreEqual(expected, actual, "The schema was not extracted as expected.");
         }
 
-        private static Stream getRecordStream(params string[] values)
+        /// <summary>
+        /// If we provide a schema and say the first record is the schema, our schema takes priority
+        /// and we throw away the first record.
+        /// </summary>
+        [TestMethod]
+        public void TestGetSchema_SchemaProvided_FirstRecordSchema_SkipsFirstRecord()
         {
-            string joined = String.Join(",", values);
-            byte[] data = Encoding.Default.GetBytes(joined);
-            return new MemoryStream(data);
+            const string text = @"id,name,created";
+            Schema schema = new Schema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+            SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
+            IParser parser = new SeparatedValueParser(text, schema, options);
+            Schema actual = parser.GetSchema();
+            Assert.AreSame(schema, actual, "The schema was passed did not take priority.");
+            Assert.IsFalse(parser.Read(), "The schema record was not skipped.");
+        }
+
+        /// <summary>
+        /// If we provide a schema, it will be used to parse the values.
+        /// </summary>
+        [TestMethod]
+        public void TestGetSchema_SchemaProvided_ParsesValues()
+        {
+            const string text = @"123,Bob,1/19/2013";
+            Schema schema = new Schema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+            SeparatedValueParser parser = new SeparatedValueParser(text, schema);
+            Assert.IsTrue(parser.Read(), "The first record was skipped.");
+            object[] actual = parser.GetValues();
+            object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
+            CollectionAssert.AreEqual(expected, actual, "The values were not parsed as expected.");
+        }
+
+        /// <summary>
+        /// If we provide a schema, the records in the file must have a value for each column.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ParserException))]
+        public void TestGetSchema_SchemaProvided_WrongNumberOfColumns_Throws()
+        {
+            const string text = @"123,Bob";
+            Schema schema = new Schema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+            SeparatedValueParser parser = new SeparatedValueParser(text, schema);
+            parser.Read();
+        }
+
+        /// <summary>
+        /// If the first record is the schema, the records in the file must have the
+        /// same number of columns.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ParserException))]
+        public void TestGetSchema_FirstRecordSchema_WrongNumberOfColumns_Throws()
+        {
+            const string text = @"id,name,created
+123,Bob,1/19/2013,Hello";
+            SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
+            SeparatedValueParser parser = new SeparatedValueParser(text, options);
+            parser.Read();
         }
     }
 }

@@ -40,11 +40,19 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Gets the column definitions that make up the schema.
+        /// </summary>
+        public ColumnCollection ColumnDefinitions
+        {
+            get { return new ColumnCollection(definitions); }
+        }
+
+        /// <summary>
         /// Parses the given values assuming that the are in the same order as the column definitions.
         /// </summary>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        public object[] ParseValues(string[] values)
+        internal object[] ParseValues(string[] values)
         {
             if (values == null)
             {

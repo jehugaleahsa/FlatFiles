@@ -23,7 +23,7 @@ namespace FlatFileReaders
         /// <returns>The value trimmed.</returns>
         public override object Parse(string value)
         {
-            if (value == null)
+            if (String.IsNullOrWhiteSpace(value))
             {
                 return null;
             }

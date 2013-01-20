@@ -5,10 +5,10 @@ using System.Collections;
 namespace FlatFileReaders.Test
 {
     /// <summary>
-    /// Tests the Schema class.
+    /// Tests the FixedLengthSchema class.
     /// </summary>
     [TestClass]
-    public class SchemaTester
+    public class FixedLengthSchemaTester
     {
         /// <summary>
         /// An exception should be thrown if we try to add a null column definition.
@@ -17,8 +17,8 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAddColumn_NullDefinition_Throws()
         {
-            Schema schema = new Schema();
-            schema.AddColumn(null);
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(null, 1);
         }
 
         /// <summary>
@@ -28,9 +28,21 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestAddColumn_DuplicateColumnName_Throws()
         {
-            Schema schema = new Schema();
-            schema.AddColumn(new StringColumn("Name"));
-            schema.AddColumn(new Int32Column("name"));
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("Name"), 1);
+            schema.AddColumn(new Int32Column("name"), 1);
+        }
+
+        /// <summary>
+        /// An exception should be thrown if the width of a column is specified
+        /// to be less than one.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void TestAddColumn_WidthZero_Throws()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("name"), 0);
         }
 
         /// <summary>
@@ -40,7 +52,7 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestParseValues_NullValues_Throws()
         {
-            Schema schema = new Schema();
+            FixedLengthSchema schema = new FixedLengthSchema();
             schema.ParseValues(null);
         }
 
@@ -51,8 +63,8 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentException))]
         public void TestParseValues_WrongNumber_Throws()
         {
-            Schema schema = new Schema();
-            schema.AddColumn(new StringColumn("name"));
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("name"), 10);
             schema.ParseValues(new string[] { "bob", "smith" });
         }
 
@@ -62,11 +74,11 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestParseValues_ParsesValues()
         {
-            Schema schema = new Schema();
-            schema.AddColumn(new StringColumn("first_name"))
-                  .AddColumn(new StringColumn("last_name"))
-                  .AddColumn(new DateTimeColumn("birth_date") { DateTimeFormat = "yyyyMMdd" })
-                  .AddColumn(new Int32Column("weight"));
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("first_name"), 10)
+                  .AddColumn(new StringColumn("last_name"), 10)
+                  .AddColumn(new DateTimeColumn("birth_date") { DateTimeFormat = "yyyyMMdd" }, 8)
+                  .AddColumn(new Int32Column("weight"), 5);
             string[] values = new string[] { "bob", "smith", "20120123", "185" };
             object[] parsed = schema.ParseValues(values);
             object[] expected = new object[] { "bob", "smith", new DateTime(2012, 1, 23), 185 };
@@ -80,7 +92,7 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestColumnDefinitions_NoColumns_CountZero()
         {
-            Schema schema = new Schema();
+            FixedLengthSchema schema = new FixedLengthSchema();
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreEqual(0, collection.Count, "The column collection count was wrong.");
         }
@@ -92,8 +104,10 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestColumnDefinitions_WithColumns_CountEqualsColumnCount()
         {
-            Schema schema = new Schema();
-            schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), 10)
+                  .AddColumn(new StringColumn("name"), 25)
+                  .AddColumn(new DateTimeColumn("created"), 10);
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreEqual(3, collection.Count, "The column collection count was wrong.");
         }
@@ -104,11 +118,13 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestColumnDefinitions_FindByIndex()
         {
-            Schema schema = new Schema();
+            FixedLengthSchema schema = new FixedLengthSchema();
             ColumnDefinition id = new Int32Column("id");
             ColumnDefinition name = new StringColumn("name");
             ColumnDefinition created = new DateTimeColumn("created");
-            schema.AddColumn(id).AddColumn(name).AddColumn(created);
+            schema.AddColumn(id, 10)
+                  .AddColumn(name, 25)
+                  .AddColumn(created, 10);
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreSame(id, collection[0], "The first column definition was wrong.");
             Assert.AreSame(name, collection[1], "The second column definition was wrong.");
@@ -121,11 +137,11 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestColumnDefinitions_GetEnumerable_Explicit()
         {
-            Schema schema = new Schema();
+            FixedLengthSchema schema = new FixedLengthSchema();
             ColumnDefinition id = new Int32Column("id");
             ColumnDefinition name = new StringColumn("name");
             ColumnDefinition created = new DateTimeColumn("created");
-            schema.AddColumn(id).AddColumn(name).AddColumn(created);
+            schema.AddColumn(id, 10).AddColumn(name, 25).AddColumn(created, 10);
             IEnumerable collection = schema.ColumnDefinitions;
             IEnumerator enumerator = collection.GetEnumerator();
         }

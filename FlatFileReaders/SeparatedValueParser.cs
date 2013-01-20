@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FlatFileReaders.Properties;
@@ -7,51 +6,98 @@ using FlatFileReaders.Properties;
 namespace FlatFileReaders
 {
     /// <summary>
-    /// Extracts records from a stream that are separated by a separator string.
+    /// Extracts records from a file that has values separated by a separator token.
     /// </summary>
-    public sealed class SeparatedValueParser
+    public sealed class SeparatedValueParser : IParser
     {
         private string text;
         private int nextIndex;
         private Regex regex;
         private int recordCount;
         private bool endOfFile;
-        private string[] schema;
-        private string[] values;
+        private bool hasError;
+        private Schema schema;
+        private object[] values;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParser.
         /// </summary>
-        /// <param name="stream">The stream containing the records to extract.</param>
+        /// <param name="text">The text containing the records to extract.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        public SeparatedValueParser(Stream stream)
-            : this(stream, new SeparatedValueParserOptions())
+        public SeparatedValueParser(string text)
+            : this(text, null, new SeparatedValueParserOptions(), false)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParser.
         /// </summary>
-        /// <param name="stream">The stream containing the records to extract.</param>
+        /// <param name="text">The text containing the records to extract.</param>
+        /// <param name="schema">The predefined schema for the records.</param>
+        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
+        public SeparatedValueParser(string text, Schema schema)
+            : this(text, schema, new SeparatedValueParserOptions(), true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueParser.
+        /// </summary>
+        /// <param name="text">The text containing the records to extract.</param>
         /// <param name="options">The options for configuring the parser's behavior.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
         /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
-        public SeparatedValueParser(Stream stream, SeparatedValueParserOptions options)
+        public SeparatedValueParser(string text, SeparatedValueParserOptions options)
+            : this(text, null, options, false)
         {
-            if (stream == null)
+        }
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueParser.
+        /// </summary>
+        /// <param name="text">The text containing the records to extract.</param>
+        /// <param name="schema">The predefined schema for the records.</param>
+        /// <param name="options">The options for configuring the parser's behavior.</param>
+        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
+        public SeparatedValueParser(string text, Schema schema, SeparatedValueParserOptions options)
+            : this(text, schema, options, true)
+        {
+        }
+
+        private SeparatedValueParser(string text, Schema schema, SeparatedValueParserOptions options, bool hasSchema)
+        {
+            if (text == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException("text");
+            }
+            if (hasSchema && schema == null)
+            {
+                throw new ArgumentNullException("schema");
             }
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
-            StreamReader reader = new StreamReader(stream);
-            text = reader.ReadToEnd();
+            this.text = text;
             regex = buildRegex(options.Separator);
-            if (options.IsFirstRecordSchema)
+            if (hasSchema)
             {
-                schema = readNextRecord();
+                if (options.IsFirstRecordSchema)
+                {
+                    readNextRecord();  // skip header record
+                }
+                this.schema = schema;
+            }
+            else if (options.IsFirstRecordSchema)
+            {
+                string[] columnNames = readNextRecord();
+                this.schema = new Schema();
+                foreach (string columnName in columnNames)
+                {
+                    StringColumn column = new StringColumn(columnName);
+                    this.schema.AddColumn(column);
+                }
             }
         }
 
@@ -59,7 +105,7 @@ namespace FlatFileReaders
         /// Gets the names of the columns found in the file.
         /// </summary>
         /// <returns>The names.</returns>
-        public string[] GetSchema()
+        Schema IParser.GetSchema()
         {
             if (schema == null)
             {
@@ -72,17 +118,33 @@ namespace FlatFileReaders
         /// Attempts to read the next record from the stream.
         /// </summary>
         /// <returns>True if the next record was read or false if all records have been read.</returns>
-        /// <exception cref="ParserException">The parser encountered an invalid record format.</exception>
         public bool Read()
         {
+            if (hasError)
+            {
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
+            }
             if (nextIndex == text.Length)
             {
                 endOfFile = true;
                 values = null;
                 return false;
             }
-            values = readNextRecord();
+            string[] rawValues = readNextRecord();
             recordCount += 1;
+            if (schema == null)
+            {
+                values = rawValues;
+            }
+            else if (rawValues.Length != schema.ColumnDefinitions.Count)
+            {
+                hasError = true;
+                throw new ParserException(recordCount);
+            }
+            else
+            {
+                values = schema.ParseValues(rawValues);
+            }
             return true;
         }
 
@@ -90,8 +152,12 @@ namespace FlatFileReaders
         /// Gets the values for the current record.
         /// </summary>
         /// <returns>The values of the current record.</returns>
-        public string[] GetValues()
+        public object[] GetValues()
         {
+            if (hasError)
+            {
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
+            }
             if (recordCount == 0)
             {
                 throw new InvalidOperationException(Resources.ReadNotCalled);
@@ -100,7 +166,7 @@ namespace FlatFileReaders
             {
                 throw new InvalidOperationException(Resources.NoMoreRecords);
             }
-            string[] copy = new string[values.Length];
+            object[] copy = new object[values.Length];
             Array.Copy(values, copy, values.Length);
             return copy;
         }

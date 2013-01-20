@@ -44,10 +44,14 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FixedLengthSchemaTester.cs" />
+    <Compile Include="FixedLengthParserTester.cs" />
+    <Compile Include="Int32ColumnTester.cs" />
     <Compile Include="DateTimeColumnTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaTester.cs" />
     <Compile Include="SeparatedValueParserTester.cs" />
+    <Compile Include="StringColumnTester.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlatFileReaders\FlatFileReaders.csproj">

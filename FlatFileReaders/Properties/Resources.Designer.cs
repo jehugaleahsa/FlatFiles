@@ -79,11 +79,11 @@ namespace FlatFileReaders.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered a record with an invalid record format..
+        ///   Looks up a localized string similar to An attempt was made to define a column with a width less than one..
         /// </summary>
-        internal static string InvalidRecordFormat {
+        internal static string InvalidColumnWidth {
             get {
-                return ResourceManager.GetString("InvalidRecordFormat", resourceCulture);
+                return ResourceManager.GetString("InvalidColumnWidth", resourceCulture);
             }
         }
         

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace FlatFileReaders
 {
@@ -14,6 +15,25 @@ namespace FlatFileReaders
         public Int32Column(string columnName)
             : base(columnName)
         {
+            NumberStyles = NumberStyles.Integer;
+        }
+
+        /// <summary>
+        /// Gets or sets the format provider to use when parsing.
+        /// </summary>
+        public IFormatProvider FormatProvider
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the number styles to use when parsing.
+        /// </summary>
+        public NumberStyles NumberStyles
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -27,7 +47,8 @@ namespace FlatFileReaders
             {
                 return null;
             }
-            return Int32.Parse(value.Trim());
+            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            return Int32.Parse(value.Trim(), NumberStyles, provider);
         }
     }
 }
