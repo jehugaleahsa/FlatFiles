@@ -49,7 +49,7 @@ Once you're schema is defined, you can read the file using the FlatFileReader cl
 ## SeparatedValueParser
 If you are working with delimited files, such as comma separated or tab separated files, you will want to use the `SeparatedValueParser` class. The constructor accepts a combination of a file name (or stream), a `Schema` object and/or a `SeparatedValueParserOptions` object.
 
-The `SeparatedValueParserOptions` class supports a `Separator` property for specifying the string that separates your fields. A command (`,`) is the default separator.
+The `SeparatedValueParserOptions` class supports a `Separator` property for specifying the string that separates your fields. A comma (`,`) is the default separator.
 
 When parsing separated files, you can surround fields with double or single quotes. This way you can include the separator string within the field. Of course, this won't work if the separator is the quote character itself!
 
