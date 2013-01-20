@@ -16,7 +16,7 @@ FlatFileReaders makes it easy to read a file just like you'd read a query result
           .AddColumn(new StringColumn("name"))
           .AddColumn(new DateTimeColumn("created") { DateTimeFormat = "yyyyMMdd" })
           .AddColumn(new DoubleColumn("avg_sales"));
-	
+
     // The DataRead Approach
     using (FlatFileReader reader = new FlatFileReader(new SeparatedValueParser(@"C:\path\to\file.csv", schema))
     {
@@ -32,7 +32,7 @@ FlatFileReaders makes it easy to read a file just like you'd read a query result
         }
         return customers;
     }
-	
+
     // The DataTable Approach
     DataTable customerTable = new DataTable("Customer");
     using (IParser parser = new SeparatedValueParser(@"C:\path\to\file.csv", schema))
