@@ -22,17 +22,17 @@ I am in the process of writing the code for this project.
 
 Completed:
 * Implement a CSV parser
-* * Support overwriting separator string (command by default).
-* * Support double quotes
-* * * Support escaping double quotes
-* * * Support new-lines within double quotes
-* * Support single quotes
-* * * Support escaping single quotes
-* * * Support new-lines within single quotes
-* * Support deriving schema from first record
+    * Support overwriting separator string (command by default).
+    * Support double quotes
+        * Support escaping double quotes
+        * Support new-lines within double quotes
+    * Support single quotes
+        * Support escaping single quotes
+        * Support new-lines within single quotes
+    * Support deriving schema from first record
 * Implement a fixed-length parser
-* * Support overwriting record separator string (\r\n by default)
-* * Support overwriting fill character (space by default)
+    * Support overwriting record separator string (\r\n by default)
+    * Support overwriting fill character (space by default)
 * Implement Schema class
 * Implement Int32Column class
 * Implement StringColumn class
