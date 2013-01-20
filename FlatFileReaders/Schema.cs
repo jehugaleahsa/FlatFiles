@@ -10,7 +10,8 @@ namespace FlatFileReaders
     /// </summary>
     public sealed class Schema
     {
-        private List<ColumnDefinition> definitions;
+        private readonly List<ColumnDefinition> definitions;
+        private readonly Dictionary<string, int> ordinals;
 
         /// <summary>
         /// Initializes a new instance of a Schema.
@@ -18,6 +19,7 @@ namespace FlatFileReaders
         public Schema()
         {
             definitions = new List<ColumnDefinition>();
+            ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -31,12 +33,28 @@ namespace FlatFileReaders
             {
                 throw new ArgumentNullException("definition");
             }
-            if (definitions.Any(existing => existing.ColumnName == definition.ColumnName))
+            if (ordinals.ContainsKey(definition.ColumnName))
             {
                 throw new ArgumentException(Resources.DuplicateColumnName, "definition");
             }
             definitions.Add(definition);
+            ordinals.Add(definition.ColumnName, definitions.Count - 1);
             return this;
+        }
+
+        /// <summary>
+        /// Gets the index of the column with the given name.
+        /// </summary>
+        /// <param name="name">The name of the column to get the index for.</param>
+        /// <returns>The index of the column with the given name.</returns>
+        /// <exception cref="System.IndexOutOfRangeException">There is not a column with the given name.</exception>
+        public int GetOrdinal(string name)
+        {
+            if (!ordinals.ContainsKey(name))
+            {
+                throw new IndexOutOfRangeException();
+            }
+            return ordinals[name];
         }
 
         /// <summary>

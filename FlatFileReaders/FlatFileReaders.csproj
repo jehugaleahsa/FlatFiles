@@ -44,10 +44,12 @@
   <ItemGroup>
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
+    <Compile Include="DataTableExtensions.cs" />
     <Compile Include="DateTimeColumn.cs" />
     <Compile Include="FixedLengthParser.cs" />
     <Compile Include="FixedLengthParserOptions.cs" />
     <Compile Include="FixedLengthSchema.cs" />
+    <Compile Include="FlatFileReader.cs" />
     <Compile Include="Int32Column.cs" />
     <Compile Include="IParser.cs" />
     <Compile Include="ParserException.cs" />

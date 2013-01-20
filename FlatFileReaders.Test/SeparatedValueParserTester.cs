@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
+using System.Text;
 
 namespace FlatFileReaders.Test
 {
@@ -67,7 +69,7 @@ namespace FlatFileReaders.Test
         {
             string text = String.Empty;
             Schema schema = null;
-            new SeparatedValueParser(text, schema);
+            new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace FlatFileReaders.Test
             string text = String.Empty;
             Schema schema = null;
             SeparatedValueParserOptions options = new SeparatedValueParserOptions();
-            new SeparatedValueParser(text, schema, options);
+            new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
         }
 
         /// <summary>
@@ -92,7 +94,7 @@ namespace FlatFileReaders.Test
         {
             string text = "";
             SeparatedValueParserOptions options = null;
-            new SeparatedValueParser(text, options);
+            new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), options);
         }
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace FlatFileReaders.Test
             string text = "";
             Schema schema = new Schema();
             SeparatedValueParserOptions options = null;
-            new SeparatedValueParser(text, schema, options);
+            new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
         }
 
         /// <summary>
@@ -114,7 +116,8 @@ namespace FlatFileReaders.Test
         [TestMethod]
         public void TestRead_SingleRecord_ReturnsTrueOnce()
         {
-            SeparatedValueParser parser = new SeparatedValueParser("a,b,c");
+            const string text = "a,b,c";
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)));
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
@@ -132,7 +135,7 @@ namespace FlatFileReaders.Test
         public void TestRead_GetValuesWithoutReading_Throws()
         {
             string text = "a,b,c";
-            SeparatedValueParser parser = new SeparatedValueParser(text);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)));
             parser.GetValues();
         }
 
@@ -143,7 +146,7 @@ namespace FlatFileReaders.Test
         public void TestRead_MultipleCallsToValues_ReturnsSameValues()
         {
             string text = "a,b,c";
-            SeparatedValueParser parser = new SeparatedValueParser(text);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)));
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
@@ -161,7 +164,7 @@ namespace FlatFileReaders.Test
         public void TestRead_ValuesAfterEndOfFile_Throws()
         {
             string text = "a,b,c";
-            SeparatedValueParser parser = new SeparatedValueParser(text);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)));
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             canRead = parser.Read();
@@ -178,7 +181,7 @@ namespace FlatFileReaders.Test
         {
             string text = "a,b,c";
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = false };
-            IParser parser = new SeparatedValueParser(text, options);
+            IParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), options);
             parser.GetSchema();
         }
 
@@ -190,7 +193,7 @@ namespace FlatFileReaders.Test
         {
             string text = "a,b,c";
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
-            IParser parser = new SeparatedValueParser(text, options);
+            IParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), options);
             Schema schema = parser.GetSchema();
             Assert.IsTrue(schema.ColumnDefinitions.All(d => d is StringColumn), "Not all of the columns were treated as strings.");
             string[] actual = schema.ColumnDefinitions.Select(d => d.ColumnName).ToArray();
@@ -211,7 +214,7 @@ namespace FlatFileReaders.Test
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
-            IParser parser = new SeparatedValueParser(text, schema, options);
+            IParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
             Schema actual = parser.GetSchema();
             Assert.AreSame(schema, actual, "The schema was passed did not take priority.");
             Assert.IsFalse(parser.Read(), "The schema record was not skipped.");
@@ -228,7 +231,7 @@ namespace FlatFileReaders.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueParser parser = new SeparatedValueParser(text, schema);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Assert.IsTrue(parser.Read(), "The first record was skipped.");
             object[] actual = parser.GetValues();
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -247,7 +250,7 @@ namespace FlatFileReaders.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueParser parser = new SeparatedValueParser(text, schema);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             parser.Read();
         }
 
@@ -262,7 +265,7 @@ namespace FlatFileReaders.Test
             const string text = @"id,name,created
 123,Bob,1/19/2013,Hello";
             SeparatedValueParserOptions options = new SeparatedValueParserOptions() { IsFirstRecordSchema = true };
-            SeparatedValueParser parser = new SeparatedValueParser(text, options);
+            SeparatedValueParser parser = new SeparatedValueParser(new MemoryStream(Encoding.Default.GetBytes(text)), options);
             parser.Read();
         }
     }

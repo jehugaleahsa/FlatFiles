@@ -19,6 +19,14 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Gets the type of the values in the column.
+        /// </summary>
+        public override Type ColumnType
+        {
+            get { return typeof(Int32); }
+        }
+
+        /// <summary>
         /// Gets or sets the format provider to use when parsing.
         /// </summary>
         public IFormatProvider FormatProvider

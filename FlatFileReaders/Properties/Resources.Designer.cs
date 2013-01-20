@@ -70,6 +70,15 @@ namespace FlatFileReaders.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to operate on a closed FlatFileDataReader..
+        /// </summary>
+        internal static string ClosedDataReader {
+            get {
+                return ResourceManager.GetString("ClosedDataReader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to add a column to a schema where the same name already exists..
         /// </summary>
         internal static string DuplicateColumnName {

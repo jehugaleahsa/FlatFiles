@@ -17,6 +17,14 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Gets the type of the values in the column.
+        /// </summary>
+        public override Type ColumnType
+        {
+            get { return typeof(String); }
+        }
+
+        /// <summary>
         /// Returns the given value trimmed.
         /// </summary>
         /// <param name="value">The value to trim.</param>

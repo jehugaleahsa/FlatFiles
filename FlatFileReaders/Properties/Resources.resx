@@ -147,4 +147,7 @@
   <data name="InvalidColumnWidth" xml:space="preserve">
     <value>An attempt was made to define a column with a width less than one.</value>
   </data>
+  <data name="ClosedDataReader" xml:space="preserve">
+    <value>An attempt was made to operate on a closed FlatFileDataReader.</value>
+  </data>
 </root>

@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
+using System.Text;
 
 namespace FlatFileReaders.Test
 {
@@ -28,10 +30,10 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_Options_TextNull_Throws()
         {
-            string text = null;
+            Stream stream = null;
             FixedLengthSchema schema = new FixedLengthSchema();
             FixedLengthParserOptions options = new FixedLengthParserOptions();
-            new FixedLengthParser(text, schema, options);
+            new FixedLengthParser(stream, schema, options);
         }
 
         /// <summary>
@@ -43,7 +45,7 @@ namespace FlatFileReaders.Test
         {
             string text = String.Empty;
             FixedLengthSchema schema = null;
-            new FixedLengthParser(text, schema);
+            new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
         }
 
         /// <summary>
@@ -56,7 +58,7 @@ namespace FlatFileReaders.Test
             string text = String.Empty;
             FixedLengthSchema schema = null;
             FixedLengthParserOptions options = new FixedLengthParserOptions();
-            new FixedLengthParser(text, schema, options);
+            new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
         }
 
         /// <summary>
@@ -66,10 +68,10 @@ namespace FlatFileReaders.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_OptionsNull_Throws()
         {
-            string text = "";
+            string text = String.Empty;
             FixedLengthSchema schema = new FixedLengthSchema();
             FixedLengthParserOptions options = null;
-            new FixedLengthParser(text, schema, options);
+            new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
         }
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace FlatFileReaders.Test
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
-            FixedLengthParser parser = new FixedLengthParser(text, schema);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
             object[] actual = parser.GetValues();
@@ -99,7 +101,7 @@ namespace FlatFileReaders.Test
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
-            FixedLengthParser parser = new FixedLengthParser(text, schema);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             parser.GetValues();
         }
 
@@ -112,7 +114,7 @@ namespace FlatFileReaders.Test
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
-            FixedLengthParser parser = new FixedLengthParser(text, schema);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -132,7 +134,7 @@ namespace FlatFileReaders.Test
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
-            FixedLengthParser parser = new FixedLengthParser(text, schema);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             Assert.IsFalse(parser.Read(), "We should have reached the end of the file.");
             parser.GetValues();
@@ -148,7 +150,7 @@ namespace FlatFileReaders.Test
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
-            IParser parser = new FixedLengthParser(text, schema);
+            IParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Schema actual = parser.GetSchema();
             Assert.AreSame(schema.Schema, actual, "The underlying schema was not returned.");
         }
@@ -165,7 +167,7 @@ namespace FlatFileReaders.Test
             schema.AddColumn(new Int32Column("id"), 10)
                   .AddColumn(new StringColumn("name"), 25)
                   .AddColumn(new DateTimeColumn("created"), 10);
-            FixedLengthParser parser = new FixedLengthParser(text, schema);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             parser.Read();
         }
 
@@ -182,7 +184,7 @@ namespace FlatFileReaders.Test
                   .AddColumn(new StringColumn("name"), 25)
                   .AddColumn(new DateTimeColumn("created"), 10);
             FixedLengthParserOptions options = new FixedLengthParserOptions() { RecordSeparator = "BOOM" };
-            FixedLengthParser parser = new FixedLengthParser(text, schema, options);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
 
             Assert.IsTrue(parser.Read(), "Could not read the first record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -207,7 +209,7 @@ namespace FlatFileReaders.Test
                   .AddColumn(new StringColumn("name"), 25)
                   .AddColumn(new DateTimeColumn("created"), 10);
             FixedLengthParserOptions options = new FixedLengthParserOptions() { FillCharacter = '@' };
-            FixedLengthParser parser = new FixedLengthParser(text, schema, options);
+            FixedLengthParser parser = new FixedLengthParser(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
 
             Assert.IsTrue(parser.Read(), "Could not read the first record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };

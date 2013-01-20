@@ -18,6 +18,14 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Gets the type of the values in the column.
+        /// </summary>
+        public override Type ColumnType
+        {
+            get { return typeof(DateTime); }
+        }
+
+        /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
         /// </summary>
         public string DateTimeFormat
