@@ -2,7 +2,7 @@
 
 Work with flat files using the ADO.NET classes.
 
-Download using NuGet: [FlatFileReaders](http://github.com/jehugaleahsa/FlatFileReaders)
+Download using NuGet: [FlatFileReaders](http://nuget.org/packages/FlatFileReaders)
 
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV or fixed-length) whether because we're interfacing with older systems or because we're running one-time migration scripts. It's a pain that there's nothing built into .NET for treating flat files like a database table.
