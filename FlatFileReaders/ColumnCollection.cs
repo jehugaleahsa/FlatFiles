@@ -31,6 +31,20 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Gets the column definition with the given name.
+        /// </summary>
+        /// <param name="columnName">The name of the column to get the definition for.</param>
+        /// <returns>The column definition with the given name.</returns>
+        public ColumnDefinition this[string columnName]
+        {
+            get 
+            {
+                int index = definitions.FindIndex(definition => definition.ColumnName == columnName);
+                return definitions[index];
+            }
+        }
+
+        /// <summary>
         /// Gets the number of columns in the collection.
         /// </summary>
         public int Count

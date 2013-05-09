@@ -41,6 +41,45 @@ namespace FlatFileReaders
         }
 
         /// <summary>
+        /// Adds a column to the schema with the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of the column.</typeparam>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="width">The number of characters used by the column in the file.</param>
+        /// <returns>The current schema.</returns>
+        public FixedLengthSchema AddColumn<T>(string columnName, int width)
+        {
+            if (width < 1)
+            {
+                throw new ArgumentOutOfRangeException("width", width, Resources.InvalidColumnWidth);
+            }
+            schema.AddColumn<T>(columnName);
+            widths.Add(width);
+            totalWidth += width;
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a column to the schema, using the given definition to define it.
+        /// </summary>
+        /// <typeparam name="T">The type of the column.</typeparam>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="width">The number of characters used by the column in the file.</param>
+        /// <param name="converter">A function that converts the parsed string value to the appropriate type.</param>
+        /// <returns>The current schema.</returns>
+        public FixedLengthSchema AddColumn<T>(string columnName, int width, Func<string, T> converter)
+        {
+            if (width < 1)
+            {
+                throw new ArgumentOutOfRangeException("width", width, Resources.InvalidColumnWidth);
+            }
+            schema.AddColumn<T>(columnName, converter);
+            widths.Add(width);
+            totalWidth += width;
+            return this;
+        }
+
+        /// <summary>
         /// Gets the underlying schema.
         /// </summary>
         internal Schema Schema

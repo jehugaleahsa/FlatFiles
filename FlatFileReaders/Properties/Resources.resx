@@ -150,4 +150,7 @@
   <data name="ClosedDataReader" xml:space="preserve">
     <value>An attempt was made to operate on a closed FlatFileDataReader.</value>
   </data>
+  <data name="BadPropertySelector" xml:space="preserve">
+    <value>The property selector did not select a property.</value>
+  </data>
 </root>

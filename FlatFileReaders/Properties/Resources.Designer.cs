@@ -61,6 +61,15 @@ namespace FlatFileReaders.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The property selector did not select a property..
+        /// </summary>
+        internal static string BadPropertySelector {
+            get {
+                return ResourceManager.GetString("BadPropertySelector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to define a column with a null or blank name..
         /// </summary>
         internal static string BlankColumnName {

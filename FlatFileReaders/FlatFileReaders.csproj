@@ -49,9 +49,14 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="CustomColumn.cs" />
+    <Compile Include="CustomColumnConfiguration.cs" />
     <Compile Include="Int64Column.cs" />
     <Compile Include="Int16Column.cs" />
     <Compile Include="GuidColumn.cs" />
+    <Compile Include="IPropertyMapping.cs" />
+    <Compile Include="PropertyMapping.cs" />
+    <Compile Include="Mapper.cs" />
     <Compile Include="SingleColumn.cs" />
     <Compile Include="DoubleColumn.cs" />
     <Compile Include="DecimalColumn.cs" />
