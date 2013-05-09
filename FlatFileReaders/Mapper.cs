@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using FlatFileReaders.Properties;
+using System.Data;
 
 namespace FlatFileReaders
 {
@@ -90,8 +91,12 @@ namespace FlatFileReaders
         /// </summary>
         /// <param name="reader">The reader to extract the data from.</param>
         /// <returns>The extracted objects.</returns>
-        public IEnumerable<TType> Extract(FlatFileReader reader)
+        public IEnumerable<TType> Extract(IDataReader reader)
         {
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
             List<TType> results = new List<TType>();
             while (reader.Read())
             {
@@ -101,13 +106,13 @@ namespace FlatFileReaders
             return results;
         }
 
-        private TType createInstance(FlatFileReader reader)
+        private TType createInstance(IDataRecord record)
         {
             TType instance = factory();
             for (int index = 0; index != columns.Count; ++index)
             {
                 CustomColumnConfiguration configuration = columns[index];
-                object value = reader.GetValue(index);
+                object value = record.GetValue(index);
                 configuration.Property.SetValue(instance, value, null);
             }
             return instance;
