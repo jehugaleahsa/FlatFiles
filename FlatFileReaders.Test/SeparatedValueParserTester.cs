@@ -6,12 +6,24 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFileReaders.Test
 {
+    using System.Globalization;
+    using System.Threading;
+
     /// <summary>
     /// Tests the SeparatedValueParser class.
     /// </summary>
     [TestClass]
     public class SeparatedValueParserTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>

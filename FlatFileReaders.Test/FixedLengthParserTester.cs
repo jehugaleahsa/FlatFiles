@@ -5,12 +5,24 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFileReaders.Test
 {
+    using System.Globalization;
+    using System.Threading;
+
     /// <summary>
     /// Tests the FixedLengthParserTester class.
     /// </summary>
     [TestClass]
     public class FixedLengthParserTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>
@@ -177,7 +189,7 @@ namespace FlatFileReaders.Test
         /// </summary>
         [TestMethod]
         public void TestGetValues_CustomRecordSeparator_SplitsFile()
-        {
+        {             
             const string text = "       123                      Bob 1/19/2013BOOM       234                      Sam12/20/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10)
