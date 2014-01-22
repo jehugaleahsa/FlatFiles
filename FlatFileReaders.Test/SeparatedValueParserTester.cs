@@ -185,6 +185,56 @@ namespace FlatFileReaders.Test
         }
 
         /// <summary>
+        /// If we pass a string with CP1252 characters, it should reflect does characters when returning
+        /// </summary>
+        [TestMethod]
+        public void TestRead_RecordWithCP1252Characters_ReturnsCorrectCharacters()
+        {
+            //---- Arrange -----------------------------------------------------
+            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
+            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1252), Encoding.UTF8.GetBytes(@"123;Müller;1/17/2014"));
+            var schema = new Schema();
+            schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
+            var options = new SeparatedValueParserOptions { IsFirstRecordSchema = false, Separator = ";" };
+
+            var testee = new SeparatedValueParser(new MemoryStream(text), schema, options, Encoding.GetEncoding(1252));
+
+            //---- Act ---------------------------------------------------------
+            var result = testee.Read();
+
+            //---- Assert ------------------------------------------------------
+            Assert.IsTrue(result, "Could not read the record.");
+            object[] expected = { 123, "Müller", new DateTime(2014, 1, 17) };
+            object[] actual = testee.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
+        }
+
+        /// <summary>
+        /// If we pass a string with CP1251 characters, it should reflect does characters when returning
+        /// </summary>
+        [TestMethod]
+        public void TestRead_RecordWithCP1251Characters_ReturnsCorrectCharacters()
+        {
+            //---- Arrange -----------------------------------------------------
+            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
+            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1251), Encoding.UTF8.GetBytes(@"123;Лучиано;1/17/2014"));
+            var schema = new Schema();
+            schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
+            var options = new SeparatedValueParserOptions { IsFirstRecordSchema = false, Separator = ";" };
+
+            var testee = new SeparatedValueParser(new MemoryStream(text), schema, options, Encoding.GetEncoding(1251));
+
+            //---- Act ---------------------------------------------------------
+            var result = testee.Read();
+
+            //---- Assert ------------------------------------------------------
+            Assert.IsTrue(result, "Could not read the record.");
+            object[] expected = { 123, "Лучиано", new DateTime(2014, 1, 17) };
+            object[] actual = testee.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
+        }
+
+        /// <summary>
         /// If we do not explicitly say that the first record is the schema, we cannot retrieve it later.
         /// </summary>
         [TestMethod]
