@@ -4,12 +4,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFileReaders.Test
 {
+    using System.Threading;
+
     /// <summary>
     /// Tests the DateTimeColumn class.
     /// </summary>
     [TestClass]
     public class DateTimeColumnTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// An exception should be thrown if name is blank.
         /// </summary>

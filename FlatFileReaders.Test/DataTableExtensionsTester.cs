@@ -6,12 +6,24 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFileReaders.Test
 {
+    using System.Globalization;
+    using System.Threading;
+
     /// <summary>
     /// Tests the DataTableExtensions class.
     /// </summary>
     [TestClass]
     public class DataTableExtensionsTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// An exception should be thrown if the table is null.
         /// </summary>

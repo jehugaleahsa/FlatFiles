@@ -5,12 +5,24 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFileReaders.Test
 {
+    using System.Globalization;
+    using System.Threading;
+
     /// <summary>
     /// Tests the FixedLengthParserTester class.
     /// </summary>
     [TestClass]
     public class FixedLengthParserTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// If we try to pass null text to the parser, an exception should be thrown.
         /// </summary>
@@ -141,6 +153,54 @@ namespace FlatFileReaders.Test
         }
 
         /// <summary>
+        /// If we pass a string with CP1252 characters, it should reflect does characters when returning
+        /// </summary>
+        [TestMethod]
+        public void TestRead_RecordWithCP1252Characters_ReturnsCorrectCharacters()
+        {
+            //---- Arrange -----------------------------------------------------
+            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
+            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1252), Encoding.UTF8.GetBytes(@"       123                   Müller 1/17/2014"));
+            var schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+
+            var testee = new FixedLengthParser(new MemoryStream(text), schema, Encoding.GetEncoding(1252));
+            
+            //---- Act ---------------------------------------------------------
+            var result = testee.Read();
+
+            //---- Assert ------------------------------------------------------
+            Assert.IsTrue(result, "Could not read the record.");
+            object[] expected = { 123, "Müller", new DateTime(2014, 1, 17) };
+            object[] actual = testee.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
+        }
+
+        /// <summary>
+        /// If we pass a string with CP1251 characters, it should reflect does characters when returning
+        /// </summary>
+        [TestMethod]
+        public void TestRead_RecordWithCP1251Characters_ReturnsCorrectCharacters()
+        {
+            //---- Arrange -----------------------------------------------------
+            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
+            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1251), Encoding.UTF8.GetBytes(@"       123                  Лучиано 1/17/2014"));
+            var schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+
+            var testee = new FixedLengthParser(new MemoryStream(text), schema, Encoding.GetEncoding(1251));
+
+            //---- Act ---------------------------------------------------------
+            var result = testee.Read();
+
+            //---- Assert ------------------------------------------------------
+            Assert.IsTrue(result, "Could not read the record.");
+            object[] expected = { 123, "Лучиано", new DateTime(2014, 1, 17) };
+            object[] actual = testee.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
+        }
+
+        /// <summary>
         /// If we provide a schema, it will be used to parse the values
         /// and can be retrieved.
         /// </summary>
@@ -177,7 +237,7 @@ namespace FlatFileReaders.Test
         /// </summary>
         [TestMethod]
         public void TestGetValues_CustomRecordSeparator_SplitsFile()
-        {
+        {             
             const string text = "       123                      Bob 1/19/2013BOOM       234                      Sam12/20/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10)
