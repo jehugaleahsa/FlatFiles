@@ -55,6 +55,9 @@ When parsing separated files, you can surround fields with double or single quot
 
 It also supports a `IsFirstRecordSchema` property that tells the reader to treat the first record in the file as the schema. Since the types of the fields cannot be determined from a file, they are assumed to be strings. If you provide the schema to the constructor, it will be used instead and the first record will simply be skipped. By default, this property is set to `false`.
 
+## SeparateValueWriter
+If you want to build a delimited file, you can use the `SeparatedValueWriter` class. It accepts the same schema and options arguments used to read files.
+
 ## FixedLengthReader
 If you are working with files whose fields are a fixed-length you will want to use the `FixedLengthReader` class. The constructor accepts a combination of a file name (or stream), a `FixedLengthSchema` object and/or a `FixedLengthOptions` object.
 
@@ -63,3 +66,6 @@ The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, e
 The `FixedLengthOptions` class supports a `FillCharacter` property to specify which character is used as a fill character in the columns. A space (` `) is the default fill character.
 
 It also supports a `RecordSeparator` property for specifying what value indicates the end of a record. By default, this value is `Environment.NewLine` (`\r\n`). However, if you're processing Unix/Linux files, you may need to change this to `\n` instead, or `\r` for Mac.
+
+## FixedLengthWriter
+If you want to build a fixed-length file, you can use the `FixedLengthWriter` class. It accepts the same schema and options arguments used to read files. If you want to control the alignment of the columns, you can specify the `FixedAlignment` for each column when defining the schema. This will control whether padding is put to the right or the left of the value.
