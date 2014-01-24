@@ -28,11 +28,7 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the format string to use when parsing the Guid.
         /// </summary>
-        public string GuidFormat
-        {
-            get;
-            set;
-        }
+        public string GuidFormat { get; set; }
 
         /// <summary>
         /// Parses the given value and returns a Guid instance.

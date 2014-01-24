@@ -5,6 +5,8 @@ using System.IO;
 
 namespace FlatFileReaders
 {
+    using System.Text;
+
     /// <summary>
     /// Extracts records from a file that has value in fixed-length columns.
     /// </summary>
@@ -40,7 +42,7 @@ namespace FlatFileReaders
         /// <param name="schema">The schema object defining which columns are in each record.</param>
         /// <param name="options">An object containing settings for configuring the parser.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public FixedLengthParser(string fileName, FixedLengthSchema schema, FixedLengthParserOptions options)
             : this(File.OpenRead(fileName), schema, options)
         {
@@ -52,7 +54,7 @@ namespace FlatFileReaders
         /// <param name="stream">A stream containing the records to parse.</param>
         /// <param name="schema">The schema object defining which columns are in each record.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The schema object is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         public FixedLengthParser(Stream stream, FixedLengthSchema schema)
             : this(stream, schema, new FixedLengthParserOptions())
         {
@@ -66,7 +68,7 @@ namespace FlatFileReaders
         /// <param name="options">An object containing settings for configuring the parser.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public FixedLengthParser(Stream stream, FixedLengthSchema schema, FixedLengthParserOptions options)
         {
             if (stream == null)
@@ -82,7 +84,7 @@ namespace FlatFileReaders
                 throw new ArgumentNullException("options");
             }
             this.stream = stream;
-            StreamReader reader = new StreamReader(stream);
+            StreamReader reader = new StreamReader(stream, options.Encoding ?? Encoding.Default);
             text = reader.ReadToEnd();
             this.schema = schema;
             recordSeparator = options.RecordSeparator;

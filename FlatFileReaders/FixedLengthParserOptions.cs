@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace FlatFileReaders
 {
@@ -19,19 +20,17 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the character used to buffer values in a column.
         /// </summary>
-        public char FillCharacter
-        {
-            get;
-            set;
-        }
+        public char FillCharacter { get; set; }
 
         /// <summary>
         /// Gets or sets the string that indicates the end of a record.
         /// </summary>
-        public string RecordSeparator
-        {
-            get;
-            set;
-        }
+        public string RecordSeparator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the encoding of the text source.
+        /// </summary>
+        /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
+        public Encoding Encoding { get; set; }
     }
 }

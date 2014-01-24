@@ -28,20 +28,12 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
         /// </summary>
-        public string DateTimeFormat
-        {
-            get;
-            set;
-        }
+        public string DateTimeFormat { get; set; }
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing the date and time.
         /// </summary>
-        public IFormatProvider FormatProvider
-        {
-            get;
-            set;
-        }
+        public IFormatProvider FormatProvider { get; set; }
 
         /// <summary>
         /// Parses the given value and returns a DateTime instance.

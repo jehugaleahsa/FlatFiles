@@ -29,20 +29,12 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the value representing true.
         /// </summary>
-        public string TrueString
-        {
-            get;
-            set;
-        }
+        public string TrueString { get; set; }
 
         /// <summary>
         /// Gets or sets the value representing false.
         /// </summary>
-        public string FalseString
-        {
-            get;
-            set;
-        }
+        public string FalseString { get; set; }
 
         /// <summary>
         /// Parses the given value into its equivilent boolean value.

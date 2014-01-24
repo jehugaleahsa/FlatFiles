@@ -1,18 +1,30 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace FlatFileReaders.Test
+﻿namespace FlatFileReaders.Test
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     /// <summary>
     /// Tests the Mapper class.
     /// </summary>
     [TestClass]
     public class MapperTester
     {
+        /// <summary>
+        /// Setup for tests.
+        /// </summary>
+        [TestInitialize]
+        public void TestSetup()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         /// We can map a CSV file to a data object.
         /// </summary>

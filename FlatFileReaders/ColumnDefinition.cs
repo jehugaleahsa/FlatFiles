@@ -34,10 +34,7 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public abstract Type ColumnType
-        {
-            get;
-        }
+        public abstract Type ColumnType { get; }
 
         /// <summary>
         /// Parses the given value and returns the parsed object.

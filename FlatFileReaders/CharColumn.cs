@@ -27,11 +27,7 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets whether the parser should allow for trailing characters.
         /// </summary>
-        public bool AllowTrailing
-        {
-            get;
-            set;
-        }
+        public bool AllowTrailing { get; set; }
 
         /// <summary>
         /// Parses the given value as a char.

@@ -6,6 +6,8 @@ using System.IO;
 
 namespace FlatFileReaders
 {
+    using System.Text;
+
     /// <summary>
     /// Extracts records from a file that has values separated by a separator token.
     /// </summary>
@@ -94,7 +96,7 @@ namespace FlatFileReaders
         /// <param name="stream">A stream containing the records to parse.</param>
         /// <param name="options">The options for configuring the parser's behavior.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public SeparatedValueParser(Stream stream, SeparatedValueParserOptions options)
             : this(stream, null, options, false)
         {
@@ -108,7 +110,7 @@ namespace FlatFileReaders
         /// <param name="options">The options for configuring the parser's behavior.</param>
         /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public SeparatedValueParser(Stream stream, Schema schema, SeparatedValueParserOptions options)
             : this(stream, schema, options, true)
         {
@@ -129,7 +131,7 @@ namespace FlatFileReaders
                 throw new ArgumentNullException("options");
             }
             this.stream = stream;
-            StreamReader reader = new StreamReader(stream);
+            StreamReader reader = new StreamReader(stream, options.Encoding ?? Encoding.Default);
             this.text = reader.ReadToEnd();
             regex = buildRegex(options.Separator);
             if (hasSchema)

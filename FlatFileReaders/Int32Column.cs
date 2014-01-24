@@ -29,20 +29,12 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
         /// </summary>
-        public IFormatProvider FormatProvider
-        {
-            get;
-            set;
-        }
+        public IFormatProvider FormatProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the number styles to use when parsing.
         /// </summary>
-        public NumberStyles NumberStyles
-        {
-            get;
-            set;
-        }
+        public NumberStyles NumberStyles { get; set; }
 
         /// <summary>
         /// Parses the given value, returning an Int32.

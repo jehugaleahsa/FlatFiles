@@ -28,11 +28,7 @@ namespace FlatFileReaders
         /// <summary>
         /// Gets or sets the encoding to use when parsing the value.
         /// </summary>
-        public Encoding Encoding
-        {
-            get;
-            set;
-        }
+        public Encoding Encoding { get; set; }
 
         /// <summary>
         /// Parses the given value as a byte array.
