@@ -185,7 +185,7 @@ namespace FlatFiles
         /// Gets the names of the columns found in the file.
         /// </summary>
         /// <returns>The names.</returns>
-        SeparatedValueSchema IReader.GetSchema()
+        public ISchema GetSchema()
         {
             if (isDisposed)
             {

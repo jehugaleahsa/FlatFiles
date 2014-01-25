@@ -71,7 +71,7 @@ namespace FlatFiles
         /// <returns>The Schema DataTable.</returns>
         public DataTable GetSchemaTable()
         {
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             DataTable schemaTable = new DataTable();
             schemaTable.Columns.AddRange(new DataColumn[] 
             {
@@ -178,7 +178,7 @@ namespace FlatFiles
         {
             get 
             {
-                SeparatedValueSchema schema = parser.GetSchema();
+                ISchema schema = parser.GetSchema();
                 return schema.ColumnDefinitions.Count;
             }
         }
@@ -262,7 +262,7 @@ namespace FlatFiles
         /// <returns>The type name.</returns>
         public string GetDataTypeName(int i)
         {
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             return schema.ColumnDefinitions[i].ColumnType.Name;
         }
 
@@ -306,7 +306,7 @@ namespace FlatFiles
         /// <returns>The type of the value at the given index.</returns>
         public Type GetFieldType(int i)
         {
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             return schema.ColumnDefinitions[i].ColumnType;
         }
 
@@ -372,7 +372,7 @@ namespace FlatFiles
         /// <returns>The name of the column at the given index.</returns>
         public string GetName(int i)
         {
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             return schema.ColumnDefinitions[i].ColumnName;
         }
 
@@ -383,7 +383,7 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name.</returns>
         public int GetOrdinal(string name)
         {
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             return schema.GetOrdinal(name);
         }
 
@@ -459,7 +459,7 @@ namespace FlatFiles
         {
             get 
             {  
-                SeparatedValueSchema schema = parser.GetSchema();
+                ISchema schema = parser.GetSchema();
                 int index = schema.GetOrdinal(name);
                 object[] values = parser.GetValues();
                 object value = values[index];

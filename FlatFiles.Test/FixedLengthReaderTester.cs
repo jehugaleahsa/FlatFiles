@@ -213,8 +213,8 @@ namespace FlatFiles.Test
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
             IReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
-            SeparatedValueSchema actual = parser.GetSchema();
-            Assert.AreSame(schema.Schema, actual, "The underlying schema was not returned.");
+            ISchema actual = parser.GetSchema();
+            Assert.AreSame(schema, actual, "The underlying schema was not returned.");
         }
 
         /// <summary>

@@ -127,13 +127,13 @@ namespace FlatFiles
         /// Gets the schema being used by the parser.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
-        SeparatedValueSchema IReader.GetSchema()
+        public ISchema GetSchema()
         {
             if (isDisposed)
             {
                 throw new ObjectDisposedException("FixedLengthParser");
             }
-            return schema.Schema;
+            return schema;
         }
 
         /// <summary>

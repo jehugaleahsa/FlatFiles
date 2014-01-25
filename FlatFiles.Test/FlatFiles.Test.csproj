@@ -52,7 +52,6 @@
     <Compile Include="FixedLengthReaderTester.cs" />
     <Compile Include="Int32ColumnTester.cs" />
     <Compile Include="DateTimeColumnTester.cs" />
-    <Compile Include="MapperTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaTester.cs" />
     <Compile Include="SeparatedValueReaderTester.cs" />

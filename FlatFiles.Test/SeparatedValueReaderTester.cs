@@ -267,7 +267,7 @@ namespace FlatFiles.Test
             string text = "a,b,c";
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             IReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), options);
-            SeparatedValueSchema schema = parser.GetSchema();
+            ISchema schema = parser.GetSchema();
             Assert.IsTrue(schema.ColumnDefinitions.All(d => d is StringColumn), "Not all of the columns were treated as strings.");
             string[] actual = schema.ColumnDefinitions.Select(d => d.ColumnName).ToArray();
             string[] expected = new string[] { "a", "b", "c" };
@@ -288,7 +288,7 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("created"));
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             IReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
-            SeparatedValueSchema actual = parser.GetSchema();
+            ISchema actual = parser.GetSchema();
             Assert.AreSame(schema, actual, "The schema was passed did not take priority.");
             Assert.IsFalse(parser.Read(), "The schema record was not skipped.");
         }

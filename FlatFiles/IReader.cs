@@ -11,7 +11,7 @@ namespace FlatFiles
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns></returns>
-        SeparatedValueSchema GetSchema();
+        ISchema GetSchema();
 
         /// <summary>
         /// Reads the next record from the file.

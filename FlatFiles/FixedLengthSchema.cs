@@ -112,14 +112,6 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets the underlying schema.
-        /// </summary>
-        internal SeparatedValueSchema Schema
-        {
-            get { return schema; }
-        }
-
-        /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
         public ColumnCollection ColumnDefinitions
