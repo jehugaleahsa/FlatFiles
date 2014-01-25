@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,6 +8,7 @@ namespace FlatFiles.Test
 {
     using System.Globalization;
     using System.Threading;
+    using FlatFiles.TypeMapping;
 
     /// <summary>
     /// Tests the FixedLengthParserTester class.
@@ -285,6 +287,44 @@ namespace FlatFiles.Test
                 object[] actual = parser.GetValues();
                 CollectionAssert.AreEqual(sources, actual, "The values for the first record were wrong.");
             }
+        }
+
+        /// <summary>
+        /// We should be able to write and read values using a type mappers.
+        /// </summary>
+        [TestMethod]
+        public void TestTypeMapper_Roundtrip()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id, 25).ColumnName("id");
+            mapper.Property(p => p.Name, 100).ColumnName("name");
+            mapper.Property(p => p.Created, 8).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+                var options = new FixedLengthOptions() { FillCharacter = '@' };
+
+                mapper.Write(stream, options, new Person[] { bob });
+
+                stream.Position = 0;  // go back to the beginning of the stream
+
+                var people = mapper.Read(stream, options);
+                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+                var person = people.SingleOrDefault();
+                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+            }
+        }
+
+        private class Person
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public DateTime Created { get; set; }
         }
     }
 }

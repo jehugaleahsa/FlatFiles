@@ -8,7 +8,7 @@ namespace FlatFiles
     /// </summary>
     public abstract class ColumnDefinition
     {
-        private readonly string columnName;
+        private string columnName;
 
         /// <summary>
         /// Initializes a new instance of a ColumnDefinition.
@@ -16,11 +16,7 @@ namespace FlatFiles
         /// <param name="columnName">The name of the column to define.</param>
         protected ColumnDefinition(string columnName)
         {
-            if (String.IsNullOrWhiteSpace(columnName))
-            {
-                throw new ArgumentException(Resources.BlankColumnName);
-            }
-            this.columnName = columnName.Trim().ToLowerInvariant();
+            ColumnName = columnName;
         }
 
         /// <summary>
@@ -28,7 +24,22 @@ namespace FlatFiles
         /// </summary>
         public string ColumnName
         {
-            get { return columnName; }
+            get 
+            { 
+                return columnName; 
+            }
+            internal set 
+            {
+                if (value != null)
+                {
+                    value = value.Trim();
+                }
+                if (String.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException(Resources.BlankColumnName);
+                }
+                columnName = value.ToLowerInvariant();
+            }
         }
 
         /// <summary>

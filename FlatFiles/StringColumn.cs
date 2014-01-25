@@ -14,6 +14,7 @@ namespace FlatFiles
         public StringColumn(string columnName)
             : base(columnName)
         {
+            Trim = true;
         }
 
         /// <summary>
@@ -25,17 +26,26 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets whether the value should be trimmed.
+        /// </summary>
+        public bool Trim { get; set; }
+
+        /// <summary>
         /// Returns the given value trimmed.
         /// </summary>
         /// <param name="value">The value to trim.</param>
         /// <returns>The value trimmed.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (Trim && value != null)
+            {
+                value = value.Trim();
+            }
+            if (String.IsNullOrEmpty(value))
             {
                 return null;
             }
-            return value.Trim();
+            return value;
         }
 
         /// <summary>

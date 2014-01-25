@@ -80,6 +80,23 @@
     <Compile Include="SeparatedValueReader.cs" />
     <Compile Include="SeparatedValueOptions.cs" />
     <Compile Include="StringColumn.cs" />
+    <Compile Include="TypeMapping\FixedLengthTypeMapper.cs" />
+    <Compile Include="TypeMapping\Int32PropertyMapping.cs" />
+    <Compile Include="TypeMapping\ByteArrayPropertyMapping.cs" />
+    <Compile Include="TypeMapping\BooleanPropertyMapping.cs" />
+    <Compile Include="TypeMapping\BytePropertyMapping.cs" />
+    <Compile Include="TypeMapping\CharArrayPropertyMapping.cs" />
+    <Compile Include="TypeMapping\CharPropertyMapping.cs" />
+    <Compile Include="TypeMapping\DateTimePropertyMapping.cs" />
+    <Compile Include="TypeMapping\DecimalPropertyMapping.cs" />
+    <Compile Include="TypeMapping\DoublePropertyMapping.cs" />
+    <Compile Include="TypeMapping\GuidPropertyMapping.cs" />
+    <Compile Include="TypeMapping\Int16PropertyMapping.cs" />
+    <Compile Include="TypeMapping\Int64PropertyMapping.cs" />
+    <Compile Include="TypeMapping\IPropertyMapping.cs" />
+    <Compile Include="TypeMapping\SinglePropertyMapping.cs" />
+    <Compile Include="TypeMapping\StringPropertyMapping.cs" />
+    <Compile Include="TypeMapping\SeparatedValueTypeMapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

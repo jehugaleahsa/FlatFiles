@@ -9,6 +9,7 @@ namespace FlatFiles.Test
     using System.Globalization;
     using System.Text.RegularExpressions;
     using System.Threading;
+    using FlatFiles.TypeMapping;
 
     /// <summary>
     /// Tests the SeparatedValueParser class.
@@ -293,6 +294,15 @@ namespace FlatFiles.Test
             Assert.IsFalse(parser.Read(), "The schema record was not skipped.");
         }
 
+        private class Person
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public DateTime Created { get; set; }
+        }
+
         /// <summary>
         /// If we provide a schema, it will be used to parse the values.
         /// </summary>
@@ -473,6 +483,35 @@ namespace FlatFiles.Test
             //---- Assert ------------------------------------------------------
             Assert.IsTrue(result);
             Assert.AreEqual(schema.ColumnDefinitions.Count, testee.GetValues().Count());
+        }
+
+        /// <summary>
+        /// We should be able to write and read values using a type mappers.
+        /// </summary>
+        [TestMethod]
+        public void TestTypeMapper_Roundtrip()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id).ColumnName("id");
+            mapper.Property(p => p.Name).ColumnName("name");
+            mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+                
+                mapper.Write(stream, options, new Person[] { bob });
+
+                stream.Position = 0;  // go back to the beginning of the stream
+
+                var people = mapper.Read(stream, options);
+                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+                var person = people.SingleOrDefault();
+                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+            }
         }
     }
 }
