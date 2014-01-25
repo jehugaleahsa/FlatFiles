@@ -12,10 +12,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthReader : IReader
     {
-        private readonly StreamReader reader;
-        private readonly bool ownsStream;
+        private readonly RecordReader reader;
         private readonly FixedLengthSchema schema;
-        private readonly string recordSeparator;
         private readonly char filler;
         private int recordCount;
         private object[] values;
@@ -87,10 +85,8 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            reader = new StreamReader(new BufferedStream(stream), options.Encoding ?? Encoding.Default);
-            this.ownsStream = ownsStream;
+            reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
             this.schema = schema;
-            recordSeparator = options.RecordSeparator;
             filler = options.FillCharacter;
         }
 
@@ -116,7 +112,7 @@ namespace FlatFiles
 
         private void dispose(bool disposing)
         {
-            if (disposing && ownsStream)
+            if (disposing)
             {
                 reader.Dispose();
             }
@@ -163,8 +159,8 @@ namespace FlatFiles
 
         private string[] readNextLine()
         {
-            string line = getNextLine();
-            if (line.Length != schema.TotalWidth)
+            string record = reader.ReadRecord();
+            if (record.Length != schema.TotalWidth)
             {
                 hasError = true;
                 throw new FlatFileException(recordCount);
@@ -175,38 +171,10 @@ namespace FlatFiles
             for (int index = 0; index != values.Length; ++index)
             {
                 int width = widths[index];
-                values[index] = line.Substring(offset, width).Trim(filler);
+                values[index] = record.Substring(offset, width).Trim(filler);
                 offset += width;
             }
             return values;
-        }
-
-        private string getNextLine()
-        {
-            List<char> buffer = new List<char>();
-            int positionIndex = 0;
-            while (!reader.EndOfStream && positionIndex != recordSeparator.Length)
-            {
-                int value = reader.Read();
-                if (value != -1)
-                {
-                    char next = (char)value;
-                    if (next == recordSeparator[positionIndex])
-                    {
-                        ++positionIndex;
-                    }
-                    else
-                    {
-                        positionIndex = 0;
-                    }
-                    buffer.Add(next);
-                }
-            }
-            if (positionIndex == recordSeparator.Length)
-            {
-                buffer.RemoveRange(buffer.Count - recordSeparator.Length, recordSeparator.Length);
-            }
-            return new String(buffer.ToArray());
         }
 
         /// <summary>

@@ -13,8 +13,7 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueReader : IReader
     {
-        private readonly StreamReader reader;
-        private readonly bool ownsStream;
+        private readonly RecordReader reader;
         private readonly SeparatedValueSchema schema;
         private readonly Regex regex;
         private int recordCount;
@@ -129,8 +128,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            reader = new StreamReader(stream, options.Encoding ?? Encoding.Default);
-            this.ownsStream = ownsStream;
+            reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
             regex = buildRegex(options.Separator);
             if (hasSchema)
             {
@@ -174,7 +172,7 @@ namespace FlatFiles
 
         private void dispose(bool disposing)
         {
-            if (disposing && ownsStream)
+            if (disposing)
             {
                 reader.Dispose();
             }
@@ -277,8 +275,8 @@ namespace FlatFiles
 
         private string[] readNextRecord()
         {
-            string line = reader.ReadLine();
-            Match match = regex.Match(line);
+            string record = reader.ReadRecord();
+            Match match = regex.Match(record);
             Group blockGroup = match.Groups["block"];
             string[] values = blockGroup.Captures.Cast<Capture>().Select(c => c.Value).ToArray();
             return values;

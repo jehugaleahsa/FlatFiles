@@ -57,6 +57,7 @@
     <Compile Include="Int16Column.cs" />
     <Compile Include="GuidColumn.cs" />
     <Compile Include="ISchema.cs" />
+    <Compile Include="RecordReader.cs" />
     <Compile Include="SeparatedValueWriter.cs" />
     <Compile Include="SingleColumn.cs" />
     <Compile Include="DoubleColumn.cs" />

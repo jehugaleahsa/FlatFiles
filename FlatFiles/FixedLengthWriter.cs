@@ -16,7 +16,6 @@ namespace FlatFiles
         private readonly FixedLengthSchema schema;
         private readonly string recordSeparator;
         private readonly char fillCharacter;
-        private bool isFirstLine;
         private bool isDisposed;
 
         /// <summary>
@@ -80,7 +79,6 @@ namespace FlatFiles
             this.ownsStream = ownsStream;
             this.recordSeparator = options.RecordSeparator;
             this.fillCharacter = options.FillCharacter;
-            this.isFirstLine = true;
         }
 
         /// <summary>
@@ -125,6 +123,10 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public ISchema GetSchema()
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("FixedLengthWriter");
+            }
             return schema;
         }
 
@@ -135,6 +137,10 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
         public void Write(object[] values)
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("FixedLengthWriter");
+            }
             if (values == null)
             {
                 throw new ArgumentNullException("values");
@@ -143,21 +149,11 @@ namespace FlatFiles
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
             }
-            if (writer == null)
+            foreach (string column in schema.FormatValues(values).Select((v, i) => fitWidth(i, v)))
             {
-                throw new ArgumentNullException("writer");
+                writer.Write(column);
             }
-            if (isFirstLine)
-            {
-                isFirstLine = false;
-            }
-            else
-            {
-                writer.Write(recordSeparator);
-            }
-            string[] formattedValues = schema.FormatValues(values).Select((v, i) => fitWidth(i, v)).ToArray();
-            string joined = String.Join(String.Empty, formattedValues);
-            writer.Write(joined);
+            writer.Write(recordSeparator);
         }
 
         private string fitWidth(int columnIndex, string value)

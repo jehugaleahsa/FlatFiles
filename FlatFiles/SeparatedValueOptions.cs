@@ -14,12 +14,18 @@ namespace FlatFiles
         public SeparatedValueOptions()
         {
             Separator = ",";
+            RecordSeparator = Environment.NewLine;
         }
 
         /// <summary>
-        /// Gets or sets the separator used to separate record items.
+        /// Gets or sets the separator used to separate the columns.
         /// </summary>
         public string Separator { get; set; }
+
+        /// <summary>
+        /// Gets or sets the separator used to separate the records.
+        /// </summary>
+        public string RecordSeparator { get; set; }
 
         /// <summary>
         /// Gets or sets whether the first record is the schema.

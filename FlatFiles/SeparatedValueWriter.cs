@@ -16,6 +16,7 @@ namespace FlatFiles
         private readonly SeparatedValueSchema schema;
         private readonly bool isFirstRecordSchema;
         private readonly string separator;
+        private readonly string recordSeparator;
         private bool isFirstLine;
         private bool isDisposed;
 
@@ -86,6 +87,7 @@ namespace FlatFiles
             this.schema = schema;
             this.isFirstRecordSchema = options.IsFirstRecordSchema;
             this.separator = options.Separator;
+            this.recordSeparator = options.RecordSeparator;
             this.isFirstLine = true;
         }
 
@@ -131,6 +133,10 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public ISchema GetSchema()
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("SeparatedValueWriter");
+            }
             return schema;
         }
 
@@ -141,6 +147,10 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
         public void Write(object[] values)
         {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("SeparatedValueWriter");
+            }
             if (values == null)
             {
                 throw new ArgumentNullException("values");
@@ -148,10 +158,6 @@ namespace FlatFiles
             if (values.Length != schema.ColumnDefinitions.Count)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
-            }
-            if (writer == null)
-            {
-                throw new ArgumentNullException("writer");
             }
             if (isFirstLine)
             {
@@ -161,20 +167,18 @@ namespace FlatFiles
                 }
                 isFirstLine = false;
             }
-            else
-            {
-                writer.WriteLine();
-            }
             string[] formattedValues = schema.FormatValues(values).Select(v => escape(v)).ToArray();
             string joined = String.Join(separator, formattedValues);
             writer.Write(joined);
+            writer.Write(recordSeparator);
         }
 
         private void buildSchema(TextWriter writer)
         {
             string[] names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName)).ToArray();
             string joined = String.Join(separator, names);
-            writer.WriteLine(joined);
+            writer.Write(joined);
+            writer.Write(recordSeparator);
         }
 
         private string escape(string value)
