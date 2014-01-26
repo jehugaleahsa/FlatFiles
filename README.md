@@ -7,7 +7,7 @@ Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV or fixed-length) whether because we're interfacing with older systems or because we're running one-time migration scripts. It's a pain that there's nothing built into .NET for treating flat files like a database table.
 
-FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects, using a style similar to Entity Framework Code First. You can also go back and forth between files and `DataTable`. It also supports the ability to expose a file using the `IDataReader`, for working with the low-level ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays. FlatFiles also supports a large number of options for customizing how files are interpreted, to support the most common types of flat files.
+FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects, using a style similar to Entity Framework Code First. You can also go back and forth between files and `DataTable`s. It also supports the ability to expose a file using the `IDataReader`, for working with the low-level ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays. FlatFiles also supports a large number of options for customizing how files are interpreted, to support the most common types of flat files.
 
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
