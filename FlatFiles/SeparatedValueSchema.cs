@@ -40,87 +40,10 @@ namespace FlatFiles
             return this;
         }
 
-        /// <summary>
-        /// Adds a column to the schema with the specified type.
-        /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
-        /// <param name="columnName">The name of the column.</param>
-        /// <returns>The current schema.</returns>
-        public SeparatedValueSchema AddColumn<T>(string columnName)
-        {
-            if (String.IsNullOrWhiteSpace(columnName))
-            {
-                throw new ArgumentException(Resources.BlankColumnName, "columnName");
-            }
-            if (ordinals.ContainsKey(columnName))
-            {
-                throw new ArgumentException(Resources.DuplicateColumnName, "definition");
-            }
-            ColumnDefinition definition = getColumnDefinition<T>(columnName);
-            addColumn(definition);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a column to the schema with the specified type, using the
-        /// given converter to convert parsed string values into their
-        /// appropriate type.
-        /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
-        /// <param name="columnName">The name of the column.</param>
-        /// <param name="parser">A function that converts the parsed string value to the appropriate type.</param>
-        /// <param name="formatter">A function that converts a value into a string.</param>
-        /// <returns>The current schema.</returns>
-        public SeparatedValueSchema AddColumn<T>(string columnName, Func<string, T> parser, Func<T, string> formatter)
-        {
-            if (String.IsNullOrWhiteSpace(columnName))
-            {
-                throw new ArgumentException(Resources.BlankColumnName, "columnName");
-            }
-            if (ordinals.ContainsKey(columnName))
-            {
-                throw new ArgumentException(Resources.DuplicateColumnName, "definition");
-            }
-            CustomColumn column = new CustomColumn(columnName, typeof(T), s => parser(s), t => formatter((T)t));
-            addColumn(column);
-            return this;
-        }
-
         private void addColumn(ColumnDefinition definition)
         {
             definitions.Add(definition);
             ordinals.Add(definition.ColumnName, definitions.Count - 1);
-        }
-
-        private static readonly Dictionary<Type, Func<string, ColumnDefinition>> converters = new Dictionary<Type, Func<string, ColumnDefinition>>()
-        {
-            { typeof(Boolean), columnName => new BooleanColumn(columnName) },
-            { typeof(byte[]), columnName => new ByteArrayColumn(columnName) },
-            { typeof(Byte), columnName => new ByteColumn(columnName) },
-            { typeof(char[]), columnName => new CharArrayColumn(columnName) },
-            { typeof(Char), columnName => new CharColumn(columnName) },
-            { typeof(DateTime), columnName => new DateTimeColumn(columnName) },
-            { typeof(Decimal), columnName => new DecimalColumn(columnName) },
-            { typeof(Double), columnName => new DoubleColumn(columnName) },
-            { typeof(Guid), columnName => new GuidColumn(columnName) },
-            { typeof(Int16), columnName => new Int16Column(columnName) },
-            { typeof(Int32), columnName => new Int32Column(columnName) },
-            { typeof(Int64), columnName => new Int64Column(columnName) },
-            { typeof(Single), columnName => new SingleColumn(columnName) },
-            { typeof(String), columnName => new StringColumn(columnName) }
-        };
-
-        private static ColumnDefinition getColumnDefinition<T>(string columnName)
-        {
-            if (converters.ContainsKey(typeof(T)))
-            {
-                Func<string, ColumnDefinition> factory = converters[typeof(T)];
-                return factory(columnName);
-            }
-            else
-            {
-                return new CustomColumn(columnName, typeof(T), null, null);
-            }            
         }
 
         /// <summary>

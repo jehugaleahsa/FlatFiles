@@ -10,8 +10,7 @@ namespace FlatFiles
     public sealed class FixedLengthSchema : ISchema
     {
         private readonly SeparatedValueSchema schema;
-        private readonly List<int> widths;
-        private readonly List<FixedAlignment> alignments;
+        private readonly List<Window> windows;
         private int totalWidth;
 
         /// <summary>
@@ -20,94 +19,24 @@ namespace FlatFiles
         public FixedLengthSchema()
         {
             schema = new SeparatedValueSchema();
-            widths = new List<int>();
-            alignments = new List<FixedAlignment>();
+            windows = new List<Window>();
         }
 
         /// <summary>
         /// Adds a column to the schema, using the given definition to define it.
         /// </summary>
         /// <param name="definition">The definition of the column to add.</param>
-        /// <param name="width">The number of characters used by the column in the file.</param>
-        /// <param name="alignment">The alignment of the value in the column.</param>
+        /// <param name="window">Describes the column</param>
         /// <returns>The current schema.</returns>
-        public FixedLengthSchema AddColumn(
-            ColumnDefinition definition, 
-            int width, 
-            FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public FixedLengthSchema AddColumn(ColumnDefinition definition, Window window)
         {
-            if (width < 0)
+            if (window == null)
             {
-                throw new ArgumentOutOfRangeException("width", width, Resources.InvalidColumnWidth);
-            }
-            if (!Enum.IsDefined(typeof(FixedAlignment), alignment))
-            {
-                throw new ArgumentException(Resources.InvalidAlignment, "alignment");
+                throw new ArgumentNullException("window");
             }
             schema.AddColumn(definition);
-            widths.Add(width);
-            alignments.Add(alignment);
-            totalWidth += width;
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a column to the schema with the specified type.
-        /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
-        /// <param name="columnName">The name of the column.</param>
-        /// <param name="width">The number of characters used by the column in the file.</param>
-        /// <param name="alignment">The alignment of the value in the column.</param>
-        /// <returns>The current schema.</returns>
-        public FixedLengthSchema AddColumn<T>(
-            string columnName, 
-            int width, 
-            FixedAlignment alignment = FixedAlignment.LeftAligned)
-        {
-            if (width < 0)
-            {
-                throw new ArgumentOutOfRangeException("width", width, Resources.InvalidColumnWidth);
-            }
-            if (!Enum.IsDefined(typeof(FixedAlignment), alignment))
-            {
-                throw new ArgumentException(Resources.InvalidAlignment, "alignment");
-            }
-            schema.AddColumn<T>(columnName);
-            widths.Add(width);
-            alignments.Add(alignment);
-            totalWidth += width;
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a column to the schema, using the given definition to define it.
-        /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
-        /// <param name="columnName">The name of the column.</param>
-        /// <param name="width">The number of characters used by the column in the file.</param>
-        /// <param name="alignment">The alignment of the value in the column.</param>
-        /// <param name="parser">A function that converts the parsed string value to the appropriate type.</param>
-        /// <param name="formatter">A function that convert the value to a string.</param>
-        /// <returns>The current schema.</returns>
-        public FixedLengthSchema AddColumn<T>(
-            string columnName, 
-            int width, 
-            FixedAlignment alignment = FixedAlignment.LeftAligned, 
-            Func<string, T> parser = null, 
-            Func<T, string> formatter = null)
-        {
-            if (width < 0)
-            {
-                throw new ArgumentOutOfRangeException("width", width, Resources.InvalidColumnWidth);
-            }
-            if (!Enum.IsDefined(typeof(FixedAlignment), alignment))
-            {
-                throw new ArgumentException(Resources.InvalidAlignment, "alignment");
-            }
-            schema.AddColumn<T>(columnName, parser, formatter);
-            widths.Add(width);
-            alignments.Add(alignment);
-            totalWidth += width;
+            windows.Add(window);
+            totalWidth += window.Width;
             return this;
         }
 
@@ -122,17 +51,9 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column widths.
         /// </summary>
-        internal List<int> ColumnWidths
+        internal List<Window> Windows
         {
-            get { return widths; }
-        }
-
-        /// <summary>
-        /// Gets the column alignments.
-        /// </summary>
-        internal List<FixedAlignment> ColumnAlignments
-        {
-            get { return alignments; }
+            get { return windows; }
         }
 
         /// <summary>

@@ -145,7 +145,7 @@
     <value>Encountered a null while parsing a required column.</value>
   </data>
   <data name="InvalidColumnWidth" xml:space="preserve">
-    <value>An attempt was made to define a column with a width less than one.</value>
+    <value>An attempt was made to define a column with a negative width.</value>
   </data>
   <data name="ClosedDataReader" xml:space="preserve">
     <value>An attempt was made to operate on a closed FlatFileDataReader.</value>
@@ -155,5 +155,8 @@
   </data>
   <data name="InvalidAlignment" xml:space="preserve">
     <value>Encountered an invalid fixed width column alignment.</value>
+  </data>
+  <data name="InvalidColumnIndex" xml:space="preserve">
+    <value>An attempt was made to define a column with a negative index.</value>
   </data>
 </root>

@@ -499,7 +499,7 @@ namespace FlatFiles.Test
             using (MemoryStream stream = new MemoryStream())
             {
                 var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
-                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
                 
                 mapper.Write(stream, options, new Person[] { bob });
 

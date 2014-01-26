@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration options for the SeparatedValueParser.
     /// </summary>
-    public sealed class SeparatedValueOptions
+    public sealed class SeparatedValueOptions : ICloneable
     {
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParserOptions.
@@ -37,5 +37,19 @@ namespace FlatFiles
         /// </summary>
         /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
         public Encoding Encoding { get; set; }
+
+        /// <summary>
+        /// Duplicates the options.
+        /// </summary>
+        /// <returns>The new options.</returns>
+        public SeparatedValueOptions Clone()
+        {
+            return (SeparatedValueOptions)MemberwiseClone();
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
     }
 }

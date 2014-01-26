@@ -14,7 +14,7 @@ namespace FlatFiles
     {
         private readonly RecordReader reader;
         private readonly FixedLengthSchema schema;
-        private readonly char filler;
+        private readonly FixedLengthOptions options;
         private int recordCount;
         private object[] values;
         private bool endOfFile;
@@ -87,7 +87,7 @@ namespace FlatFiles
             }
             reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
             this.schema = schema;
-            filler = options.FillCharacter;
+            this.options = options.Clone();
         }
 
         /// <summary>
@@ -165,14 +165,22 @@ namespace FlatFiles
                 hasError = true;
                 throw new FlatFileException(recordCount);
             }
-            List<int> widths = schema.ColumnWidths;
-            string[] values = new string[schema.ColumnWidths.Count];
+            string[] values = new string[schema.ColumnDefinitions.Count];
             int offset = 0;
             for (int index = 0; index != values.Length; ++index)
             {
-                int width = widths[index];
-                values[index] = record.Substring(offset, width).Trim(filler);
-                offset += width;
+                Window window = schema.Windows[index];
+                string value = record.Substring(offset, window.Width);
+                if (window.Alignment == FixedAlignment.LeftAligned)
+                {
+                    value = value.TrimEnd(window.FillCharacter ?? options.FillCharacter);
+                }
+                else
+                {
+                    value = value.TrimStart(window.FillCharacter ?? options.FillCharacter);
+                }
+                values[index] = value;
+                offset += window.Width;
             }
             return values;
         }

@@ -48,226 +48,201 @@ namespace FlatFiles.TypeMapping
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <param name="property">An expression that returns the property to map.</param>
-        /// <param name="width">Specifies the number of characters in the output column.</param>
-        /// <param name="alignment">Specifies the alignment within the output column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned);
+        IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window);
 
         /// <summary>
         /// Gets the schema defined by the current configuration.
@@ -341,8 +316,7 @@ namespace FlatFiles.TypeMapping
         private readonly Func<TEntity> factory;
         private readonly Dictionary<string, IPropertyMapping> mappings;
         private readonly Dictionary<string, int> indexes;
-        private readonly Dictionary<string, int> widths;
-        private readonly Dictionary<string, FixedAlignment> alignments;
+        private readonly Dictionary<string, Window> windows;
         private int columnCount;
 
         internal FixedLengthTypeMapper(Func<TEntity> factory)
@@ -350,23 +324,22 @@ namespace FlatFiles.TypeMapping
             this.factory = factory;
             this.mappings = new Dictionary<string, IPropertyMapping>();
             this.indexes = new Dictionary<string, int>();
-            this.widths = new Dictionary<string, int>();
-            this.alignments = new Dictionary<string, FixedAlignment>();
+            this.windows = new Dictionary<string, Window>();
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getBooleanMapping(propertyInfo, width, alignment);
+            return getBooleanMapping(propertyInfo, window);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getBooleanMapping(propertyInfo, width, alignment);
+            return getBooleanMapping(propertyInfo, window);
         }
 
-        private IBooleanPropertyMapping getBooleanMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IBooleanPropertyMapping getBooleanMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -377,18 +350,17 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IBooleanPropertyMapping)mapping;
         }
 
-        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getByteArrayMapping(propertyInfo, width, alignment);
+            return getByteArrayMapping(propertyInfo, window);
         }
 
-        private IByteArrayPropertyMapping getByteArrayMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IByteArrayPropertyMapping getByteArrayMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -399,24 +371,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IByteArrayPropertyMapping)mapping;
         }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getByteMapping(propertyInfo, width, alignment);
+            return getByteMapping(propertyInfo, window);
         }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getByteMapping(propertyInfo, width, alignment);
+            return getByteMapping(propertyInfo, window);
         }
 
-        private IBytePropertyMapping getByteMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IBytePropertyMapping getByteMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -427,18 +398,17 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IBytePropertyMapping)mapping;
         }
 
-        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getCharArrayMapping(propertyInfo, width, alignment);
+            return getCharArrayMapping(propertyInfo, window);
         }
 
-        private ICharArrayPropertyMapping getCharArrayMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private ICharArrayPropertyMapping getCharArrayMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -449,24 +419,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (ICharArrayPropertyMapping)mapping;
         }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getCharMapping(propertyInfo, width, alignment);
+            return getCharMapping(propertyInfo, window);
         }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getCharMapping(propertyInfo, width, alignment);
+            return getCharMapping(propertyInfo, window);
         }
 
-        private ICharPropertyMapping getCharMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private ICharPropertyMapping getCharMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -477,24 +446,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (ICharPropertyMapping)mapping;
         }
 
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDateTimeMapping(propertyInfo, width, alignment);
+            return getDateTimeMapping(propertyInfo, window);
         }
 
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDateTimeMapping(propertyInfo, width, alignment);
+            return getDateTimeMapping(propertyInfo, window);
         }
 
-        private IDateTimePropertyMapping getDateTimeMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IDateTimePropertyMapping getDateTimeMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -505,24 +473,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IDateTimePropertyMapping)mapping;
         }
 
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDecimalMapping(propertyInfo, width, alignment);
+            return getDecimalMapping(propertyInfo, window);
         }
 
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDecimalMapping(propertyInfo, width, alignment);
+            return getDecimalMapping(propertyInfo, window);
         }
 
-        private IDecimalPropertyMapping getDecimalMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IDecimalPropertyMapping getDecimalMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -533,24 +500,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IDecimalPropertyMapping)mapping;
         }
 
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDoubleMapping(propertyInfo, width, alignment);
+            return getDoubleMapping(propertyInfo, window);
         }
 
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getDoubleMapping(propertyInfo, width, alignment);
+            return getDoubleMapping(propertyInfo, window);
         }
 
-        private IDoublePropertyMapping getDoubleMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IDoublePropertyMapping getDoubleMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -561,24 +527,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IDoublePropertyMapping)mapping;
         }
 
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getGuidMapping(propertyInfo, width, alignment);
+            return getGuidMapping(propertyInfo, window);
         }
 
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getGuidMapping(propertyInfo, width, alignment);
+            return getGuidMapping(propertyInfo, window);
         }
 
-        private IGuidPropertyMapping getGuidMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        private IGuidPropertyMapping getGuidMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -589,24 +554,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IGuidPropertyMapping)mapping;
         }
 
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt16Mapping(propertyInfo, width, alignment);
+            return getInt16Mapping(propertyInfo, window);
         }
 
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt16Mapping(propertyInfo, width, alignment);
+            return getInt16Mapping(propertyInfo, window);
         }
 
-        private IInt16PropertyMapping getInt16Mapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        private IInt16PropertyMapping getInt16Mapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -617,24 +581,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IInt16PropertyMapping)mapping;
         }
 
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt32Mapping(propertyInfo, width, alignment);
+            return getInt32Mapping(propertyInfo, window);
         }
 
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt32Mapping(propertyInfo, width, alignment);
+            return getInt32Mapping(propertyInfo, window);
         }
 
-        private IInt32PropertyMapping getInt32Mapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IInt32PropertyMapping getInt32Mapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -645,24 +608,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IInt32PropertyMapping)mapping;
         }
 
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt64Mapping(propertyInfo, width, alignment);
+            return getInt64Mapping(propertyInfo, window);
         }
 
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getInt64Mapping(propertyInfo, width, alignment);
+            return getInt64Mapping(propertyInfo, window);
         }
 
-        private IInt64PropertyMapping getInt64Mapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IInt64PropertyMapping getInt64Mapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -673,24 +635,23 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IInt64PropertyMapping)mapping;
         }
 
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getSingleMapping(propertyInfo, width, alignment);
+            return getSingleMapping(propertyInfo, window);
         }
 
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getSingleMapping(propertyInfo, width, alignment);
+            return getSingleMapping(propertyInfo, window);
         }
 
-        private ISinglePropertyMapping getSingleMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private ISinglePropertyMapping getSingleMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -701,18 +662,17 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (ISinglePropertyMapping)mapping;
         }
 
-        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, int width, FixedAlignment alignment = FixedAlignment.LeftAligned)
+        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
-            return getStringMapping(propertyInfo, width, alignment);
+            return getStringMapping(propertyInfo, window);
         }
 
-        private IStringPropertyMapping getStringMapping(PropertyInfo propertyInfo, int width, FixedAlignment alignment)
+        private IStringPropertyMapping getStringMapping(PropertyInfo propertyInfo, Window window)
         {
             IPropertyMapping mapping;
             if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
@@ -723,8 +683,7 @@ namespace FlatFiles.TypeMapping
                 indexes.Add(propertyInfo.Name, columnCount);
                 ++columnCount;
             }
-            widths[propertyInfo.Name] = width;
-            alignments[propertyInfo.Name] = alignment;
+            windows[propertyInfo.Name] = window;
             return (IStringPropertyMapping)mapping;
         }
 
@@ -888,21 +847,20 @@ namespace FlatFiles.TypeMapping
             FixedLengthSchema schema = new FixedLengthSchema();
             foreach (var item in items)
             {
-                schema.AddColumn(item.Item1, item.Item2, item.Item3);
+                schema.AddColumn(item.Item1, item.Item2);
             }
             return schema;
         }
 
-        private Tuple<ColumnDefinition, int, FixedAlignment>[] getColumnDefinitions()
+        private Tuple<ColumnDefinition, Window>[] getColumnDefinitions()
         {
-            var definitions = new Tuple<ColumnDefinition, int, FixedAlignment>[columnCount];
+            var definitions = new Tuple<ColumnDefinition, Window>[columnCount];
             foreach (string propertyName in mappings.Keys)
             {
                 IPropertyMapping mapping = mappings[propertyName];
                 int index = indexes[propertyName];
-                int width = widths[propertyName];
-                FixedAlignment alignment = alignments[propertyName];
-                definitions[index] = Tuple.Create(mapping.ColumnDefinition, width, alignment);
+                Window window = windows[propertyName];
+                definitions[index] = Tuple.Create(mapping.ColumnDefinition, window);
             }
             return definitions;
         }

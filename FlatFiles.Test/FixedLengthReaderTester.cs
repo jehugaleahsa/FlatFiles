@@ -96,7 +96,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -114,7 +116,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             parser.GetValues();
         }
@@ -127,7 +131,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
@@ -147,7 +153,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             Assert.IsFalse(parser.Read(), "We should have reached the end of the file.");
@@ -164,7 +172,9 @@ namespace FlatFiles.Test
             // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
             var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1252), Encoding.UTF8.GetBytes(@"       123                   Müller 1/17/2014"));
             var schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             var options = new FixedLengthOptions() { Encoding = Encoding.GetEncoding(1252) };
 
             var testee = new FixedLengthReader(new MemoryStream(text), schema, options);
@@ -189,7 +199,9 @@ namespace FlatFiles.Test
             // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
             var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1251), Encoding.UTF8.GetBytes(@"       123                  Лучиано 1/17/2014"));
             var schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             var options = new FixedLengthOptions() { Encoding = Encoding.GetEncoding(1251) };
 
             var testee = new FixedLengthReader(new MemoryStream(text), schema, options);
@@ -213,7 +225,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob 1/19/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10).AddColumn(new StringColumn("name"), 25).AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                .AddColumn(new StringColumn("name"), new Window(25))
+                .AddColumn(new DateTimeColumn("created"), new Window(10));
             IReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             ISchema actual = parser.GetSchema();
             Assert.AreSame(schema, actual, "The underlying schema was not returned.");
@@ -228,9 +242,9 @@ namespace FlatFiles.Test
         {
             const string text = @"       123                      Bob";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10)
-                  .AddColumn(new StringColumn("name"), 25)
-                  .AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                  .AddColumn(new StringColumn("name"), new Window(25))
+                  .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
             parser.Read();
         }
@@ -244,9 +258,9 @@ namespace FlatFiles.Test
         {             
             const string text = "       123                      Bob 1/19/2013BOOM       234                      Sam12/20/2013";
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10)
-                  .AddColumn(new StringColumn("name"), 25)
-                  .AddColumn(new DateTimeColumn("created"), 10);
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                  .AddColumn(new StringColumn("name"), new Window(25))
+                  .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthOptions options = new FixedLengthOptions() { RecordSeparator = "BOOM" };
             FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
 
@@ -268,9 +282,9 @@ namespace FlatFiles.Test
         public void TestGetValues_CustomFillCharacter_TrimsFill()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), 10, FixedAlignment.LeftAligned)
-                  .AddColumn(new StringColumn("name"), 25, FixedAlignment.LeftAligned)
-                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" }, 10, FixedAlignment.LeftAligned);
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.LeftAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.LeftAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.LeftAligned });
             FixedLengthOptions options = new FixedLengthOptions() { FillCharacter = '@' };
             object[] sources = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
             using (MemoryStream stream = new MemoryStream())
@@ -296,9 +310,9 @@ namespace FlatFiles.Test
         public void TestTypeMapper_Roundtrip()
         {
             var mapper = FixedLengthTypeMapper.Define<Person>();
-            mapper.Property(p => p.Id, 25).ColumnName("id");
-            mapper.Property(p => p.Name, 100).ColumnName("name");
-            mapper.Property(p => p.Created, 8).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+            mapper.Property(p => p.Id, new Window(25)).ColumnName("id");
+            mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
+            mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
             using (MemoryStream stream = new MemoryStream())
             {

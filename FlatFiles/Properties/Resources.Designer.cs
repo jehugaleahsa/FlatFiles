@@ -106,7 +106,16 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An attempt was made to define a column with a width less than one..
+        ///   Looks up a localized string similar to An attempt was made to define a column with a negative index..
+        /// </summary>
+        internal static string InvalidColumnIndex {
+            get {
+                return ResourceManager.GetString("InvalidColumnIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to define a column with a negative width..
         /// </summary>
         internal static string InvalidColumnWidth {
             get {

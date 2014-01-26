@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration settings for the FixedLengthParser class.
     /// </summary>
-    public sealed class FixedLengthOptions
+    public sealed class FixedLengthOptions : ICloneable
     {
         /// <summary>
         /// Initializes a new instance of a FixedLengthParserOptions.
@@ -32,5 +32,19 @@ namespace FlatFiles
         /// </summary>
         /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
         public Encoding Encoding { get; set; }
+
+        /// <summary>
+        /// Duplicates the options.
+        /// </summary>
+        /// <returns>The new options.</returns>
+        public FixedLengthOptions Clone()
+        {
+            return (FixedLengthOptions)MemberwiseClone();
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
     }
 }

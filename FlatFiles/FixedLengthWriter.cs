@@ -14,8 +14,7 @@ namespace FlatFiles
         private readonly StreamWriter writer;
         private readonly bool ownsStream;
         private readonly FixedLengthSchema schema;
-        private readonly string recordSeparator;
-        private readonly char fillCharacter;
+        private readonly FixedLengthOptions options;
         private bool isDisposed;
 
         /// <summary>
@@ -77,8 +76,7 @@ namespace FlatFiles
             this.writer = new StreamWriter(stream, options.Encoding ?? Encoding.Default);
             this.schema = schema;
             this.ownsStream = ownsStream;
-            this.recordSeparator = options.RecordSeparator;
-            this.fillCharacter = options.FillCharacter;
+            this.options = options.Clone();
         }
 
         /// <summary>
@@ -153,27 +151,26 @@ namespace FlatFiles
             {
                 writer.Write(column);
             }
-            writer.Write(recordSeparator);
+            writer.Write(options.RecordSeparator);
         }
 
         private string fitWidth(int columnIndex, string value)
         {
-            int width = schema.ColumnWidths[columnIndex];
-            if (value.Length > width)
+            Window window = schema.Windows[columnIndex];
+            if (value.Length > window.Width)
             {
-                int start = value.Length - width;  // take characters on the end
-                return value.Substring(start, width);
+                int start = value.Length - window.Width;  // take characters on the end
+                return value.Substring(start, window.Width);
             }
-            else if (value.Length < width)
+            else if (value.Length < window.Width)
             {
-                FixedAlignment alignment = schema.ColumnAlignments[columnIndex];
-                if (alignment == FixedAlignment.LeftAligned)
+                if (window.Alignment == FixedAlignment.LeftAligned)
                 {
-                    return value.PadRight(width, fillCharacter);
+                    return value.PadRight(window.Width, window.FillCharacter ?? options.FillCharacter);
                 }
                 else
                 {
-                    return value.PadLeft(width, fillCharacter);
+                    return value.PadLeft(window.Width, window.FillCharacter ?? options.FillCharacter);
                 }
             }
             else

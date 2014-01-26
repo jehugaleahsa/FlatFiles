@@ -263,7 +263,7 @@ namespace FlatFiles
 
         private static Regex buildRegex(string delimiter)
         {
-            //delimiter = Regex.Escape(delimiter);
+            delimiter = Regex.Escape(delimiter);
             const string doubleQuoteBlock = @"(?<q>(""|'))(?<block>((?:(?!\k<q>).)|(\k<q>\k<q>)))*?\k<q>";
             const string noQuoteBlock = @"(?<block>.*?)";
             const string block = @"((" + doubleQuoteBlock + @")|" + noQuoteBlock + @")";

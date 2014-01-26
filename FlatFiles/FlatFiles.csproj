@@ -98,6 +98,7 @@
     <Compile Include="TypeMapping\SinglePropertyMapping.cs" />
     <Compile Include="TypeMapping\StringPropertyMapping.cs" />
     <Compile Include="TypeMapping\SeparatedValueTypeMapper.cs" />
+    <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
