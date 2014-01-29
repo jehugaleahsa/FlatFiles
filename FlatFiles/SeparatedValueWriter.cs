@@ -1,8 +1,8 @@
-﻿using System;
+﻿using FlatFiles.Properties;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -27,7 +27,7 @@ namespace FlatFiles
         /// <param name="schema">The schema to use to build the output.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         public SeparatedValueWriter(string fileName, SeparatedValueSchema schema)
-            : this (File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true)
+            : this(File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true)
         {
         }
 
@@ -184,7 +184,7 @@ namespace FlatFiles
         private string escape(string value)
         {
             string escaped = value;
-            if (value.Contains(separator))
+            if (value != null && value.Contains(separator))
             {
                 escaped = "\"" + value.Replace("\"", "\"\"") + "\"";
             }
