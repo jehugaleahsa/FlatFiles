@@ -1,9 +1,8 @@
-﻿using FlatFiles;
-using FlatFiles.TypeMapping;
+﻿using FlatFiles.TypeMapping;
 using System.Collections.Generic;
 using System.Web.Mvc;
 
-namespace Drg.M3.Client
+namespace FlatFiles.Mvc
 {
     public class FixedLengthResult<T> : ActionResult
     {
