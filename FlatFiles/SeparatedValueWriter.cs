@@ -184,7 +184,7 @@ namespace FlatFiles
         private string escape(string value)
         {
             string escaped = value;
-            if (value.Contains(separator))
+            if (value != null && value.Contains(separator))
             {
                 escaped = "\"" + value.Replace("\"", "\"\"") + "\"";
             }

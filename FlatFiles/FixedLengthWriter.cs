@@ -156,6 +156,10 @@ namespace FlatFiles
 
         private string fitWidth(int columnIndex, string value)
         {
+            if (value == null)
+            {
+                value = String.Empty;
+            }
             Window window = schema.Windows[columnIndex];
             if (value.Length > window.Width)
             {
