@@ -36,13 +36,30 @@ namespace FlatFiles.TypeMapping
             }
             return new FixedLengthTypeMapper<TEntity>(factory);
         }
+
+        /// <summary>
+        /// Creates an object that can be used to configure the mapping from an entity to a flat file record
+        /// and write the given entities to the file.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
+        /// <param name="entities">The entities that will be written to the file.</param>
+        /// <returns>The configuration object.</returns>
+        public static IFixedLengthTypeWriter<TEntity> DefineWriter<TEntity>(IEnumerable<TEntity> entities)
+        {
+            if (entities == null)
+            {
+                throw new ArgumentNullException("entities");
+            }
+            var mapper = new FixedLengthTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            return new FixedLengthTypeWriter<TEntity>(mapper, entities);
+        }
     }
 
     /// <summary>
     /// Supports configuration for mapping between entity properties and flat file columns.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface IFixedLengthTypeMapper<TEntity>
+    public interface IFixedLengthTypeConfiguration<TEntity>
     {
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -249,7 +266,14 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <returns>The schema.</returns>
         FixedLengthSchema GetSchema();
+    }
 
+    /// <summary>
+    /// Supports configuring reading to and writing from flat files for a type.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity read and written.</typeparam>
+    public interface IFixedLengthTypeMapper<TEntity> : IFixedLengthTypeConfiguration<TEntity>
+    {
         /// <summary>
         /// Reads the entities from the file at the given path.
         /// </summary>
@@ -863,6 +887,201 @@ namespace FlatFiles.TypeMapping
                 definitions[index] = Tuple.Create(mapping.ColumnDefinition, window);
             }
             return definitions;
+        }
+    }
+
+    /// <summary>
+    /// Allows a configuration to be defined for writing a collection to a flat file.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entities being written.</typeparam>
+    public interface IFixedLengthTypeWriter<TEntity> : IFixedLengthTypeConfiguration<TEntity>
+    {
+        /// <summary>
+        /// Writes the given entities to the file at the given path.
+        /// </summary>
+        /// <param name="fileName">The path of the file to write to.</param>
+        void Write(string fileName);
+
+        /// <summary>
+        /// Writes the given entities to the file at the given path.
+        /// </summary>
+        /// <param name="fileName">The path of the file to write to.</param>
+        /// <param name="options">The options to use.</param>
+        void Write(string fileName, FixedLengthOptions options);
+
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        void Write(Stream stream);
+
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="options">The options to use.</param>
+        void Write(Stream stream, FixedLengthOptions options);
+    }
+
+    internal sealed class FixedLengthTypeWriter<TEntity> : IFixedLengthTypeWriter<TEntity>
+    {
+        private readonly FixedLengthTypeMapper<TEntity> mapper;
+        private readonly IEnumerable<TEntity> entities;
+
+        public FixedLengthTypeWriter(FixedLengthTypeMapper<TEntity> mapper, IEnumerable<TEntity> entities)
+        {
+            this.mapper = mapper;
+            this.entities = entities;
+        }
+
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window)
+        {
+            return mapper.Property(property, window);
+        }
+
+        public FixedLengthSchema GetSchema()
+        {
+            return mapper.GetSchema();
+        }
+
+        public void Write(string fileName)
+        {
+            mapper.Write(fileName, entities);
+        }
+
+        public void Write(string fileName, FixedLengthOptions options)
+        {
+            mapper.Write(fileName, options, entities);
+        }
+
+        public void Write(Stream stream)
+        {
+            mapper.Write(stream, entities);
+        }
+
+        public void Write(Stream stream, FixedLengthOptions options)
+        {
+            mapper.Write(stream, options, entities);
         }
     }
 }

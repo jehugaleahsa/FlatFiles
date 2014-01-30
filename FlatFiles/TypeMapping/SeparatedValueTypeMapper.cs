@@ -36,13 +36,30 @@ namespace FlatFiles.TypeMapping
             }
             return new SeparatedValueTypeMapper<TEntity>(factory);
         }
+
+        /// <summary>
+        /// Creates an object that can be used to configure the mapping from an entity to a flat file record
+        /// and write the given entities to the file.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
+        /// <param name="entities">The entities that will be written to the file.</param>
+        /// <returns>The configuration object.</returns>
+        public static ISeparatedValueTypeWriter<TEntity> DefineWriter<TEntity>(IEnumerable<TEntity> entities)
+        {
+            if (entities == null)
+            {
+                throw new ArgumentNullException("entities");
+            }
+            var mapper = new SeparatedValueTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            return new SeparatedValueTypeWriter<TEntity>(mapper, entities);
+        }
     }
 
     /// <summary>
     /// Supports configuration for mapping between entity properties and flat file columns.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface ISeparatedValueTypeMapper<TEntity>
+    public interface ISeparatedValueTypeConfiguration<TEntity>
     {
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -224,7 +241,14 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <returns>The schema.</returns>
         SeparatedValueSchema GetSchema();
+    }
 
+    /// <summary>
+    /// Supports configuring reading to and writing from flat files for a type.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity read and written.</typeparam>
+    public interface ISeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeConfiguration<TEntity>
+    {
         /// <summary>
         /// Reads the entities from the file at the given path.
         /// </summary>
@@ -821,6 +845,201 @@ namespace FlatFiles.TypeMapping
                 schema.AddColumn(definition);
             }
             return schema;
+        }
+    }
+
+    /// <summary>
+    /// Allows a configuration to be defined for writing a collection to a flat file.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entities being written.</typeparam>
+    public interface ISeparatedValueTypeWriter<TEntity> : ISeparatedValueTypeConfiguration<TEntity>
+    {
+        /// <summary>
+        /// Writes the given entities to the file at the given path.
+        /// </summary>
+        /// <param name="fileName">The path of the file to write to.</param>
+        void Write(string fileName);
+
+        /// <summary>
+        /// Writes the given entities to the file at the given path.
+        /// </summary>
+        /// <param name="fileName">The path of the file to write to.</param>
+        /// <param name="options">The options to use.</param>
+        void Write(string fileName, SeparatedValueOptions options);
+
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        void Write(Stream stream);
+
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="options">The options to use.</param>
+        void Write(Stream stream, SeparatedValueOptions options);
+    }
+
+    internal class SeparatedValueTypeWriter<TEntity> : ISeparatedValueTypeWriter<TEntity>
+    {
+        private readonly SeparatedValueTypeMapper<TEntity> mapper;
+        private readonly IEnumerable<TEntity> entities;
+
+        public SeparatedValueTypeWriter(SeparatedValueTypeMapper<TEntity> mapper, IEnumerable<TEntity> entities)
+        {
+            this.mapper = mapper;
+            this.entities = entities;
+        }
+
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property)
+        {
+            return mapper.Property(property);
+        }
+
+        public SeparatedValueSchema GetSchema()
+        {
+            return mapper.GetSchema();
+        }
+
+        public void Write(string fileName)
+        {
+            mapper.Write(fileName, entities);
+        }
+
+        public void Write(string fileName, SeparatedValueOptions options)
+        {
+            mapper.Write(fileName, options, entities);
+        }
+
+        public void Write(Stream stream)
+        {
+            mapper.Write(stream, entities);
+        }
+
+        public void Write(Stream stream, SeparatedValueOptions options)
+        {
+            mapper.Write(stream, options, entities);
         }
     }
 }

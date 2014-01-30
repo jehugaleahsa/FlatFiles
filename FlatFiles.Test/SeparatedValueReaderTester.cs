@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FlatFiles.Test
 {
     using System.Globalization;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using FlatFiles.TypeMapping;
 

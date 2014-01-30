@@ -48,6 +48,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FixedLengthTypeWriterTester.cs" />
     <Compile Include="DataTableExtensionsTester.cs" />
     <Compile Include="FixedLengthSchemaTester.cs" />
     <Compile Include="FixedLengthReaderTester.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="SchemaTester.cs" />
     <Compile Include="SeparatedValueReaderTester.cs" />
     <Compile Include="StringColumnTester.cs" />
+    <Compile Include="SeparatedValueTypeWriterTester.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlatFiles\FlatFiles.csproj">

@@ -15,15 +15,15 @@ namespace FlatFiles
         /// <summary>
         /// Initializes a new instance of a FlatFileParser.
         /// </summary>
-        /// <param name="parser">The parser to use to parse the underlying file.</param>
+        /// <param name="reader">The reader to use to parse the underlying file.</param>
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
-        public FlatFileReader(IReader parser)
+        public FlatFileReader(IReader reader)
         {
-            if (parser == null)
+            if (reader == null)
             {
                 throw new ArgumentNullException("parser");
             }
-            this.parser = parser;
+            this.parser = reader;
         }
 
         /// <summary>
