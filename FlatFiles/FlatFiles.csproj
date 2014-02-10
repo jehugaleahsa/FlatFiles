@@ -35,8 +35,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,8 +57,6 @@
     <Compile Include="Int16Column.cs" />
     <Compile Include="GuidColumn.cs" />
     <Compile Include="ISchema.cs" />
-    <Compile Include="Mvc\SeparatedValueResult.cs" />
-    <Compile Include="Mvc\FixedLengthResult.cs" />
     <Compile Include="RecordReader.cs" />
     <Compile Include="SeparatedValueWriter.cs" />
     <Compile Include="SingleColumn.cs" />
