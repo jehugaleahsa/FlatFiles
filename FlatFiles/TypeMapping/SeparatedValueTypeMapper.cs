@@ -308,6 +308,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options to use.</param>
         /// <param name="entities">The entities to write to the stream.</param>
         void Write(Stream stream, SeparatedValueOptions options, IEnumerable<TEntity> entities);
+
+        /// <summary>
+        /// Creates a type writer interface to the mapper using the given entities.
+        /// </summary>
+        /// <param name="entities">The entities that will be written.</param>
+        /// <returns>The type writer wrapper.</returns>
+        ISeparatedValueTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities);
     }
 
     internal sealed class SeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeMapper<TEntity>
@@ -315,9 +322,8 @@ namespace FlatFiles.TypeMapping
         private readonly Func<TEntity> factory;
         private readonly Dictionary<string, IPropertyMapping> mappings;
         private readonly Dictionary<string, int> indexes;
-        private int columnCount;
 
-        internal SeparatedValueTypeMapper(Func<TEntity> factory)
+        public SeparatedValueTypeMapper(Func<TEntity> factory)
         {
             this.factory = factory;
             this.mappings = new Dictionary<string, IPropertyMapping>();
@@ -343,9 +349,8 @@ namespace FlatFiles.TypeMapping
             {
                 BooleanColumn column = new BooleanColumn(propertyInfo.Name);
                 mapping = new BooleanPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IBooleanPropertyMapping)mapping;
         }
@@ -363,9 +368,9 @@ namespace FlatFiles.TypeMapping
             {
                 ByteArrayColumn column = new ByteArrayColumn(propertyInfo.Name);
                 mapping = new ByteArrayPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
+                
             }
             return (IByteArrayPropertyMapping)mapping;
         }
@@ -389,9 +394,8 @@ namespace FlatFiles.TypeMapping
             {
                 ByteColumn column = new ByteColumn(propertyInfo.Name);
                 mapping = new BytePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IBytePropertyMapping)mapping;
         }
@@ -409,9 +413,8 @@ namespace FlatFiles.TypeMapping
             {
                 CharArrayColumn column = new CharArrayColumn(propertyInfo.Name);
                 mapping = new CharArrayPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (ICharArrayPropertyMapping)mapping;
         }
@@ -435,9 +438,8 @@ namespace FlatFiles.TypeMapping
             {
                 CharColumn column = new CharColumn(propertyInfo.Name);
                 mapping = new CharPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (ICharPropertyMapping)mapping;
         }
@@ -461,9 +463,8 @@ namespace FlatFiles.TypeMapping
             {
                 DateTimeColumn column = new DateTimeColumn(propertyInfo.Name);
                 mapping = new DateTimePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IDateTimePropertyMapping)mapping;
         }
@@ -487,9 +488,8 @@ namespace FlatFiles.TypeMapping
             {
                 DecimalColumn column = new DecimalColumn(propertyInfo.Name);
                 mapping = new DecimalPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IDecimalPropertyMapping)mapping;
         }
@@ -513,9 +513,8 @@ namespace FlatFiles.TypeMapping
             {
                 DoubleColumn column = new DoubleColumn(propertyInfo.Name);
                 mapping = new DoublePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IDoublePropertyMapping)mapping;
         }
@@ -539,9 +538,8 @@ namespace FlatFiles.TypeMapping
             {
                 GuidColumn column = new GuidColumn(propertyInfo.Name);
                 mapping = new GuidPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IGuidPropertyMapping)mapping;
         }
@@ -565,9 +563,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int16Column column = new Int16Column(propertyInfo.Name);
                 mapping = new Int16PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IInt16PropertyMapping)mapping;
         }
@@ -591,9 +588,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int32Column column = new Int32Column(propertyInfo.Name);
                 mapping = new Int32PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IInt32PropertyMapping)mapping;
         }
@@ -617,9 +613,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int64Column column = new Int64Column(propertyInfo.Name);
                 mapping = new Int64PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IInt64PropertyMapping)mapping;
         }
@@ -643,9 +638,8 @@ namespace FlatFiles.TypeMapping
             {
                 SingleColumn column = new SingleColumn(propertyInfo.Name);
                 mapping = new SinglePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (ISinglePropertyMapping)mapping;
         }
@@ -663,9 +657,8 @@ namespace FlatFiles.TypeMapping
             {
                 StringColumn column = new StringColumn(propertyInfo.Name);
                 mapping = new StringPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             return (IStringPropertyMapping)mapping;
         }
@@ -744,7 +737,7 @@ namespace FlatFiles.TypeMapping
 
         private ColumnDefinition[] getColumnDefinitions()
         {
-            ColumnDefinition[] definitions = new ColumnDefinition[columnCount];
+            ColumnDefinition[] definitions = new ColumnDefinition[mappings.Count];
             foreach (string propertyName in mappings.Keys)
             {
                 IPropertyMapping mapping = mappings[propertyName];
@@ -820,7 +813,7 @@ namespace FlatFiles.TypeMapping
         {
             foreach (TEntity entity in entities)
             {
-                object[] values = new object[columnCount];
+                object[] values = new object[mappings.Count];
                 foreach (string propertyName in mappings.Keys)
                 {
                     IPropertyMapping mapping = mappings[propertyName];
@@ -829,6 +822,11 @@ namespace FlatFiles.TypeMapping
                 }
                 writer.Write(values);
             }
+        }
+
+        public ISeparatedValueTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities)
+        {
+            return new SeparatedValueTypeWriter<TEntity>(this, entities);
         }
 
         public SeparatedValueSchema GetSchema()

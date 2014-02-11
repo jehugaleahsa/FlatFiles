@@ -1,17 +1,18 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FlatFiles.Test")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("FlatFiles.Mvc")]
+[assembly: AssemblyDescription("Use FlatFiles to generate MVC ActionResults.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Truncon")]
-[assembly: AssemblyProduct("FlatFiles.Test")]
-[assembly: AssemblyCopyright("Copyright © 2013")]
+[assembly: AssemblyProduct("FlatFiles.Mvc")]
+[assembly: AssemblyCopyright("Copyright © 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,17 +22,9 @@ using System.Resources;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8dcb51e2-2c1d-4112-be5d-fecdf21c0809")]
+[assembly: Guid("ba75aceb-56e7-44bb-bedc-8d5145132158")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-[assembly: AssemblyVersion("0.0.0.0")]
-[assembly: AssemblyFileVersion("0.0.0.0")]
+[assembly: AssemblyVersion("0.0.1.0")]
+[assembly: AssemblyFileVersion("0.0.1.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
+[assembly: CLSCompliant(true)]

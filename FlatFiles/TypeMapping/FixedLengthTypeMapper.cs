@@ -333,6 +333,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options to use.</param>
         /// <param name="entities">The entities to write to the stream.</param>
         void Write(Stream stream, FixedLengthOptions options, IEnumerable<TEntity> entities);
+
+        /// <summary>
+        /// Wraps the type mapper in a writer interface that will write the given entities.
+        /// </summary>
+        /// <param name="entities">The entities that will be written.</param>
+        /// <returns>The type writer.</returns>
+        IFixedLengthTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities);
     }
 
     internal sealed class FixedLengthTypeMapper<TEntity> : IFixedLengthTypeMapper<TEntity>
@@ -341,9 +348,8 @@ namespace FlatFiles.TypeMapping
         private readonly Dictionary<string, IPropertyMapping> mappings;
         private readonly Dictionary<string, int> indexes;
         private readonly Dictionary<string, Window> windows;
-        private int columnCount;
 
-        internal FixedLengthTypeMapper(Func<TEntity> factory)
+        public FixedLengthTypeMapper(Func<TEntity> factory)
         {
             this.factory = factory;
             this.mappings = new Dictionary<string, IPropertyMapping>();
@@ -370,9 +376,8 @@ namespace FlatFiles.TypeMapping
             {
                 BooleanColumn column = new BooleanColumn(propertyInfo.Name);
                 mapping = new BooleanPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IBooleanPropertyMapping)mapping;
@@ -391,9 +396,8 @@ namespace FlatFiles.TypeMapping
             {
                 ByteArrayColumn column = new ByteArrayColumn(propertyInfo.Name);
                 mapping = new ByteArrayPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IByteArrayPropertyMapping)mapping;
@@ -418,9 +422,8 @@ namespace FlatFiles.TypeMapping
             {
                 ByteColumn column = new ByteColumn(propertyInfo.Name);
                 mapping = new BytePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IBytePropertyMapping)mapping;
@@ -439,9 +442,8 @@ namespace FlatFiles.TypeMapping
             {
                 CharArrayColumn column = new CharArrayColumn(propertyInfo.Name);
                 mapping = new CharArrayPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (ICharArrayPropertyMapping)mapping;
@@ -466,9 +468,8 @@ namespace FlatFiles.TypeMapping
             {
                 CharColumn column = new CharColumn(propertyInfo.Name);
                 mapping = new CharPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (ICharPropertyMapping)mapping;
@@ -493,9 +494,8 @@ namespace FlatFiles.TypeMapping
             {
                 DateTimeColumn column = new DateTimeColumn(propertyInfo.Name);
                 mapping = new DateTimePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IDateTimePropertyMapping)mapping;
@@ -520,9 +520,8 @@ namespace FlatFiles.TypeMapping
             {
                 DecimalColumn column = new DecimalColumn(propertyInfo.Name);
                 mapping = new DecimalPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IDecimalPropertyMapping)mapping;
@@ -547,9 +546,8 @@ namespace FlatFiles.TypeMapping
             {
                 DoubleColumn column = new DoubleColumn(propertyInfo.Name);
                 mapping = new DoublePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IDoublePropertyMapping)mapping;
@@ -574,9 +572,8 @@ namespace FlatFiles.TypeMapping
             {
                 GuidColumn column = new GuidColumn(propertyInfo.Name);
                 mapping = new GuidPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IGuidPropertyMapping)mapping;
@@ -601,9 +598,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int16Column column = new Int16Column(propertyInfo.Name);
                 mapping = new Int16PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IInt16PropertyMapping)mapping;
@@ -628,9 +624,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int32Column column = new Int32Column(propertyInfo.Name);
                 mapping = new Int32PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IInt32PropertyMapping)mapping;
@@ -655,9 +650,8 @@ namespace FlatFiles.TypeMapping
             {
                 Int64Column column = new Int64Column(propertyInfo.Name);
                 mapping = new Int64PropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IInt64PropertyMapping)mapping;
@@ -682,9 +676,8 @@ namespace FlatFiles.TypeMapping
             {
                 SingleColumn column = new SingleColumn(propertyInfo.Name);
                 mapping = new SinglePropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (ISinglePropertyMapping)mapping;
@@ -703,9 +696,8 @@ namespace FlatFiles.TypeMapping
             {
                 StringColumn column = new StringColumn(propertyInfo.Name);
                 mapping = new StringPropertyMapping(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
                 mappings.Add(propertyInfo.Name, mapping);
-                indexes.Add(propertyInfo.Name, columnCount);
-                ++columnCount;
             }
             windows[propertyInfo.Name] = window;
             return (IStringPropertyMapping)mapping;
@@ -849,7 +841,7 @@ namespace FlatFiles.TypeMapping
         {
             foreach (TEntity entity in entities)
             {
-                object[] values = new object[columnCount];
+                object[] values = new object[mappings.Count];
                 foreach (string propertyName in mappings.Keys)
                 {
                     IPropertyMapping mapping = mappings[propertyName];
@@ -858,6 +850,11 @@ namespace FlatFiles.TypeMapping
                 }
                 writer.Write(values);
             }
+        }
+
+        public IFixedLengthTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities)
+        {
+            return new FixedLengthTypeWriter<TEntity>(this, entities);
         }
 
         public FixedLengthSchema GetSchema()
@@ -878,7 +875,7 @@ namespace FlatFiles.TypeMapping
 
         private Tuple<ColumnDefinition, Window>[] getColumnDefinitions()
         {
-            var definitions = new Tuple<ColumnDefinition, Window>[columnCount];
+            var definitions = new Tuple<ColumnDefinition, Window>[mappings.Count];
             foreach (string propertyName in mappings.Keys)
             {
                 IPropertyMapping mapping = mappings[propertyName];

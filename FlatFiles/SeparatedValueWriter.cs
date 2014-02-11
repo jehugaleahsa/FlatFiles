@@ -27,7 +27,7 @@ namespace FlatFiles
         /// <param name="schema">The schema to use to build the output.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         public SeparatedValueWriter(string fileName, SeparatedValueSchema schema)
-            : this (File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true)
+            : this(File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true)
         {
         }
 
