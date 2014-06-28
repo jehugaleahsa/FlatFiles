@@ -48,6 +48,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelOptionsTester.cs" />
+    <Compile Include="ExcelReaderTester.cs" />
     <Compile Include="FixedLengthTypeWriterTester.cs" />
     <Compile Include="DataTableExtensionsTester.cs" />
     <Compile Include="FixedLengthSchemaTester.cs" />
@@ -65,6 +67,11 @@
       <Project>{a1c961d9-8fbe-41e1-a5e2-498b3920a8e8}</Project>
       <Name>FlatFiles</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFiles\test.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

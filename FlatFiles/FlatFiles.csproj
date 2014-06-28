@@ -50,6 +50,9 @@
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
     <Compile Include="CustomColumn.cs" />
+    <Compile Include="ExcelOptions.cs" />
+    <Compile Include="ExcelReader.cs" />
+    <Compile Include="ExcelSchema.cs" />
     <Compile Include="FixedAlignment.cs" />
     <Compile Include="FixedLengthWriter.cs" />
     <Compile Include="IWriter.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="SeparatedValueReader.cs" />
     <Compile Include="SeparatedValueOptions.cs" />
     <Compile Include="StringColumn.cs" />
+    <Compile Include="TypeMapping\ExcelTypeMapper.cs" />
     <Compile Include="TypeMapping\FixedLengthTypeMapper.cs" />
     <Compile Include="TypeMapping\Int32PropertyMapping.cs" />
     <Compile Include="TypeMapping\ByteArrayPropertyMapping.cs" />

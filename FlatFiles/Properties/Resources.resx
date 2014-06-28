@@ -159,4 +159,25 @@
   <data name="InvalidColumnIndex" xml:space="preserve">
     <value>An attempt was made to define a column with a negative index.</value>
   </data>
+  <data name="InvalidWorksheetName" xml:space="preserve">
+    <value>The name of the worksheet read from or write to must be provided.</value>
+  </data>
+  <data name="InvalidColumnCount" xml:space="preserve">
+    <value>The column count cannot be negative.</value>
+  </data>
+  <data name="InvalidEndingRow" xml:space="preserve">
+    <value>The row count cannot be zero or negative.</value>
+  </data>
+  <data name="InvalidStartingColumn" xml:space="preserve">
+    <value>The starting column was not a sequence of characters.</value>
+  </data>
+  <data name="InvalidStartingRow" xml:space="preserve">
+    <value>The starting row cannot be zero or negative.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>Could not open the specified file.</value>
+  </data>
+  <data name="UnknownExcelExtension" xml:space="preserve">
+    <value>The extension of the file was not recognized as an Excel file.</value>
+  </data>
 </root>

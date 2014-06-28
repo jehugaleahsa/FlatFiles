@@ -187,7 +187,7 @@ namespace FlatFiles
         {
             if (isDisposed)
             {
-                throw new ObjectDisposedException("FixedLengthParser");
+                throw new ObjectDisposedException("SeparatedValueReader");
             }
             if (schema == null)
             {
@@ -204,7 +204,7 @@ namespace FlatFiles
         {
             if (isDisposed)
             {
-                throw new ObjectDisposedException("FixedLengthParser");
+                throw new ObjectDisposedException("SeparatedValueReader");
             }
             if (hasError)
             {
@@ -242,7 +242,7 @@ namespace FlatFiles
         {
             if (isDisposed)
             {
-                throw new ObjectDisposedException("FixedLengthParser");
+                throw new ObjectDisposedException("SeparatedValueReader");
             }
             if (hasError)
             {
