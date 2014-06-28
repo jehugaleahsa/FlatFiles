@@ -104,8 +104,7 @@ namespace FlatFiles
             // convert it to a string and try to interpret it.
             if (value.GetType() != definition.ColumnType)
             {
-                asString = value.ToString();
-                return definition.Parse(asString);
+                return Convert.ChangeType(value, definition.ColumnType);
             }
             // Otherwise, the type of the value matches the expected type.
             return value;

@@ -74,15 +74,27 @@ namespace FlatFiles
             }
             else if (options.IsFirstRecordSchema && dataReader.Read())
             {
-                string[] columnNames = new string[dataReader.FieldCount];
-                dataReader.GetValues(columnNames);
+                object[] values = new object[dataReader.FieldCount];
+                dataReader.GetValues(values);
+                int startingIndex = getExcelColumnIndex(options.StartingColumn ?? "A");
                 this.schema = new ExcelSchema();
-                foreach (string columnName in columnNames)
+                for (int valueIndex = 0; valueIndex != values.Length; ++valueIndex)
                 {
+                    object value = values[valueIndex];
+                    string columnName = getColumnName(startingIndex + valueIndex, value);
                     StringColumn column = new StringColumn(columnName);
                     this.schema.AddColumn(column);
                 }
             }
+        }
+
+        private static string getColumnName(int index, object value)
+        {
+            if (value == null || value.GetType() != typeof(String))
+            {
+                return getExcelColumnName(index);
+            }
+            return value.ToString();
         }
 
         private string getConnectionString(string fileName)
