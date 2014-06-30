@@ -46,11 +46,13 @@ Or, if the schema is for a fixed-length file:
       .AddColumn(new DateTimeColumn("created", 8) { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
       .AddColumn(new DoubleColumn("avg_sales", 10) { OutputFormat = "N2" });
 	  
-The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used say what character is used as padding.
+The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding.
 
 Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
 
 Schemas can be defined for Excel files, too, using the `ExcelSchema`. The code is very similar to defining a schema for a separated value file.
+
+The type mappers provide a `GetSchema` method to allow you to define schemas using a fluent syntax.
 
 ## SeparatedValueReader
 If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a file name (or stream), a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
