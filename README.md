@@ -1,6 +1,6 @@
 # FlatFiles
 
-Work with flat files using fluent type mapping, with support for ADO.NET classes.
+Work with flat files using fluent type mapping, with support for ADO.NET.
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
