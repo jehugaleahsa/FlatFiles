@@ -57,11 +57,11 @@ namespace FlatFiles
             }
             this.options = options;
 
-            string connectionString = getConnectionString(fileName);
+            string connectionString = ExcelHelpers.GetConnectionString(fileName);
             connection = new OleDbConnection(connectionString);
             connection.Open();
             command = connection.CreateCommand();
-            command.CommandText = getCommandText(schema, options);
+            command.CommandText = ExcelHelpers.GetSelectCommandText(schema, options);
             dataReader = command.ExecuteReader();
 
             if (hasSchema)
@@ -76,7 +76,7 @@ namespace FlatFiles
             {
                 object[] values = new object[dataReader.FieldCount];
                 dataReader.GetValues(values);
-                int startingIndex = getExcelColumnIndex(options.StartingColumn ?? "A");
+                int startingIndex = ExcelHelpers.GetExcelColumnIndex(options.StartingColumn ?? "A");
                 this.schema = new ExcelSchema();
                 for (int valueIndex = 0; valueIndex != values.Length; ++valueIndex)
                 {
@@ -92,113 +92,9 @@ namespace FlatFiles
         {
             if (value == null || value.GetType() != typeof(String))
             {
-                return getExcelColumnName(index);
+                return ExcelHelpers.GetExcelColumnName(index);
             }
             return value.ToString();
-        }
-
-        private string getConnectionString(string fileName)
-        {
-            OleDbConnectionStringBuilder builder = new OleDbConnectionStringBuilder();
-
-            string[] newExtensions = new string[]
-            {
-                ".xlsx", ".xlsb", ".xlsm"
-            };
-            string[] oldExtensions = new string[]
-            {
-                ".xsl"
-            };
-            string extension = Path.GetExtension(fileName);
-            if (newExtensions.Contains(extension))
-            {
-                builder.Provider = "Microsoft.ACE.OLEDB.12.0";
-                builder.Add("Extended Properties", "Excel 12.0 Xml; HDR=No; READONLY=true; IMEX=1");
-            }
-            else if (oldExtensions.Contains(extension))
-            {
-                builder.Provider = "Microsoft.Jet.OLEDB.4.0";
-                builder.Add("Extended Properties", "Excel 8.0; HDR=No; READONLY=true; IMEX=1");
-            }
-            else
-            {
-                throw new ArgumentException(Resources.UnknownExcelExtension, "fileName");
-            }
-
-            builder.DataSource = fileName;
-            return builder.ConnectionString;
-        }
-
-        private static string getCommandText(ExcelSchema schema, ExcelOptions options)
-        {
-            StringBuilder commandBuilder = new StringBuilder();
-            commandBuilder.Append("SELECT * FROM [");
-            commandBuilder.Append(options.WorksheetName);
-            commandBuilder.Append("$");
-
-            if (options.StartingRow != null || options.EndingRow != null || options.StartingColumn != null || options.EndingColumn != null)
-            {
-                commandBuilder.Append(options.StartingColumn ?? "A");
-                commandBuilder.Append(options.StartingRow ?? 1);
-                commandBuilder.Append(":");
-                commandBuilder.Append(getEndingColumn(schema, options));
-                if (options.EndingRow != null)
-                {
-                    commandBuilder.Append(options.EndingRow.Value);
-                }
-            }
-
-            commandBuilder.Append("]");
-            return commandBuilder.ToString();
-        }
-
-        private static string getEndingColumn(ExcelSchema schema, ExcelOptions options)
-        {
-            if (options.EndingColumn != null)
-            {
-                return options.EndingColumn;
-            }
-            if (schema == null)
-            {
-                return getExcelColumnName(16384);
-            }
-            int fieldCount = schema.ColumnDefinitions.Count;
-            int startIndex = getExcelColumnIndex(options.StartingColumn ?? "A");
-            int endIndex = startIndex + fieldCount - 1;
-            string endingColumn = getExcelColumnName(endIndex);
-            return endingColumn;
-        }
-
-        private static string getExcelColumnName(int columnIndex)
-        {
-            const int letterCount = 26;
-
-            int dividend = columnIndex;
-            List<char> characters = new List<char>();
-
-            while (dividend > 0)
-            {
-                int modulo = (dividend - 1) % letterCount;
-                characters.Add((char)('A' + modulo));
-                dividend = (dividend - modulo) / letterCount;
-            }
-
-            characters.Reverse();
-            return new String(characters.ToArray());
-        }
-
-        private static int getExcelColumnIndex(string columnName)
-        {
-            const int letterCount = 26;
-
-            int index = 0;
-            for (int charIndex = 0; charIndex != columnName.Length; ++charIndex)
-            {
-                index *= letterCount;
-                char next = columnName[charIndex];
-                index += next - 'A' + 1;
-            }
-            return index;
         }
 
         /// <summary>
