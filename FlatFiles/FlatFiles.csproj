@@ -49,6 +49,7 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="ExcelHelpers.cs" />
     <Compile Include="CustomColumn.cs" />
     <Compile Include="ExcelOptions.cs" />
     <Compile Include="ExcelReader.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="TypeMapping\Int16PropertyMapping.cs" />
     <Compile Include="TypeMapping\Int64PropertyMapping.cs" />
     <Compile Include="TypeMapping\IPropertyMapping.cs" />
+    <Compile Include="TypeMapping\ISchemaBuilder.cs" />
     <Compile Include="TypeMapping\SinglePropertyMapping.cs" />
     <Compile Include="TypeMapping\StringPropertyMapping.cs" />
     <Compile Include="TypeMapping\SeparatedValueTypeMapper.cs" />

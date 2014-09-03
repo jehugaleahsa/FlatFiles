@@ -59,7 +59,7 @@ namespace FlatFiles.TypeMapping
     /// Supports configuration for mapping between entity properties and flat file columns.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface IFixedLengthTypeConfiguration<TEntity>
+    public interface IFixedLengthTypeConfiguration<TEntity> : ISchemaBuilder
     {
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -265,7 +265,7 @@ namespace FlatFiles.TypeMapping
         /// Gets the schema defined by the current configuration.
         /// </summary>
         /// <returns>The schema.</returns>
-        FixedLengthSchema GetSchema();
+        new FixedLengthSchema GetSchema();
     }
 
     /// <summary>
@@ -885,6 +885,11 @@ namespace FlatFiles.TypeMapping
             }
             return definitions;
         }
+
+        ISchema ISchemaBuilder.GetSchema()
+        {
+            return GetSchema();
+        }
     }
 
     /// <summary>
@@ -1059,6 +1064,11 @@ namespace FlatFiles.TypeMapping
         public FixedLengthSchema GetSchema()
         {
             return mapper.GetSchema();
+        }
+
+        ISchema ISchemaBuilder.GetSchema()
+        {
+            return GetSchema();
         }
 
         public void Write(string fileName)

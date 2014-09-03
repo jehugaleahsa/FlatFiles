@@ -59,7 +59,7 @@ namespace FlatFiles.TypeMapping
     /// Supports configuration for mapping between entity properties and flat file columns.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface ISeparatedValueTypeConfiguration<TEntity>
+    public interface ISeparatedValueTypeConfiguration<TEntity> : ISchemaBuilder
     {
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -240,7 +240,7 @@ namespace FlatFiles.TypeMapping
         /// Gets the schema defined by the current configuration.
         /// </summary>
         /// <returns>The schema.</returns>
-        SeparatedValueSchema GetSchema();
+        new SeparatedValueSchema GetSchema();
     }
 
     /// <summary>
@@ -844,6 +844,11 @@ namespace FlatFiles.TypeMapping
             }
             return schema;
         }
+
+        ISchema ISchemaBuilder.GetSchema()
+        {
+            return GetSchema();
+        }
     }
 
     /// <summary>
@@ -1018,6 +1023,11 @@ namespace FlatFiles.TypeMapping
         public SeparatedValueSchema GetSchema()
         {
             return mapper.GetSchema();
+        }
+
+        ISchema ISchemaBuilder.GetSchema()
+        {
+            return GetSchema();
         }
 
         public void Write(string fileName)

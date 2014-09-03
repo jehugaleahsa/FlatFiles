@@ -21,7 +21,7 @@ namespace FlatFiles
         private bool isDisposed;
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueBuilder.
+        /// Initializes a new instance of a SeparatedValueWriter.
         /// </summary>
         /// <param name="fileName">The name of the file to write to.</param>
         /// <param name="schema">The schema to use to build the output.</param>
@@ -32,7 +32,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueBuilder.
+        /// Initializes a new instance of a SeparatedValueWriter.
         /// </summary>
         /// <param name="fileName">The name of the file to write to.</param>
         /// <param name="schema">The schema to use to build the output.</param>
@@ -44,7 +44,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueBuilder.
+        /// Initializes a new instance of a SeparatedValueWriter.
         /// </summary>
         /// <param name="stream">The stream to write the output to.</param>
         /// <param name="schema">The schema to use to build the output.</param>
@@ -56,7 +56,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueBuilder.
+        /// Initializes a new instance of a SeparatedValueWriter.
         /// </summary>
         /// <param name="stream">The stream to write the output to.</param>
         /// <param name="schema">The schema to use to build the output.</param>
@@ -92,7 +92,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Finalizes the SeparatedValueBuilder.
+        /// Finalizes the SeparatedValueWriter.
         /// </summary>
         ~SeparatedValueWriter()
         {
