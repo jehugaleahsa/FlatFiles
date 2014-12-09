@@ -14,6 +14,7 @@ namespace FlatFiles
         public FixedLengthOptions()
         {
             FillCharacter = ' ';
+            ColumnSeparator = "";
             RecordSeparator = Environment.NewLine;
         }
 
@@ -34,6 +35,11 @@ namespace FlatFiles
         public Encoding Encoding { get; set; }
 
         /// <summary>
+        /// Gets or sets the column separator for writer
+        /// </summary>
+        public string ColumnSeparator { get; set; }
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>
@@ -46,5 +52,6 @@ namespace FlatFiles
         {
             return Clone();
         }
+
     }
 }

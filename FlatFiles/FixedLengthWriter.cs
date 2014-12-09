@@ -150,6 +150,8 @@ namespace FlatFiles
             foreach (string column in schema.FormatValues(values).Select((v, i) => fitWidth(i, v)))
             {
                 writer.Write(column);
+                if (!string.IsNullOrEmpty(options.ColumnSeparator))
+                    writer.Write(options.ColumnSeparator);
             }
             writer.Write(options.RecordSeparator);
         }
