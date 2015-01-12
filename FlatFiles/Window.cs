@@ -25,6 +25,16 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Initializes a new instance of a Window.
+        /// </summary>
+        /// <param name="width">The maximum possible width of the column.</param>
+        /// <param name="Alignment">Alignment of the value in the column</param>
+        public Window(int width, FixedAlignment Alignment) : this(width)
+        {
+            this.Alignment = Alignment;
+        }
+
+        /// <summary>
         /// Gets the width of the column.
         /// </summary>
         public int Width 
