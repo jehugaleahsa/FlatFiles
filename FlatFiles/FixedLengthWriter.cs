@@ -182,5 +182,14 @@ namespace FlatFiles
                 return value;
             }
         }
+
+        /// <summary>
+        /// Clears all buffers for the current writer and causes any buffered data to be written to
+        /// the underlying stream.
+        /// </summary>
+        public void Flush()
+        {
+            writer.Flush();
+        }
     }
 }
