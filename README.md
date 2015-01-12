@@ -46,7 +46,7 @@ Or, if the schema is for a fixed-length file:
       .AddColumn(new DateTimeColumn("created", 8) { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
       .AddColumn(new DoubleColumn("avg_sales", 10) { OutputFormat = "N2" });
 	  
-The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding.
+The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. Note the `Alignment` is also used to determine which part of the value to keep if the value is too wide to fit inside the column (e.g., if the column is left-aligned, only the start of the value will be kept).
 
 Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
 

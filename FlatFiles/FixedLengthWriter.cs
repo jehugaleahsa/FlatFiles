@@ -163,7 +163,9 @@ namespace FlatFiles
             Window window = schema.Windows[columnIndex];
             if (value.Length > window.Width)
             {
-                int start = value.Length - window.Width;  // take characters on the end
+                // Truncate the value, keeping the start if the value is left-aligned, or
+                // otherwise keeping the end if the value is right-aligned.
+                int start = window.Alignment == FixedAlignment.LeftAligned ? 0 : value.Length - window.Width;
                 return value.Substring(start, window.Width);
             }
             else if (value.Length < window.Width)
