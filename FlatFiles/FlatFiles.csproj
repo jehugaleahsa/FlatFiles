@@ -85,6 +85,7 @@
     <Compile Include="SeparatedValueReader.cs" />
     <Compile Include="SeparatedValueOptions.cs" />
     <Compile Include="StringColumn.cs" />
+    <Compile Include="OverflowTruncationPolicy.cs" />
     <Compile Include="TypeMapping\ExcelTypeMapper.cs" />
     <Compile Include="TypeMapping\FixedLengthTypeMapper.cs" />
     <Compile Include="TypeMapping\Int32PropertyMapping.cs" />

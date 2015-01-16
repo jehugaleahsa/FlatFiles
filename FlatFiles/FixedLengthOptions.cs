@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -8,6 +9,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthOptions : ICloneable
     {
+        private OverflowTruncationPolicy truncationPolicy;
+
         /// <summary>
         /// Initializes a new instance of a FixedLengthParserOptions.
         /// </summary>
@@ -15,6 +18,7 @@ namespace FlatFiles
         {
             FillCharacter = ' ';
             RecordSeparator = Environment.NewLine;
+            truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
         }
 
         /// <summary>
@@ -32,6 +36,26 @@ namespace FlatFiles
         /// </summary>
         /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
         public Encoding Encoding { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default overflow truncation policy to use
+        /// when a value exceeds the maximum length of its column.
+        /// </summary>
+        public OverflowTruncationPolicy TruncationPolicy
+        {
+            get 
+            { 
+                return truncationPolicy; 
+            }
+            set
+            {
+                if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))
+                {
+                    throw new ArgumentException(Resources.InvalidTruncationPolicy, "value");
+                }
+                truncationPolicy = value;
+            }
+        }
 
         /// <summary>
         /// Duplicates the options.

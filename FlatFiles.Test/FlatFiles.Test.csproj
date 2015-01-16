@@ -54,6 +54,7 @@
     <Compile Include="DataTableExtensionsTester.cs" />
     <Compile Include="FixedLengthSchemaTester.cs" />
     <Compile Include="FixedLengthReaderTester.cs" />
+    <Compile Include="FixedLengthWriterTester.cs" />
     <Compile Include="Int32ColumnTester.cs" />
     <Compile Include="DateTimeColumnTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

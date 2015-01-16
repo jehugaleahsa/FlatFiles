@@ -332,7 +332,6 @@ namespace FlatFiles.Test
             }
         }
 
-
         /// <summary>
         /// We should be able to write and read values using a type mapper with a null value.
         /// </summary>

@@ -163,23 +163,41 @@ namespace FlatFiles
             Window window = schema.Windows[columnIndex];
             if (value.Length > window.Width)
             {
-                int start = value.Length - window.Width;  // take characters on the end
-                return value.Substring(start, window.Width);
+                return getTruncatedValue(value, window);
             }
             else if (value.Length < window.Width)
             {
-                if (window.Alignment == FixedAlignment.LeftAligned)
-                {
-                    return value.PadRight(window.Width, window.FillCharacter ?? options.FillCharacter);
-                }
-                else
-                {
-                    return value.PadLeft(window.Width, window.FillCharacter ?? options.FillCharacter);
-                }
+                return getPaddedValue(value, window);
             }
             else
             {
                 return value;
+            }
+        }
+
+        private string getTruncatedValue(string value, Window window)
+        {
+            OverflowTruncationPolicy policy = window.TruncationPolicy ?? options.TruncationPolicy;
+            if (policy == OverflowTruncationPolicy.TruncateLeading)
+            {
+                int start = value.Length - window.Width;  // take characters on the end
+                return value.Substring(start, window.Width);
+            }
+            else
+            {
+                return value.Substring(0, window.Width);
+            }
+        }
+
+        private string getPaddedValue(string value, Window window)
+        {
+            if (window.Alignment == FixedAlignment.LeftAligned)
+            {
+                return value.PadRight(window.Width, window.FillCharacter ?? options.FillCharacter);
+            }
+            else
+            {
+                return value.PadLeft(window.Width, window.FillCharacter ?? options.FillCharacter);
             }
         }
     }
