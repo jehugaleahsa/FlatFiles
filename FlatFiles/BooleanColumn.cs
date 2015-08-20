@@ -43,11 +43,11 @@ namespace FlatFiles
         /// <returns>True if the value equals the TrueString; otherwise, false.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
-            value = value.Trim();
+            value = TrimValue(value);
             if (String.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
             {
                 return true;
@@ -66,6 +66,10 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
             bool actual = (bool)value;
             return actual ? TrueString : FalseString;
         }

@@ -42,7 +42,7 @@ namespace FlatFiles
         /// <returns>The parsed Guid.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
@@ -63,6 +63,11 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
+
             Guid actual = (Guid)value;
             if (OutputFormat == null)
             {

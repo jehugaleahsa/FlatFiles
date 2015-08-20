@@ -165,11 +165,12 @@ namespace FlatFiles
                 hasError = true;
                 throw new FlatFileException(recordCount);
             }
-            string[] values = new string[schema.ColumnDefinitions.Count];
+            WindowCollection windows = schema.Windows;
+            string[] values = new string[windows.Count];
             int offset = 0;
             for (int index = 0; index != values.Length; ++index)
             {
-                Window window = schema.Windows[index];
+                Window window = windows[index];
                 string value = record.Substring(offset, window.Width);
                 if (window.Alignment == FixedAlignment.LeftAligned)
                 {

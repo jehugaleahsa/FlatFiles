@@ -48,12 +48,13 @@ namespace FlatFiles
         /// <returns>The parsed Int64.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
             IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            return Int64.Parse(value.Trim(), NumberStyles, provider);
+            value = TrimValue(value);
+            return Int64.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>
@@ -63,6 +64,11 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
+
             long actual = (long)value;
             if (OutputFormat == null)
             {

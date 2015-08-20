@@ -32,11 +32,11 @@ namespace FlatFiles
         /// <returns>The parsed char array.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
-            value = value.Trim();
+            value = TrimValue(value);
             return value.ToCharArray();
         }
 
@@ -47,6 +47,10 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
             char[] actual = (char[])value;
             return new String(actual);
         }

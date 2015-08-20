@@ -37,11 +37,11 @@ namespace FlatFiles
         /// <returns>The parsed byte array.</returns>
         public override object Parse(string value)
         {
-            if (String.IsNullOrWhiteSpace(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
-            value = value.Trim();
+            value = TrimValue(value);
             Encoding encoding = Encoding ?? Encoding.Default;
             return encoding.GetBytes(value);
         }
@@ -53,6 +53,10 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
             byte[] actual = (byte[])value;
             Encoding encoding = Encoding ?? Encoding.Default;
             return encoding.GetString(actual);

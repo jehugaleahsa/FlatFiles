@@ -49,6 +49,8 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="WindowCollection.cs" />
+    <Compile Include="DefaultNullHandler.cs" />
     <Compile Include="ExcelHelpers.cs" />
     <Compile Include="CustomColumn.cs" />
     <Compile Include="ExcelOptions.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Int16Column.cs" />
     <Compile Include="GuidColumn.cs" />
     <Compile Include="ISchema.cs" />
+    <Compile Include="INullHandler.cs" />
     <Compile Include="RecordReader.cs" />
     <Compile Include="SeparatedValueWriter.cs" />
     <Compile Include="SingleColumn.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="TypeMapping\SinglePropertyMapping.cs" />
     <Compile Include="TypeMapping\StringPropertyMapping.cs" />
     <Compile Include="TypeMapping\SeparatedValueTypeMapper.cs" />
+    <Compile Include="ConstantNullHandler.cs" />
     <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>

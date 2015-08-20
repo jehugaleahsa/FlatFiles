@@ -51,9 +51,9 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column widths.
         /// </summary>
-        internal List<Window> Windows
+        public WindowCollection Windows
         {
-            get { return windows; }
+            get { return new WindowCollection(windows); }
         }
 
         /// <summary>

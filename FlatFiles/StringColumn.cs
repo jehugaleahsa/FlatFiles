@@ -39,9 +39,9 @@ namespace FlatFiles
         {
             if (Trim && value != null)
             {
-                value = value.Trim();
+                value = TrimValue(value);
             }
-            if (String.IsNullOrEmpty(value))
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
@@ -55,6 +55,10 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public override string Format(object value)
         {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
             string actual = (string)value;
             return actual;
         }
