@@ -20,7 +20,7 @@ namespace FlatFiles
             };
             string[] oldExtensions = new string[]
             {
-                ".xsl"
+                ".xls"
             };
             string extension = Path.GetExtension(fileName);
             if (newExtensions.Contains(extension))
