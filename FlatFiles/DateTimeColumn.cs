@@ -26,6 +26,11 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets the (value) string to use when parsing the null date and time.
+        /// </summary>
+        public string NullValue { get; set; }
+
+        /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
         /// </summary>
         public string InputFormat { get; set; }
@@ -51,6 +56,12 @@ namespace FlatFiles
             {
                 return null;
             }
+
+            if (NullValue != null && String.Equals(value, NullValue))
+            {
+                return null;
+            }
+
             IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
             if (InputFormat == null)
             {

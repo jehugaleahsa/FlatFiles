@@ -30,6 +30,13 @@ namespace FlatFiles.TypeMapping
         IDateTimePropertyMapping OutputFormat(string format);
 
         /// <summary>
+        /// Sets the date/time format to use as Null Value.
+        /// </summary>
+        /// <param name="value">The value to use.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IDateTimePropertyMapping NullValue(string value);
+
+        /// <summary>
         /// Sets the format provider to use when reading and writing date/times.
         /// </summary>
         /// <param name="provider">The provider to use.</param>
@@ -78,6 +85,12 @@ namespace FlatFiles.TypeMapping
         public IDateTimePropertyMapping OutputFormat(string format)
         {
             this.column.OutputFormat = format;
+            return this;
+        }
+
+        public IDateTimePropertyMapping NullValue(string value)
+        {
+            this.column.NullValue = value;
             return this;
         }
 
