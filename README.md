@@ -43,8 +43,8 @@ Or, if the schema is for a fixed-length file:
     FixedLengthSchema schema = new FixedLengthSchema();
     schema.AddColumn(new Int64Column("customer_id"), 10)
       .AddColumn(new StringColumn("name"), 255)
-      .AddColumn(new DateTimeColumn("created", 8) { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
-      .AddColumn(new DoubleColumn("avg_sales", 10) { OutputFormat = "N2" });
+      .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
+      .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
 	  
 The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding.
 
@@ -53,6 +53,17 @@ Some fixed-length files may have columns that are not used. The fixed-length sch
 Schemas can be defined for Excel files, too, using the `ExcelSchema`. The code is very similar to defining a schema for a separated value file.
 
 The type mappers provide a `GetSchema` method to allow you to define schemas using a fluent syntax.
+
+## Handling Nulls
+By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
+
+    DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
+    
+Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
+
+    mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
+    
+You can implement the `INullHandler` interface if you need to support something more complex.
 
 ## SeparatedValueReader
 If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a file name (or stream), a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
