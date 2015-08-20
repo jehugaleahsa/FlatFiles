@@ -36,6 +36,21 @@ namespace FlatFiles.TypeMapping
         /// <param name="format">The format to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
         IBytePropertyMapping OutputFormat(string format);
+
+        /// <summary>
+        /// Sets the value to treat as null.
+        /// </summary>
+        /// <param name="value">The value to treat as null.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IBytePropertyMapping NullValue(string value);
+
+        /// <summary>
+        /// Sets a custom handler for nulls.
+        /// </summary>
+        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        /// <remarks>Setting the handler to null with use the default handler.</remarks>
+        IBytePropertyMapping NullHandler(INullHandler handler);
     }
 
     internal sealed class BytePropertyMapping : IBytePropertyMapping, IPropertyMapping
@@ -70,6 +85,18 @@ namespace FlatFiles.TypeMapping
         public IBytePropertyMapping OutputFormat(string format)
         {
             this.column.OutputFormat = format;
+            return this;
+        }
+
+        public IBytePropertyMapping NullValue(string value)
+        {
+            this.column.NullHandler = new ConstantNullHandler(value);
+            return this;
+        }
+
+        public IBytePropertyMapping NullHandler(INullHandler handler)
+        {
+            this.column.NullHandler = handler;
             return this;
         }
 

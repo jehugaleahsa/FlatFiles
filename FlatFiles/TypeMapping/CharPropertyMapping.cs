@@ -21,6 +21,21 @@ namespace FlatFiles.TypeMapping
         /// <param name="allow">True if the parser should ignore extra characters -or- false, if an error should occur.</param>
         /// <returns>The property mapping for further configuration.</returns>
         ICharPropertyMapping AllowTrailing(bool allow);
+
+        /// <summary>
+        /// Sets the value to treat as null.
+        /// </summary>
+        /// <param name="value">The value to treat as null.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ICharPropertyMapping NullValue(string value);
+
+        /// <summary>
+        /// Sets a custom handler for nulls.
+        /// </summary>
+        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        /// <remarks>Setting the handler to null with use the default handler.</remarks>
+        ICharPropertyMapping NullHandler(INullHandler handler);
     }
 
     internal sealed class CharPropertyMapping : ICharPropertyMapping, IPropertyMapping
@@ -43,6 +58,18 @@ namespace FlatFiles.TypeMapping
         public ICharPropertyMapping AllowTrailing(bool allow)
         {
             this.column.AllowTrailing = allow;
+            return this;
+        }
+
+        public ICharPropertyMapping NullValue(string value)
+        {
+            this.column.NullHandler = new ConstantNullHandler(value);
+            return this;
+        }
+
+        public ICharPropertyMapping NullHandler(INullHandler handler)
+        {
+            this.column.NullHandler = handler;
             return this;
         }
 

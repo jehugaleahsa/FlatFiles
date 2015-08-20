@@ -28,6 +28,21 @@ namespace FlatFiles.TypeMapping
         /// <param name="value">The value used to represent false.</param>
         /// <returns>The property mapping for further configuration.</returns>
         IBooleanPropertyMapping FalseString(string value);
+
+        /// <summary>
+        /// Sets the value to treat as null.
+        /// </summary>
+        /// <param name="value">The value to treat as null.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IBooleanPropertyMapping NullValue(string value);
+
+        /// <summary>
+        /// Sets a custom handler for nulls.
+        /// </summary>
+        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        /// <remarks>Setting the handler to null with use the default handler.</remarks>
+        IBooleanPropertyMapping NullHandler(INullHandler handler);
     }
 
     internal sealed class BooleanPropertyMapping : IBooleanPropertyMapping, IPropertyMapping
@@ -56,6 +71,18 @@ namespace FlatFiles.TypeMapping
         public IBooleanPropertyMapping FalseString(string value)
         {
             this.column.FalseString = value;
+            return this;
+        }
+
+        public IBooleanPropertyMapping NullValue(string value)
+        {
+            this.column.NullHandler = new ConstantNullHandler(value);
+            return this;
+        }
+
+        public IBooleanPropertyMapping NullHandler(INullHandler handler)
+        {
+            this.column.NullHandler = handler;
             return this;
         }
 

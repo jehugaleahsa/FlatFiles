@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using FlatFiles.TypeMapping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
@@ -67,6 +69,47 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("Vendor") { NullHandler = nullHandler });
 
             return schema;
+        }
+
+        [TestMethod]
+        public void ShouldTreatConstantAsNull_TypeMapper()
+        {
+            var nullHandler = ConstantNullHandler.For("----");
+            var mapper = SeparatedValueTypeMapper.Define<Product>();
+            mapper.Property(p => p.Name).ColumnName("name").NullHandler(nullHandler);
+            mapper.Property(p => p.Cost).ColumnName("cost").NullHandler(nullHandler);
+            mapper.Property(p => p.Available).ColumnName("available").NullHandler(nullHandler);
+            mapper.Property(p => p.Vendor).ColumnName("vendor").NullHandler(nullHandler);
+
+            string content = "----,5.12,----,apple" + Environment.NewLine;
+            byte[] encoded = Encoding.Default.GetBytes(content);
+            MemoryStream inputStream = new MemoryStream(encoded);
+            var products = mapper.Read(inputStream);
+            Assert.AreEqual(1, products.Count(), "The wrong number of products were found.");
+
+            Product product = products.Single();
+            Assert.IsNull(product.Name, "The name was not interpreted as null.");
+            Assert.AreEqual(5.12m, product.Cost, "The cost was not read correctly.");
+            Assert.IsNull(product.Available, "The available was not interpreted as null.");
+            Assert.AreEqual("apple", product.Vendor, "The vendor was not read correctly.");
+
+            MemoryStream outputStream = new MemoryStream();
+            mapper.Write(outputStream, products);
+            outputStream.Position = 0;
+            string output = Encoding.Default.GetString(outputStream.ToArray());
+
+            Assert.AreEqual(content, output, "The null handler was not respected when writing null.");
+        }
+
+        public class Product
+        {
+            public string Name { get; set; }
+
+            public decimal? Cost { get; set; }
+
+            public float? Available { get; set; }
+
+            public string Vendor { get; set; }
         }
     }
 }
