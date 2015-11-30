@@ -322,6 +322,24 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// If we provide a schema, it will be used to parse the values, also when columns are quoted.
+        /// </summary>
+        [TestMethod]
+        public void TestGetSchema_SchemaProvided_ParsesValues_Quoted()
+        {
+            const string text = "123,\"Bob\",1/19/2013";
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+            Assert.IsTrue(parser.Read(), "The first record was skipped.");
+            object[] actual = parser.GetValues();
+            object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
+            CollectionAssert.AreEqual(expected, actual, "The values were not parsed as expected.");
+        }
+
+        /// <summary>
         /// If we provide a schema, the records in the file must have a value for each column.
         /// </summary>
         [TestMethod]
