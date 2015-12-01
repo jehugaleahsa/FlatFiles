@@ -264,12 +264,13 @@ namespace FlatFiles
         private static Regex buildRegex(string delimiter)
         {
             delimiter = Regex.Escape(delimiter);
-            const string doubleQuoteBlock = @"(?<q>(""|'))(?<block>((?:(?!\k<q>).)|(\k<q>\k<q>)))*?\k<q>";
-            const string noQuoteBlock = @"(?<block>.*?)";
-            const string block = @"((" + doubleQuoteBlock + @")|" + noQuoteBlock + @")";
+            const string singleQuoteBlock = @"(?:'(?<block>(?:(?:[^'])|(?:''))*?)')";
+            const string doubleQuoteBlock = @"(?:""(?<block>(?:(?:[^""])|(?:""""))*?)"")";
+            const string noQuoteBlock = @"(?<block>[^'""]*?)";
+            const string block = @"(?:" + singleQuoteBlock + @"|" + doubleQuoteBlock + @"|" + noQuoteBlock + @")";
             string leading = block + delimiter;
             string trailing = block + @"\r?$";
-            Regex regex = new Regex(@"\G(" + leading + ")*(" + trailing + ")", RegexOptions.Multiline);
+            Regex regex = new Regex(@"\G(?:" + leading + ")*(?:" + trailing + ")", RegexOptions.Multiline);
             return regex;
         }
 

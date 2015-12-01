@@ -3,15 +3,18 @@
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
-	<title>$title$</title>
+    <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-	<projectUrl>http://github.com/jehugaleahsa/flatfiles</projectUrl>
+    <projectUrl>http://github.com/jehugaleahsa/flatfiles</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2014</copyright>
     <tags>
-	IDataReader DataReader IDataRecord DataRecord ADO.NET CSV fixed-length fixed-width file parser parsing fixed width length comma separated value DataTable MVC
-	</tags>
+	   IDataReader DataReader IDataRecord DataRecord ADO.NET CSV fixed-length fixed-width file parser parsing fixed width length comma separated value DataTable MVC
+    </tags>
+    <dependencies>
+      <dependency id="FlatFiles" version="(0.1.14,)" />
+    </dependencies>
   </metadata>
 </package>
