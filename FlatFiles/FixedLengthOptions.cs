@@ -58,6 +58,11 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets the the number of rows containing skipped header information.
+        /// </summary>
+        public int HeaderRows { get; set; } = 0;
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

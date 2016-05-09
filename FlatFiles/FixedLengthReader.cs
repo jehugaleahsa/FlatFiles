@@ -86,8 +86,18 @@ namespace FlatFiles
                 throw new ArgumentNullException("options");
             }
             reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
+            SkipRows(options.HeaderRows);
             this.schema = schema;
             this.options = options.Clone();
+        }
+
+        private void SkipRows(int numberOfRows)
+        {
+            while (numberOfRows > 0)
+            {
+                reader.ReadRecord();
+                numberOfRows --;
+            }
         }
 
         /// <summary>

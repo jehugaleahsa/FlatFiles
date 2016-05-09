@@ -50,6 +50,25 @@ namespace FlatFiles.Test
             new FixedLengthReader(stream, schema, options);
         }
 
+        [TestMethod]
+        public void TestTypeMapper_SkipFirstRow()
+        {
+            var text = $"this is the first rows, skip it{Environment.NewLine}1";
+            Stream stream = new MemoryStream(Encoding.Default.GetBytes(text));
+            var schema = new FixedLengthSchema()
+                .AddColumn(new Int32Column("rowNumber"), 1);
+            var options = new FixedLengthOptions
+            {
+                HeaderRows = 1
+            };
+            using (var reader = new FixedLengthReader(stream, schema, options))
+            {
+                reader.Read();
+                var values = reader.GetValues();
+                Assert.AreEqual(values[0], 1);
+            }
+        }
+
         /// <summary>
         /// If we trying to pass a null schema, an exception should be thrown.
         /// </summary>
