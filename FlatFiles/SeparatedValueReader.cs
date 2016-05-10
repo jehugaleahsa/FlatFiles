@@ -217,7 +217,7 @@ namespace FlatFiles
                 return false;
             }
             string[] rawValues = readNextRecord();
-            recordCount += 1;
+            ++recordCount;
             if (schema == null)
             {
                 values = rawValues;
@@ -231,6 +231,32 @@ namespace FlatFiles
             {
                 values = schema.ParseValues(rawValues);
             }
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to skip the next record from the stream.
+        /// </summary>
+        /// <returns>True if the next record was skipped or false if all records have been read.</returns>
+        /// <remarks>The previously parsed values remain available.</remarks>
+        public bool Skip()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("SeparatedValueReader");
+            }
+            if (hasError)
+            {
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
+            }
+            if (reader.EndOfStream)
+            {
+                endOfFile = true;
+                values = null;
+                return false;
+            }
+            reader.ReadRecord();
+            ++recordCount;
             return true;
         }
 

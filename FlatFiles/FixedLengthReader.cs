@@ -157,6 +157,31 @@ namespace FlatFiles
             return true;
         }
 
+        /// <summary>
+        /// Skips the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was skipped; otherwise, false if all records are read.</returns>
+        /// <remarks>The previously parsed values remain available.</remarks>
+        public bool Skip()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException("FixedLengthReader");
+            }
+            if (hasError)
+            {
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
+            }
+            if (reader.EndOfStream)
+            {
+                endOfFile = true;
+                return false;
+            }
+            ++recordCount;
+            reader.ReadRecord();
+            return true;
+        }
+
         private string[] readNextLine()
         {
             string record = reader.ReadRecord();

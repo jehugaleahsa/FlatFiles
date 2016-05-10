@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using FlatFiles.Properties;
 
 namespace FlatFiles
 {

@@ -142,6 +142,25 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// If we skip a bad record, it should not result in a parsing error.
+        /// </summary>
+        [TestMethod]
+        public void TestRead_SkipRecord_NoParsingError()
+        {
+            const string text = "a,b,c";
+            var data = new MemoryStream(Encoding.Default.GetBytes(text));
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("A"));
+            schema.AddColumn(new DateTimeColumn("B"));
+            schema.AddColumn(new GuidColumn("C"));
+            SeparatedValueReader parser = new SeparatedValueReader(data, schema);
+            bool canRead = parser.Skip();
+            Assert.IsTrue(canRead, "Could not skip the record.");
+            canRead = parser.Read();
+            Assert.IsFalse(canRead, "No more records should have been read.");
+        }
+
+        /// <summary>
         /// If we try to get the values before calling Read, an exception should be thrown.
         /// </summary>
         [TestMethod]
