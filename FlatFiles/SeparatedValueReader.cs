@@ -296,11 +296,14 @@ namespace FlatFiles
         private static Regex buildRegex(string delimiter)
         {
             delimiter = Regex.Escape(delimiter);
+            // Quoted blocks begin and end with either single quotes (') or double quotes (").
+            // Within these blocks, all quotes must be escaped by a trailing quote.
             const string singleQuoteBlock = @"(?:'(?<block>(?:(?:[^'])|(?:''))*?)')";
             const string doubleQuoteBlock = @"(?:""(?<block>(?:(?:[^""])|(?:""""))*?)"")";
-            const string noQuoteBlock = @"(?<block>[^'""]*?)";
-            const string block = @"(?:" + singleQuoteBlock + @"|" + doubleQuoteBlock + @"|" + noQuoteBlock + @")";
-            string leading = block + delimiter;
+            // A block can be un-quoted or empty. Quotes within the block are part of the value.
+            string noQuoteBlock = @"(?<block>[^" + delimiter + @"'""]?.*?)";
+            string block = @"(?:" + singleQuoteBlock + @"|" + doubleQuoteBlock + @"|" + noQuoteBlock + @")";
+            string leading = block + "?" + delimiter;
             string trailing = block + @"\r?$";
             Regex regex = new Regex(@"\G(?:" + leading + ")*(?:" + trailing + ")", RegexOptions.Multiline);
             return regex;

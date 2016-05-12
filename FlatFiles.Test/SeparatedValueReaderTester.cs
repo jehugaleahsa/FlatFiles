@@ -266,6 +266,33 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// If a record contains a quote, it should still parse correctly.
+        /// </summary>
+        [TestMethod]
+        public void TestRead_EmbeddedQuote_ParsesCorrectly()
+        {
+            var text = Encoding.Default.GetBytes(@"123;Todd's Bait Shop;1/17/2014");
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"));
+            schema.AddColumn(new StringColumn("name"));
+            schema.AddColumn(new DateTimeColumn("created"));
+            var options = new SeparatedValueOptions
+            {
+                IsFirstRecordSchema = false,
+                Separator = ";"
+            };
+
+            var reader = new SeparatedValueReader(new MemoryStream(text), schema, options);
+
+            var result = reader.Read();
+
+            Assert.IsTrue(result, "Could not read the record.");
+            object[] expected = { 123, "Todd's Bait Shop", new DateTime(2014, 1, 17) };
+            object[] actual = reader.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
+        }
+
+        /// <summary>
         /// If we do not explicitly say that the first record is the schema, we cannot retrieve it later.
         /// </summary>
         [TestMethod]
