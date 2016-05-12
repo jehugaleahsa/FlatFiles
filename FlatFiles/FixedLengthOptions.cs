@@ -38,6 +38,11 @@ namespace FlatFiles
         public Encoding Encoding { get; set; }
 
         /// <summary>
+        /// Gets or sets whether the first record in the source holds header information and should be skipped.
+        /// </summary>
+        public bool IsFirstRecordHeader { get; set; }
+
+        /// <summary>
         /// Gets or sets the default overflow truncation policy to use
         /// when a value exceeds the maximum length of its column.
         /// </summary>

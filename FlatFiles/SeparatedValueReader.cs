@@ -134,7 +134,7 @@ namespace FlatFiles
             {
                 if (options.IsFirstRecordSchema)
                 {
-                    readNextRecord();  // skip header record
+                    skip();  // skip header record
                 }
                 this.schema = schema;
             }
@@ -249,6 +249,13 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            bool result = skip();
+            ++recordCount;
+            return result;
+        }
+
+        private bool skip()
+        {
             if (reader.EndOfStream)
             {
                 endOfFile = true;
@@ -256,7 +263,6 @@ namespace FlatFiles
                 return false;
             }
             reader.ReadRecord();
-            ++recordCount;
             return true;
         }
 

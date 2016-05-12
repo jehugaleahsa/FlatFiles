@@ -352,6 +352,39 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// We should be able to write and read values using a type mappers.
+        /// </summary>
+        [TestMethod]
+        public void TestTypeMapper_RoundTrip_SkipHeaderRow()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id, new Window(25)).ColumnName("id");
+            mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
+            mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+                var options = new FixedLengthOptions() { IsFirstRecordHeader = true, FillCharacter = '@' };
+
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("{0,25}{1,100}{2,8}", "id", "name", "created");
+                writer.Flush();
+
+                mapper.Write(stream, options, new Person[] { bob });
+
+                stream.Position = 0;  // go back to the beginning of the stream
+
+                var people = mapper.Read(stream, options);
+                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+                var person = people.SingleOrDefault();
+                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+            }
+        }
+
+        /// <summary>
         /// We should be able to write and read values using a type mapper with a null value.
         /// </summary>
         [TestMethod]

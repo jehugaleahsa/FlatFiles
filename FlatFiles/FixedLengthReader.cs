@@ -88,6 +88,10 @@ namespace FlatFiles
             reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
             this.schema = schema;
             this.options = options.Clone();
+            if (this.options.IsFirstRecordHeader)
+            {
+                skip();
+            }
         }
 
         /// <summary>
@@ -172,12 +176,18 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            bool result = skip();
+            ++recordCount;
+            return result;
+        }
+
+        private bool skip()
+        {
             if (reader.EndOfStream)
             {
                 endOfFile = true;
                 return false;
             }
-            ++recordCount;
             reader.ReadRecord();
             return true;
         }
