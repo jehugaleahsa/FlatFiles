@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using FlatFiles.Properties;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
-    using System.Text;
-
     /// <summary>
     /// Extracts records from a file that has values separated by a separator token.
     /// </summary>
     public sealed class SeparatedValueReader : IReader
     {
-        private readonly RecordReader reader;
+        private readonly RecordParser reader;
         private readonly SeparatedValueSchema schema;
-        private readonly Regex regex;
         private int recordCount;
         private object[] values;
         private bool endOfFile;
@@ -128,8 +126,12 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
-            regex = buildRegex(options.Separator);
+            if (options.RecordSeparator == options.Separator)
+            {
+                throw new ArgumentException(Resources.SameSeparator, "options");
+            }
+            RetryReader retryReader = new RetryReader(stream, options.Encoding ?? Encoding.Default, ownsStream);
+            reader = new RecordParser(retryReader, options.RecordSeparator, options.Separator);
             if (hasSchema)
             {
                 if (options.IsFirstRecordSchema)
@@ -262,8 +264,15 @@ namespace FlatFiles
                 values = null;
                 return false;
             }
-            reader.ReadRecord();
-            return true;
+            try
+            {
+                reader.ReadRecord();
+                return true;
+            }
+            catch (SeparatedValueSyntaxException exception)
+            {
+                throw new FlatFileException(recordCount, exception);
+            }
         }
 
         /// <summary>
@@ -293,29 +302,348 @@ namespace FlatFiles
             return copy;
         }
 
-        private static Regex buildRegex(string delimiter)
-        {
-            delimiter = Regex.Escape(delimiter);
-            // Quoted blocks begin and end with either single quotes (') or double quotes (").
-            // Within these blocks, all quotes must be escaped by a trailing quote.
-            const string singleQuoteBlock = @"(?:'(?<block>(?:(?:[^'])|(?:''))*?)')";
-            const string doubleQuoteBlock = @"(?:""(?<block>(?:(?:[^""])|(?:""""))*?)"")";
-            // A block can be un-quoted or empty. Quotes within the block are part of the value.
-            string noQuoteBlock = @"(?<block>[^" + delimiter + @"'""]?.*?)";
-            string block = @"(?:" + singleQuoteBlock + @"|" + doubleQuoteBlock + @"|" + noQuoteBlock + @")";
-            string leading = block + "?" + delimiter;
-            string trailing = block + @"\r?$";
-            Regex regex = new Regex(@"\G(?:" + leading + ")*(?:" + trailing + ")", RegexOptions.Multiline);
-            return regex;
-        }
-
         private string[] readNextRecord()
         {
-            string record = reader.ReadRecord();
-            Match match = regex.Match(record);
-            Group blockGroup = match.Groups["block"];
-            string[] values = blockGroup.Captures.Cast<Capture>().Select(c => c.Value).ToArray();
-            return values;
+            try
+            {
+                return reader.ReadRecord();
+            }
+            catch (SeparatedValueSyntaxException exception)
+            {
+                throw new FlatFileException(recordCount, exception);
+            }
+        }
+        
+        private class RecordParser : IDisposable
+        {
+            private readonly RetryReader reader;
+            private readonly string prefix;
+            private readonly string eor;
+            private readonly string eot;
+            private List<string> values;
+
+            public RecordParser(RetryReader reader, string eor, string eot)
+            {
+                this.reader = reader;
+                this.prefix = getPrefix(eor, eot);
+                this.eor = eor.Substring(prefix.Length, eor.Length - prefix.Length);
+                this.eot = eot.Substring(prefix.Length, eot.Length - prefix.Length);
+            }
+
+            private static string getPrefix(string eor, string eot)
+            {
+                List<char> prefixChars = new List<char>();
+                for (int index = 0; index != eor.Length && index != eot.Length && eor[index] == eot[index]; ++index)
+                {
+                    prefixChars.Add(eot[index]);
+                }
+                string prefix = new String(prefixChars.ToArray());
+                return prefix;
+            }
+
+            public bool EndOfStream
+            {
+                get { return reader.EndOfStream; }
+            }
+
+            public string[] ReadRecord()
+            {
+                values = new List<string>();
+                TokenType tokenType = getNextToken();
+                while (tokenType == TokenType.EndOfToken)
+                {
+                    tokenType = getNextToken();
+                }
+                return values.ToArray();
+            }
+
+            private TokenType getNextToken()
+            {
+                TokenType tokenType = skipLeadingWhitespace();
+                if (tokenType != TokenType.Normal)
+                {
+                    values.Add(String.Empty);
+                    return tokenType;
+                }
+                QuoteType quoteType = getQuoteType();
+                if (quoteType == QuoteType.None)
+                {
+                    return getUnquotedToken();
+                }
+                else
+                {
+                    return getQuotedToken(reader.Current);
+                }
+            }
+
+            private TokenType getUnquotedToken()
+            {
+                List<char> tokenChars = new List<char>();
+                TokenType tokenType = TokenType.Normal;
+                while (tokenType == TokenType.Normal)
+                {
+                    reader.Read();
+                    tokenChars.Add(reader.Current);
+                    tokenType = getSeparator();
+                }
+                string token = new String(tokenChars.ToArray());
+                token = token.TrimEnd();
+                values.Add(token);
+                return tokenType;
+            }
+
+            private TokenType getQuotedToken(char quote)
+            {
+                bool hasMatchingQuote = false;
+                TokenType tokenType = TokenType.Normal;
+                List<char> tokenChars = new List<char>();
+                while (tokenType == TokenType.Normal && reader.Read())
+                {
+                    if (reader.Current != quote)
+                    {
+                        // Keep adding characters until we find a closing quote
+                        tokenChars.Add(reader.Current);
+                    }
+                    else if (isNextValue(quote))
+                    {
+                        tokenChars.Add(reader.Current);
+                    }
+                    else
+                    {
+                        // We've encountered a stand-alone quote.
+                        // We go looking for a separator, skipping any leading whitespace.
+                        tokenType = skipLeadingWhitespace();
+                        if (tokenType == TokenType.Normal)
+                        {
+                            // If we find anything other than a separator, it's a syntax error.
+                            break;
+                        }
+                        hasMatchingQuote = true;
+                    }
+                }
+                if (!hasMatchingQuote)
+                {
+                    throw new Exception(Resources.UnmatchedQuote);
+                }
+                string token = new String(tokenChars.ToArray());
+                values.Add(token);
+                return tokenType;
+            }
+
+            private QuoteType getQuoteType()
+            {
+                reader.Read();
+                if (reader.Current == '"')
+                {
+                    return QuoteType.Double;
+                }
+                else if (reader.Current == '\'')
+                {
+                    return QuoteType.Single;
+                }
+                else
+                {
+                    reader.Undo(reader.Current);
+                    return QuoteType.None;
+                }
+            }
+
+            private TokenType skipLeadingWhitespace()
+            {
+                TokenType tokenType = getSeparator();
+                while (tokenType == TokenType.Normal)
+                {
+                    reader.Read();
+                    if (!Char.IsWhiteSpace(reader.Current))
+                    {
+                        reader.Undo(reader.Current);
+                        return TokenType.Normal;
+                    }
+                    tokenType = getSeparator();
+                }
+                return tokenType;
+            }
+
+            private TokenType getSeparator()
+            {
+                if (reader.EndOfStream)
+                {
+                    return TokenType.EndOfStream;
+                }
+                if (!hasTail(prefix, 0))
+                {
+                    return TokenType.Normal;
+                }
+                if (eor.Length > eot.Length)
+                {
+                    if (hasTail(eor, 0))
+                    {
+                        return TokenType.EndOfRecord;
+                    }
+                    else if (hasTail(eot, 0))
+                    {
+                        return TokenType.EndOfToken;
+                    }
+                }
+                else if (eot.Length > eor.Length)
+                {
+                    if (hasTail(eot, 0))
+                    {
+                        return TokenType.EndOfToken;
+                    }
+                    else if (hasTail(eor, 0))
+                    {
+                        return TokenType.EndOfRecord;
+                    }
+                }
+                else if (hasTail(eor, 0))
+                {
+                    return TokenType.EndOfRecord;
+                }
+                else if (hasTail(eot, 0))
+                {
+                    return TokenType.EndOfToken;
+                }
+                reader.Undo(prefix.ToList());
+                return TokenType.Normal;
+            }
+
+            private bool hasTail(string value, int position)
+            {
+                if (position == value.Length)
+                {
+                    return true;
+                }
+                List<char> tailChars = new List<char>();
+                while (reader.Read())
+                {
+                    tailChars.Add(reader.Current);
+                    if (reader.Current != value[position])
+                    {
+                        break;
+                    }
+                    ++position;
+                    if (position == value.Length)
+                    {
+                        return true;
+                    }
+                }
+                reader.Undo(tailChars);
+                return false;
+            }
+
+            private bool isNextValue(char value)
+            {
+                if (!reader.Read())
+                {
+                    return false;
+                }
+                if (reader.Current == value)
+                {
+                    return true;
+                }
+                else
+                {
+                    reader.Undo(reader.Current);
+                    return false;
+                }
+            }
+
+            public enum TokenType
+            {
+                Normal,
+                EndOfStream,
+                EndOfRecord,
+                EndOfToken
+            }
+
+            public enum QuoteType
+            {
+                None,
+                Single,
+                Double
+            }
+
+            public void Dispose()
+            {
+                reader.Dispose();
+            }
+        }
+        
+        private class RetryReader : IDisposable
+        {
+            private readonly StreamReader reader;
+            private readonly bool ownsStream;
+            private readonly Stack<char> retry;
+            private char current;
+            
+            public RetryReader(Stream stream, Encoding encoding, bool ownsStream)
+            {
+                this.reader = new StreamReader(stream, encoding);
+                this.ownsStream = ownsStream;
+                this.retry = new Stack<char>();
+            }
+
+            ~RetryReader()
+            {
+                dispose(false);
+            }
+            
+            public bool Read()
+            {
+                if (retry.Count > 0)
+                {
+                    current = retry.Pop();
+                    return true;
+                }
+                if (reader.EndOfStream)
+                {
+                    return false;
+                }
+                current = (char)reader.Read();
+                return true;
+            }
+
+            public bool EndOfStream
+            {
+                get
+                {
+                    return retry.Count == 0 && reader.EndOfStream;
+                }
+            }
+            
+            public char Current
+            {
+                get { return current; }
+            }
+
+            public void Undo(char item)
+            {
+                retry.Push(item);
+            }
+            
+            public void Undo(List<char> items)
+            {
+                int position = items.Count;
+                while (position != 0)
+                {
+                    --position;
+                    retry.Push(items[position]);
+                }
+            }
+
+            public void Dispose()
+            {
+                dispose(true);
+            }
+
+            private void dispose(bool isDisposing)
+            {
+                if (isDisposing && ownsStream)
+                {
+                    reader.Dispose();
+                }
+            }
         }
     }
 }

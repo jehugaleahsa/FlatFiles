@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -8,6 +9,9 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueOptions : ICloneable
     {
+        private string separator;
+        private string recordSeparator;
+
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParserOptions.
         /// </summary>
@@ -20,12 +24,40 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the separator used to separate the columns.
         /// </summary>
-        public string Separator { get; set; }
+        public string Separator
+        {
+            get
+            {
+                return separator;
+            }
+            set
+            {
+                if (String.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException(Resources.EmptySeparator);
+                }
+                this.separator = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the separator used to separate the records.
         /// </summary>
-        public string RecordSeparator { get; set; }
+        public string RecordSeparator
+        {
+            get
+            {
+                return recordSeparator;
+            }
+            set
+            {
+                if (String.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException(Resources.EmptyRecordSeparator);
+                }
+                this.recordSeparator = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether the first record is the schema.

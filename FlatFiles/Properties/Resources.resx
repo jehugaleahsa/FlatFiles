@@ -183,4 +183,16 @@
   <data name="InvalidTruncationPolicy" xml:space="preserve">
     <value>Encountered an invalid overflow truncation policy.</value>
   </data>
+  <data name="SameSeparator" xml:space="preserve">
+    <value>The column and record separator are the same string.</value>
+  </data>
+  <data name="EmptyRecordSeparator" xml:space="preserve">
+    <value>The record separator cannot be null or empty.</value>
+  </data>
+  <data name="EmptySeparator" xml:space="preserve">
+    <value>The column separator cannot be null or empty.</value>
+  </data>
+  <data name="UnmatchedQuote" xml:space="preserve">
+    <value>A syntax error was encountered: Unmatched quote.</value>
+  </data>
 </root>

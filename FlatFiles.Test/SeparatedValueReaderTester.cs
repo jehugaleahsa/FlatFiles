@@ -606,5 +606,49 @@ namespace FlatFiles.Test
                 Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
             }
         }
+
+        /// <summary>
+        /// Test to make sure the sample CSV from http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm works.
+        /// </summary>
+        [TestMethod]
+        public void TestReader_creativyst_example()
+        {
+            const string text = @"John,Doe,120 jefferson st.,Riverside, NJ, 08075
+Jack,McGinnis,220 hobo Av.,Phila, PA,09119
+""John """"Da Man"""""",Repici,120 Jefferson St.,Riverside, NJ,08075
+Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
+,Blankman,,SomeTown, SD, 00298
+""Joan """"the bone"""", Anne"",Jet,""9th, at Terrace plc"",Desert City, CO,00123
+";
+            using (MemoryStream stream = new MemoryStream(Encoding.Default.GetBytes(text)))
+            {
+                SeparatedValueReader reader = new SeparatedValueReader(stream);
+                Assert.IsTrue(reader.Read(), "Could not read the first record.");
+                assertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
+                Assert.IsTrue(reader.Read(), "Could not read the second record.");
+                assertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
+                Assert.IsTrue(reader.Read(), "Could not read the third record.");
+                assertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
+                Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
+                assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
+                Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
+                assertValues(reader, "", "Blankman","", "SomeTown", "SD", "00298");
+                Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
+                assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
+                Assert.IsFalse(reader.Read(), "Read too many records.");
+            }
+        }
+
+        private static void assertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)
+        {
+            object[] values = reader.GetValues();
+            Assert.AreEqual(6, values.Length, "The wrong number of values were returned.");
+            Assert.AreEqual(firstName, values[0], "The fist name was wrong.");
+            Assert.AreEqual(lastName, values[1], "The last name was wrong.");
+            Assert.AreEqual(street, values[2], "The street was wrong.");
+            Assert.AreEqual(city, values[3], "The city was wrong.");
+            Assert.AreEqual(state, values[4], "The state was wrong.");
+            Assert.AreEqual(zip, values[5], "The zip code was wrong.");
+        }
     }
 }

@@ -61,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaTester.cs" />
     <Compile Include="SeparatedValueReaderTester.cs" />
+    <Compile Include="SeparatedValueTester.cs" />
     <Compile Include="StringColumnTester.cs" />
     <Compile Include="SeparatedValueTypeWriterTester.cs" />
   </ItemGroup>

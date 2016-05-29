@@ -49,6 +49,7 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="SeparatedValueSyntaxException.cs" />
     <Compile Include="WindowCollection.cs" />
     <Compile Include="DefaultNullHandler.cs" />
     <Compile Include="ExcelHelpers.cs" />
