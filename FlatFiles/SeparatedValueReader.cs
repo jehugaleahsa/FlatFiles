@@ -317,7 +317,6 @@ namespace FlatFiles
         private class RecordParser : IDisposable
         {
             private readonly RetryReader reader;
-            private readonly string prefix;
             private readonly string eor;
             private readonly string eot;
             private List<string> values;
@@ -325,20 +324,8 @@ namespace FlatFiles
             public RecordParser(RetryReader reader, string eor, string eot)
             {
                 this.reader = reader;
-                this.prefix = getPrefix(eor, eot);
-                this.eor = eor.Substring(prefix.Length, eor.Length - prefix.Length);
-                this.eot = eot.Substring(prefix.Length, eot.Length - prefix.Length);
-            }
-
-            private static string getPrefix(string eor, string eot)
-            {
-                List<char> prefixChars = new List<char>();
-                for (int index = 0; index != eor.Length && index != eot.Length && eor[index] == eot[index]; ++index)
-                {
-                    prefixChars.Add(eot[index]);
-                }
-                string prefix = new String(prefixChars.ToArray());
-                return prefix;
+                this.eor = eor;
+                this.eot = eot;
             }
 
             public bool EndOfStream
@@ -404,7 +391,7 @@ namespace FlatFiles
                         // Keep adding characters until we find a closing quote
                         tokenChars.Add(reader.Current);
                     }
-                    else if (isNextValue(quote))
+                    else if (reader.IsMatch(quote))
                     {
                         tokenChars.Add(reader.Current);
                     }
@@ -470,83 +457,38 @@ namespace FlatFiles
                 {
                     return TokenType.EndOfStream;
                 }
-                if (!hasTail(prefix, 0))
-                {
-                    return TokenType.Normal;
-                }
                 if (eor.Length > eot.Length)
                 {
-                    if (hasTail(eor, 0))
+                    if (reader.IsMatch(eor))
                     {
                         return TokenType.EndOfRecord;
                     }
-                    else if (hasTail(eot, 0))
+                    else if (reader.IsMatch(eot))
                     {
                         return TokenType.EndOfToken;
                     }
                 }
                 else if (eot.Length > eor.Length)
                 {
-                    if (hasTail(eot, 0))
+                    if (reader.IsMatch(eot))
                     {
                         return TokenType.EndOfToken;
                     }
-                    else if (hasTail(eor, 0))
+                    else if (reader.IsMatch(eor))
                     {
                         return TokenType.EndOfRecord;
                     }
                 }
-                else if (hasTail(eor, 0))
+                else if (reader.IsMatch(eor))
                 {
                     return TokenType.EndOfRecord;
                 }
-                else if (hasTail(eot, 0))
+                else if (reader.IsMatch(eot))
                 {
                     return TokenType.EndOfToken;
                 }
-                reader.Undo(prefix.ToList());
+                //reader.Undo(prefix.ToList());
                 return TokenType.Normal;
-            }
-
-            private bool hasTail(string value, int position)
-            {
-                if (position == value.Length)
-                {
-                    return true;
-                }
-                List<char> tailChars = new List<char>();
-                while (reader.Read())
-                {
-                    tailChars.Add(reader.Current);
-                    if (reader.Current != value[position])
-                    {
-                        break;
-                    }
-                    ++position;
-                    if (position == value.Length)
-                    {
-                        return true;
-                    }
-                }
-                reader.Undo(tailChars);
-                return false;
-            }
-
-            private bool isNextValue(char value)
-            {
-                if (!reader.Read())
-                {
-                    return false;
-                }
-                if (reader.Current == value)
-                {
-                    return true;
-                }
-                else
-                {
-                    reader.Undo(reader.Current);
-                    return false;
-                }
             }
 
             public enum TokenType
@@ -579,7 +521,7 @@ namespace FlatFiles
             
             public RetryReader(Stream stream, Encoding encoding, bool ownsStream)
             {
-                this.reader = new StreamReader(stream, encoding);
+                this.reader = new StreamReader(new BufferedStream(stream), encoding);
                 this.ownsStream = ownsStream;
                 this.retry = new Stack<char>();
             }
@@ -615,6 +557,50 @@ namespace FlatFiles
             public char Current
             {
                 get { return current; }
+            }
+
+            public bool IsMatch(char value)
+            {
+                if (retry.Count > 0)
+                {
+                    if (retry.Peek() == value)
+                    {
+                        current = retry.Pop();
+                        return true;
+                    }
+                    return false;
+                }
+                if (!reader.EndOfStream && reader.Peek() == value)
+                {
+                    current = (char)reader.Read();
+                    return true;
+                }
+                return false;
+            }
+
+            public bool IsMatch(string value)
+            {
+                if (value.Length == 1)
+                {
+                    return IsMatch(value[0]);
+                }
+                int position = 0;
+                List<char> tail = new List<char>(value.Length);
+                while (Read())
+                {
+                    tail.Add(current);
+                    if (current != value[position])
+                    {
+                        break;
+                    }
+                    ++position;
+                    if (position == value.Length)
+                    {
+                        return true;
+                    }
+                }
+                Undo(tail);
+                return false;
             }
 
             public void Undo(char item)
