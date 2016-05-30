@@ -410,7 +410,7 @@ namespace FlatFiles
                 }
                 if (!hasMatchingQuote)
                 {
-                    throw new Exception(Resources.UnmatchedQuote);
+                    throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
                 }
                 string token = new String(tokenChars.ToArray());
                 values.Add(token);
@@ -487,7 +487,6 @@ namespace FlatFiles
                 {
                     return TokenType.EndOfToken;
                 }
-                //reader.Undo(prefix.ToList());
                 return TokenType.Normal;
             }
 
@@ -521,7 +520,7 @@ namespace FlatFiles
             
             public RetryReader(Stream stream, Encoding encoding, bool ownsStream)
             {
-                this.reader = new StreamReader(new BufferedStream(stream), encoding);
+                this.reader = new StreamReader(stream, encoding);
                 this.ownsStream = ownsStream;
                 this.retry = new Stack<char>();
             }
@@ -580,19 +579,33 @@ namespace FlatFiles
 
             public bool IsMatch(string value)
             {
-                if (value.Length == 1)
-                {
-                    return IsMatch(value[0]);
-                }
+                // Optimized for two character separators.
                 int position = 0;
+                if (!IsMatch(value[position]))
+                {
+                    return false;
+                }
+                ++position;
+                if (position == value.Length)
+                {
+                    return true;
+                }
+                if (!IsMatch(value[position]))
+                {
+                    Undo(value[0]);
+                    return false;
+                }
+                ++position;
+                if (position == value.Length)
+                {
+                    return true;
+                }
                 List<char> tail = new List<char>(value.Length);
-                while (Read())
+                tail.Add(value[0]);
+                tail.Add(value[1]);
+                while (IsMatch(value[position]))
                 {
                     tail.Add(current);
-                    if (current != value[position])
-                    {
-                        break;
-                    }
                     ++position;
                     if (position == value.Length)
                     {
