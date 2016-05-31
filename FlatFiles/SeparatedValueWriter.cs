@@ -17,6 +17,8 @@ namespace FlatFiles
         private readonly bool isFirstRecordSchema;
         private readonly string separator;
         private readonly string recordSeparator;
+        private readonly string quoteString;
+        private readonly string doubleQuoteString;
         private bool isFirstLine;
         private bool isDisposed;
 
@@ -88,6 +90,8 @@ namespace FlatFiles
             this.isFirstRecordSchema = options.IsFirstRecordSchema;
             this.separator = options.Separator;
             this.recordSeparator = options.RecordSeparator;
+            this.quoteString = String.Empty + options.Quote;
+            this.doubleQuoteString = quoteString + quoteString;
             this.isFirstLine = true;
         }
 
@@ -167,7 +171,7 @@ namespace FlatFiles
                 }
                 isFirstLine = false;
             }
-            string[] formattedValues = schema.FormatValues(values).Select(v => escape(v)).ToArray();
+            var formattedValues = schema.FormatValues(values).Select(v => escape(v));
             string joined = String.Join(separator, formattedValues);
             writer.Write(joined);
             writer.Write(recordSeparator);
@@ -175,7 +179,7 @@ namespace FlatFiles
 
         private void buildSchema(TextWriter writer)
         {
-            string[] names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName)).ToArray();
+            var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
             string joined = String.Join(separator, names);
             writer.Write(joined);
             writer.Write(recordSeparator);
@@ -183,10 +187,14 @@ namespace FlatFiles
 
         private string escape(string value)
         {
-            string escaped = value;
-            if (value != null && value.Contains(separator))
+            if (value == null)
             {
-                escaped = "\"" + value.Replace("\"", "\"\"") + "\"";
+                return null;
+            }
+            string escaped = value;
+            if (value.Contains(separator) || value.Contains(quoteString))
+            {
+                escaped = quoteString + escaped.Replace(quoteString, doubleQuoteString) + quoteString;
             }
             return escaped;
         }

@@ -347,6 +347,8 @@ namespace FlatFiles.Test
             public string Name { get; set; }
 
             public DateTime Created { get; set; }
+
+            public int? ParentId { get; set; }
         }
 
         /// <summary>
@@ -559,10 +561,11 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Id).ColumnName("id");
             mapper.Property(p => p.Name).ColumnName("name");
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+            mapper.Property(p => p.ParentId).ColumnName("parent_id");
 
             using (MemoryStream stream = new MemoryStream())
             {
-                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), ParentId = null };
                 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
                 
                 mapper.Write(stream, options, new Person[] { bob });
@@ -575,6 +578,7 @@ namespace FlatFiles.Test
                 Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
                 Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
                 Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+                Assert.AreEqual(bob.ParentId, person.ParentId, "The parent ID value was not persisted.");
             }
         }
 

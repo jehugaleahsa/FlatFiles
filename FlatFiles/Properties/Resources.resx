@@ -177,9 +177,6 @@
   <data name="FileNotFound" xml:space="preserve">
     <value>Could not open the specified file.</value>
   </data>
-  <data name="UnknownExcelExtension" xml:space="preserve">
-    <value>The extension of the file was not recognized as an Excel file.</value>
-  </data>
   <data name="InvalidTruncationPolicy" xml:space="preserve">
     <value>Encountered an invalid overflow truncation policy.</value>
   </data>

@@ -131,7 +131,7 @@ namespace FlatFiles
                 throw new ArgumentException(Resources.SameSeparator, "options");
             }
             RetryReader retryReader = new RetryReader(stream, options.Encoding ?? Encoding.Default, ownsStream);
-            reader = new RecordParser(retryReader, options.RecordSeparator, options.Separator);
+            reader = new RecordParser(retryReader, options.RecordSeparator, options.Separator, options.Quote);
             if (hasSchema)
             {
                 if (options.IsFirstRecordSchema)
@@ -319,13 +319,15 @@ namespace FlatFiles
             private readonly RetryReader reader;
             private readonly string eor;
             private readonly string eot;
+            private readonly char quote;
             private List<string> values;
 
-            public RecordParser(RetryReader reader, string eor, string eot)
+            public RecordParser(RetryReader reader, string eor, string eot, char quote)
             {
                 this.reader = reader;
                 this.eor = eor;
                 this.eot = eot;
+                this.quote = quote;
             }
 
             public bool EndOfStream
@@ -352,14 +354,44 @@ namespace FlatFiles
                     values.Add(String.Empty);
                     return tokenType;
                 }
-                QuoteType quoteType = getQuoteType();
-                if (quoteType == QuoteType.None)
+                bool isQuoted = isTokenQuoted();
+                if (isQuoted)
                 {
-                    return getUnquotedToken();
+                    return getQuotedToken();
                 }
                 else
                 {
-                    return getQuotedToken(reader.Current);
+                    return getUnquotedToken();
+                }
+            }
+
+            private TokenType skipLeadingWhitespace()
+            {
+                TokenType tokenType = getSeparator();
+                while (tokenType == TokenType.Normal)
+                {
+                    reader.Read();
+                    if (!Char.IsWhiteSpace(reader.Current))
+                    {
+                        reader.Undo(reader.Current);
+                        return TokenType.Normal;
+                    }
+                    tokenType = getSeparator();
+                }
+                return tokenType;
+            }
+
+            private bool isTokenQuoted()
+            {
+                reader.Read();
+                if (reader.Current == quote)
+                {
+                    return true;
+                }
+                else
+                {
+                    reader.Undo(reader.Current);
+                    return false;
                 }
             }
 
@@ -379,7 +411,7 @@ namespace FlatFiles
                 return tokenType;
             }
 
-            private TokenType getQuotedToken(char quote)
+            private TokenType getQuotedToken()
             {
                 bool hasMatchingQuote = false;
                 TokenType tokenType = TokenType.Normal;
@@ -414,40 +446,6 @@ namespace FlatFiles
                 }
                 string token = new String(tokenChars.ToArray());
                 values.Add(token);
-                return tokenType;
-            }
-
-            private QuoteType getQuoteType()
-            {
-                reader.Read();
-                if (reader.Current == '"')
-                {
-                    return QuoteType.Double;
-                }
-                else if (reader.Current == '\'')
-                {
-                    return QuoteType.Single;
-                }
-                else
-                {
-                    reader.Undo(reader.Current);
-                    return QuoteType.None;
-                }
-            }
-
-            private TokenType skipLeadingWhitespace()
-            {
-                TokenType tokenType = getSeparator();
-                while (tokenType == TokenType.Normal)
-                {
-                    reader.Read();
-                    if (!Char.IsWhiteSpace(reader.Current))
-                    {
-                        reader.Undo(reader.Current);
-                        return TokenType.Normal;
-                    }
-                    tokenType = getSeparator();
-                }
                 return tokenType;
             }
 
@@ -496,13 +494,6 @@ namespace FlatFiles
                 EndOfStream,
                 EndOfRecord,
                 EndOfToken
-            }
-
-            public enum QuoteType
-            {
-                None,
-                Single,
-                Double
             }
 
             public void Dispose()

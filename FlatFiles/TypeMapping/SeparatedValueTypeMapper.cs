@@ -724,37 +724,16 @@ namespace FlatFiles.TypeMapping
 
         private IEnumerable<TEntity> read(IReader reader)
         {
+            var setter = CodeGenerator.GetReader<TEntity>(mappings, indexes);
             List<TEntity> entities = new List<TEntity>();
             while (reader.Read())
             {
                 object[] values = reader.GetValues();
                 TEntity entity = factory();
-                mapProperties(values, entity);
+                setter(entity, values);
                 entities.Add(entity);
             }
             return entities;
-        }
-
-        private ColumnDefinition[] getColumnDefinitions()
-        {
-            ColumnDefinition[] definitions = new ColumnDefinition[mappings.Count];
-            foreach (string propertyName in mappings.Keys)
-            {
-                IPropertyMapping mapping = mappings[propertyName];
-                int index = indexes[propertyName];
-                definitions[index] = mapping.ColumnDefinition;
-            }
-            return definitions;
-        }
-
-        private void mapProperties(object[] values, TEntity entity)
-        {
-            foreach (string propertyName in mappings.Keys)
-            {
-                IPropertyMapping mapping = mappings[propertyName];
-                int index = indexes[propertyName];
-                mapping.Property.SetValue(entity, values[index], null);
-            }
         }
 
         public void Write(string fileName, IEnumerable<TEntity> entities)
@@ -811,15 +790,10 @@ namespace FlatFiles.TypeMapping
 
         private void write(IWriter writer, IEnumerable<TEntity> entities)
         {
+            var getter = CodeGenerator.GetWriter<TEntity>(mappings, indexes);
             foreach (TEntity entity in entities)
             {
-                object[] values = new object[mappings.Count];
-                foreach (string propertyName in mappings.Keys)
-                {
-                    IPropertyMapping mapping = mappings[propertyName];
-                    int index = indexes[propertyName];
-                    values[index] = mapping.Property.GetValue(entity, null);
-                }
+                object[] values = getter(entity);
                 writer.Write(values);
             }
         }
@@ -834,6 +808,11 @@ namespace FlatFiles.TypeMapping
             return getSchema();
         }
 
+        ISchema ISchemaBuilder.GetSchema()
+        {
+            return GetSchema();
+        }
+
         private SeparatedValueSchema getSchema()
         {
             ColumnDefinition[] definitions = getColumnDefinitions();
@@ -845,9 +824,16 @@ namespace FlatFiles.TypeMapping
             return schema;
         }
 
-        ISchema ISchemaBuilder.GetSchema()
+        private ColumnDefinition[] getColumnDefinitions()
         {
-            return GetSchema();
+            ColumnDefinition[] definitions = new ColumnDefinition[mappings.Count];
+            foreach (string propertyName in mappings.Keys)
+            {
+                IPropertyMapping mapping = mappings[propertyName];
+                int index = indexes[propertyName];
+                definitions[index] = mapping.ColumnDefinition;
+            }
+            return definitions;
         }
     }
 

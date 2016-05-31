@@ -384,7 +384,11 @@ namespace FlatFiles.Test
             string source = "'a'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -400,7 +404,11 @@ namespace FlatFiles.Test
             string source = "' a  '";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -416,7 +424,11 @@ namespace FlatFiles.Test
             string source = "'a,b'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -432,7 +444,11 @@ namespace FlatFiles.Test
             string source = "'a''b'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -448,7 +464,11 @@ namespace FlatFiles.Test
             string source = "   'a'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -464,7 +484,11 @@ namespace FlatFiles.Test
             string source = "'a' ";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {
@@ -475,26 +499,34 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(FlatFileException))]
         public void ShouldThrowSyntaxExceptionIfQuoteFollowedByEOS()
         {
             string source = "'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 reader.Read();
             }
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(FlatFileException))]
         public void ShouldThrowSyntaxExceptionIfQuoteFollowedByNonSeparator()
         {
             string source = "'a'b";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 reader.Read();
             }
@@ -509,7 +541,11 @@ When he''s not traveling, he''s at home with his lovely wife, children and leath
 Mary,Smith,'1821 Grover''s Village',West Chattingham,WA,43221,'Likes cats.'";
             using (MemoryStream stream = getStream(source))
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+                SeparatedValueOptions options = new SeparatedValueOptions()
+                {
+                    IsFirstRecordSchema = false,
+                    Quote = '\''
+                };
                 SeparatedValueReader reader = new SeparatedValueReader(stream, options);
                 object[][] expected = new object[][]
                 {

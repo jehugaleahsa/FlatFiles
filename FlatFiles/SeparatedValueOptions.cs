@@ -19,6 +19,7 @@ namespace FlatFiles
         {
             Separator = ",";
             RecordSeparator = Environment.NewLine;
+            Quote = '"';
         }
 
         /// <summary>
@@ -58,6 +59,11 @@ namespace FlatFiles
                 this.recordSeparator = value;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the character used to quote records containing special characters.
+        /// </summary>
+        public char Quote { get; set; }
 
         /// <summary>
         /// Gets or sets whether the first record is the schema.

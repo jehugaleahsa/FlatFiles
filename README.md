@@ -9,8 +9,6 @@ A lot of us still need to work with flat files (e.g. CSV or fixed-length) whethe
 
 FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects, using a style similar to Entity Framework Code First. You can also go back and forth between files and `DataTable`s. It also supports the ability to expose a file using the `IDataReader` interface, for working with the low-level ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays. FlatFiles also supports a large number of options for customizing how files are interpreted, to support the most common types of flat files.
 
-FlatFiles also supports reading Excel files.
-
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
 
@@ -50,8 +48,6 @@ The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, e
 
 Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
 
-Schemas can be defined for Excel files, too, using the `ExcelSchema`. The code is very similar to defining a schema for a separated value file.
-
 The type mappers provide a `GetSchema` method to allow you to define schemas using a fluent syntax.
 
 ## Handling Nulls
@@ -89,15 +85,6 @@ It also supports a `RecordSeparator` property for specifying what value indicate
 ## FixedLengthWriter
 If you want to build a fixed-length file, you can use the `FixedLengthWriter` class. It accepts the same schema and options arguments used to read files. If you want to control the alignment of the columns, you can specify the `FixedAlignment` for each column when defining the schema. This will control whether padding is put to the right or the left of the value.
 
-## ExcelReader
-If you are working with an Excel file, you will want to use the `ExcelReader` class. The constructor accepts a combination of a file name, an `ExcelSchema` object and an `ExcelOptions` object.
-
-The `ExcelOptions` class is used to specify the name of the worksheet to read the data from. It also includes fields for specifying the row/column range. By default, the reader will try to read the entire worksheet.
-
-The `IsFirstRecordSchema` property tells the reader to treat the first record in the file as the schema. If you provide a schema, the reader will simply skip the first row. Although, it probably makes more sense to simply skip the header in the case of Excel (using the `StartingRow` option). Otherwise, Excel will try to interpret the type of the column by looking at the values in the worksheet. If you don't provide a schema and set the `IsFirstRecordSchema` property to `false`, `ExcelReader` will simply return the row values in whatever way Excel interprets them.
-
-If your schema's column types do not match what Excel interprets the column type, `ExcelReader` will do its best to convert to the desired value.
-	
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 

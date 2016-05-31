@@ -268,15 +268,6 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The extension of the file was not recognized as an Excel file..
-        /// </summary>
-        internal static string UnknownExcelExtension {
-            get {
-                return ResourceManager.GetString("UnknownExcelExtension", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A syntax error was encountered: Unmatched quote..
         /// </summary>
         internal static string UnmatchedQuote {

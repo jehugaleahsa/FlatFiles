@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
@@ -764,25 +765,16 @@ namespace FlatFiles.TypeMapping
 
         private IEnumerable<TEntity> read(IReader reader)
         {
+            var setter = CodeGenerator.GetReader<TEntity>(mappings, indexes);
             List<TEntity> entities = new List<TEntity>();
             while (reader.Read())
             {
                 object[] values = reader.GetValues();
                 TEntity entity = factory();
-                mapProperties(values, entity);
+                setter(entity, values);
                 entities.Add(entity);
             }
             return entities;
-        }
-
-        private void mapProperties(object[] values, TEntity entity)
-        {
-            foreach (string propertyName in mappings.Keys)
-            {
-                IPropertyMapping mapping = mappings[propertyName];
-                int index = indexes[propertyName];
-                mapping.Property.SetValue(entity, values[index], null);
-            }
         }
 
         public void Write(string fileName, IEnumerable<TEntity> entities)
@@ -839,15 +831,10 @@ namespace FlatFiles.TypeMapping
 
         private void write(IWriter writer, IEnumerable<TEntity> entities)
         {
+            var getter = CodeGenerator.GetWriter<TEntity>(mappings, indexes);
             foreach (TEntity entity in entities)
             {
-                object[] values = new object[mappings.Count];
-                foreach (string propertyName in mappings.Keys)
-                {
-                    IPropertyMapping mapping = mappings[propertyName];
-                    int index = indexes[propertyName];
-                    values[index] = mapping.Property.GetValue(entity, null);
-                }
+                object[] values = getter(entity);
                 writer.Write(values);
             }
         }
