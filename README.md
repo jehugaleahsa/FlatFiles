@@ -31,7 +31,7 @@ Writing to a file is just as easily:
 Note that the mapper assumes the order `Property` is called the first time for a particular property matches the order the columns appear in the file. Additional references to the property have no impact on the expected order.
 	
 ## Schemas
-Type mapping internally defines a schema, which defines the name, order and type of each column in the flat file. In order to use the other classes in FlatFiles, you must define the schema explicitly. For instance, this is how we would define a CSV file schema:
+Type mapping internally defines a schema, which defines the name, order and type of each column in the flat file. You can get access to the schema by calling `GetSchema` on the mapper. Otherwise, if you don't plan on using the type mappers you will need to define the schema yourself. For instance, this is how we would define a CSV file schema:
 
     SeparatedValueSchema schema = new SeparatedValueSchema();
     schema.AddColumn(new Int64Column("customer_id"))
@@ -50,19 +50,6 @@ Or, if the schema is for a fixed-length file:
 The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding.
 
 Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
-
-The type mappers provide a `GetSchema` method to allow you to define schemas using a fluent syntax.
-
-## Handling Nulls
-By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
-
-    DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
-    
-Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
-
-    mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
-    
-You can implement the `INullHandler` interface if you need to support something more complex.
 
 ## SeparatedValueReader
 If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a file name (or stream), a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
@@ -87,6 +74,17 @@ It also supports a `RecordSeparator` property for specifying what value indicate
 
 ## FixedLengthWriter
 If you want to build a fixed-length file, you can use the `FixedLengthWriter` class. It accepts the same schema and options arguments used to read files. If you want to control the alignment of the columns, you can specify the `FixedAlignment` for each column when defining the schema. This will control whether padding is put to the right or the left of the value.
+
+## Handling Nulls
+By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
+
+    DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
+    
+Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
+
+    mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
+    
+You can implement the `INullHandler` interface if you need to support something more complex.
 
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
