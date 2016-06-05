@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration settings for the FixedLengthParser class.
     /// </summary>
-    public sealed class FixedLengthOptions : ICloneable
+    public sealed class FixedLengthOptions
     {
         private OverflowTruncationPolicy truncationPolicy;
 
@@ -69,11 +69,6 @@ namespace FlatFiles
         public FixedLengthOptions Clone()
         {
             return (FixedLengthOptions)MemberwiseClone();
-        }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
         }
     }
 }

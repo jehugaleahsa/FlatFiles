@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration options for the SeparatedValueParser.
     /// </summary>
-    public sealed class SeparatedValueOptions : ICloneable
+    public sealed class SeparatedValueOptions
     {
         private string separator;
         private string recordSeparator;
@@ -83,11 +83,6 @@ namespace FlatFiles
         public SeparatedValueOptions Clone()
         {
             return (SeparatedValueOptions)MemberwiseClone();
-        }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
         }
     }
 }
