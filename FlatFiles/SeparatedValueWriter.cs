@@ -14,9 +14,7 @@ namespace FlatFiles
         private readonly TextWriter writer;
         private readonly bool ownsStream;
         private readonly SeparatedValueSchema schema;
-        private readonly bool isFirstRecordSchema;
-        private readonly string separator;
-        private readonly string recordSeparator;
+        private readonly SeparatedValueOptions options;
         private readonly string quoteString;
         private readonly string doubleQuoteString;
         private bool isFirstLine;
@@ -84,14 +82,12 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            this.writer = new StreamWriter(stream, options.Encoding ?? Encoding.Default);
+            this.writer = new StreamWriter(stream, options.Encoding ?? new UTF8Encoding(false));
             this.ownsStream = ownsStream;
             this.schema = schema;
-            this.isFirstRecordSchema = options.IsFirstRecordSchema;
-            this.separator = options.Separator;
-            this.recordSeparator = options.RecordSeparator;
+            this.options = options.Clone();
             this.quoteString = String.Empty + options.Quote;
-            this.doubleQuoteString = quoteString + quoteString;
+            this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
             this.isFirstLine = true;
         }
 
@@ -135,13 +131,18 @@ namespace FlatFiles
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
-        public ISchema GetSchema()
+        public SeparatedValueSchema GetSchema()
         {
             if (isDisposed)
             {
                 throw new ObjectDisposedException("SeparatedValueWriter");
             }
             return schema;
+        }
+
+        ISchema IWriter.GetSchema()
+        {
+            return GetSchema();
         }
 
         /// <summary>
@@ -165,24 +166,24 @@ namespace FlatFiles
             }
             if (isFirstLine)
             {
-                if (isFirstRecordSchema)
+                if (options.IsFirstRecordSchema)
                 {
-                    buildSchema(writer);
+                    writeSchema(writer);
                 }
                 isFirstLine = false;
             }
-            var formattedValues = schema.FormatValues(values).Select(v => escape(v));
-            string joined = String.Join(separator, formattedValues);
+            var formattedValues = schema.FormatValues(values, writer.Encoding).Select(v => escape(v));
+            string joined = String.Join(options.Separator, formattedValues);
             writer.Write(joined);
-            writer.Write(recordSeparator);
+            writer.Write(options.RecordSeparator);
         }
 
-        private void buildSchema(TextWriter writer)
+        private void writeSchema(TextWriter writer)
         {
             var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(separator, names);
+            string joined = String.Join(options.Separator, names);
             writer.Write(joined);
-            writer.Write(recordSeparator);
+            writer.Write(options.RecordSeparator);
         }
 
         private string escape(string value)
@@ -192,7 +193,7 @@ namespace FlatFiles
                 return null;
             }
             string escaped = value;
-            if (value.Contains(separator) || value.Contains(quoteString))
+            if (value.Contains(options.Separator) || value.Contains(quoteString))
             {
                 escaped = quoteString + escaped.Replace(quoteString, doubleQuoteString) + quoteString;
             }

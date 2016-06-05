@@ -124,6 +124,15 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The record did not meet the length requirements specified in the schema. Record {0}..
+        /// </summary>
+        internal static string FixedLengthRecordTooShort {
+            get {
+                return ResourceManager.GetString("FixedLengthRecordTooShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Encountered an invalid fixed width column alignment..
         /// </summary>
         internal static string InvalidAlignment {
@@ -169,7 +178,7 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered an invalid format while parsing record {0}..
+        ///   Looks up a localized string similar to Encountered an invalid record format. Record {0}..
         /// </summary>
         internal static string InvalidRecordFormatNumber {
             get {
@@ -264,6 +273,15 @@ namespace FlatFiles.Properties {
         internal static string SchemaNotDefined {
             get {
                 return ResourceManager.GetString("SchemaNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The record did not have the number of columns specified in the schema. Record {0}..
+        /// </summary>
+        internal static string SeparatedValueRecordWrongNumberOfColumns {
+            get {
+                return ResourceManager.GetString("SeparatedValueRecordWrongNumberOfColumns", resourceCulture);
             }
         }
         

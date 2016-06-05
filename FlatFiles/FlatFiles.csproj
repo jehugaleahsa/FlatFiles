@@ -49,6 +49,8 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="SeparatedValueRecordParser.cs" />
+    <Compile Include="RetryReader.cs" />
     <Compile Include="SeparatedValueSyntaxException.cs" />
     <Compile Include="TypeMapping\CodeGenerator.cs" />
     <Compile Include="WindowCollection.cs" />
@@ -62,7 +64,7 @@
     <Compile Include="GuidColumn.cs" />
     <Compile Include="ISchema.cs" />
     <Compile Include="INullHandler.cs" />
-    <Compile Include="RecordReader.cs" />
+    <Compile Include="FixedLengthRecordParser.cs" />
     <Compile Include="SeparatedValueWriter.cs" />
     <Compile Include="SingleColumn.cs" />
     <Compile Include="DoubleColumn.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using FlatFiles.Properties;
 
 namespace FlatFiles
@@ -62,8 +63,9 @@ namespace FlatFiles
         /// Parses the given value and returns the parsed object.
         /// </summary>
         /// <param name="value">The value to parse.</param>
+        /// <param name="encoding">The encoding the source string is in.</param>
         /// <returns>The parsed value.</returns>
-        public abstract object Parse(string value);
+        public abstract object Parse(string value, Encoding encoding);
 
         /// <summary>
         /// Removes any leading or trailing whitespace from the value.
@@ -72,14 +74,19 @@ namespace FlatFiles
         /// <returns>The trimmed value.</returns>
         protected string TrimValue(string value)
         {
-            return value == null ? String.Empty : value.Trim();
+            if (value == null)
+            {
+                return String.Empty;
+            }
+            return value.Trim();
         }
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
         /// <param name="value">The object to format.</param>
+        /// <param name="encoding">The encoding the resultant string will be encoded in.</param>
         /// <returns>The formatted value.</returns>
-        public abstract string Format(object value);
+        public abstract string Format(object value, Encoding encoding);
     }
 }

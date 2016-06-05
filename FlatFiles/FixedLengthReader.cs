@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using FlatFiles.Properties;
 using System.IO;
 
 namespace FlatFiles
 {
-    using System.Text;
-
     /// <summary>
     /// Extracts records from a file that has value in fixed-length columns.
     /// </summary>
     public sealed class FixedLengthReader : IReader
     {
-        private readonly RecordReader reader;
+        private readonly FixedLengthRecordParser parser;
         private readonly FixedLengthSchema schema;
         private readonly FixedLengthOptions options;
         private int recordCount;
@@ -26,7 +23,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="fileName">The path of the file containing the records to parse.</param>
         /// <param name="schema">The schema object defining which columns are in each record.</param>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema is null.</exception>
         public FixedLengthReader(string fileName, FixedLengthSchema schema)
             : this(File.OpenRead(fileName), schema, new FixedLengthOptions(), true)
         {
@@ -38,8 +35,8 @@ namespace FlatFiles
         /// <param name="fileName">The path to the file containing the records to parse.</param>
         /// <param name="schema">The schema object defining which columns are in each record.</param>
         /// <param name="options">An object containing settings for configuring the parser.</param>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema is null.</exception>
+        /// <exception cref="ArgumentNullException">The options is null.</exception>
         public FixedLengthReader(string fileName, FixedLengthSchema schema, FixedLengthOptions options)
             : this(File.OpenRead(fileName), schema, options, true)
         {
@@ -50,8 +47,8 @@ namespace FlatFiles
         /// </summary>
         /// <param name="stream">A stream containing the records to parse.</param>
         /// <param name="schema">The schema object defining which columns are in each record.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema is null.</exception>
         public FixedLengthReader(Stream stream, FixedLengthSchema schema)
             : this(stream, schema, new FixedLengthOptions(), false)
         {
@@ -63,9 +60,9 @@ namespace FlatFiles
         /// <param name="stream">A stream containing the records to parse.</param>
         /// <param name="schema">The schema object defining which columns are in each record.</param>
         /// <param name="options">An object containing settings for configuring the parser.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema is null.</exception>
+        /// <exception cref="ArgumentNullException">The options is null.</exception>
         public FixedLengthReader(Stream stream, FixedLengthSchema schema, FixedLengthOptions options)
             : this(stream, schema, options, false)
         {
@@ -85,7 +82,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            reader = new RecordReader(stream, options.Encoding, options.RecordSeparator, ownsStream);
+            parser = new FixedLengthRecordParser(stream, options, ownsStream);
             this.schema = schema;
             this.options = options.Clone();
             if (this.options.IsFirstRecordHeader)
@@ -118,7 +115,7 @@ namespace FlatFiles
         {
             if (disposing)
             {
-                reader.Dispose();
+                parser.Dispose();
             }
             isDisposed = true;
         }
@@ -127,13 +124,18 @@ namespace FlatFiles
         /// Gets the schema being used by the parser.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
-        public ISchema GetSchema()
+        public FixedLengthSchema GetSchema()
         {
             if (isDisposed)
             {
                 throw new ObjectDisposedException("FixedLengthReader");
             }
             return schema;
+        } 
+
+        ISchema IReader.GetSchema()
+        {
+            return GetSchema();
         }
 
         /// <summary>
@@ -150,14 +152,13 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            if (reader.EndOfStream)
+            if (parser.EndOfStream)
             {
                 endOfFile = true;
                 return false;
             }
-            ++recordCount;
             string[] rawValues = readNextLine();
-            values = schema.ParseValues(rawValues);
+            values = schema.ParseValues(rawValues, parser.Encoding);
             return true;
         }
 
@@ -176,29 +177,29 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            bool result = skip();
-            ++recordCount;
-            return result;
+            return skip();
         }
 
         private bool skip()
         {
-            if (reader.EndOfStream)
+            if (parser.EndOfStream)
             {
                 endOfFile = true;
                 return false;
             }
-            reader.ReadRecord();
+            parser.ReadRecord();
+            ++recordCount;
             return true;
         }
 
         private string[] readNextLine()
         {
-            string record = reader.ReadRecord();
-            if (record.Length != schema.TotalWidth)
+            string record = parser.ReadRecord();
+            ++recordCount;
+            if (record.Length < schema.TotalWidth)
             {
                 hasError = true;
-                throw new FlatFileException(recordCount);
+                throw new FlatFileException(Resources.FixedLengthRecordTooShort, recordCount);
             }
             WindowCollection windows = schema.Windows;
             string[] values = new string[windows.Count];

@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InvalidRecordFormatNumber" xml:space="preserve">
-    <value>Encountered an invalid format while parsing record {0}.</value>
-  </data>
   <data name="NoMoreRecords" xml:space="preserve">
     <value>An attempt to view values was made after all of the records were read.</value>
   </data>
@@ -191,5 +188,14 @@
   </data>
   <data name="UnmatchedQuote" xml:space="preserve">
     <value>A syntax error was encountered: Unmatched quote.</value>
+  </data>
+  <data name="FixedLengthRecordTooShort" xml:space="preserve">
+    <value>The record did not meet the length requirements specified in the schema. Record {0}.</value>
+  </data>
+  <data name="SeparatedValueRecordWrongNumberOfColumns" xml:space="preserve">
+    <value>The record did not have the number of columns specified in the schema. Record {0}.</value>
+  </data>
+  <data name="InvalidRecordFormatNumber" xml:space="preserve">
+    <value>Encountered an invalid record format. Record {0}.</value>
   </data>
 </root>

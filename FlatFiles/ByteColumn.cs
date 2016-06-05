@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 
 namespace FlatFiles
 {
@@ -46,7 +47,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed byte value.</returns>
-        public override object Parse(string value)
+        public override object Parse(string value, Encoding encoding)
         {
             if (NullHandler.IsNullRepresentation(value))
             {
@@ -61,7 +62,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        public override string Format(object value, Encoding encoding)
         {
             if (value == null)
             {

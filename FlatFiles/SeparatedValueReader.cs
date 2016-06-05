@@ -12,7 +12,7 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueReader : IReader
     {
-        private readonly RecordParser reader;
+        private readonly SeparatedValueRecordParser parser;
         private readonly SeparatedValueSchema schema;
         private int recordCount;
         private object[] values;
@@ -130,8 +130,8 @@ namespace FlatFiles
             {
                 throw new ArgumentException(Resources.SameSeparator, "options");
             }
-            RetryReader retryReader = new RetryReader(stream, options.Encoding ?? Encoding.Default, ownsStream);
-            reader = new RecordParser(retryReader, options.RecordSeparator, options.Separator, options.Quote);
+            RetryReader retryReader = new RetryReader(stream, options.Encoding ?? new UTF8Encoding(false), ownsStream);
+            this.parser = new SeparatedValueRecordParser(retryReader, options.RecordSeparator, options.Separator, options.Quote);
             if (hasSchema)
             {
                 if (options.IsFirstRecordSchema)
@@ -176,7 +176,7 @@ namespace FlatFiles
         {
             if (disposing)
             {
-                reader.Dispose();
+                parser.Dispose();
             }
             isDisposed = true;
         }
@@ -185,7 +185,7 @@ namespace FlatFiles
         /// Gets the names of the columns found in the file.
         /// </summary>
         /// <returns>The names.</returns>
-        public ISchema GetSchema()
+        public SeparatedValueSchema GetSchema()
         {
             if (isDisposed)
             {
@@ -196,6 +196,11 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
             return schema;
+        }
+
+        ISchema IReader.GetSchema()
+        {
+            return GetSchema();
         }
 
         /// <summary>
@@ -212,7 +217,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            if (reader.EndOfStream)
+            if (parser.EndOfStream)
             {
                 endOfFile = true;
                 values = null;
@@ -227,11 +232,11 @@ namespace FlatFiles
             else if (rawValues.Length != schema.ColumnDefinitions.Count)
             {
                 hasError = true;
-                throw new FlatFileException(recordCount);
+                throw new FlatFileException(Resources.SeparatedValueRecordWrongNumberOfColumns, recordCount);
             }
             else
             {
-                values = schema.ParseValues(rawValues);
+                values = schema.ParseValues(rawValues, parser.Encoding);
             }
             return true;
         }
@@ -258,7 +263,7 @@ namespace FlatFiles
 
         private bool skip()
         {
-            if (reader.EndOfStream)
+            if (parser.EndOfStream)
             {
                 endOfFile = true;
                 values = null;
@@ -266,7 +271,7 @@ namespace FlatFiles
             }
             try
             {
-                reader.ReadRecord();
+                parser.ReadRecord();
                 return true;
             }
             catch (SeparatedValueSyntaxException exception)
@@ -306,333 +311,12 @@ namespace FlatFiles
         {
             try
             {
-                return reader.ReadRecord();
+                string[] results = parser.ReadRecord();
+                return results;
             }
             catch (SeparatedValueSyntaxException exception)
             {
                 throw new FlatFileException(recordCount, exception);
-            }
-        }
-        
-        private class RecordParser : IDisposable
-        {
-            private readonly RetryReader reader;
-            private readonly string eor;
-            private readonly string eot;
-            private readonly char quote;
-            private List<string> values;
-
-            public RecordParser(RetryReader reader, string eor, string eot, char quote)
-            {
-                this.reader = reader;
-                this.eor = eor;
-                this.eot = eot;
-                this.quote = quote;
-            }
-
-            public bool EndOfStream
-            {
-                get { return reader.EndOfStream; }
-            }
-
-            public string[] ReadRecord()
-            {
-                values = new List<string>();
-                TokenType tokenType = getNextToken();
-                while (tokenType == TokenType.EndOfToken)
-                {
-                    tokenType = getNextToken();
-                }
-                return values.ToArray();
-            }
-
-            private TokenType getNextToken()
-            {
-                TokenType tokenType = skipLeadingWhitespace();
-                if (tokenType != TokenType.Normal)
-                {
-                    values.Add(String.Empty);
-                    return tokenType;
-                }
-                bool isQuoted = isTokenQuoted();
-                if (isQuoted)
-                {
-                    return getQuotedToken();
-                }
-                else
-                {
-                    return getUnquotedToken();
-                }
-            }
-
-            private TokenType skipLeadingWhitespace()
-            {
-                TokenType tokenType = getSeparator();
-                while (tokenType == TokenType.Normal)
-                {
-                    reader.Read();
-                    if (!Char.IsWhiteSpace(reader.Current))
-                    {
-                        reader.Undo(reader.Current);
-                        return TokenType.Normal;
-                    }
-                    tokenType = getSeparator();
-                }
-                return tokenType;
-            }
-
-            private bool isTokenQuoted()
-            {
-                reader.Read();
-                if (reader.Current == quote)
-                {
-                    return true;
-                }
-                else
-                {
-                    reader.Undo(reader.Current);
-                    return false;
-                }
-            }
-
-            private TokenType getUnquotedToken()
-            {
-                List<char> tokenChars = new List<char>();
-                TokenType tokenType = TokenType.Normal;
-                while (tokenType == TokenType.Normal)
-                {
-                    reader.Read();
-                    tokenChars.Add(reader.Current);
-                    tokenType = getSeparator();
-                }
-                string token = new String(tokenChars.ToArray());
-                token = token.TrimEnd();
-                values.Add(token);
-                return tokenType;
-            }
-
-            private TokenType getQuotedToken()
-            {
-                bool hasMatchingQuote = false;
-                TokenType tokenType = TokenType.Normal;
-                List<char> tokenChars = new List<char>();
-                while (tokenType == TokenType.Normal && reader.Read())
-                {
-                    if (reader.Current != quote)
-                    {
-                        // Keep adding characters until we find a closing quote
-                        tokenChars.Add(reader.Current);
-                    }
-                    else if (reader.IsMatch(quote))
-                    {
-                        tokenChars.Add(reader.Current);
-                    }
-                    else
-                    {
-                        // We've encountered a stand-alone quote.
-                        // We go looking for a separator, skipping any leading whitespace.
-                        tokenType = skipLeadingWhitespace();
-                        if (tokenType == TokenType.Normal)
-                        {
-                            // If we find anything other than a separator, it's a syntax error.
-                            break;
-                        }
-                        hasMatchingQuote = true;
-                    }
-                }
-                if (!hasMatchingQuote)
-                {
-                    throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
-                }
-                string token = new String(tokenChars.ToArray());
-                values.Add(token);
-                return tokenType;
-            }
-
-            private TokenType getSeparator()
-            {
-                if (reader.EndOfStream)
-                {
-                    return TokenType.EndOfStream;
-                }
-                if (eor.Length > eot.Length)
-                {
-                    if (reader.IsMatch(eor))
-                    {
-                        return TokenType.EndOfRecord;
-                    }
-                    else if (reader.IsMatch(eot))
-                    {
-                        return TokenType.EndOfToken;
-                    }
-                }
-                else if (eot.Length > eor.Length)
-                {
-                    if (reader.IsMatch(eot))
-                    {
-                        return TokenType.EndOfToken;
-                    }
-                    else if (reader.IsMatch(eor))
-                    {
-                        return TokenType.EndOfRecord;
-                    }
-                }
-                else if (reader.IsMatch(eor))
-                {
-                    return TokenType.EndOfRecord;
-                }
-                else if (reader.IsMatch(eot))
-                {
-                    return TokenType.EndOfToken;
-                }
-                return TokenType.Normal;
-            }
-
-            public enum TokenType
-            {
-                Normal,
-                EndOfStream,
-                EndOfRecord,
-                EndOfToken
-            }
-
-            public void Dispose()
-            {
-                reader.Dispose();
-            }
-        }
-        
-        private class RetryReader : IDisposable
-        {
-            private readonly StreamReader reader;
-            private readonly bool ownsStream;
-            private readonly Stack<char> retry;
-            private char current;
-            
-            public RetryReader(Stream stream, Encoding encoding, bool ownsStream)
-            {
-                this.reader = new StreamReader(stream, encoding);
-                this.ownsStream = ownsStream;
-                this.retry = new Stack<char>();
-            }
-
-            ~RetryReader()
-            {
-                dispose(false);
-            }
-            
-            public bool Read()
-            {
-                if (retry.Count > 0)
-                {
-                    current = retry.Pop();
-                    return true;
-                }
-                if (reader.EndOfStream)
-                {
-                    return false;
-                }
-                current = (char)reader.Read();
-                return true;
-            }
-
-            public bool EndOfStream
-            {
-                get
-                {
-                    return retry.Count == 0 && reader.EndOfStream;
-                }
-            }
-            
-            public char Current
-            {
-                get { return current; }
-            }
-
-            public bool IsMatch(char value)
-            {
-                if (retry.Count > 0)
-                {
-                    if (retry.Peek() == value)
-                    {
-                        current = retry.Pop();
-                        return true;
-                    }
-                    return false;
-                }
-                if (!reader.EndOfStream && reader.Peek() == value)
-                {
-                    current = (char)reader.Read();
-                    return true;
-                }
-                return false;
-            }
-
-            public bool IsMatch(string value)
-            {
-                // Optimized for two character separators.
-                int position = 0;
-                if (!IsMatch(value[position]))
-                {
-                    return false;
-                }
-                ++position;
-                if (position == value.Length)
-                {
-                    return true;
-                }
-                if (!IsMatch(value[position]))
-                {
-                    Undo(value[0]);
-                    return false;
-                }
-                ++position;
-                if (position == value.Length)
-                {
-                    return true;
-                }
-                List<char> tail = new List<char>(value.Length);
-                tail.Add(value[0]);
-                tail.Add(value[1]);
-                while (IsMatch(value[position]))
-                {
-                    tail.Add(current);
-                    ++position;
-                    if (position == value.Length)
-                    {
-                        return true;
-                    }
-                }
-                Undo(tail);
-                return false;
-            }
-
-            public void Undo(char item)
-            {
-                retry.Push(item);
-            }
-            
-            public void Undo(List<char> items)
-            {
-                int position = items.Count;
-                while (position != 0)
-                {
-                    --position;
-                    retry.Push(items[position]);
-                }
-            }
-
-            public void Dispose()
-            {
-                dispose(true);
-            }
-
-            private void dispose(bool isDisposing)
-            {
-                if (isDisposing && ownsStream)
-                {
-                    reader.Dispose();
-                }
             }
         }
     }

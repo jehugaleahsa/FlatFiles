@@ -1,27 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace FlatFiles
 {
-    internal sealed class RecordReader : IDisposable
+    internal sealed class FixedLengthRecordParser : IDisposable
     {
         private readonly StreamReader reader;
         private readonly bool ownsStream;
         private readonly string separator;
         private bool isDisposed;
 
-        public RecordReader(Stream stream, Encoding encoding, string separator, bool ownsStream)
+        public FixedLengthRecordParser(Stream stream, FixedLengthOptions options, bool ownsStream)
         {
-            this.reader = new StreamReader(new BufferedStream(stream), encoding ?? Encoding.Default);
-            this.separator = separator;
+            this.reader = new StreamReader(stream, options.Encoding ?? new UTF8Encoding(false));
+            this.separator = options.RecordSeparator;
             this.ownsStream = ownsStream;
         }
 
-        ~RecordReader()
+        ~FixedLengthRecordParser()
         {
             dispose(false);
+        }
+
+        public Encoding Encoding
+        {
+            get { return reader.CurrentEncoding; }
         }
 
         public bool EndOfStream
@@ -49,7 +53,7 @@ namespace FlatFiles
 
         public string ReadRecord()
         {
-            List<char> buffer = new List<char>();
+            StringBuilder builder = new StringBuilder();
             int positionIndex = 0;
             while (!reader.EndOfStream && positionIndex != separator.Length)
             {
@@ -65,14 +69,14 @@ namespace FlatFiles
                     {
                         positionIndex = 0;
                     }
-                    buffer.Add(next);
+                    builder.Append(next);
                 }
             }
             if (positionIndex == separator.Length)
             {
-                buffer.RemoveRange(buffer.Count - separator.Length, separator.Length);
+                builder.Length -= separator.Length;
             }
-            return new String(buffer.ToArray());
+            return builder.ToString();
         }
     }
 }

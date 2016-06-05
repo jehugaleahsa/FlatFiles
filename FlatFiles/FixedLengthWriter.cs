@@ -73,7 +73,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("options");
             }
-            this.writer = new StreamWriter(stream, options.Encoding ?? Encoding.Default);
+            this.writer = new StreamWriter(stream, options.Encoding ?? new UTF8Encoding(false));
             this.schema = schema;
             this.ownsStream = ownsStream;
             this.options = options.Clone();
@@ -119,7 +119,7 @@ namespace FlatFiles
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
-        public ISchema GetSchema()
+        public FixedLengthSchema GetSchema()
         {
             if (isDisposed)
             {
@@ -128,11 +128,16 @@ namespace FlatFiles
             return schema;
         }
 
+        ISchema IWriter.GetSchema()
+        {
+            return GetSchema();
+        }
+
         /// <summary>
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
-        /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
+        /// <exception cref="ArgumentNullException">The values array is null.</exception>
         public void Write(object[] values)
         {
             if (isDisposed)
@@ -147,7 +152,8 @@ namespace FlatFiles
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
             }
-            foreach (string column in schema.FormatValues(values).Select((v, i) => fitWidth(i, v)))
+            var formattedColumns = schema.FormatValues(values, writer.Encoding).Select((v, i) => fitWidth(i, v));
+            foreach (string column in formattedColumns)
             {
                 writer.Write(column);
             }

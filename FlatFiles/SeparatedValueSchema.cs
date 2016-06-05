@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using FlatFiles.Properties;
 
 namespace FlatFiles
@@ -74,13 +75,13 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(string[] values)
+        internal object[] ParseValues(string[] values, Encoding encoding)
         {
             object[] parsed = new object[values.Length];
             for (int index = 0; index != values.Length; ++index)
             {
                 ColumnDefinition definition = definitions[index];
-                parsed[index] = definition.Parse(values[index]);
+                parsed[index] = definition.Parse(values[index], encoding);
             }
             return parsed;
         }
@@ -90,13 +91,13 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The values to format.</param>
         /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(object[] values)
+        internal string[] FormatValues(object[] values, Encoding encoding)
         {
             string[] formatted = new string[values.Length];
             for (int index = 0; index != values.Length; ++index)
             {
                 ColumnDefinition definition = definitions[index];
-                formatted[index] = definition.Format(values[index]);
+                formatted[index] = definition.Format(values[index], encoding);
             }
             return formatted;
         }
