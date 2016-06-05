@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,18 @@ namespace FlatFiles
     {
         private readonly TextWriter writer;
         private readonly bool ownsStream;
-        private readonly SeparatedValueSchema schema;
-        private readonly SeparatedValueOptions options;
-        private readonly string quoteString;
-        private readonly string doubleQuoteString;
+        private readonly SeparatedValueRecordWriter recordWriter;
         private bool isFirstLine;
         private bool isDisposed;
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueWriter.
+        /// </summary>
+        /// <param name="fileName">The name of the file to write to.</param>
+        public SeparatedValueWriter(string fileName)
+            : this(File.OpenWrite(fileName), null, new SeparatedValueOptions(), true, false)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueWriter.
@@ -27,7 +34,17 @@ namespace FlatFiles
         /// <param name="schema">The schema to use to build the output.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         public SeparatedValueWriter(string fileName, SeparatedValueSchema schema)
-            : this(File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true)
+            : this(File.OpenWrite(fileName), schema, new SeparatedValueOptions(), true, true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueWriter.
+        /// </summary>
+        /// <param name="fileName">The name of the file to write to.</param>
+        /// <param name="options">The options to use to format the output.</param>
+        public SeparatedValueWriter(string fileName, SeparatedValueOptions options)
+            : this(File.OpenWrite(fileName), null, options, true, false)
         {
         }
 
@@ -39,7 +56,16 @@ namespace FlatFiles
         /// <param name="options">The options to use to format the output.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         public SeparatedValueWriter(string fileName, SeparatedValueSchema schema, SeparatedValueOptions options)
-            : this(File.OpenWrite(fileName), schema, options, true)
+            : this(File.OpenWrite(fileName), schema, options, true, true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueWriter.
+        /// </summary>
+        /// <param name="stream">The stream to write the output to.</param>
+        public SeparatedValueWriter(Stream stream)
+            : this(stream, null, new SeparatedValueOptions(), false, false)
         {
         }
 
@@ -49,9 +75,19 @@ namespace FlatFiles
         /// <param name="stream">The stream to write the output to.</param>
         /// <param name="schema">The schema to use to build the output.</param>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public SeparatedValueWriter(Stream stream, SeparatedValueSchema schema)
-            : this(stream, schema, new SeparatedValueOptions(), false)
+            : this(stream, schema, new SeparatedValueOptions(), false, true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of a SeparatedValueWriter.
+        /// </summary>
+        /// <param name="stream">The stream to write the output to.</param>
+        /// <param name="options">The options used to format the output.</param>
+        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
+        public SeparatedValueWriter(Stream stream, SeparatedValueOptions options)
+            : this(stream, null, options, false, false)
         {
         }
 
@@ -64,17 +100,17 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
         /// <exception cref="System.ArgumentNullException">The options is null.</exception>
         public SeparatedValueWriter(Stream stream, SeparatedValueSchema schema, SeparatedValueOptions options)
-            : this(stream, schema, options, false)
+            : this(stream, schema, options, false, true)
         {
         }
 
-        private SeparatedValueWriter(Stream stream, SeparatedValueSchema schema, SeparatedValueOptions options, bool ownsStream)
+        private SeparatedValueWriter(Stream stream, SeparatedValueSchema schema, SeparatedValueOptions options, bool ownsStream, bool hasSchema)
         {
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
-            if (schema == null)
+            if (hasSchema && schema == null)
             {
                 throw new ArgumentNullException("schema");
             }
@@ -84,10 +120,7 @@ namespace FlatFiles
             }
             this.writer = new StreamWriter(stream, options.Encoding ?? new UTF8Encoding(false));
             this.ownsStream = ownsStream;
-            this.schema = schema;
-            this.options = options.Clone();
-            this.quoteString = String.Empty + options.Quote;
-            this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
+            this.recordWriter = new SeparatedValueRecordWriter(schema, options);
             this.isFirstLine = true;
         }
 
@@ -137,7 +170,7 @@ namespace FlatFiles
             {
                 throw new ObjectDisposedException("SeparatedValueWriter");
             }
-            return schema;
+            return recordWriter.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -160,44 +193,22 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Length != schema.ColumnDefinitions.Count)
-            {
-                throw new ArgumentException(Resources.WrongNumberOfValues, "values");
-            }
             if (isFirstLine)
             {
-                if (options.IsFirstRecordSchema)
+                if (recordWriter.Options.IsFirstRecordSchema)
                 {
-                    writeSchema(writer);
+                    writeSchema();
                 }
                 isFirstLine = false;
             }
-            var formattedValues = schema.FormatValues(values, writer.Encoding).Select(v => escape(v));
-            string joined = String.Join(options.Separator, formattedValues);
-            writer.Write(joined);
-            writer.Write(options.RecordSeparator);
+            recordWriter.WriteRecord(writer, values);
+            recordWriter.WriteRecordSeparator(writer);
         }
 
-        private void writeSchema(TextWriter writer)
+        private void writeSchema()
         {
-            var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(options.Separator, names);
-            writer.Write(joined);
-            writer.Write(options.RecordSeparator);
-        }
-
-        private string escape(string value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-            string escaped = value;
-            if (value.Contains(options.Separator) || value.Contains(quoteString))
-            {
-                escaped = quoteString + escaped.Replace(quoteString, doubleQuoteString) + quoteString;
-            }
-            return escaped;
+            recordWriter.WriteSchema(writer);
+            recordWriter.WriteRecordSeparator(writer);
         }
     }
 }

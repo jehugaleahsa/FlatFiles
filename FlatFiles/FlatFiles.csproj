@@ -49,13 +49,16 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="FixedLengthComplexColumn.cs" />
+    <Compile Include="FixedLengthRecordWriter.cs" />
+    <Compile Include="SeparatedValueComplexColumn.cs" />
     <Compile Include="SeparatedValueRecordParser.cs" />
     <Compile Include="RetryReader.cs" />
+    <Compile Include="SeparatedValueRecordWriter.cs" />
     <Compile Include="SeparatedValueSyntaxException.cs" />
     <Compile Include="TypeMapping\CodeGenerator.cs" />
     <Compile Include="WindowCollection.cs" />
     <Compile Include="DefaultNullHandler.cs" />
-    <Compile Include="CustomColumn.cs" />
     <Compile Include="FixedAlignment.cs" />
     <Compile Include="FixedLengthWriter.cs" />
     <Compile Include="IWriter.cs" />

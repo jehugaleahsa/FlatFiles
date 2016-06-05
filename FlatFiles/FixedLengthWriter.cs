@@ -13,8 +13,7 @@ namespace FlatFiles
     {
         private readonly StreamWriter writer;
         private readonly bool ownsStream;
-        private readonly FixedLengthSchema schema;
-        private readonly FixedLengthOptions options;
+        private readonly FixedLengthRecordWriter recordWriter;
         private bool isDisposed;
 
         /// <summary>
@@ -74,9 +73,8 @@ namespace FlatFiles
                 throw new ArgumentNullException("options");
             }
             this.writer = new StreamWriter(stream, options.Encoding ?? new UTF8Encoding(false));
-            this.schema = schema;
             this.ownsStream = ownsStream;
-            this.options = options.Clone();
+            this.recordWriter = new FixedLengthRecordWriter(schema, options.Clone());
         }
 
         /// <summary>
@@ -125,7 +123,7 @@ namespace FlatFiles
             {
                 throw new ObjectDisposedException("FixedLengthWriter");
             }
-            return schema;
+            return recordWriter.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -148,63 +146,8 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Length != schema.ColumnDefinitions.Count)
-            {
-                throw new ArgumentException(Resources.WrongNumberOfValues, "values");
-            }
-            var formattedColumns = schema.FormatValues(values, writer.Encoding).Select((v, i) => fitWidth(i, v));
-            foreach (string column in formattedColumns)
-            {
-                writer.Write(column);
-            }
-            writer.Write(options.RecordSeparator);
-        }
-
-        private string fitWidth(int columnIndex, string value)
-        {
-            if (value == null)
-            {
-                value = String.Empty;
-            }
-            Window window = schema.Windows[columnIndex];
-            if (value.Length > window.Width)
-            {
-                return getTruncatedValue(value, window);
-            }
-            else if (value.Length < window.Width)
-            {
-                return getPaddedValue(value, window);
-            }
-            else
-            {
-                return value;
-            }
-        }
-
-        private string getTruncatedValue(string value, Window window)
-        {
-            OverflowTruncationPolicy policy = window.TruncationPolicy ?? options.TruncationPolicy;
-            if (policy == OverflowTruncationPolicy.TruncateLeading)
-            {
-                int start = value.Length - window.Width;  // take characters on the end
-                return value.Substring(start, window.Width);
-            }
-            else
-            {
-                return value.Substring(0, window.Width);
-            }
-        }
-
-        private string getPaddedValue(string value, Window window)
-        {
-            if (window.Alignment == FixedAlignment.LeftAligned)
-            {
-                return value.PadRight(window.Width, window.FillCharacter ?? options.FillCharacter);
-            }
-            else
-            {
-                return value.PadLeft(window.Width, window.FillCharacter ?? options.FillCharacter);
-            }
+            recordWriter.WriteRecord(writer, values);
+            recordWriter.WriteRecordSeparator(writer);
         }
     }
 }

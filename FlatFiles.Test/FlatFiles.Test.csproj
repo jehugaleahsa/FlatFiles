@@ -48,6 +48,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComplexColumnTester.cs" />
     <Compile Include="ConstantNullHandlerTester.cs" />
     <Compile Include="FixedLengthTypeWriterTester.cs" />
     <Compile Include="DataTableExtensionsTester.cs" />

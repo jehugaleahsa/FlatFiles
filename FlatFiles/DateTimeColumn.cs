@@ -45,6 +45,7 @@ namespace FlatFiles
         /// Parses the given value and returns a DateTime instance.
         /// </summary>
         /// <param name="value">The value to parse.</param>
+        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The parsed DateTime instance.</returns>
         public override object Parse(string value, Encoding encoding)
         {
@@ -67,6 +68,7 @@ namespace FlatFiles
         /// Formats the given object.
         /// </summary>
         /// <param name="value">The object to format.</param>
+        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The formatted value.</returns>
         public override string Format(object value, Encoding encoding)
         {

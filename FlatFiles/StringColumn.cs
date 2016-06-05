@@ -35,6 +35,7 @@ namespace FlatFiles
         /// Returns the given value trimmed.
         /// </summary>
         /// <param name="value">The value to trim.</param>
+        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The value trimmed.</returns>
         public override object Parse(string value, Encoding encoding)
         {
@@ -53,6 +54,7 @@ namespace FlatFiles
         /// Formats the given object.
         /// </summary>
         /// <param name="value">The object to format.</param>
+        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The formatted value.</returns>
         public override string Format(object value, Encoding encoding)
         {

@@ -13,7 +13,7 @@ namespace FlatFiles
         LeftAligned,
 
         /// <summary>
-        /// The content i the column is right aligned.
+        /// The content in the column is right aligned.
         /// </summary>
         RightAligned
     }

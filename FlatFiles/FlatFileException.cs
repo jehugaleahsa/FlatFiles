@@ -12,6 +12,7 @@ namespace FlatFiles
         /// <summary>
         /// Initializes a new instance of a ParserException, recording which record caused the error.
         /// </summary>
+        /// <param name="message">A message describing the cause of the error.</param>
         /// <param name="recordNumber">The position of the record with the invalid format.</param>
         internal FlatFileException(string message, int recordNumber)
             : base(String.Format(message, recordNumber))
