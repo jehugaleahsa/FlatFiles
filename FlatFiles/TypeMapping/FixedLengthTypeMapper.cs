@@ -19,8 +19,9 @@ namespace FlatFiles.TypeMapping
         /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
         /// <returns>The configuration object.</returns>
         public static IFixedLengthTypeMapper<TEntity> Define<TEntity>()
+            where TEntity : new()
         {
-            return new FixedLengthTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            return new FixedLengthTypeMapper<TEntity>(() => new TEntity());
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException("entities");
             }
-            var mapper = new FixedLengthTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            var mapper = new FixedLengthTypeMapper<TEntity>(() => default(TEntity));
             return new FixedLengthTypeWriter<TEntity>(mapper, entities);
         }
     }

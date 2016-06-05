@@ -18,8 +18,9 @@ namespace FlatFiles.TypeMapping
         /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
         /// <returns>The configuration object.</returns>
         public static ISeparatedValueTypeMapper<TEntity> Define<TEntity>()
+            where TEntity : new()
         {
-            return new SeparatedValueTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            return new SeparatedValueTypeMapper<TEntity>(() => new TEntity());
         }
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException("entities");
             }
-            var mapper = new SeparatedValueTypeMapper<TEntity>(() => Activator.CreateInstance<TEntity>());
+            var mapper = new SeparatedValueTypeMapper<TEntity>(() => default(TEntity));
             return new SeparatedValueTypeWriter<TEntity>(mapper, entities);
         }
     }
