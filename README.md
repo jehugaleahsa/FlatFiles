@@ -5,7 +5,7 @@ Work with flat files using fluent type mapping, with support for ADO.NET.
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
 ## Backward Compatibility
-As of version 0.2.0.0, FlatFiles is no longer backward compatible. Read the [wiki](https://github.com/jehugaleahsa/FlatFiles/wiki/FlatFiles-0.2.0.0-Not-Backward-Compatible) to learn more.
+As of version 0.2.0.0, FlatFiles is no longer backward compatible. Read the [wiki](https://github.com/jehugaleahsa/FlatFiles/wiki/FlatFiles-0.2.0.0-and-0.3.0.0-Not-Backward-Compatible) to learn more.
 
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV or fixed-length) whether because we're interfacing with older systems or because we're running one-time migration scripts. It's a pain that there's nothing built into .NET for treating flat files like a database table.
