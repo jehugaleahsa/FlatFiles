@@ -4,73 +4,38 @@ using System.Text;
 
 namespace FlatFiles
 {
-    internal sealed class FixedLengthRecordParser : IDisposable
+    internal sealed class FixedLengthRecordParser
     {
-        private readonly StreamReader reader;
-        private readonly bool ownsStream;
+        private readonly TextReader reader;
         private readonly string separator;
-        private bool isDisposed;
 
-        public FixedLengthRecordParser(Stream stream, FixedLengthOptions options, bool ownsStream)
+        public FixedLengthRecordParser(TextReader reader, FixedLengthOptions options)
         {
-            this.reader = new StreamReader(stream, options.Encoding ?? new UTF8Encoding(false));
+            this.reader = reader;
             this.separator = options.RecordSeparator;
-            this.ownsStream = ownsStream;
-        }
-
-        ~FixedLengthRecordParser()
-        {
-            dispose(false);
-        }
-
-        public Encoding Encoding
-        {
-            get { return reader.CurrentEncoding; }
         }
 
         public bool EndOfStream
         {
-            get { return reader.EndOfStream; }
-        }
-
-        public void Dispose()
-        {
-            if (!isDisposed)
-            {
-                dispose(true);
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        private void dispose(bool disposing)
-        {
-            if (disposing && ownsStream)
-            {
-                reader.Dispose();
-            }
-            isDisposed = true;
+            get { return reader.Peek() == -1; }
         }
 
         public string ReadRecord()
         {
             StringBuilder builder = new StringBuilder();
             int positionIndex = 0;
-            while (!reader.EndOfStream && positionIndex != separator.Length)
+            while (reader.Peek() != -1 && positionIndex != separator.Length)
             {
-                int value = reader.Read();
-                if (value != -1)
+                char next = (char)reader.Read();
+                if (next == separator[positionIndex])
                 {
-                    char next = (char)value;
-                    if (next == separator[positionIndex])
-                    {
-                        ++positionIndex;
-                    }
-                    else
-                    {
-                        positionIndex = 0;
-                    }
-                    builder.Append(next);
+                    ++positionIndex;
                 }
+                else
+                {
+                    positionIndex = 0;
+                }
+                builder.Append(next);
             }
             if (positionIndex == separator.Length)
             {

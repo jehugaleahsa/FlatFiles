@@ -13,4 +13,21 @@ namespace FlatFiles.TypeMapping
         /// <returns>The schema.</returns>
         ISchema GetSchema();
     }
+
+    internal interface IRecordReader
+    {
+        object Read(object[] values);
+    }
+
+    internal interface IRecordWriter
+    {
+        object[] Write(object entity);
+    }
+
+    internal interface IRecordMapper
+    {
+        IRecordReader GetReader();
+
+        IRecordWriter GetWriter();
+    }
 }

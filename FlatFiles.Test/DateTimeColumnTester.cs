@@ -50,7 +50,7 @@ namespace FlatFiles.Test
         public void TestParse_NoFormatString_ParsesGenerically()
         {
             DateTimeColumn column = new DateTimeColumn("created");
-            DateTime actual = (DateTime)column.Parse("1/19/2013", Encoding.UTF8);
+            DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }
@@ -63,7 +63,7 @@ namespace FlatFiles.Test
         {
             DateTimeColumn column = new DateTimeColumn("created");
             column.FormatProvider = CultureInfo.CurrentCulture;
-            DateTime actual = (DateTime)column.Parse("1/19/2013", Encoding.UTF8);
+            DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }
@@ -76,7 +76,7 @@ namespace FlatFiles.Test
         {
             DateTimeColumn column = new DateTimeColumn("created");
             column.InputFormat = "d";
-            DateTime actual = (DateTime)column.Parse("1/19/2013", Encoding.UTF8);
+            DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }
@@ -90,7 +90,7 @@ namespace FlatFiles.Test
             DateTimeColumn column = new DateTimeColumn("created");
             column.InputFormat = "d";
             column.FormatProvider = CultureInfo.CurrentCulture;
-            DateTime actual = (DateTime)column.Parse("1/19/2013", Encoding.UTF8);
+            DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }
@@ -102,7 +102,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueBlank_NullReturned()
         {
             DateTimeColumn column = new DateTimeColumn("created");
-            DateTime? actual = (DateTime?)column.Parse("    ", Encoding.UTF8);
+            DateTime? actual = (DateTime?)column.Parse("    ");
             DateTime? expected = null;
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }

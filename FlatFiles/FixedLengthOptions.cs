@@ -32,12 +32,6 @@ namespace FlatFiles
         public string RecordSeparator { get; set; }
 
         /// <summary>
-        /// Gets or sets the encoding of the text source.
-        /// </summary>
-        /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
-        public Encoding Encoding { get; set; }
-
-        /// <summary>
         /// Gets or sets whether the first record in the source holds header information and should be skipped.
         /// </summary>
         public bool IsFirstRecordHeader { get; set; }

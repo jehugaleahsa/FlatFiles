@@ -7,13 +7,15 @@ namespace FlatFiles
 {
     internal sealed class FixedLengthRecordWriter
     {
+        private readonly TextWriter writer;
         private readonly FixedLengthSchema schema;
         private readonly FixedLengthOptions options;
 
-        public FixedLengthRecordWriter(FixedLengthSchema schema, FixedLengthOptions options)
+        public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
+            this.writer = writer;
             this.schema = schema;
-            this.options = options;
+            this.options = options.Clone();
         }
 
         public FixedLengthSchema Schema
@@ -21,13 +23,13 @@ namespace FlatFiles
             get { return schema; }
         }
 
-        public void WriteRecord(TextWriter writer, object[] values)
+        public void WriteRecord(object[] values)
         {
             if (values.Length != schema.ColumnDefinitions.Count)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
             }
-            var formattedColumns = schema.FormatValues(values, writer.Encoding);
+            var formattedColumns = schema.FormatValues(values);
             var fittedColumns = formattedColumns.Select((v, i) => fitWidth(schema.Windows[i], v));
             foreach (string column in fittedColumns)
             {
@@ -81,7 +83,7 @@ namespace FlatFiles
             }
         }
 
-        public void WriteRecordSeparator(TextWriter writer)
+        public void WriteRecordSeparator()
         {
             writer.Write(options.RecordSeparator);
         }

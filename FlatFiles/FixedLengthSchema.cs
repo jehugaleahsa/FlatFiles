@@ -79,22 +79,20 @@ namespace FlatFiles
         /// Parses the given values assuming that they are in the same order as the column definitions.
         /// </summary>
         /// <param name="values">The values to parse.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(string[] values, Encoding encoding)
+        internal object[] ParseValues(string[] values)
         {
-            return schema.ParseValues(values, encoding);
+            return schema.ParseValues(values);
         }
 
         /// <summary>
         /// Formats the given values assuming that they are in the same order as the column definitions.
         /// </summary>
         /// <param name="values">The values to format.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(object[] values, Encoding encoding)
+        internal string[] FormatValues(object[] values)
         {
-            return schema.FormatValues(values, encoding);
+            return schema.FormatValues(values);
         }
     }
 }

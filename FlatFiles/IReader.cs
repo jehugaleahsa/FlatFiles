@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Defines the operations that a parser must support.
     /// </summary>
-    public interface IReader : IDisposable
+    public interface IReader
     {
         /// <summary>
         /// Gets the schema being used by the parser to parse record values.

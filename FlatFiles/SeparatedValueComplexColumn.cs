@@ -10,7 +10,7 @@ namespace FlatFiles
     public class SeparatedValueComplexColumn : ColumnDefinition
     {
         private readonly SeparatedValueSchema schema;
-        private readonly SeparatedValueOptions options;
+        private SeparatedValueOptions options;
 
         /// <summary>
         /// Initializes a new SeparatedValueComplexColumn with no schema or options.
@@ -76,41 +76,46 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets the separated value options.
+        /// </summary>
+        public SeparatedValueOptions Options
+        {
+            get { return options; }
+            set { options = value ?? new SeparatedValueOptions(); }
+        }
+
+        /// <summary>
         /// Extracts a single record from the embedded data.
         /// </summary>
         /// <param name="value">The value containing the embedded data.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        public override object Parse(string value, Encoding encoding)
+        public override object Parse(string value)
         {
             if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
-            Encoding actualEncoding = getActualEncoding(encoding);
-            byte[] data = actualEncoding.GetBytes(value);
-            using (MemoryStream stream = new MemoryStream(data))
+
+            StringReader stringReader = new StringReader(value);
+            SeparatedValueReader reader = getReader(stringReader);
+            if (reader.Read())
             {
-                SeparatedValueReader reader = getReader(stream);
-                if (reader.Read())
-                {
-                    return reader.GetValues();
-                }
-                return null;
+                return reader.GetValues();
             }
+            return null;
         }
 
-        private SeparatedValueReader getReader(Stream stream)
+        private SeparatedValueReader getReader(StringReader stringReader)
         {
             if (schema == null)
             {
-                return new SeparatedValueReader(stream, options);
+                return new SeparatedValueReader(stringReader, options);
             }
             else
             {
-                return new SeparatedValueReader(stream, schema, options);
+                return new SeparatedValueReader(stringReader, schema, options);
             }
         }
 
@@ -118,9 +123,8 @@ namespace FlatFiles
         /// Formats the given object array into an embedded record.
         /// </summary>
         /// <param name="value">The object array containing the values of the embedded record.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        public override string Format(object value, Encoding encoding)
+        public override string Format(object value)
         {
             object[] values = value as object[];
             if (values == null)
@@ -128,18 +132,9 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             StringWriter writer = new StringWriter();
-            SeparatedValueRecordWriter recordWriter = new SeparatedValueRecordWriter(schema, options);
-            recordWriter.WriteRecord(writer, values);
-            return writer.GetStringBuilder().ToString();
-        }
-
-        private Encoding getActualEncoding(Encoding encoding)
-        {
-            if (options == null || options.Encoding == null)
-            {
-                return encoding;
-            }
-            return options.Encoding;
+            SeparatedValueRecordWriter recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
+            recordWriter.WriteRecord(values);
+            return writer.ToString();
         }
     }
 }

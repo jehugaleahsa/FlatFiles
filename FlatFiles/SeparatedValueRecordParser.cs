@@ -5,25 +5,16 @@ using FlatFiles.Properties;
 
 namespace FlatFiles
 {
-    internal sealed class SeparatedValueRecordParser : IDisposable
+    internal sealed class SeparatedValueRecordParser
     {
         private readonly RetryReader reader;
-        private readonly string eor;
-        private readonly string eot;
-        private readonly char quote;
+        private readonly SeparatedValueOptions options;
         private List<string> values;
 
-        public SeparatedValueRecordParser(RetryReader reader, string eor, string eot, char quote)
+        public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
             this.reader = reader;
-            this.eor = eor;
-            this.eot = eot;
-            this.quote = quote;
-        }
-
-        public Encoding Encoding
-        {
-            get { return reader.Encoding; }
+            this.options = options.Clone();
         }
 
         public bool EndOfStream
@@ -80,7 +71,7 @@ namespace FlatFiles
         private bool isTokenQuoted()
         {
             reader.Read();
-            if (reader.Current == quote)
+            if (reader.Current == options.Quote)
             {
                 return true;
             }
@@ -114,12 +105,12 @@ namespace FlatFiles
             List<char> tokenChars = new List<char>();
             while (tokenType == TokenType.Normal && reader.Read())
             {
-                if (reader.Current != quote)
+                if (reader.Current != options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     tokenChars.Add(reader.Current);
                 }
-                else if (reader.IsMatch(quote))
+                else if (reader.IsMatch(options.Quote))
                 {
                     tokenChars.Add(reader.Current);
                 }
@@ -151,33 +142,33 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            if (eor.Length > eot.Length)
+            if (options.RecordSeparator.Length > options.Separator.Length)
             {
-                if (reader.IsMatch(eor))
+                if (reader.IsMatch(options.RecordSeparator))
                 {
                     return TokenType.EndOfRecord;
                 }
-                else if (reader.IsMatch(eot))
+                else if (reader.IsMatch(options.Separator))
                 {
                     return TokenType.EndOfToken;
                 }
             }
-            else if (eot.Length > eor.Length)
+            else if (options.Separator.Length > options.RecordSeparator.Length)
             {
-                if (reader.IsMatch(eot))
+                if (reader.IsMatch(options.Separator))
                 {
                     return TokenType.EndOfToken;
                 }
-                else if (reader.IsMatch(eor))
+                else if (reader.IsMatch(options.RecordSeparator))
                 {
                     return TokenType.EndOfRecord;
                 }
             }
-            else if (reader.IsMatch(eor))
+            else if (reader.IsMatch(options.RecordSeparator))
             {
                 return TokenType.EndOfRecord;
             }
-            else if (reader.IsMatch(eot))
+            else if (reader.IsMatch(options.Separator))
             {
                 return TokenType.EndOfToken;
             }
@@ -190,11 +181,6 @@ namespace FlatFiles
             EndOfStream,
             EndOfRecord,
             EndOfToken
-        }
-
-        public void Dispose()
-        {
-            reader.Dispose();
         }
     }
 }

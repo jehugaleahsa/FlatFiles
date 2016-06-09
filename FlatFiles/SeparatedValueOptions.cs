@@ -71,12 +71,6 @@ namespace FlatFiles
         public bool IsFirstRecordSchema { get; set; }
 
         /// <summary>
-        /// Gets or sets the encoding of the text source.
-        /// </summary>
-        /// <remarks>If the encoding is null, the default encoding will be used.</remarks>
-        public Encoding Encoding { get; set; }
-
-        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

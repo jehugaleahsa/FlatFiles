@@ -30,32 +30,23 @@ namespace FlatFiles.Test
 
         private static object[] parseValues(string content)
         {
-            byte[] encoded = Encoding.Default.GetBytes(content);
+            StringReader stringReader = new StringReader(content);
             var schema = getSchema();
-            using (MemoryStream stream = new MemoryStream(encoded))
-            using (SeparatedValueReader reader = new SeparatedValueReader(stream, schema))
-            {
-                Assert.IsTrue(reader.Read(), "The record could not be read.");
-                object[] values = reader.GetValues();
-                Assert.IsFalse(reader.Read(), "Too many records were read.");
-                return values;
-            }
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema);
+            Assert.IsTrue(reader.Read(), "The record could not be read.");
+            object[] values = reader.GetValues();
+            Assert.IsFalse(reader.Read(), "Too many records were read.");
+            return values;
         }
 
         private static string writeValues(object[] values)
         {
             var schema = getSchema();
-            using (MemoryStream stream = new MemoryStream())
-            {
-                using (SeparatedValueWriter writer = new SeparatedValueWriter(stream, schema))
-                {
-                    writer.Write(values);
-                }
+            StringWriter stringWriter = new StringWriter();
+            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema);
+            writer.Write(values);
 
-                stream.Position = 0;
-                byte[] encoded = stream.ToArray();
-                return Encoding.Default.GetString(encoded);
-            }
+            return stringWriter.ToString();
         }
 
         private static SeparatedValueSchema getSchema()
@@ -82,9 +73,8 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Vendor).ColumnName("vendor").NullHandler(nullHandler);
 
             string content = "----,5.12,----,apple" + Environment.NewLine;
-            byte[] encoded = Encoding.Default.GetBytes(content);
-            MemoryStream inputStream = new MemoryStream(encoded);
-            var products = mapper.Read(inputStream);
+            StringReader stringReader = new StringReader(content);
+            var products = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, products.Count(), "The wrong number of products were found.");
 
             Product product = products.Single();
@@ -93,10 +83,9 @@ namespace FlatFiles.Test
             Assert.IsNull(product.Available, "The available was not interpreted as null.");
             Assert.AreEqual("apple", product.Vendor, "The vendor was not read correctly.");
 
-            MemoryStream outputStream = new MemoryStream();
-            mapper.Write(outputStream, products);
-            outputStream.Position = 0;
-            string output = Encoding.Default.GetString(outputStream.ToArray());
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, products);
+            string output = stringWriter.ToString();
 
             Assert.AreEqual(content, output, "The null handler was not respected when writing null.");
         }

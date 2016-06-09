@@ -39,7 +39,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueBlank_NullReturned()
         {
             Int32Column column = new Int32Column("count");
-            Int32? actual = (Int32?)column.Parse("    ", Encoding.UTF8);
+            Int32? actual = (Int32?)column.Parse("    ");
             Int32? expected = null;
             Assert.AreEqual(expected, actual, "The value was not parsed as expected.");
         }
@@ -52,7 +52,7 @@ namespace FlatFiles.Test
         {
             Int32Column column = new Int32Column("count");
             column.FormatProvider = null;
-            int actual = (int)column.Parse("  -123 ", Encoding.UTF8);
+            int actual = (int)column.Parse("  -123 ");
             int expected = -123;
             Assert.AreEqual(expected, actual, "The value was not parsed correctly.");
         }
@@ -65,7 +65,7 @@ namespace FlatFiles.Test
         {
             Int32Column column = new Int32Column("count");
             column.FormatProvider = CultureInfo.CurrentCulture;
-            int actual = (int)column.Parse("  -123 ", Encoding.UTF8);
+            int actual = (int)column.Parse("  -123 ");
             int expected = -123;
             Assert.AreEqual(expected, actual, "The value was not parsed correctly.");
         }

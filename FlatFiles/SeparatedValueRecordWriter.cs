@@ -9,15 +9,17 @@ namespace FlatFiles
 {
     internal sealed class SeparatedValueRecordWriter
     {
+        private readonly TextWriter writer;
         private readonly SeparatedValueSchema schema;
         private readonly SeparatedValueOptions options;
         private readonly string quoteString;
         private readonly string doubleQuoteString;
 
-        public SeparatedValueRecordWriter(SeparatedValueSchema schema, SeparatedValueOptions options)
+        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
+            this.writer = writer;
             this.schema = schema;
-            this.options = options;
+            this.options = options.Clone();
             this.quoteString = String.Empty + options.Quote;
             this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
         }
@@ -32,46 +34,69 @@ namespace FlatFiles
             get { return options; }
         }
 
-        public void WriteRecord(TextWriter writer, object[] values)
+        public void WriteRecord(object[] values)
         {
             if (schema != null && values.Length != schema.ColumnDefinitions.Count)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
             }
-            var formattedValues = formatValues(writer, values);
+            var formattedValues = formatValues(values);
             var escapedValues = formattedValues.Select(v => escape(v));
             string joined = String.Join(options.Separator, formattedValues);
             writer.Write(joined);
         }
 
-        private IEnumerable<string> formatValues(TextWriter writer, object[] values)
+        private IEnumerable<string> formatValues(object[] values)
         {
             if (schema == null)
             {
                 StringColumn column = new StringColumn("a");
-                return values.Select(v => column.Format(v, writer.Encoding));
+                return values.Select(v => column.Format(v));
             }
             else
             {
-                return schema.FormatValues(values, writer.Encoding);
+                return schema.FormatValues(values);
             }
         }
 
         private string escape(string value)
         {
-            if (value == null)
+            if (needsEscaped(value))
             {
-                return null;
+                return quoteString + value.Replace(quoteString, doubleQuoteString) + quoteString;
             }
-            string escaped = value;
-            if (value.Contains(options.Separator) || value.Contains(quoteString))
+            else
             {
-                escaped = quoteString + escaped.Replace(quoteString, doubleQuoteString) + quoteString;
+                return value;
             }
-            return escaped;
         }
 
-        public void WriteSchema(TextWriter writer)
+        private bool needsEscaped(string value)
+        {
+            // Don't escape null or empty strings.
+            if (String.IsNullOrEmpty(value))
+            {
+                return false;
+            }
+            // Escape strings beginning or ending in whitespace.
+            if (Char.IsWhiteSpace(value[0]) || Char.IsWhiteSpace(value[value.Length - 1]))
+            {
+                return true;
+            }
+            // Escape strings containing the separator.
+            if (value.Contains(options.Separator))
+            {
+                return true;
+            }
+            // Escape strings containing quotes.
+            if (value.Contains(quoteString))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void WriteSchema()
         {
             if (schema == null)
             {
@@ -82,7 +107,7 @@ namespace FlatFiles
             writer.Write(joined);
         }
 
-        public void WriteRecordSeparator(TextWriter writer)
+        public void WriteRecordSeparator()
         {
             writer.Write(options.RecordSeparator);
         }

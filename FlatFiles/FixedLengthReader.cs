@@ -1,6 +1,7 @@
 ﻿using System;
 using FlatFiles.Properties;
 using System.IO;
+using System.Text;
 
 namespace FlatFiles
 {
@@ -16,63 +17,20 @@ namespace FlatFiles
         private object[] values;
         private bool endOfFile;
         private bool hasError;
-        private bool isDisposed;
 
         /// <summary>
-        /// Initializes a new instance of a FixedLengthParser.
+        /// Initializes a new FixedLengthReader with the given schema.
         /// </summary>
-        /// <param name="fileName">The path of the file containing the records to parse.</param>
-        /// <param name="schema">The schema object defining which columns are in each record.</param>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="schema">The schema of the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
+        /// <exception cref="ArgumentNullException">The reader is null.</exception>
         /// <exception cref="ArgumentNullException">The schema is null.</exception>
-        public FixedLengthReader(string fileName, FixedLengthSchema schema)
-            : this(File.OpenRead(fileName), schema, new FixedLengthOptions(), true)
+        public FixedLengthReader(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options = null)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a FixedLengthParser.
-        /// </summary>
-        /// <param name="fileName">The path to the file containing the records to parse.</param>
-        /// <param name="schema">The schema object defining which columns are in each record.</param>
-        /// <param name="options">An object containing settings for configuring the parser.</param>
-        /// <exception cref="ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="ArgumentNullException">The options is null.</exception>
-        public FixedLengthReader(string fileName, FixedLengthSchema schema, FixedLengthOptions options)
-            : this(File.OpenRead(fileName), schema, options, true)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a FixedLengthParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <param name="schema">The schema object defining which columns are in each record.</param>
-        /// <exception cref="ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="ArgumentNullException">The schema is null.</exception>
-        public FixedLengthReader(Stream stream, FixedLengthSchema schema)
-            : this(stream, schema, new FixedLengthOptions(), false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a FixedLengthParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <param name="schema">The schema object defining which columns are in each record.</param>
-        /// <param name="options">An object containing settings for configuring the parser.</param>
-        /// <exception cref="ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="ArgumentNullException">The options is null.</exception>
-        public FixedLengthReader(Stream stream, FixedLengthSchema schema, FixedLengthOptions options)
-            : this(stream, schema, options, false)
-        {
-        }
-
-        private FixedLengthReader(Stream stream, FixedLengthSchema schema, FixedLengthOptions options, bool ownsStream)
-        {
-            if (stream == null)
+            if (reader == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException("reader");
             }
             if (schema == null)
             {
@@ -80,9 +38,9 @@ namespace FlatFiles
             }
             if (options == null)
             {
-                throw new ArgumentNullException("options");
+                options = new FixedLengthOptions();
             }
-            parser = new FixedLengthRecordParser(stream, options, ownsStream);
+            parser = new FixedLengthRecordParser(reader, options);
             this.schema = schema;
             this.options = options.Clone();
             if (this.options.IsFirstRecordHeader)
@@ -92,44 +50,11 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Finalizes the FixedLengthParser.
-        /// </summary>
-        ~FixedLengthReader()
-        {
-            dispose(false);
-        }
-
-        /// <summary>
-        /// Releases any resources currently held by the parser.
-        /// </summary>
-        public void Dispose()
-        {
-            if (!isDisposed)
-            {
-                dispose(true);
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        private void dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                parser.Dispose();
-            }
-            isDisposed = true;
-        }
-
-        /// <summary>
         /// Gets the schema being used by the parser.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
         public FixedLengthSchema GetSchema()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("FixedLengthReader");
-            }
             return schema;
         } 
 
@@ -144,10 +69,6 @@ namespace FlatFiles
         /// <returns>True if the next record was parsed; otherwise, false if all files are read.</returns>
         public bool Read()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("FixedLengthReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
@@ -158,7 +79,7 @@ namespace FlatFiles
                 return false;
             }
             string[] rawValues = readNextLine();
-            values = schema.ParseValues(rawValues, parser.Encoding);
+            values = schema.ParseValues(rawValues);
             return true;
         }
 
@@ -169,10 +90,6 @@ namespace FlatFiles
         /// <remarks>The previously parsed values remain available.</remarks>
         public bool Skip()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("FixedLengthReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
@@ -228,10 +145,6 @@ namespace FlatFiles
         /// <returns>The values of the current record.</returns>
         public object[] GetValues()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("FixedLengthReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);

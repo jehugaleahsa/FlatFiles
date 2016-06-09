@@ -30,24 +30,12 @@ namespace FlatFiles.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_TextNull_Throws()
-        {
-            string text = null;
-            FixedLengthSchema schema = new FixedLengthSchema();
-            new FixedLengthReader(text, schema);
-        }
-
-        /// <summary>
-        /// If we try to pass null text to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_Options_TextNull_Throws()
         {
-            Stream stream = null;
+            TextReader reader = null;
             FixedLengthSchema schema = new FixedLengthSchema();
             FixedLengthOptions options = new FixedLengthOptions();
-            new FixedLengthReader(stream, schema, options);
+            new FixedLengthReader(reader, schema, options);
         }
 
         /// <summary>
@@ -57,35 +45,9 @@ namespace FlatFiles.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_SchemaNull_Throws()
         {
-            string text = String.Empty;
+            StringReader reader = new StringReader(String.Empty);
             FixedLengthSchema schema = null;
-            new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
-        }
-
-        /// <summary>
-        /// If we trying to pass a null schema, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Options_SchemaNull_Throws()
-        {
-            string text = String.Empty;
-            FixedLengthSchema schema = null;
-            FixedLengthOptions options = new FixedLengthOptions();
-            new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
-        }
-
-        /// <summary>
-        /// If we try to pass null options to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_OptionsNull_Throws()
-        {
-            string text = String.Empty;
-            FixedLengthSchema schema = new FixedLengthSchema();
-            FixedLengthOptions options = null;
-            new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
+            new FixedLengthReader(reader, schema);
         }
 
         /// <summary>
@@ -99,7 +61,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                 .AddColumn(new StringColumn("name"), new Window(25))
                 .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
             object[] actual = parser.GetValues();
@@ -114,12 +78,13 @@ namespace FlatFiles.Test
         public void TestRead_SkipRecord_NoParsingError()
         {
             const string text = "a b c";
-            var data = new MemoryStream(Encoding.Default.GetBytes(text));
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new Int32Column("A"), 8);
             schema.AddColumn(new DateTimeColumn("B"), 23);
             schema.AddColumn(new GuidColumn("C"), 2);
-            FixedLengthReader parser = new FixedLengthReader(data, schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             bool canRead = parser.Skip();
             Assert.IsTrue(canRead, "Could not skip the record.");
             canRead = parser.Read();
@@ -138,7 +103,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                 .AddColumn(new StringColumn("name"), new Window(25))
                 .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             parser.GetValues();
         }
 
@@ -153,7 +120,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                 .AddColumn(new StringColumn("name"), new Window(25))
                 .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -175,64 +144,12 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                 .AddColumn(new StringColumn("name"), new Window(25))
                 .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             Assert.IsTrue(parser.Read(), "Could not read the record.");
             Assert.IsFalse(parser.Read(), "We should have reached the end of the file.");
             parser.GetValues();
-        }
-
-        /// <summary>
-        /// If we pass a string with CP1252 characters, it should reflect does characters when returning
-        /// </summary>
-        [TestMethod]
-        public void TestRead_RecordWithCP1252Characters_ReturnsCorrectCharacters()
-        {
-            //---- Arrange -----------------------------------------------------
-            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
-            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1252), Encoding.UTF8.GetBytes(@"       123                   Müller 1/17/2014"));
-            var schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), new Window(10))
-                .AddColumn(new StringColumn("name"), new Window(25))
-                .AddColumn(new DateTimeColumn("created"), new Window(10));
-            var options = new FixedLengthOptions() { Encoding = Encoding.GetEncoding(1252) };
-
-            var testee = new FixedLengthReader(new MemoryStream(text), schema, options);
-            
-            //---- Act ---------------------------------------------------------
-            var result = testee.Read();
-
-            //---- Assert ------------------------------------------------------
-            Assert.IsTrue(result, "Could not read the record.");
-            object[] expected = { 123, "Müller", new DateTime(2014, 1, 17) };
-            object[] actual = testee.GetValues();
-            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
-        }
-
-        /// <summary>
-        /// If we pass a string with CP1251 characters, it should reflect does characters when returning
-        /// </summary>
-        [TestMethod]
-        public void TestRead_RecordWithCP1251Characters_ReturnsCorrectCharacters()
-        {
-            //---- Arrange -----------------------------------------------------
-            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
-            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1251), Encoding.UTF8.GetBytes(@"       123                  Лучиано 1/17/2014"));
-            var schema = new FixedLengthSchema();
-            schema.AddColumn(new Int32Column("id"), new Window(10))
-                .AddColumn(new StringColumn("name"), new Window(25))
-                .AddColumn(new DateTimeColumn("created"), new Window(10));
-            var options = new FixedLengthOptions() { Encoding = Encoding.GetEncoding(1251) };
-
-            var testee = new FixedLengthReader(new MemoryStream(text), schema, options);
-
-            //---- Act ---------------------------------------------------------
-            var result = testee.Read();
-
-            //---- Assert ------------------------------------------------------
-            Assert.IsTrue(result, "Could not read the record.");
-            object[] expected = { 123, "Лучиано", new DateTime(2014, 1, 17) };
-            object[] actual = testee.GetValues();
-            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
         }
 
         /// <summary>
@@ -247,7 +164,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                 .AddColumn(new StringColumn("name"), new Window(25))
                 .AddColumn(new DateTimeColumn("created"), new Window(10));
-            IReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            IReader parser = new FixedLengthReader(stringReader, schema);
             ISchema actual = parser.GetSchema();
             Assert.AreSame(schema, actual, "The underlying schema was not returned.");
         }
@@ -264,7 +183,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                   .AddColumn(new StringColumn("name"), new Window(25))
                   .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
             parser.Read();
         }
 
@@ -281,7 +202,9 @@ namespace FlatFiles.Test
                   .AddColumn(new StringColumn("name"), new Window(25))
                   .AddColumn(new DateTimeColumn("created"), new Window(10));
             FixedLengthOptions options = new FixedLengthOptions() { RecordSeparator = "BOOM" };
-            FixedLengthReader parser = new FixedLengthReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
 
             Assert.IsTrue(parser.Read(), "Could not read the first record.");
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -306,20 +229,17 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.LeftAligned });
             FixedLengthOptions options = new FixedLengthOptions() { FillCharacter = '@' };
             object[] sources = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
-            using (MemoryStream stream = new MemoryStream())
-            {
-                using (FixedLengthWriter builder = new FixedLengthWriter(stream, schema, options))
-                {
-                    builder.Write(sources);
-                }
-                stream.Position = 0;
 
-                FixedLengthReader parser = new FixedLengthReader(stream, schema, options);
+            StringWriter stringWriter = new StringWriter();
+            FixedLengthWriter builder = new FixedLengthWriter(stringWriter, schema, options);
+            builder.Write(sources);
 
-                Assert.IsTrue(parser.Read(), "Could not read the first record.");
-                object[] actual = parser.GetValues();
-                CollectionAssert.AreEqual(sources, actual, "The values for the first record were wrong.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+
+            Assert.IsTrue(parser.Read(), "Could not read the first record.");
+            object[] actual = parser.GetValues();
+            CollectionAssert.AreEqual(sources, actual, "The values for the first record were wrong.");
         }
 
         /// <summary>
@@ -333,22 +253,19 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
-                var options = new FixedLengthOptions() { FillCharacter = '@' };
+            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions() { FillCharacter = '@' };
 
-                mapper.Write(stream, options, new Person[] { bob });
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob }, options);
 
-                stream.Position = 0;  // go back to the beginning of the stream
-
-                var people = mapper.Read(stream, options);
-                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
-                var person = people.SingleOrDefault();
-                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
-                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
-                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
         }
 
         /// <summary>
@@ -362,26 +279,21 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
-                var options = new FixedLengthOptions() { IsFirstRecordHeader = true, FillCharacter = '@' };
+            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions() { IsFirstRecordHeader = true, FillCharacter = '@' };
 
-                var writer = new StreamWriter(stream);
-                writer.WriteLine("{0,25}{1,100}{2,8}", "id", "name", "created");
-                writer.Flush();
+            StringWriter stringWriter = new StringWriter();
+            stringWriter.WriteLine("{0,25}{1,100}{2,8}", "id", "name", "created");
 
-                mapper.Write(stream, options, new Person[] { bob });
+            mapper.Write(stringWriter, new Person[] { bob }, options);
 
-                stream.Position = 0;  // go back to the beginning of the stream
-
-                var people = mapper.Read(stream, options);
-                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
-                var person = people.SingleOrDefault();
-                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
-                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
-                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
         }
 
         /// <summary>
@@ -395,22 +307,19 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
-                var options = new FixedLengthOptions() { FillCharacter = '@' };
+            var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions() { FillCharacter = '@' };
 
-                mapper.Write(stream, options, new Person[] { bob });
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob }, options);
 
-                stream.Position = 0;  // go back to the beginning of the stream
-
-                var people = mapper.Read(stream, options);
-                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
-                var person = people.SingleOrDefault();
-                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
-                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
-                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
         }
 
         private class Person

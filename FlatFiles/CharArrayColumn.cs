@@ -29,9 +29,8 @@ namespace FlatFiles
         /// Parses the given value as a char array.
         /// </summary>
         /// <param name="value">The value to parse.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The parsed char array.</returns>
-        public override object Parse(string value, Encoding encoding)
+        public override object Parse(string value)
         {
             if (NullHandler.IsNullRepresentation(value))
             {
@@ -45,9 +44,8 @@ namespace FlatFiles
         /// Formats the given object.
         /// </summary>
         /// <param name="value">The object to format.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value, Encoding encoding)
+        public override string Format(object value)
         {
             if (value == null)
             {

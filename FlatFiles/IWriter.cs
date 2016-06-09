@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Defines the operations that a writer must support.
     /// </summary>
-    public interface IWriter : IDisposable
+    public interface IWriter
     {
         /// <summary>
         /// Gets the schema being used by the builder to create the textual representation.

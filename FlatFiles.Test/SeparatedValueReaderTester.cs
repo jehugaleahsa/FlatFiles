@@ -31,10 +31,10 @@ namespace FlatFiles.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_TextNull_Throws()
+        public void TestCtor_NullWriter_NoSchema_Throws()
         {
-            string text = null;
-            new SeparatedValueReader(text);
+            TextReader reader = null;
+            new SeparatedValueReader(reader);
         }
 
         /// <summary>
@@ -42,36 +42,11 @@ namespace FlatFiles.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Schema_TextNull_Throws()
+        public void TestCtor_NullWriter_WithSchema_Throws()
         {
-            string text = null;
+            TextReader reader = null;
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            new SeparatedValueReader(text, schema);
-        }
-
-        /// <summary>
-        /// If we try to pass null text to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Options_TextNull_Throws()
-        {
-            string text = null;
-            SeparatedValueOptions options = new SeparatedValueOptions();
-            new SeparatedValueReader(text, options);
-        }
-
-        /// <summary>
-        /// If we try to pass null text to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Options_Schema_TextNull_Throws()
-        {
-            string text = null;
-            SeparatedValueSchema schema = new SeparatedValueSchema();
-            SeparatedValueOptions options = new SeparatedValueOptions();
-            new SeparatedValueReader(text, schema, options);
+            new SeparatedValueReader(reader, schema);
         }
 
         /// <summary>
@@ -81,47 +56,9 @@ namespace FlatFiles.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_SchemaNull_Throws()
         {
-            string text = String.Empty;
+            TextReader reader = new StringReader(String.Empty);
             SeparatedValueSchema schema = null;
-            new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
-        }
-
-        /// <summary>
-        /// If we trying to pass a null schema, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Options_SchemaNull_Throws()
-        {
-            string text = String.Empty;
-            SeparatedValueSchema schema = null;
-            SeparatedValueOptions options = new SeparatedValueOptions();
-            new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
-        }
-
-        /// <summary>
-        /// If we try to pass null options to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_OptionsNull_Throws()
-        {
-            string text = "";
-            SeparatedValueOptions options = null;
-            new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), options);
-        }
-
-        /// <summary>
-        /// If we try to pass null options to the parser, an exception should be thrown.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCtor_Schema_OptionsNull_Throws()
-        {
-            string text = "";
-            SeparatedValueSchema schema = new SeparatedValueSchema();
-            SeparatedValueOptions options = null;
-            new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
+            new SeparatedValueReader(reader, schema);
         }
 
         /// <summary>
@@ -131,7 +68,8 @@ namespace FlatFiles.Test
         public void TestRead_SingleRecord_ReturnsTrueOnce()
         {
             const string text = "a,b,c";
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)));
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
@@ -148,12 +86,13 @@ namespace FlatFiles.Test
         public void TestRead_SkipRecord_NoParsingError()
         {
             const string text = "a,b,c";
-            var data = new MemoryStream(Encoding.Default.GetBytes(text));
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("A"));
             schema.AddColumn(new DateTimeColumn("B"));
             schema.AddColumn(new GuidColumn("C"));
-            SeparatedValueReader parser = new SeparatedValueReader(data, schema);
+
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
             bool canRead = parser.Skip();
             Assert.IsTrue(canRead, "Could not skip the record.");
             canRead = parser.Read();
@@ -168,7 +107,8 @@ namespace FlatFiles.Test
         public void TestRead_GetValuesWithoutReading_Throws()
         {
             string text = "a,b,c";
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)));
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader);
             parser.GetValues();
         }
 
@@ -179,7 +119,8 @@ namespace FlatFiles.Test
         public void TestRead_MultipleCallsToValues_ReturnsSameValues()
         {
             string text = "a,b,c";
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)));
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             string[] expected = new string[] { "a", "b", "c" };
@@ -197,7 +138,8 @@ namespace FlatFiles.Test
         public void TestRead_ValuesAfterEndOfFile_Throws()
         {
             string text = "a,b,c";
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)));
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader);
             bool canRead = parser.Read();
             Assert.IsTrue(canRead, "Could not read the record.");
             canRead = parser.Read();
@@ -206,72 +148,12 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
-        /// If we pass a string with CP1252 characters, it should reflect does characters when returning
-        /// </summary>
-        [TestMethod]
-        public void TestRead_RecordWithCP1252Characters_ReturnsCorrectCharacters()
-        {
-            //---- Arrange -----------------------------------------------------
-            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
-            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1252), Encoding.UTF8.GetBytes(@"123;Müller;1/17/2014"));
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
-            var options = new SeparatedValueOptions 
-            { 
-                IsFirstRecordSchema = false, 
-                Separator = ";" ,
-                Encoding = Encoding.GetEncoding(1252)
-            };
-
-            var testee = new SeparatedValueReader(new MemoryStream(text), schema, options);
-
-            //---- Act ---------------------------------------------------------
-            var result = testee.Read();
-
-            //---- Assert ------------------------------------------------------
-            Assert.IsTrue(result, "Could not read the record.");
-            object[] expected = { 123, "Müller", new DateTime(2014, 1, 17) };
-            object[] actual = testee.GetValues();
-            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
-        }
-
-        /// <summary>
-        /// If we pass a string with CP1251 characters, it should reflect does characters when returning
-        /// </summary>
-        [TestMethod]
-        public void TestRead_RecordWithCP1251Characters_ReturnsCorrectCharacters()
-        {
-            //---- Arrange -----------------------------------------------------
-            // Need to convert the string to target encoding because otherwise a string declared in VS will always be encoded as UTF-8
-            var text = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(1251), Encoding.UTF8.GetBytes(@"123;Лучиано;1/17/2014"));
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
-            var options = new SeparatedValueOptions 
-            { 
-                IsFirstRecordSchema = false, 
-                Separator = ";", 
-                Encoding = Encoding.GetEncoding(1251) 
-            };
-
-            var testee = new SeparatedValueReader(new MemoryStream(text), schema, options);
-
-            //---- Act ---------------------------------------------------------
-            var result = testee.Read();
-
-            //---- Assert ------------------------------------------------------
-            Assert.IsTrue(result, "Could not read the record.");
-            object[] expected = { 123, "Лучиано", new DateTime(2014, 1, 17) };
-            object[] actual = testee.GetValues();
-            CollectionAssert.AreEqual(expected, actual, "The wrong values were parsed.");
-        }
-
-        /// <summary>
         /// If a record contains a quote, it should still parse correctly.
         /// </summary>
         [TestMethod]
         public void TestRead_EmbeddedQuote_ParsesCorrectly()
         {
-            var text = Encoding.Default.GetBytes(@"123;Todd's Bait Shop;1/17/2014");
+            var text = @"123;Todd's Bait Shop;1/17/2014";
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
@@ -282,7 +164,8 @@ namespace FlatFiles.Test
                 Separator = ";"
             };
 
-            var reader = new SeparatedValueReader(new MemoryStream(text), schema, options);
+            StringReader stringReader = new StringReader(text);
+            var reader = new SeparatedValueReader(stringReader, schema, options);
 
             var result = reader.Read();
 
@@ -300,8 +183,9 @@ namespace FlatFiles.Test
         public void TestGetSchema_NotExtracted_Throws()
         {
             string text = "a,b,c";
+            StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
-            IReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), options);
+            IReader parser = new SeparatedValueReader(stringReader, options);
             parser.GetSchema();
         }
 
@@ -312,8 +196,9 @@ namespace FlatFiles.Test
         public void TestGetSchema_Extracted_ReturnsColumnNames()
         {
             string text = "a,b,c";
+            StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-            IReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), options);
+            IReader parser = new SeparatedValueReader(stringReader, options);
             ISchema schema = parser.GetSchema();
             Assert.IsTrue(schema.ColumnDefinitions.All(d => d is StringColumn), "Not all of the columns were treated as strings.");
             string[] actual = schema.ColumnDefinitions.Select(d => d.ColumnName).ToArray();
@@ -333,8 +218,10 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
+
+            StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-            IReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema, options);
+            IReader parser = new SeparatedValueReader(stringReader, schema, options);
             ISchema actual = parser.GetSchema();
             Assert.AreSame(schema, actual, "The schema was passed did not take priority.");
             Assert.IsFalse(parser.Read(), "The schema record was not skipped.");
@@ -362,7 +249,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
             Assert.IsTrue(parser.Read(), "The first record was skipped.");
             object[] actual = parser.GetValues();
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -380,7 +269,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
             Assert.IsTrue(parser.Read(), "The first record was skipped.");
             object[] actual = parser.GetValues();
             object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
@@ -399,7 +290,9 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), schema);
+
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
             parser.Read();
         }
 
@@ -413,8 +306,9 @@ namespace FlatFiles.Test
         {
             const string text = @"id,name,created
 123,Bob,1/19/2013,Hello";
+            StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-            SeparatedValueReader parser = new SeparatedValueReader(new MemoryStream(Encoding.Default.GetBytes(text)), options);
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
             parser.Read();
         }
 
@@ -425,31 +319,28 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestGetValues_BlankTrailingSection_ReturnsNull()
         {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-                SeparatedValueSchema schema = new SeparatedValueSchema();
-                schema.AddColumn(new Int32Column("id"))
-                    .AddColumn(new StringColumn("name"))
-                    .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" })
-                    .AddColumn(new StringColumn("trailing"));
-                object[] sources = new object[] { 123, "Bob", new DateTime(2013, 1, 19), "" };
-                using (SeparatedValueWriter builder = new SeparatedValueWriter(stream, schema, options))
-                {
-                    builder.Write(sources);
-                }
-                stream.Position = 0;
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"))
+                .AddColumn(new StringColumn("name"))
+                .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" })
+                .AddColumn(new StringColumn("trailing"));
+            object[] sources = new object[] { 123, "Bob", new DateTime(2013, 1, 19), "" };
 
-                SeparatedValueReader parser = new SeparatedValueReader(stream, schema, options);
-                Assert.IsTrue(parser.Read(), "No records were found.");
-                object[] values = parser.GetValues();
-                Assert.AreEqual(schema.ColumnDefinitions.Count, values.Length, "The wrong number of values were read.");
-                Assert.AreEqual(sources[0], values[0], "The first column was not parsed correctly.");
-                Assert.AreEqual(sources[1], values[1], "The second column was not parsed correctly.");
-                Assert.AreEqual(sources[2], values[2], "The third column was not parsed correctly.");
-                Assert.AreEqual(null, values[3], "The forth column was not interpreted as null.");
-                Assert.IsFalse(parser.Read(), "Too many records were found.");
-            }
+            StringWriter stringWriter = new StringWriter();
+            SeparatedValueWriter builder = new SeparatedValueWriter(stringWriter, schema, options);
+            builder.Write(sources);
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema, options);
+            Assert.IsTrue(parser.Read(), "No records were found.");
+            object[] values = parser.GetValues();
+            Assert.AreEqual(schema.ColumnDefinitions.Count, values.Length, "The wrong number of values were read.");
+            Assert.AreEqual(sources[0], values[0], "The first column was not parsed correctly.");
+            Assert.AreEqual(sources[1], values[1], "The second column was not parsed correctly.");
+            Assert.AreEqual(sources[2], values[2], "The third column was not parsed correctly.");
+            Assert.AreEqual(null, values[3], "The forth column was not interpreted as null.");
+            Assert.IsFalse(parser.Read(), "Too many records were found.");
         }
 
         /// <summary>
@@ -468,13 +359,13 @@ namespace FlatFiles.Test
                     .AddColumn(new StringColumn("middle"))
                     .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" });
                 object[] sources = new object[] { 123, "Bob", "", new DateTime(2013, 1, 19) };
-                using (SeparatedValueWriter builder = new SeparatedValueWriter(stream, schema, options))
-                {
-                    builder.Write(sources);
-                }
-                stream.Position = 0;
 
-                SeparatedValueReader parser = new SeparatedValueReader(stream, schema, options);
+                StringWriter stringWriter = new StringWriter();
+                SeparatedValueWriter builder = new SeparatedValueWriter(stringWriter, schema, options);
+                builder.Write(sources);
+
+                StringReader stringReader = new StringReader(stringWriter.ToString());
+                SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema, options);
                 Assert.IsTrue(parser.Read(), "No records were found.");
                 object[] values = parser.GetValues();
                 Assert.AreEqual(schema.ColumnDefinitions.Count, values.Length, "The wrong number of values were read.");
@@ -502,13 +393,13 @@ namespace FlatFiles.Test
                     .AddColumn(new StringColumn("name"))
                     .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" });
                 object[] sources = new object[] { "", 123, "Bob", new DateTime(2013, 1, 19) };
-                using (SeparatedValueWriter builder = new SeparatedValueWriter(stream, schema, options))
-                {
-                    builder.Write(sources);
-                }
-                stream.Position = 0;
 
-                SeparatedValueReader parser = new SeparatedValueReader(stream, schema, options);
+                StringWriter stringWriter = new StringWriter();
+                SeparatedValueWriter builder = new SeparatedValueWriter(stringWriter, schema, options);
+                builder.Write(sources);
+
+                StringReader stringReader = new StringReader(stringWriter.ToString());
+                SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema, options);
                 Assert.IsTrue(parser.Read(), "No records were found.");
                 object[] values = parser.GetValues();
                 Assert.AreEqual(schema.ColumnDefinitions.Count, values.Length, "The wrong number of values were read.");
@@ -541,7 +432,8 @@ namespace FlatFiles.Test
                 .AddColumn(new Int32Column("MunicipalityId"))
                 .AddColumn(new StringColumn("ValidFrom"));
 
-            var testee = new SeparatedValueReader(new MemoryStream(Encoding.GetEncoding(1252).GetBytes(text)), options);
+            StringReader stringReader = new StringReader(text);
+            var testee = new SeparatedValueReader(stringReader, options);
 
             //---- Act ---------------------------------------------------------
             var result = testee.Read();
@@ -563,23 +455,20 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(p => p.ParentId).ColumnName("parent_id");
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), ParentId = null };
-                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
-                
-                mapper.Write(stream, options, new Person[] { bob });
+            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), ParentId = null };
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
 
-                stream.Position = 0;  // go back to the beginning of the stream
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob }, options);
 
-                var people = mapper.Read(stream, options);
-                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
-                var person = people.SingleOrDefault();
-                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
-                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
-                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
-                Assert.AreEqual(bob.ParentId, person.ParentId, "The parent ID value was not persisted.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+            Assert.AreEqual(bob.ParentId, person.ParentId, "The parent ID value was not persisted.");
         }
 
         /// <summary>
@@ -593,22 +482,19 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Name).ColumnName("name");
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
-                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
+            var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
 
-                mapper.Write(stream, options, new Person[] { bob });
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob }, options);
 
-                stream.Position = 0;  // go back to the beginning of the stream
-
-                var people = mapper.Read(stream, options);
-                Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
-                var person = people.SingleOrDefault();
-                Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
-                Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
-                Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
-            }
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
         }
 
         /// <summary>
@@ -624,23 +510,21 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
 ,Blankman,,SomeTown, SD, 00298
 ""Joan """"the bone"""", Anne"",Jet,""9th, at Terrace plc"",Desert City, CO,00123
 ";
-            using (MemoryStream stream = new MemoryStream(Encoding.Default.GetBytes(text)))
-            {
-                SeparatedValueReader reader = new SeparatedValueReader(stream);
-                Assert.IsTrue(reader.Read(), "Could not read the first record.");
-                assertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
-                Assert.IsTrue(reader.Read(), "Could not read the second record.");
-                assertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
-                Assert.IsTrue(reader.Read(), "Could not read the third record.");
-                assertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
-                Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
-                assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
-                Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
-                assertValues(reader, "", "Blankman","", "SomeTown", "SD", "00298");
-                Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
-                assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
-                Assert.IsFalse(reader.Read(), "Read too many records.");
-            }
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader);
+            Assert.IsTrue(reader.Read(), "Could not read the first record.");
+            assertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
+            Assert.IsTrue(reader.Read(), "Could not read the second record.");
+            assertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
+            Assert.IsTrue(reader.Read(), "Could not read the third record.");
+            assertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
+            Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
+            assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
+            Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
+            assertValues(reader, "", "Blankman","", "SomeTown", "SD", "00298");
+            Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
+            assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
+            Assert.IsFalse(reader.Read(), "Read too many records.");
         }
 
         private static void assertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)

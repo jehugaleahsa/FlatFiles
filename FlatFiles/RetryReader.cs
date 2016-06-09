@@ -5,47 +5,26 @@ using System.Text;
 
 namespace FlatFiles
 {
-    internal sealed class RetryReader : IDisposable
+    internal sealed class RetryReader
     {
-        private readonly StreamReader reader;
-        private readonly bool ownsStream;
+        private readonly TextReader reader;
         private readonly Stack<char> retry;
         private char current;
 
-        public RetryReader(Stream stream, Encoding encoding, bool ownsStream)
+        public RetryReader(TextReader reader)
         {
-            this.reader = new StreamReader(stream, encoding);
-            this.ownsStream = ownsStream;
+            this.reader = reader;
             this.retry = new Stack<char>();
-        }
-
-        ~RetryReader()
-        {
-            dispose(false);
-        }
-
-        public Encoding Encoding
-        {
-            get
-            {
-                return reader.CurrentEncoding;
-            }
         }
 
         public bool EndOfStream
         {
-            get
-            {
-                return retry.Count == 0 && reader.EndOfStream;
-            }
+            get { return retry.Count == 0 && reader.Peek() == -1; }
         }
 
         public char Current
         {
-            get
-            {
-                return current;
-            }
+            get { return current; }
         }
 
         public bool Read()
@@ -55,11 +34,12 @@ namespace FlatFiles
                 current = retry.Pop();
                 return true;
             }
-            if (reader.EndOfStream)
+            int next = reader.Read();
+            if (next == -1)
             {
                 return false;
             }
-            current = (char)reader.Read();
+            current = (char)next;
             return true;
         }
 
@@ -74,10 +54,14 @@ namespace FlatFiles
                 }
                 return false;
             }
-            if (!reader.EndOfStream && reader.Peek() == value)
+            int next = reader.Peek();
+            if (next != -1)
             {
-                current = (char)reader.Read();
-                return true;
+                if ((char)next == value)
+                {
+                    current = (char)reader.Read();
+                    return true;
+                }
             }
             return false;
         }
@@ -133,19 +117,6 @@ namespace FlatFiles
             {
                 --position;
                 retry.Push(items[position]);
-            }
-        }
-
-        public void Dispose()
-        {
-            dispose(true);
-        }
-
-        private void dispose(bool isDisposing)
-        {
-            if (isDisposing && ownsStream)
-            {
-                reader.Dispose();
             }
         }
     }

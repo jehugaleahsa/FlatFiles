@@ -28,6 +28,7 @@ namespace FlatFiles.TypeMapping
                 generator.Emit(OpCodes.Ldarg, 1);
                 generator.Emit(OpCodes.Ldc_I4, index);
                 generator.Emit(OpCodes.Ldelem_Ref);
+
                 Type propertyType = mapping.Property.PropertyType;
                 generator.Emit(OpCodes.Unbox_Any, propertyType);
 
@@ -92,7 +93,8 @@ namespace FlatFiles.TypeMapping
                 {
                     IPropertyMapping mapping = mappings[propertyName];
                     int index = indexes[propertyName];
-                    mapping.Property.SetValue(entity, values[index], null);
+                    object value = values[index];
+                    mapping.Property.SetValue(entity, value, null);
                 }
             };
             return reader;

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using FlatFiles.Properties;
 
@@ -18,105 +16,36 @@ namespace FlatFiles
         private object[] values;
         private bool endOfFile;
         private bool hasError;
-        private bool isDisposed;
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
+        /// Initializes a new SeparatedValueReader with no schema.
         /// </summary>
-        /// <param name="fileName">The path of the file containing the records to parse.</param>
-        public SeparatedValueReader(string fileName)
-            : this(File.OpenRead(fileName), null, new SeparatedValueOptions(), false, true)
+        /// <param name="reader">A reader over the separated value document.</param>
+        /// <param name="options">The options controlling how the separated value document is read.</param>
+        /// <exception cref="ArgumentNullException">The reader is null.</exception>
+        public SeparatedValueReader(TextReader reader, SeparatedValueOptions options = null)
+            : this(reader, null, options, false)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
+        /// Initializes a new SeparatedValueReader with the given schema.
         /// </summary>
-        /// <param name="fileName">The path of the file containing the records to extract.</param>
-        /// <param name="schema">The predefined schema for the records.</param>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        public SeparatedValueReader(string fileName, SeparatedValueSchema schema)
-            : this(File.OpenRead(fileName), schema, new SeparatedValueOptions(), true, true)
+        /// <param name="reader">A reader over the separated value document.</param>
+        /// <param name="schema">The schema of the separated value document.</param>
+        /// <param name="options">The options controlling how the separated value document is read.</param>
+        /// <exception cref="ArgumentNullException">The reader is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema is null.</exception>
+        public SeparatedValueReader(TextReader reader, SeparatedValueSchema schema, SeparatedValueOptions options = null)
+            : this(reader, schema, options, true)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="fileName">The path of the file containing the records to extract.</param>
-        /// <param name="options">The options for configuring the parser's behavior.</param>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
-        public SeparatedValueReader(string fileName, SeparatedValueOptions options)
-            : this(File.OpenRead(fileName), null, options, false, true)
+        private SeparatedValueReader(TextReader reader, SeparatedValueSchema schema, SeparatedValueOptions options, bool hasSchema)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="fileName">The path of the file containing the records to extract.</param>
-        /// <param name="schema">The predefined schema for the records.</param>
-        /// <param name="options">The options for configuring the parser's behavior.</param>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options object is null.</exception>
-        public SeparatedValueReader(string fileName, SeparatedValueSchema schema, SeparatedValueOptions options)
-            : this(File.OpenRead(fileName), schema, options, true, true)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        public SeparatedValueReader(Stream stream)
-            : this(stream, null, new SeparatedValueOptions(), false, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <param name="schema">The predefined schema for the records.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        public SeparatedValueReader(Stream stream, SeparatedValueSchema schema)
-            : this(stream, schema, new SeparatedValueOptions(), true, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <param name="options">The options for configuring the parser's behavior.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
-        public SeparatedValueReader(Stream stream, SeparatedValueOptions options)
-            : this(stream, null, options, false, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueParser.
-        /// </summary>
-        /// <param name="stream">A stream containing the records to parse.</param>
-        /// <param name="schema">The predefined schema for the records.</param>
-        /// <param name="options">The options for configuring the parser's behavior.</param>
-        /// <exception cref="System.ArgumentNullException">The stream is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The options is null.</exception>
-        public SeparatedValueReader(Stream stream, SeparatedValueSchema schema, SeparatedValueOptions options)
-            : this(stream, schema, options, true, false)
-        {
-        }
-
-        private SeparatedValueReader(Stream stream, SeparatedValueSchema schema, SeparatedValueOptions options, bool hasSchema, bool ownsStream)
-        {
-            if (stream == null)
+            if (reader == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException("reader");
             }
             if (hasSchema && schema == null)
             {
@@ -124,14 +53,14 @@ namespace FlatFiles
             }
             if (options == null)
             {
-                throw new ArgumentNullException("options");
+                options = new SeparatedValueOptions();
             }
             if (options.RecordSeparator == options.Separator)
             {
                 throw new ArgumentException(Resources.SameSeparator, "options");
             }
-            RetryReader retryReader = new RetryReader(stream, options.Encoding ?? new UTF8Encoding(false), ownsStream);
-            this.parser = new SeparatedValueRecordParser(retryReader, options.RecordSeparator, options.Separator, options.Quote);
+            RetryReader retryReader = new RetryReader(reader);
+            this.parser = new SeparatedValueRecordParser(retryReader, options);
             if (hasSchema)
             {
                 if (options.IsFirstRecordSchema)
@@ -153,44 +82,11 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Finalizes the SeparatedValueParser.
-        /// </summary>
-        ~SeparatedValueReader()
-        {
-            dispose(false);
-        }
-
-        /// <summary>
-        /// Releases any resources being held by the parser.
-        /// </summary>
-        public void Dispose()
-        {
-            if (!isDisposed)
-            {
-                dispose(true);
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        private void dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                parser.Dispose();
-            }
-            isDisposed = true;
-        }
-
-        /// <summary>
         /// Gets the names of the columns found in the file.
         /// </summary>
         /// <returns>The names.</returns>
         public SeparatedValueSchema GetSchema()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("SeparatedValueReader");
-            }
             if (schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
@@ -209,10 +105,6 @@ namespace FlatFiles
         /// <returns>True if the next record was read or false if all records have been read.</returns>
         public bool Read()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("SeparatedValueReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
@@ -236,7 +128,7 @@ namespace FlatFiles
             }
             else
             {
-                values = schema.ParseValues(rawValues, parser.Encoding);
+                values = schema.ParseValues(rawValues);
             }
             return true;
         }
@@ -248,10 +140,6 @@ namespace FlatFiles
         /// <remarks>The previously parsed values remain available.</remarks>
         public bool Skip()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("SeparatedValueReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
@@ -286,10 +174,6 @@ namespace FlatFiles
         /// <returns>The values of the current record.</returns>
         public object[] GetValues()
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException("SeparatedValueReader");
-            }
             if (hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);

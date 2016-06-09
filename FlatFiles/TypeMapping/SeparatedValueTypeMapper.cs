@@ -37,23 +37,6 @@ namespace FlatFiles.TypeMapping
             }
             return new SeparatedValueTypeMapper<TEntity>(factory);
         }
-
-        /// <summary>
-        /// Creates an object that can be used to configure the mapping from an entity to a flat file record
-        /// and write the given entities to the file.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
-        /// <param name="entities">The entities that will be written to the file.</param>
-        /// <returns>The configuration object.</returns>
-        public static ISeparatedValueTypeWriter<TEntity> DefineWriter<TEntity>(IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            var mapper = new SeparatedValueTypeMapper<TEntity>(() => default(TEntity));
-            return new SeparatedValueTypeWriter<TEntity>(mapper, entities);
-        }
     }
 
     /// <summary>
@@ -238,6 +221,24 @@ namespace FlatFiles.TypeMapping
         IStringPropertyMapping Property(Expression<Func<TEntity, string>> property);
 
         /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
+        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
+        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper);
+
+        /// <summary>
         /// Gets the schema defined by the current configuration.
         /// </summary>
         /// <returns>The schema.</returns>
@@ -251,74 +252,23 @@ namespace FlatFiles.TypeMapping
     public interface ISeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeConfiguration<TEntity>
     {
         /// <summary>
-        /// Reads the entities from the file at the given path.
+        /// Reads the entities from the given reader.
         /// </summary>
-        /// <param name="fileName">The path of the file to read.</param>
+        /// <param name="reader">A reader over the separated value document.</param>
+        /// <param name="options">The options controlling how the separated value document is read.</param>
         /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(string fileName);
-
-        /// <summary>
-        /// Reads the entities from the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to read.</param>
-        /// <param name="options">The options to use.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(string fileName, SeparatedValueOptions options);
-
-        /// <summary>
-        /// Reads the entities from the given stream.
-        /// </summary>
-        /// <param name="stream">The input stream to read.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(Stream stream);
-
-        /// <summary>
-        /// Reads the entities from the given stream.
-        /// </summary>
-        /// <param name="stream">The input stream to read.</param>
-        /// <param name="options">The options to use.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(Stream stream, SeparatedValueOptions options);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="entities">The entities to write to the file.</param>
-        void Write(string fileName, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="options">The options to use.</param>
-        /// <param name="entities">The entities to write to the file.</param>
-        void Write(string fileName, SeparatedValueOptions options, IEnumerable<TEntity> entities);
+        IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null);
 
         /// <summary>
         /// Writes the given entities to the given stream.
         /// </summary>
-        /// <param name="stream">The stream to write to.</param>
+        /// <param name="writer">A writer over the separated value document.</param>
         /// <param name="entities">The entities to write to the stream.</param>
-        void Write(Stream stream, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        /// <param name="options">The options to use.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        void Write(Stream stream, SeparatedValueOptions options, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Creates a type writer interface to the mapper using the given entities.
-        /// </summary>
-        /// <param name="entities">The entities that will be written.</param>
-        /// <returns>The type writer wrapper.</returns>
-        ISeparatedValueTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities);
+        /// <param name="options">The options used to format the output.</param>
+        void Write(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null);
     }
 
-    internal sealed class SeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeMapper<TEntity>
+    internal sealed class SeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeMapper<TEntity>, IRecordMapper
     {
         private readonly Func<TEntity> factory;
         private readonly Dictionary<string, IPropertyMapping> mappings;
@@ -664,6 +614,42 @@ namespace FlatFiles.TypeMapping
             return (IStringPropertyMapping)mapping;
         }
 
+        public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getComplexMapping(propertyInfo, mapper);
+        }
+
+        private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, ISeparatedValueTypeMapper<TProp> mapper)
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            return (ISeparatedValueComplexPropertyMapping)mapping;
+        }
+
+        public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getComplexMapping(propertyInfo, mapper);
+        }
+
+        private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, IFixedLengthTypeMapper<TProp> mapper)
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            return (IFixedLengthComplexPropertyMapping)mapping;
+        }
+
         private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)
         {
             if (property == null)
@@ -687,121 +673,43 @@ namespace FlatFiles.TypeMapping
             return propertyInfo;
         }
 
-        public IEnumerable<TEntity> Read(string fileName)
+        public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null)
         {
             SeparatedValueSchema schema = getSchema();
-            using (IReader reader = new SeparatedValueReader(fileName, schema))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(string fileName, SeparatedValueOptions options)
-        {
-            SeparatedValueSchema schema = getSchema();
-            using (IReader reader = new SeparatedValueReader(fileName, schema, options))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(Stream stream)
-        {
-            SeparatedValueSchema schema = getSchema();
-            using (IReader reader = new SeparatedValueReader(stream, schema))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(Stream stream, SeparatedValueOptions options)
-        {
-            SeparatedValueSchema schema = getSchema();
-            using (IReader reader = new SeparatedValueReader(stream, schema, options))
-            {
-                return read(reader);
-            }
+            IReader separatedValueReader = new SeparatedValueReader(reader, schema, options);
+            return read(separatedValueReader);
         }
 
         private IEnumerable<TEntity> read(IReader reader)
         {
-            var setter = CodeGenerator.GetReader<TEntity>(mappings, indexes);
-            List<TEntity> entities = new List<TEntity>();
+            RecordReader recordReader = new RecordReader(this);
             while (reader.Read())
             {
                 object[] values = reader.GetValues();
-                TEntity entity = factory();
-                setter(entity, values);
-                entities.Add(entity);
+                TEntity entity = recordReader.Read(values);
+                yield return entity;
             }
-            return entities;
         }
 
-        public void Write(string fileName, IEnumerable<TEntity> entities)
+        public void Write(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null)
         {
             if (entities == null)
             {
                 throw new ArgumentNullException("entities");
             }
             SeparatedValueSchema schema = getSchema();
-            using (IWriter writer = new SeparatedValueWriter(fileName, schema))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(string fileName, SeparatedValueOptions options, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            SeparatedValueSchema schema = getSchema();
-            using (IWriter writer = new SeparatedValueWriter(fileName, schema, options))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(Stream stream, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            SeparatedValueSchema schema = getSchema();
-            using (IWriter writer = new SeparatedValueWriter(stream, schema))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(Stream stream, SeparatedValueOptions options, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            SeparatedValueSchema schema = getSchema();
-            using (IWriter writer = new SeparatedValueWriter(stream, schema, options))
-            {
-                write(writer, entities);
-            }
+            IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
+            write(separatedValueWriter, entities);
         }
 
         private void write(IWriter writer, IEnumerable<TEntity> entities)
         {
-            var getter = CodeGenerator.GetWriter<TEntity>(mappings, indexes);
+            RecordWriter recordWriter = new RecordWriter(this);
             foreach (TEntity entity in entities)
             {
-                object[] values = getter(entity);
+                object[] values = recordWriter.Write(entity);
                 writer.Write(values);
             }
-        }
-
-        public ISeparatedValueTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities)
-        {
-            return new SeparatedValueTypeWriter<TEntity>(this, entities);
         }
 
         public SeparatedValueSchema GetSchema()
@@ -836,205 +744,127 @@ namespace FlatFiles.TypeMapping
             }
             return definitions;
         }
-    }
 
-    /// <summary>
-    /// Allows a configuration to be defined for writing a collection to a flat file.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entities being written.</typeparam>
-    public interface ISeparatedValueTypeWriter<TEntity> : ISeparatedValueTypeConfiguration<TEntity>
-    {
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        void Write(string fileName);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="options">The options to use.</param>
-        void Write(string fileName, SeparatedValueOptions options);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        void Write(Stream stream);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        /// <param name="options">The options to use.</param>
-        void Write(Stream stream, SeparatedValueOptions options);
-    }
-
-    internal class SeparatedValueTypeWriter<TEntity> : ISeparatedValueTypeWriter<TEntity>
-    {
-        private readonly SeparatedValueTypeMapper<TEntity> mapper;
-        private readonly IEnumerable<TEntity> entities;
-
-        public SeparatedValueTypeWriter(SeparatedValueTypeMapper<TEntity> mapper, IEnumerable<TEntity> entities)
+        public IRecordReader GetReader()
         {
-            this.mapper = mapper;
-            this.entities = entities;
+            return new RecordReader(this);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property)
+        public IRecordWriter GetWriter()
         {
-            return mapper.Property(property);
+            return new RecordWriter(this);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property)
+        private class RecordReader : IRecordReader
         {
-            return mapper.Property(property);
+            private readonly SeparatedValueTypeMapper<TEntity> mapper;
+            private readonly Action<object[]> transformer;
+            private readonly Action<TEntity, object[]> setter;
+
+            public RecordReader(SeparatedValueTypeMapper<TEntity> mapper)
+            {
+                this.mapper = mapper;
+                this.transformer = getTransformer(mapper);
+                this.setter = CodeGenerator.GetReader<TEntity>(mapper.mappings, mapper.indexes);
+            }
+
+            private static Action<object[]> getTransformer(SeparatedValueTypeMapper<TEntity> mapper)
+            {
+                List<Action<object[]>> transforms = new List<Action<object[]>>();
+                foreach (string propertyName in mapper.mappings.Keys)
+                {
+                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
+                    if (complexMapping != null)
+                    {
+                        int index = mapper.indexes[propertyName];
+                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
+                        IRecordReader nestedReader = nestedMapper.GetReader();
+                        Action<object[]> transform = (object[] values) =>
+                        {
+                            object value = values[index];
+                            object[] nestedValues = value as object[];
+                            if (nestedValues != null)
+                            {
+                                values[index] = nestedReader.Read(nestedValues);
+                            }
+                        };
+                        transforms.Add(transform);
+                    }
+                }
+                if (transforms.Count == 0)
+                {
+                    transforms.Add((object[] values) => { });
+                }
+                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
+            }
+
+            public TEntity Read(object[] values)
+            {
+                TEntity entity = mapper.factory();
+                transformer(values);
+                setter(entity, values);
+                return entity;
+            }
+
+            object IRecordReader.Read(object[] values)
+            {
+                return Read(values);
+            }
         }
 
-        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property)
+        private class RecordWriter : IRecordWriter
         {
-            return mapper.Property(property);
-        }
+            private readonly SeparatedValueTypeMapper<TEntity> mapper;
+            private readonly Action<object[]> transformer;
+            private readonly Func<TEntity, object[]> getter;
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property)
-        {
-            return mapper.Property(property);
-        }
+            public RecordWriter(SeparatedValueTypeMapper<TEntity> mapper)
+            {
+                this.mapper = mapper;
+                this.transformer = getTransformer(mapper);
+                this.getter = CodeGenerator.GetWriter<TEntity>(mapper.mappings, mapper.indexes);
+            }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property)
-        {
-            return mapper.Property(property);
-        }
+            private static Action<object[]> getTransformer(SeparatedValueTypeMapper<TEntity> mapper)
+            {
+                List<Action<object[]>> transforms = new List<Action<object[]>>();
+                foreach (string propertyName in mapper.mappings.Keys)
+                {
+                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
+                    if (complexMapping != null)
+                    {
+                        int index = mapper.indexes[propertyName];
+                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
+                        IRecordWriter nestedWriter = nestedMapper.GetWriter();
+                        Action<object[]> transform = (object[] values) =>
+                        {
+                            object value = values[index];
+                            if (value != null)
+                            {
+                                values[index] = nestedWriter.Write(value);
+                            }
+                        };
+                        transforms.Add(transform);
+                    }
+                }
+                if (transforms.Count == 0)
+                {
+                    transforms.Add((object[] values) => { });
+                }
+                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
+            }
 
-        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property)
-        {
-            return mapper.Property(property);
-        }
+            public object[] Write(TEntity entity)
+            {
+                object[] values = getter(entity);
+                transformer(values);
+                return values;
+            }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property)
-        {
-            return mapper.Property(property);
-        }
-
-        public SeparatedValueSchema GetSchema()
-        {
-            return mapper.GetSchema();
-        }
-
-        ISchema ISchemaBuilder.GetSchema()
-        {
-            return GetSchema();
-        }
-
-        public void Write(string fileName)
-        {
-            mapper.Write(fileName, entities);
-        }
-
-        public void Write(string fileName, SeparatedValueOptions options)
-        {
-            mapper.Write(fileName, options, entities);
-        }
-
-        public void Write(Stream stream)
-        {
-            mapper.Write(stream, entities);
-        }
-
-        public void Write(Stream stream, SeparatedValueOptions options)
-        {
-            mapper.Write(stream, options, entities);
+            object[] IRecordWriter.Write(object entity)
+            {
+                return Write((TEntity)entity);
+            }
         }
     }
 }

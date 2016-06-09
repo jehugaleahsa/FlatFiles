@@ -38,7 +38,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueBlank_ReturnsNull()
         {
             StringColumn column = new StringColumn("name");
-            string actual = (string)column.Parse("     ", Encoding.UTF8);
+            string actual = (string)column.Parse("     ");
             string expected = null;
             Assert.AreEqual(expected, actual, "The value was not parsed as null.");
         }
@@ -50,7 +50,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueTrimmed()
         {
             StringColumn column = new StringColumn("name");
-            string actual = (string)column.Parse("  abc 123 ", Encoding.UTF8);
+            string actual = (string)column.Parse("  abc 123 ");
             string expected = "abc 123";
             Assert.AreEqual(expected, actual, "The value was not trimmed.");
         }

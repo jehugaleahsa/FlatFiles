@@ -44,10 +44,6 @@ namespace FlatFiles
 
         private void dispose(bool disposing)
         {
-            if (disposing)
-            {
-                parser.Dispose();
-            }
             isClosed = true;
         }
 

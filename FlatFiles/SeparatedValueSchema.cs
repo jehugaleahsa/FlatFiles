@@ -74,15 +74,14 @@ namespace FlatFiles
         /// Parses the given values assuming that they are in the same order as the column definitions.
         /// </summary>
         /// <param name="values">The values to parse.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(string[] values, Encoding encoding)
+        internal object[] ParseValues(string[] values)
         {
             object[] parsed = new object[values.Length];
             for (int index = 0; index != values.Length; ++index)
             {
                 ColumnDefinition definition = definitions[index];
-                parsed[index] = definition.Parse(values[index], encoding);
+                parsed[index] = definition.Parse(values[index]);
             }
             return parsed;
         }
@@ -91,15 +90,14 @@ namespace FlatFiles
         /// Formats the given values assuming that they are in the same order as the column definitions.
         /// </summary>
         /// <param name="values">The values to format.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(object[] values, Encoding encoding)
+        internal string[] FormatValues(object[] values)
         {
             string[] formatted = new string[values.Length];
             for (int index = 0; index != values.Length; ++index)
             {
                 ColumnDefinition definition = definitions[index];
-                formatted[index] = definition.Format(values[index], encoding);
+                formatted[index] = definition.Format(values[index]);
             }
             return formatted;
         }

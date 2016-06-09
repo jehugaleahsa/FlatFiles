@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
@@ -37,23 +36,6 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException("factory");
             }
             return new FixedLengthTypeMapper<TEntity>(factory);
-        }
-
-        /// <summary>
-        /// Creates an object that can be used to configure the mapping from an entity to a flat file record
-        /// and write the given entities to the file.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity whose properties will be mapped.</typeparam>
-        /// <param name="entities">The entities that will be written to the file.</param>
-        /// <returns>The configuration object.</returns>
-        public static IFixedLengthTypeWriter<TEntity> DefineWriter<TEntity>(IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            var mapper = new FixedLengthTypeMapper<TEntity>(() => default(TEntity));
-            return new FixedLengthTypeWriter<TEntity>(mapper, entities);
         }
     }
 
@@ -262,6 +244,26 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window);
+        
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
+        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper, Window window);
+        
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
+        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper, Window window);
 
         /// <summary>
         /// Gets the schema defined by the current configuration.
@@ -277,74 +279,23 @@ namespace FlatFiles.TypeMapping
     public interface IFixedLengthTypeMapper<TEntity> : IFixedLengthTypeConfiguration<TEntity>
     {
         /// <summary>
-        /// Reads the entities from the file at the given path.
+        /// Reads the entities from the given reader.
         /// </summary>
-        /// <param name="fileName">The path of the file to read.</param>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
         /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(string fileName);
+        IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null);
 
         /// <summary>
-        /// Reads the entities from the file at the given path.
+        /// Writes the given entities to the given writer.
         /// </summary>
-        /// <param name="fileName">The path of the file to read.</param>
-        /// <param name="options">The options to use.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(string fileName, FixedLengthOptions options);
-
-        /// <summary>
-        /// Reads the entities from the given stream.
-        /// </summary>
-        /// <param name="stream">The input stream to read.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(Stream stream);
-
-        /// <summary>
-        /// Reads the entities from the given stream.
-        /// </summary>
-        /// <param name="stream">The input stream to read.</param>
-        /// <param name="options">The options to use.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(Stream stream, FixedLengthOptions options);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="entities">The entities to write to the file.</param>
-        void Write(string fileName, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="options">The options to use.</param>
-        /// <param name="entities">The entities to write to the file.</param>
-        void Write(string fileName, FixedLengthOptions options, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        void Write(Stream stream, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        /// <param name="options">The options to use.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        void Write(Stream stream, FixedLengthOptions options, IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Wraps the type mapper in a writer interface that will write the given entities.
-        /// </summary>
-        /// <param name="entities">The entities that will be written.</param>
-        /// <returns>The type writer.</returns>
-        IFixedLengthTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities);
+        /// <param name="writer">A writer over the fixed-length document.</param>
+        /// <param name="entities">The entities to write to the document.</param>
+        /// <param name="options">The options controlling how the separated value document is written.</param>
+        void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null);
     }
 
-    internal sealed class FixedLengthTypeMapper<TEntity> : IFixedLengthTypeMapper<TEntity>
+    internal sealed class FixedLengthTypeMapper<TEntity> : IFixedLengthTypeMapper<TEntity>, IRecordMapper
     {
         private readonly Func<TEntity> factory;
         private readonly Dictionary<string, IPropertyMapping> mappings;
@@ -705,6 +656,44 @@ namespace FlatFiles.TypeMapping
             return (IStringPropertyMapping)mapping;
         }
 
+        public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getComplexMapping(propertyInfo, mapper, window);
+        }
+
+        private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            windows[propertyInfo.Name] = window;
+            return (ISeparatedValueComplexPropertyMapping)mapping;
+        }
+
+        public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getComplexMapping(propertyInfo, mapper, window);
+        }
+
+        private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, IFixedLengthTypeMapper<TProp> mapper, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            windows[propertyInfo.Name] = window;
+            return (IFixedLengthComplexPropertyMapping)mapping;
+        }
+
         private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)
         {
             if (property == null)
@@ -728,121 +717,43 @@ namespace FlatFiles.TypeMapping
             return propertyInfo;
         }
 
-        public IEnumerable<TEntity> Read(string fileName)
+        public IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null)
         {
             FixedLengthSchema schema = getSchema();
-            using (IReader reader = new FixedLengthReader(fileName, schema))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(string fileName, FixedLengthOptions options)
-        {
-            FixedLengthSchema schema = getSchema();
-            using (IReader reader = new FixedLengthReader(fileName, schema, options))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(Stream stream)
-        {
-            FixedLengthSchema schema = getSchema();
-            using (IReader reader = new FixedLengthReader(stream, schema))
-            {
-                return read(reader);
-            }
-        }
-
-        public IEnumerable<TEntity> Read(Stream stream, FixedLengthOptions options)
-        {
-            FixedLengthSchema schema = getSchema();
-            using (IReader reader = new FixedLengthReader(stream, schema, options))
-            {
-                return read(reader);
-            }
+            IReader fixedLengthReader = new FixedLengthReader(reader, schema, options);
+            return read(fixedLengthReader);
         }
 
         private IEnumerable<TEntity> read(IReader reader)
         {
-            var setter = CodeGenerator.GetReader<TEntity>(mappings, indexes);
-            List<TEntity> entities = new List<TEntity>();
+            RecordReader recordReader = new RecordReader(this);
             while (reader.Read())
             {
                 object[] values = reader.GetValues();
-                TEntity entity = factory();
-                setter(entity, values);
-                entities.Add(entity);
+                TEntity entity = recordReader.Read(values);
+                yield return entity;
             }
-            return entities;
         }
 
-        public void Write(string fileName, IEnumerable<TEntity> entities)
+        public void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
         {
             if (entities == null)
             {
                 throw new ArgumentNullException("entities");
             }
             FixedLengthSchema schema = getSchema();
-            using (IWriter writer = new FixedLengthWriter(fileName, schema))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(string fileName, FixedLengthOptions options, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            FixedLengthSchema schema = getSchema();
-            using (IWriter writer = new FixedLengthWriter(fileName, schema, options))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(Stream stream, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            FixedLengthSchema schema = getSchema();
-            using (IWriter writer = new FixedLengthWriter(stream, schema))
-            {
-                write(writer, entities);
-            }
-        }
-
-        public void Write(Stream stream, FixedLengthOptions options, IEnumerable<TEntity> entities)
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException("entities");
-            }
-            FixedLengthSchema schema = getSchema();
-            using (IWriter writer = new FixedLengthWriter(stream, schema, options))
-            {
-                write(writer, entities);
-            }
+            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            write(fixedLengthWriter, entities);
         }
 
         private void write(IWriter writer, IEnumerable<TEntity> entities)
         {
-            var getter = CodeGenerator.GetWriter<TEntity>(mappings, indexes);
+            RecordWriter recordWriter = new RecordWriter(this);
             foreach (TEntity entity in entities)
             {
-                object[] values = getter(entity);
+                object[] values = recordWriter.Write(entity);
                 writer.Write(values);
             }
-        }
-
-        public IFixedLengthTypeWriter<TEntity> ToWriter(IEnumerable<TEntity> entities)
-        {
-            return new FixedLengthTypeWriter<TEntity>(this, entities);
         }
 
         public FixedLengthSchema GetSchema()
@@ -878,205 +789,127 @@ namespace FlatFiles.TypeMapping
         {
             return GetSchema();
         }
-    }
 
-    /// <summary>
-    /// Allows a configuration to be defined for writing a collection to a flat file.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entities being written.</typeparam>
-    public interface IFixedLengthTypeWriter<TEntity> : IFixedLengthTypeConfiguration<TEntity>
-    {
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        void Write(string fileName);
-
-        /// <summary>
-        /// Writes the given entities to the file at the given path.
-        /// </summary>
-        /// <param name="fileName">The path of the file to write to.</param>
-        /// <param name="options">The options to use.</param>
-        void Write(string fileName, FixedLengthOptions options);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        void Write(Stream stream);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="stream">The stream to write to.</param>
-        /// <param name="options">The options to use.</param>
-        void Write(Stream stream, FixedLengthOptions options);
-    }
-
-    internal sealed class FixedLengthTypeWriter<TEntity> : IFixedLengthTypeWriter<TEntity>
-    {
-        private readonly FixedLengthTypeMapper<TEntity> mapper;
-        private readonly IEnumerable<TEntity> entities;
-
-        public FixedLengthTypeWriter(FixedLengthTypeMapper<TEntity> mapper, IEnumerable<TEntity> entities)
+        public IRecordReader GetReader()
         {
-            this.mapper = mapper;
-            this.entities = entities;
+            return new RecordReader(this);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window)
+        public IRecordWriter GetWriter()
         {
-            return mapper.Property(property, window);
+            return new RecordWriter(this);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window)
+        private class RecordReader : IRecordReader
         {
-            return mapper.Property(property, window);
+            private readonly FixedLengthTypeMapper<TEntity> mapper;
+            private readonly Action<object[]> transformer;
+            private readonly Action<TEntity, object[]> setter;
+
+            public RecordReader(FixedLengthTypeMapper<TEntity> mapper)
+            {
+                this.mapper = mapper;
+                this.transformer = getTransformer(mapper);
+                this.setter = CodeGenerator.GetReader<TEntity>(mapper.mappings, mapper.indexes);
+            }
+
+            private static Action<object[]> getTransformer(FixedLengthTypeMapper<TEntity> mapper)
+            {
+                List<Action<object[]>> transforms = new List<Action<object[]>>();
+                foreach (string propertyName in mapper.mappings.Keys)
+                {
+                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
+                    if (complexMapping != null)
+                    {
+                        int index = mapper.indexes[propertyName];
+                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
+                        IRecordReader nestedReader = nestedMapper.GetReader();
+                        Action<object[]> transform = (object[] values) =>
+                        {
+                            object value = values[index];
+                            object[] nestedValues = value as object[];
+                            if (nestedValues != null)
+                            {
+                                values[index] = nestedReader.Read(nestedValues);
+                            }
+                        };
+                        transforms.Add(transform);
+                    }
+                }
+                if (transforms.Count == 0)
+                {
+                    transforms.Add((object[] values) => { });
+                }
+                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
+            }
+
+            public TEntity Read(object[] values)
+            {
+                TEntity entity = mapper.factory();
+                transformer(values);
+                setter(entity, values);
+                return entity;
+            }
+
+            object IRecordReader.Read(object[] values)
+            {
+                return Read(values);
+            }
         }
 
-        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window)
+        private class RecordWriter : IRecordWriter
         {
-            return mapper.Property(property, window);
-        }
+            private readonly FixedLengthTypeMapper<TEntity> mapper;
+            private readonly Action<object[]> transformer;
+            private readonly Func<TEntity, object[]> getter;
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
+            public RecordWriter(FixedLengthTypeMapper<TEntity> mapper)
+            {
+                this.mapper = mapper;
+                this.transformer = getTransformer(mapper);
+                this.getter = CodeGenerator.GetWriter<TEntity>(mapper.mappings, mapper.indexes);
+            }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
+            private static Action<object[]> getTransformer(FixedLengthTypeMapper<TEntity> mapper)
+            {
+                List<Action<object[]>> transforms = new List<Action<object[]>>();
+                foreach (string propertyName in mapper.mappings.Keys)
+                {
+                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
+                    if (complexMapping != null)
+                    {
+                        int index = mapper.indexes[propertyName];
+                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
+                        IRecordWriter nestedWriter = nestedMapper.GetWriter();
+                        Action<object[]> transform = (object[] values) =>
+                        {
+                            object value = values[index];
+                            if (value != null)
+                            {
+                                values[index] = nestedWriter.Write(value);
+                            }
+                        };
+                        transforms.Add(transform);
+                    }
+                }
+                if (transforms.Count == 0)
+                {
+                    transforms.Add((object[] values) => { });
+                }
+                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
+            }
 
-        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
+            public object[] Write(TEntity entity)
+            {
+                object[] values = getter(entity);
+                transformer(values);
+                return values;
+            }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window)
-        {
-            return mapper.Property(property, window);
-        }
-
-        public FixedLengthSchema GetSchema()
-        {
-            return mapper.GetSchema();
-        }
-
-        ISchema ISchemaBuilder.GetSchema()
-        {
-            return GetSchema();
-        }
-
-        public void Write(string fileName)
-        {
-            mapper.Write(fileName, entities);
-        }
-
-        public void Write(string fileName, FixedLengthOptions options)
-        {
-            mapper.Write(fileName, options, entities);
-        }
-
-        public void Write(Stream stream)
-        {
-            mapper.Write(stream, entities);
-        }
-
-        public void Write(Stream stream, FixedLengthOptions options)
-        {
-            mapper.Write(stream, options, entities);
+            object[] IRecordWriter.Write(object entity)
+            {
+                return Write((TEntity)entity);
+            }
         }
     }
 }

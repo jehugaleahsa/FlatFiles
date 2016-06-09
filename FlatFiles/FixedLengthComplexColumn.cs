@@ -10,7 +10,7 @@ namespace FlatFiles
     public class FixedLengthComplexColumn : ColumnDefinition
     {
         private readonly FixedLengthSchema schema;
-        private readonly FixedLengthOptions options;
+        private FixedLengthOptions options;
 
         /// <summary>
         /// Initializes a new FixedLengthComplexColumn with the given schema and default options.
@@ -52,58 +52,53 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets the options used to read/write the records.
+        /// </summary>
+        public FixedLengthOptions Options
+        {
+            get { return options; }
+            set { options = value ?? new FixedLengthOptions(); }
+        }
+
+        /// <summary>
         /// Extracts a single record from the embedded data.
         /// </summary>
         /// <param name="value">The value containing the embedded data.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        public override object Parse(string value, Encoding encoding)
-        {
-            if (value == null)
+        public override object Parse(string value)
+        {            
+            if (NullHandler.IsNullRepresentation(value))
             {
                 return null;
             }
-            Encoding actualEncoding = getActualEncoding(encoding);
-            byte[] data = actualEncoding.GetBytes(value);
-            using (MemoryStream stream = new MemoryStream(data))
+
+            StringReader stringReader = new StringReader(value);
+            FixedLengthReader reader = new FixedLengthReader(stringReader, schema, options);
+            if (reader.Read())
             {
-                FixedLengthReader reader = new FixedLengthReader(stream, schema, options);
-                if (reader.Read())
-                {
-                    return reader.GetValues();
-                }
-                return null;
+                return reader.GetValues();
             }
+            return null;
         }
 
         /// <summary>
         /// Formats the given object array into an embedded record.
         /// </summary>
         /// <param name="value">The object array containing the values of the embedded record.</param>
-        /// <param name="encoding">The encoding of the outer document.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        public override string Format(object value, Encoding encoding)
+        public override string Format(object value)
         {
             object[] values = value as object[];
             if (values == null)
             {
-                return null;
+                return NullHandler.GetNullRepresentation();
             }
-            FixedLengthRecordWriter recordWriter = new FixedLengthRecordWriter(schema, options);
             StringWriter writer = new StringWriter();
-            recordWriter.WriteRecord(writer, values);
-            return writer.GetStringBuilder().ToString();
-        }
-
-        private Encoding getActualEncoding(Encoding encoding)
-        {
-            if (options == null || options.Encoding == null)
-            {
-                return encoding;
-            }
-            return options.Encoding;
+            FixedLengthRecordWriter recordWriter = new FixedLengthRecordWriter(writer, schema, options);
+            recordWriter.WriteRecord(values);
+            return writer.ToString();
         }
     }
 }

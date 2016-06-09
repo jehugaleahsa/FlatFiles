@@ -18,4 +18,9 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         ColumnDefinition ColumnDefinition { get; }
     }
+
+    internal interface IComplexPropertyMapping : IPropertyMapping
+    {
+        IRecordMapper RecordMapper { get; }
+    }
 }
