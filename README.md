@@ -60,11 +60,9 @@ The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, e
 Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
 
 ## SeparatedValueReader
-If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a file name (or stream), a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
+If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a `TextReader`, a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
 
-When parsing separated files, you can surround fields with double quotes. This way you can include the separator string within the field. You can override the quote character in the `SeparatedValueOptions` class, if needed.
-
-The `SeparatedValueOptions` class supports a `Separator` property for specifying the string that separates your fields. A comma (`,`) is the default separator.
+When parsing separated value files, you can surround fields with double quotes. This way you can include the separator string within the field. You can override the quote character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string that separates your fields. A comma (`,`) is the default separator.
 
 The `RecordSeparator` property specifies what character sequence is used to separate records. By default, this is `Environment.NewLine` (`\r\n`). This is useful if you are working on files from other systems, such as Linux (`\n`) or Macintosh (`\r`).
 
@@ -74,7 +72,7 @@ The `IsFirstRecordSchema` property tells the reader to treat the first record in
 If you want to build a delimited file, you can use the `SeparatedValueWriter` class. It accepts the same schema and options arguments. If the `SeparatedValueOptions`'s `IsFirstRecordSchema` property is set to `true`, the schema will be written to the file upon writing the first record.
 
 ## FixedLengthReader
-If you are working with files whose fields are a fixed-length you will want to use the `FixedLengthReader` class. The constructor accepts a combination of a file name (or stream), a `FixedLengthSchema` object and/or a `FixedLengthOptions` object.
+If you are working with files whose fields are a fixed-length you will want to use the `FixedLengthReader` class. The constructor accepts a combination of a `TextReader`, a `FixedLengthSchema` object and/or a `FixedLengthOptions` object.
 
 The `FixedLengthOptions` class supports a `FillCharacter` property to specify which character is used as a fill character in the columns. A space (` `) is the default. You can also override this on a per-column basis.
 
