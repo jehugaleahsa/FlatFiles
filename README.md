@@ -22,7 +22,7 @@ Using the type mappers, you can directly read file contents into your classes:
     mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
     using (StreamReader reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
     {
-    	var customers = mapper.Read(reader);
+    	var customers = mapper.Read(reader).ToList();
     }
 	
 Writing to a file is just as easily:
@@ -33,6 +33,8 @@ Writing to a file is just as easily:
     {
     	mapper.Write(writer, customers);
     }
+    
+The `Read` method retrieves record from the underlying file on-demand. This is good for situations where you are reading massive files and only want to process a few at a time. To bring the entire file is read into memory at once, just call `ToList` or `ToArray`.
 	
 Note that the mapper assumes the order `Property` is called the first time for a particular property matches the order the columns appear in the file. Additional references to the property have no impact on the expected order.
 	
