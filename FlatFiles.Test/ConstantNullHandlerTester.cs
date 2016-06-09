@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FlatFiles.TypeMapping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Globalization;
 
 namespace FlatFiles.Test
 {
@@ -55,7 +56,7 @@ namespace FlatFiles.Test
 
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("Name") { NullHandler = nullHandler });
-            schema.AddColumn(new DecimalColumn("Cost") { NullHandler = nullHandler });
+            schema.AddColumn(new DecimalColumn("Cost") { NullHandler = nullHandler, FormatProvider = CultureInfo.InvariantCulture });
             schema.AddColumn(new SingleColumn("Available") { NullHandler = nullHandler });
             schema.AddColumn(new StringColumn("Vendor") { NullHandler = nullHandler });
 
@@ -69,6 +70,7 @@ namespace FlatFiles.Test
             var mapper = SeparatedValueTypeMapper.Define<Product>();
             mapper.Property(p => p.Name).ColumnName("name").NullHandler(nullHandler);
             mapper.Property(p => p.Cost).ColumnName("cost").NullHandler(nullHandler);
+            mapper.Property(p => p.Cost).ColumnName("cost").FormatProvider(CultureInfo.InvariantCulture);
             mapper.Property(p => p.Available).ColumnName("available").NullHandler(nullHandler);
             mapper.Property(p => p.Vendor).ColumnName("vendor").NullHandler(nullHandler);
 
