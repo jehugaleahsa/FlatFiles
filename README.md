@@ -20,13 +20,19 @@ Using the type mappers, you can directly read file contents into your classes:
     mapper.Property(c => c.Name).ColumnName("name");
     mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
     mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
-    var customers = mapper.Read(@"C:\path\to\file.csv");
+    using (StreamReader reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
+    {
+    	var customers = mapper.Read(reader);
+    }
 	
 Writing to a file is just as easily:
 
     mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
     mapper.Property(c => c.AverageSales).OutputFormat("N2");
-    mapper.Write(@"C:\path\to\file2.csv", customers);
+    using (StreamWriter writer = new StreamWriter(File.OpenWrite(@"C:\path\to\file2.csv")))
+    {
+    	mapper.Write(writer, customers);
+    }
 	
 Note that the mapper assumes the order `Property` is called the first time for a particular property matches the order the columns appear in the file. Additional references to the property have no impact on the expected order.
 	
@@ -98,21 +104,19 @@ If you are using `DataTable`s, you can read and write to a `DataTable` using the
 ## FlatFileReader
 For low-level ADO.NET file reading, you can use the `FlatFileReader` class. It provides an `IDataReader` interface to the records in the file, making it compatible with other ADO.NET interfaces.
 
-    // The DataRead Approach
-    using (FlatFileReader reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema))
+    // The DataReader Approach
+    FlatFileReader reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema);
+    List<Customer> customers = new List<Customer>();
+    while (reader.Read())
     {
-        List<Customer> customers = new List<Customer>();
-        while (reader.Read())
-        {
-            Customer customer = new Customer();
-            customer.CustomerId = reader.GetInt32(0);
-            customer.Name = reader.GetString(1);
-            customer.Created = reader.GetDateTime(2);
-            customer.AverageSales = reader.GetDouble(3);
-            customers.Add(customer);
-        }
-        return customers;
+    	Customer customer = new Customer();
+    	customer.CustomerId = reader.GetInt32(0);
+    	customer.Name = reader.GetString(1);
+    	customer.Created = reader.GetDateTime(2);
+    	customer.AverageSales = reader.GetDouble(3);
+    	customers.Add(customer);
     }
+    return customers;
     
 Usually in cases like this, it is just easier to use the type mappers. However, this could be useful if you are swapping out an actual database call with CSV data inside of a unit test.
 
