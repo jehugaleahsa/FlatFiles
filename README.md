@@ -96,8 +96,9 @@ You can implement the `INullHandler` interface if you need to support something 
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 
     DataTable customerTable = new DataTable("Customer");
-    using (IReader reader = new SeparatedValueReader(@"C:\path\to\file.csv", schema))
+    using (StreamReader streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
     {
+        IReader reader = new SeparatedValueReader(streamReader, schema);
         customerTable.ReadFlatFile(reader);
     }
 
