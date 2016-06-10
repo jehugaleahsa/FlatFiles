@@ -62,7 +62,16 @@ namespace FlatFiles
 
         private TokenType getNextToken()
         {
-            if (!options.PreserveWhiteSpace)
+            if (options.PreserveWhiteSpace)
+            {
+                TokenType tokenType = getSeparator();
+                if (tokenType != TokenType.Normal)
+                {
+                    values.Add(String.Empty);
+                    return tokenType;
+                }
+            }
+            else
             {
                 TokenType tokenType = skipLeadingWhiteSpace();
                 if (tokenType != TokenType.Normal)

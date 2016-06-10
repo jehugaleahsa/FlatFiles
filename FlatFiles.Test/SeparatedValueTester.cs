@@ -594,6 +594,24 @@ When he's not traveling, he's at home with his lovely wife, children and leather
             assertRecords(expected, reader);
         }
 
+        [TestMethod]
+        public void ShouldHandleSeparatorAfterQuoteIfPreservingWhiteSpace()
+        {
+            string source = "26087,C Country C,,1,3,7,Randy E,(555) 555-5500,,\"P.O.Box 60,\",,,Woodsland,CA,56281,,,,0292315c-0daa-df11-9397-0019b9e7d4cd,,0,8713cbdd-fb50-dc11-a545-000423c05bf1,40,79527,,False";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false,
+                PreserveWhiteSpace = true
+            };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "26087","C Country C","","1","3","7","Randy E","(555) 555-5500","","P.O.Box 60,","","","Woodsland","CA","56281","","","","0292315c-0daa-df11-9397-0019b9e7d4cd","","0","8713cbdd-fb50-dc11-a545-000423c05bf1","40","79527","","False" }
+            };
+            assertRecords(expected, reader);
+        }
+
         private void assertRecords(object[][] expected, SeparatedValueReader reader)
         {
             for (int recordIndex = 0; recordIndex != expected.Length; ++recordIndex)
