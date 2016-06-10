@@ -42,7 +42,7 @@ namespace FlatFiles
             }
             var formattedValues = formatValues(values);
             var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(options.Separator, formattedValues);
+            string joined = String.Join(options.Separator, escapedValues);
             writer.Write(joined);
         }
 
