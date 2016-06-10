@@ -34,7 +34,7 @@ Writing to a file is just as easily:
     	mapper.Write(writer, customers);
     }
     
-The `Read` method retrieves record from the underlying file on-demand. This is good for situations where you are reading massive files and only want to process a few at a time. To bring the entire file into memory at once, just call `ToList` or `ToArray`.
+The `Read` method retrieves records from the underlying file on-demand. This is good for situations where you are reading massive files and only want to process a few at a time. To bring the entire file into memory at once, just call `ToList` or `ToArray`.
 	
 Note that the mapper assumes the order `Property` is called the first time for a particular property matches the order the columns appear in the file. Additional references to the property have no impact on the expected order.
 	
