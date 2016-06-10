@@ -55,6 +55,7 @@
     <Compile Include="ColumnCollection.cs" />
     <Compile Include="ColumnDefinition.cs" />
     <Compile Include="CharArrayColumn.cs" />
+    <Compile Include="EnumColumn.cs" />
     <Compile Include="FixedLengthComplexColumn.cs" />
     <Compile Include="FixedLengthRecordWriter.cs" />
     <Compile Include="SeparatedValueComplexColumn.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="SeparatedValueSyntaxException.cs" />
     <Compile Include="TypeMapping\CodeGenerator.cs" />
     <Compile Include="TypeMapping\FixedLengthComplexPropertyMapping.cs" />
+    <Compile Include="TypeMapping\EnumPropertyMapping.cs" />
     <Compile Include="TypeMapping\SeparatedValueComplexPropertyMapping.cs" />
     <Compile Include="WindowCollection.cs" />
     <Compile Include="DefaultNullHandler.cs" />

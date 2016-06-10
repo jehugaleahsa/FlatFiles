@@ -266,6 +266,24 @@ namespace FlatFiles.TypeMapping
         IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper, Window window);
 
         /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property, Window window) where TEnum : struct;
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property, Window window) where TEnum : struct;
+
+        /// <summary>
         /// Gets the schema defined by the current configuration.
         /// </summary>
         /// <returns>The schema.</returns>
@@ -692,6 +710,35 @@ namespace FlatFiles.TypeMapping
             }
             windows[propertyInfo.Name] = window;
             return (IFixedLengthComplexPropertyMapping)mapping;
+        }
+
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property, Window window) 
+            where TEnum : struct
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getEnumMapping<TEnum>(propertyInfo, window);
+        }
+
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property, Window window)
+            where TEnum : struct
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getEnumMapping<TEnum>(propertyInfo, window);
+        }
+
+        private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(PropertyInfo propertyInfo, Window window)
+            where TEnum : struct
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                var column = new EnumColumn<TEnum>(propertyInfo.Name);
+                mapping = new EnumPropertyMapping<TEnum>(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            windows[propertyInfo.Name] = window;
+            return (IEnumPropertyMapping<TEnum>)mapping;
         }
 
         private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)

@@ -198,4 +198,7 @@
   <data name="InvalidRecordFormatNumber" xml:space="preserve">
     <value>Encountered an invalid record format. Record {0}.</value>
   </data>
+  <data name="NotEnumType" xml:space="preserve">
+    <value>The type provided is not a an enumeration type.</value>
+  </data>
 </root>

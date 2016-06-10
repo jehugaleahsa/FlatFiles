@@ -233,10 +233,26 @@ namespace FlatFiles.TypeMapping
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="property">An expression that returns the property to map.</param>
         /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property) where TEnum : struct;
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property) where TEnum : struct;
 
         /// <summary>
         /// Gets the schema defined by the current configuration.
@@ -648,6 +664,34 @@ namespace FlatFiles.TypeMapping
                 mappings.Add(propertyInfo.Name, mapping);
             }
             return (IFixedLengthComplexPropertyMapping)mapping;
+        }
+
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property)
+            where TEnum : struct
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getEnumMapping<TEnum>(propertyInfo);
+        }
+
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property)
+            where TEnum : struct
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getEnumMapping<TEnum>(propertyInfo);
+        }
+
+        private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(PropertyInfo propertyInfo)
+            where TEnum : struct
+        {
+            IPropertyMapping mapping;
+            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                var column = new EnumColumn<TEnum>(propertyInfo.Name);
+                mapping = new EnumPropertyMapping<TEnum>(column, propertyInfo);
+                indexes.Add(propertyInfo.Name, mappings.Count);
+                mappings.Add(propertyInfo.Name, mapping);
+            }
+            return (IEnumPropertyMapping<TEnum>)mapping;
         }
 
         private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)

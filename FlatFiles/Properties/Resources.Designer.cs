@@ -232,6 +232,15 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type provided is not a an enumeration type..
+        /// </summary>
+        internal static string NotEnumType {
+            get {
+                return ResourceManager.GetString("NotEnumType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to work with a parser after an invalid record was encountered..
         /// </summary>
         internal static string ReadingWithErrors {
