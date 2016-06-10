@@ -13,7 +13,7 @@ namespace FlatFiles.TypeMapping
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
-                "__FixedLengthTypeMapper_read",
+                "__FlatFiles_TypeMapping_read",
                 typeof(void),
                 new Type[] { entityType, typeof(object[]) },
                 true);
@@ -47,7 +47,7 @@ namespace FlatFiles.TypeMapping
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
-                "__FixedLengthTypeMapper_write",
+                "__FlatFiles_TypeMapping_write",
                 typeof(object[]),
                 new Type[] { entityType },
                 true);

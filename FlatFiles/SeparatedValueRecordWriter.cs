@@ -88,6 +88,11 @@ namespace FlatFiles
             {
                 return true;
             }
+            // Escape strings containing the record separator.
+            if (value.Contains(options.RecordSeparator))
+            {
+                return true;
+            }
             // Escape strings containing quotes.
             if (value.Contains(quoteString))
             {
