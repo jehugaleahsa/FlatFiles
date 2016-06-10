@@ -71,6 +71,11 @@ namespace FlatFiles
         public bool IsFirstRecordSchema { get; set; }
 
         /// <summary>
+        /// Gets or sets whether leading and trailing whitespace should be preserved when reading.
+        /// </summary>
+        public bool PreserveWhiteSpace { get; set; }
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

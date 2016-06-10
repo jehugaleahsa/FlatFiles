@@ -62,11 +62,14 @@ namespace FlatFiles
 
         private TokenType getNextToken()
         {
-            TokenType tokenType = skipLeadingWhitespace();
-            if (tokenType != TokenType.Normal)
+            if (!options.PreserveWhiteSpace)
             {
-                values.Add(String.Empty);
-                return tokenType;
+                TokenType tokenType = skipLeadingWhiteSpace();
+                if (tokenType != TokenType.Normal)
+                {
+                    values.Add(String.Empty);
+                    return tokenType;
+                }
             }
             if (reader.IsMatch(options.Quote))
             {
@@ -78,7 +81,7 @@ namespace FlatFiles
             }
         }
 
-        private TokenType skipLeadingWhitespace()
+        private TokenType skipLeadingWhiteSpace()
         {
             TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
@@ -98,9 +101,12 @@ namespace FlatFiles
                 token.Append(reader.Current);
                 tokenType = getSeparator();
             }
-            while (Char.IsWhiteSpace(token[token.Length - 1]))
+            if (!options.PreserveWhiteSpace)
             {
-                token.Length -= 1;
+                while (Char.IsWhiteSpace(token[token.Length - 1]))
+                {
+                    token.Length -= 1;
+                }
             }
             values.Add(token.ToString());
             return tokenType;
@@ -125,17 +131,35 @@ namespace FlatFiles
                 {
                     token.Append(reader.Current);
                 }
+                else if (options.PreserveWhiteSpace)
+                {
+                    // We've encountered a stand-alone quote.
+                    // We go looking for a separator, keeping any leading whitespace.
+                    tokenType = getSeparator();
+                    while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
+                    {
+                        token.Append(reader.Current);
+                        tokenType = getSeparator();
+                    }
+                    if (tokenType == TokenType.Normal)
+                    {
+                        break;
+                    }
+                    values.Add(token.ToString());
+                    return tokenType;
+                }
                 else
                 {
                     // We've encountered a stand-alone quote.
                     // We go looking for a separator, skipping any leading whitespace.
-                    tokenType = skipLeadingWhitespace();
-                    if (tokenType != TokenType.Normal)
+                    tokenType = skipLeadingWhiteSpace();
+                    if (tokenType == TokenType.Normal)
                     {
-                        // If we find anything other than a separator, it's a syntax error.
-                        values.Add(token.ToString());
-                        return tokenType;
+                        break;
                     }
+                    // If we find anything other than a separator, it's a syntax error.
+                    values.Add(token.ToString());
+                    return tokenType;
                 }
             }
             throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);

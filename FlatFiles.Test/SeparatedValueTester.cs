@@ -207,6 +207,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldPreserveLeadingWhitespaceIfConfigured()
+        {
+            string source = " a";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { " a" }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldStripLeadingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "  a, \t\n  b";
@@ -216,6 +230,20 @@ namespace FlatFiles.Test
             object[][] expected = new object[][]
             {
                 new object[] { "a", "b" }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
+        public void ShouldPreserveLeadingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
+        {
+            string source = "  a, \t\n  b";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "  a", " \t\n  b" }
             };
             assertRecords(expected, reader);
         }
@@ -235,6 +263,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldPreserveTrailingWhitespaceIfConfigured()
+        {
+            string source = "a ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "a " }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldStripTrailingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "a  ,b \t\n  ";
@@ -244,6 +286,20 @@ namespace FlatFiles.Test
             object[][] expected = new object[][]
             {
                 new object[] { "a", "b" }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
+        public void ShouldPreserveTrailingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
+        {
+            string source = "a  ,b \t\n  ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "a  ", "b \t\n  " }
             };
             assertRecords(expected, reader);
         }
@@ -263,6 +319,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldPreserveLeadingAndTrailingWhitespaceIfConfigured()
+        {
+            string source = " a ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { " a " }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldStripLeadingAndTrailingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "  a  , \t\n  b \t\n  ";
@@ -277,6 +347,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldPreserveLeadingAndTrailingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
+        {
+            string source = "  a  , \t\n  b \t\n  ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "  a  ", " \t\n  b \t\n  " }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldFindOneColumnOneRecordIfAllWhitespace()
         {
             string source = " \t\n\r ";
@@ -286,6 +370,20 @@ namespace FlatFiles.Test
             object[][] expected = new object[][]
             {
                 new object[] { String.Empty }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
+        public void ShouldPreserveWhiteSpaceIfConfigured_AllWhitespace()
+        {
+            string source = " \t\n\r ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { " \t\n\r " }
             };
             assertRecords(expected, reader);
         }
