@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -9,12 +8,16 @@ namespace FlatFiles
     {
         private readonly TextReader reader;
         private readonly Stack<char> retry;
+        private Func<bool> read;
+        private Func<int> peek;
         private char current;
 
         public RetryReader(TextReader reader)
         {
             this.reader = reader;
             this.retry = new Stack<char>();
+            this.read = readerRead;
+            this.peek = readerPeek;
         }
 
         public bool EndOfStream
@@ -29,11 +32,11 @@ namespace FlatFiles
 
         public bool Read()
         {
-            if (retry.Count > 0)
-            {
-                current = retry.Pop();
-                return true;
-            }
+            return read();
+        }
+
+        private bool readerRead()
+        {
             int next = reader.Read();
             if (next == -1)
             {
@@ -43,80 +46,103 @@ namespace FlatFiles
             return true;
         }
 
-        public bool IsMatch(char value)
+        private bool retryRead()
         {
-            if (retry.Count > 0)
+            current = retry.Pop();
+            if (retry.Count == 0)
             {
-                if (retry.Peek() == value)
-                {
-                    current = retry.Pop();
-                    return true;
-                }
-                return false;
+                read = readerRead;
+                peek = readerPeek;
             }
-            int next = reader.Peek();
-            if (next != -1)
+            return true;
+        }
+
+        private int readerPeek()
+        {
+            return reader.Peek();
+        }
+
+        private int retryPeek()
+        {
+            return retry.Peek();
+        }
+
+        public bool IsMatch(Func<char, bool> comparer)
+        {
+            int next = peek();
+            if (next != -1 && comparer((char)next))
             {
-                if ((char)next == value)
-                {
-                    current = (char)reader.Read();
-                    return true;
-                }
+                read();
+                return true;
             }
             return false;
         }
 
+        public bool IsMatch(char value)
+        {
+            int next = peek();
+            if (next != -1 && (char)next == value)
+            {
+                read();
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsMatch1(string value)
+        {
+            return IsMatch(value[0]);
+        }
+
+        public bool IsMatch2(string value)
+        {
+            if (!IsMatch(value[0]))
+            {
+                return false;
+            }
+            if (!IsMatch(value[1]))
+            {
+                undo(current);
+                return false;
+            }
+            return true;
+        }
+
         public bool IsMatch(string value)
         {
-            // Optimized for two character separators.
             int position = 0;
-            if (!IsMatch(value[position]))
-            {
-                return false;
-            }
-            ++position;
-            if (position == value.Length)
-            {
-                return true;
-            }
-            if (!IsMatch(value[position]))
-            {
-                Undo(value[0]);
-                return false;
-            }
-            ++position;
-            if (position == value.Length)
-            {
-                return true;
-            }
-            List<char> tail = new List<char>(value.Length);
-            tail.Add(value[0]);
-            tail.Add(value[1]);
+            char[] buffer = new char[value.Length];
             while (IsMatch(value[position]))
             {
-                tail.Add(current);
+                buffer[position] = value[position];
                 ++position;
                 if (position == value.Length)
                 {
                     return true;
                 }
             }
-            Undo(tail);
+            undo(buffer, position);
             return false;
         }
 
-        public void Undo(char item)
+        private void undo(char item)
         {
             retry.Push(item);
+            read = retryRead;
+            peek = retryPeek;
         }
 
-        public void Undo(List<char> items)
+        private void undo(char[] items, int length)
         {
-            int position = items.Count;
-            while (position != 0)
+            while (length != 0)
             {
-                --position;
-                retry.Push(items[position]);
+                --length;
+                retry.Push(items[length]);
+            }
+            if (retry.Count != 0)
+            {
+                read = retryRead;
+                peek = retryPeek;
             }
         }
     }

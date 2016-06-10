@@ -9,12 +9,39 @@ namespace FlatFiles
     {
         private readonly RetryReader reader;
         private readonly SeparatedValueOptions options;
+        private readonly string separatorPostfix;
+        private readonly Func<string, bool> separatorMatcher;
+        private readonly Func<string, bool> recordSeparatorMatcher;
+        private readonly Func<string, bool> postfixMatcher;
         private List<string> values;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
             this.reader = reader;
             this.options = options.Clone();
+            this.separatorMatcher = getMatcher(options.Separator);
+            this.recordSeparatorMatcher = getMatcher(options.RecordSeparator);
+            if (options.RecordSeparator.StartsWith(options.Separator))
+            {
+                this.separatorPostfix = options.RecordSeparator.Substring(options.Separator.Length);
+                this.postfixMatcher = getMatcher(this.separatorPostfix);
+            }
+        }
+
+        private Func<string, bool> getMatcher(string separator)
+        {
+            if (separator.Length == 1)
+            {
+                return reader.IsMatch1;
+            }
+            else if (separator.Length == 2)
+            {
+                return reader.IsMatch2;
+            }
+            else
+            {
+                return reader.IsMatch;
+            }
         }
 
         public bool EndOfStream
@@ -41,8 +68,7 @@ namespace FlatFiles
                 values.Add(String.Empty);
                 return tokenType;
             }
-            bool isQuoted = isTokenQuoted();
-            if (isQuoted)
+            if (reader.IsMatch(options.Quote))
             {
                 return getQuotedToken();
             }
@@ -55,31 +81,11 @@ namespace FlatFiles
         private TokenType skipLeadingWhitespace()
         {
             TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal)
+            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
             {
-                reader.Read();
-                if (!Char.IsWhiteSpace(reader.Current))
-                {
-                    reader.Undo(reader.Current);
-                    return TokenType.Normal;
-                }
                 tokenType = getSeparator();
             }
             return tokenType;
-        }
-
-        private bool isTokenQuoted()
-        {
-            reader.Read();
-            if (reader.Current == options.Quote)
-            {
-                return true;
-            }
-            else
-            {
-                reader.Undo(reader.Current);
-                return false;
-            }
         }
 
         private TokenType getUnquotedToken()
@@ -102,12 +108,15 @@ namespace FlatFiles
 
         private TokenType getQuotedToken()
         {
-            bool hasMatchingQuote = false;
             TokenType tokenType = TokenType.Normal;
             StringBuilder token = new StringBuilder();
-            while (tokenType == TokenType.Normal && reader.Read())
+            while (tokenType == TokenType.Normal)
             {
-                if (reader.Current != options.Quote)
+                if (!reader.Read())
+                {
+                    tokenType = TokenType.EndOfStream;
+                }
+                else if (reader.Current != options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
@@ -121,20 +130,15 @@ namespace FlatFiles
                     // We've encountered a stand-alone quote.
                     // We go looking for a separator, skipping any leading whitespace.
                     tokenType = skipLeadingWhitespace();
-                    if (tokenType == TokenType.Normal)
+                    if (tokenType != TokenType.Normal)
                     {
                         // If we find anything other than a separator, it's a syntax error.
-                        break;
+                        values.Add(token.ToString());
+                        return tokenType;
                     }
-                    hasMatchingQuote = true;
                 }
             }
-            if (!hasMatchingQuote)
-            {
-                throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
-            }
-            values.Add(token.ToString());
-            return tokenType;
+            throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
         }
 
         private TokenType getSeparator()
@@ -143,9 +147,11 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            else if (reader.IsMatch(options.Separator))
+            else if (separatorMatcher(options.Separator))
             {
-                if (options.RecordSeparator.StartsWith(options.Separator) && reader.IsMatch(options.RecordSeparator.Substring(options.Separator.Length)))
+                // This code handles the case where the separator is a substring of the record separator.
+                // We check to see if the remaining characters make up the record separator.
+                if (separatorPostfix != null && postfixMatcher(separatorPostfix))
                 {
                     return TokenType.EndOfRecord;
                 }
@@ -154,8 +160,10 @@ namespace FlatFiles
                     return TokenType.EndOfToken;
                 }
             }
-            else if (reader.IsMatch(options.RecordSeparator))
+            else if (separatorPostfix == null && recordSeparatorMatcher(options.RecordSeparator))
             {
+                // If the separator is a substring of the record separator and we didn't find it,
+                // we won't find the record separator either.
                 return TokenType.EndOfRecord;
             }
             else
