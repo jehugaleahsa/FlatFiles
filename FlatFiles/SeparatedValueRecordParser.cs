@@ -84,17 +84,19 @@ namespace FlatFiles
 
         private TokenType getUnquotedToken()
         {
-            List<char> tokenChars = new List<char>();
+            StringBuilder token = new StringBuilder();
             TokenType tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
-                tokenChars.Add(reader.Current);
+                token.Append(reader.Current);
                 tokenType = getSeparator();
             }
-            string token = new String(tokenChars.ToArray());
-            token = token.TrimEnd();
-            values.Add(token);
+            while (Char.IsWhiteSpace(token[token.Length - 1]))
+            {
+                token.Length -= 1;
+            }
+            values.Add(token.ToString());
             return tokenType;
         }
 
@@ -102,17 +104,17 @@ namespace FlatFiles
         {
             bool hasMatchingQuote = false;
             TokenType tokenType = TokenType.Normal;
-            List<char> tokenChars = new List<char>();
+            StringBuilder token = new StringBuilder();
             while (tokenType == TokenType.Normal && reader.Read())
             {
                 if (reader.Current != options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
-                    tokenChars.Add(reader.Current);
+                    token.Append(reader.Current);
                 }
                 else if (reader.IsMatch(options.Quote))
                 {
-                    tokenChars.Add(reader.Current);
+                    token.Append(reader.Current);
                 }
                 else
                 {
@@ -131,8 +133,7 @@ namespace FlatFiles
             {
                 throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
             }
-            string token = new String(tokenChars.ToArray());
-            values.Add(token);
+            values.Add(token.ToString());
             return tokenType;
         }
 
@@ -142,37 +143,25 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            if (options.RecordSeparator.Length > options.Separator.Length)
+            else if (reader.IsMatch(options.Separator))
             {
-                if (reader.IsMatch(options.RecordSeparator))
+                if (options.RecordSeparator.StartsWith(options.Separator) && reader.IsMatch(options.RecordSeparator.Substring(options.Separator.Length)))
                 {
                     return TokenType.EndOfRecord;
                 }
-                else if (reader.IsMatch(options.Separator))
+                else
                 {
                     return TokenType.EndOfToken;
-                }
-            }
-            else if (options.Separator.Length > options.RecordSeparator.Length)
-            {
-                if (reader.IsMatch(options.Separator))
-                {
-                    return TokenType.EndOfToken;
-                }
-                else if (reader.IsMatch(options.RecordSeparator))
-                {
-                    return TokenType.EndOfRecord;
                 }
             }
             else if (reader.IsMatch(options.RecordSeparator))
             {
                 return TokenType.EndOfRecord;
             }
-            else if (reader.IsMatch(options.Separator))
+            else
             {
-                return TokenType.EndOfToken;
+                return TokenType.Normal;
             }
-            return TokenType.Normal;
         }
 
         private enum TokenType
