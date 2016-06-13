@@ -105,7 +105,7 @@ namespace FlatFiles
             return false;
         }
 
-        public bool IsMatch(char value)
+        public bool IsMatch1(char value)
         {
             int next = peek();
             if (next != -1 && (char)next == value)
@@ -116,18 +116,13 @@ namespace FlatFiles
             return false;
         }
 
-        public bool IsMatch1(string value)
+        public bool IsMatch2(char first, char second)
         {
-            return IsMatch(value[0]);
-        }
-
-        public bool IsMatch2(string value)
-        {
-            if (!IsMatch(value[0]))
+            if (!IsMatch1(first))
             {
                 return false;
             }
-            if (!IsMatch(value[1]))
+            if (!IsMatch1(second))
             {
                 undo(current);
                 return false;
@@ -139,7 +134,7 @@ namespace FlatFiles
         {
             int position = 0;
             char[] buffer = new char[value.Length];
-            while (IsMatch(value[position]))
+            while (IsMatch1(value[position]))
             {
                 buffer[position] = value[position];
                 ++position;

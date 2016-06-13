@@ -9,10 +9,9 @@ namespace FlatFiles
     {
         private readonly RetryReader reader;
         private readonly SeparatedValueOptions options;
-        private readonly string separatorPostfix;
-        private readonly Func<string, bool> separatorMatcher;
-        private readonly Func<string, bool> recordSeparatorMatcher;
-        private readonly Func<string, bool> postfixMatcher;
+        private readonly Func<bool> separatorMatcher;
+        private readonly Func<bool> recordSeparatorMatcher;
+        private readonly Func<bool> postfixMatcher;
         private List<string> values;
         private StringBuilder token;
 
@@ -24,25 +23,28 @@ namespace FlatFiles
             this.recordSeparatorMatcher = getMatcher(options.RecordSeparator);
             if (options.RecordSeparator.StartsWith(options.Separator))
             {
-                this.separatorPostfix = options.RecordSeparator.Substring(options.Separator.Length);
-                this.postfixMatcher = getMatcher(this.separatorPostfix);
+                string postfix = options.RecordSeparator.Substring(options.Separator.Length);
+                this.postfixMatcher = getMatcher(postfix);
             }
             this.token = new StringBuilder();
         }
 
-        private Func<string, bool> getMatcher(string separator)
+        private Func<bool> getMatcher(string separator)
         {
             if (separator.Length == 1)
             {
-                return reader.IsMatch1;
+                char first = separator[0];
+                return () => reader.IsMatch1(first);
             }
             else if (separator.Length == 2)
             {
-                return reader.IsMatch2;
+                char first = separator[0];
+                char second = separator[1];
+                return () => reader.IsMatch2(first, second);
             }
             else
             {
-                return reader.IsMatch;
+                return () => reader.IsMatch(separator);
             }
         }
 
@@ -79,7 +81,7 @@ namespace FlatFiles
                     return tokenType;
                 }
             }
-            if (reader.IsMatch(options.Quote))
+            if (reader.IsMatch1(options.Quote))
             {
                 return getQuotedToken();
             }
@@ -119,7 +121,7 @@ namespace FlatFiles
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
                 }
-                else if (reader.IsMatch(options.Quote))
+                else if (reader.IsMatch1(options.Quote))
                 {
                     // Escaped quote (two quotes in a row)
                     token.Append(reader.Current);
@@ -176,11 +178,11 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            else if (separatorMatcher(options.Separator))
+            else if (separatorMatcher())
             {
                 // This code handles the case where the separator is a substring of the record separator.
                 // We check to see if the remaining characters make up the record separator.
-                if (separatorPostfix != null && postfixMatcher(separatorPostfix))
+                if (postfixMatcher != null && postfixMatcher())
                 {
                     return TokenType.EndOfRecord;
                 }
@@ -189,7 +191,7 @@ namespace FlatFiles
                     return TokenType.EndOfToken;
                 }
             }
-            else if (separatorPostfix == null && recordSeparatorMatcher(options.RecordSeparator))
+            else if (postfixMatcher == null && recordSeparatorMatcher())
             {
                 // If the separator is a substring of the record separator and we didn't find it,
                 // we won't find the record separator either.
