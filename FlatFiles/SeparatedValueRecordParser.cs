@@ -14,6 +14,7 @@ namespace FlatFiles
         private readonly Func<string, bool> recordSeparatorMatcher;
         private readonly Func<string, bool> postfixMatcher;
         private List<string> values;
+        private StringBuilder token;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
@@ -26,6 +27,7 @@ namespace FlatFiles
                 this.separatorPostfix = options.RecordSeparator.Substring(options.Separator.Length);
                 this.postfixMatcher = getMatcher(this.separatorPostfix);
             }
+            this.token = new StringBuilder();
         }
 
         private Func<string, bool> getMatcher(string separator)
@@ -49,6 +51,12 @@ namespace FlatFiles
             get { return reader.EndOfStream; }
         }
 
+        private void addToken()
+        {
+            values.Add(token.ToString());
+            token.Length = 0;
+        }
+
         public string[] ReadRecord()
         {
             values = new List<string>();
@@ -62,21 +70,12 @@ namespace FlatFiles
 
         private TokenType getNextToken()
         {
-            if (options.PreserveWhiteSpace)
+            if (!options.PreserveWhiteSpace)
             {
-                TokenType tokenType = getSeparator();
+                TokenType tokenType = skipWhiteSpace();
                 if (tokenType != TokenType.Normal)
                 {
-                    values.Add(String.Empty);
-                    return tokenType;
-                }
-            }
-            else
-            {
-                TokenType tokenType = skipLeadingWhiteSpace();
-                if (tokenType != TokenType.Normal)
-                {
-                    values.Add(String.Empty);
+                    addToken();
                     return tokenType;
                 }
             }
@@ -90,20 +89,9 @@ namespace FlatFiles
             }
         }
 
-        private TokenType skipLeadingWhiteSpace()
-        {
-            TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
-            {
-                tokenType = getSeparator();
-            }
-            return tokenType;
-        }
-
         private TokenType getUnquotedToken()
         {
-            StringBuilder token = new StringBuilder();
-            TokenType tokenType = TokenType.Normal;
+            TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
@@ -117,61 +105,69 @@ namespace FlatFiles
                     token.Length -= 1;
                 }
             }
-            values.Add(token.ToString());
+            addToken();
             return tokenType;
         }
 
         private TokenType getQuotedToken()
         {
             TokenType tokenType = TokenType.Normal;
-            StringBuilder token = new StringBuilder();
-            while (tokenType == TokenType.Normal)
+            while (tokenType == TokenType.Normal && reader.Read())
             {
-                if (!reader.Read())
-                {
-                    tokenType = TokenType.EndOfStream;
-                }
-                else if (reader.Current != options.Quote)
+                if (reader.Current != options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
                 }
                 else if (reader.IsMatch(options.Quote))
                 {
+                    // Escaped quote (two quotes in a row)
                     token.Append(reader.Current);
-                }
-                else if (options.PreserveWhiteSpace)
-                {
-                    // We've encountered a stand-alone quote.
-                    // We go looking for a separator, keeping any leading whitespace.
-                    tokenType = getSeparator();
-                    while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
-                    {
-                        token.Append(reader.Current);
-                        tokenType = getSeparator();
-                    }
-                    if (tokenType == TokenType.Normal)
-                    {
-                        break;
-                    }
-                    values.Add(token.ToString());
-                    return tokenType;
                 }
                 else
                 {
-                    // We've encountered a stand-alone quote.
-                    // We go looking for a separator, skipping any leading whitespace.
-                    tokenType = skipLeadingWhiteSpace();
-                    if (tokenType == TokenType.Normal)
+                    if (options.PreserveWhiteSpace)
                     {
-                        break;
+                        // We've encountered a stand-alone quote.
+                        // We go looking for a separator, keeping any leading whitespace.
+                        tokenType = appendWhiteSpace();
+                    }
+                    else
+                    {
+                        // We've encountered a stand-alone quote.
+                        // We go looking for a separator, skipping any leading whitespace.
+                        tokenType = skipWhiteSpace();
                     }
                     // If we find anything other than a separator, it's a syntax error.
-                    values.Add(token.ToString());
-                    return tokenType;
+                    if (tokenType != TokenType.Normal)
+                    {
+                        addToken();
+                        return tokenType;
+                    }
                 }
             }
             throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
+        }
+
+        private TokenType skipWhiteSpace()
+        {
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
+            {
+                tokenType = getSeparator();
+            }
+            return tokenType;
+        }
+
+        private TokenType appendWhiteSpace()
+        {
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
+            {
+                token.Append(reader.Current);
+                tokenType = getSeparator();
+            }
+            return tokenType;
         }
 
         private TokenType getSeparator()

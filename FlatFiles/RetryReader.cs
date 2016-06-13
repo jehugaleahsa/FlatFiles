@@ -9,7 +9,9 @@ namespace FlatFiles
         private readonly TextReader reader;
         private readonly Stack<char> retry;
         private Func<bool> read;
+        private Action safeRead;
         private Func<int> peek;
+        private Func<bool> eos;
         private char current;
 
         public RetryReader(TextReader reader)
@@ -17,12 +19,14 @@ namespace FlatFiles
             this.reader = reader;
             this.retry = new Stack<char>();
             this.read = readerRead;
+            this.safeRead = safeReaderRead;
             this.peek = readerPeek;
+            this.eos = readerEos;
         }
 
         public bool EndOfStream
         {
-            get { return retry.Count == 0 && reader.Peek() == -1; }
+            get { return eos(); }
         }
 
         public char Current
@@ -48,13 +52,26 @@ namespace FlatFiles
 
         private bool retryRead()
         {
+            safeRetryRead();
+            return true;
+        }
+
+        private void safeReaderRead()
+        {
+            int next = reader.Read();
+            current = (char)next;
+        }
+
+        private void safeRetryRead()
+        {
             current = retry.Pop();
             if (retry.Count == 0)
             {
                 read = readerRead;
+                safeRead = safeReaderRead;
                 peek = readerPeek;
+                eos = readerEos;
             }
-            return true;
         }
 
         private int readerPeek()
@@ -67,12 +84,22 @@ namespace FlatFiles
             return retry.Peek();
         }
 
+        private bool readerEos()
+        {
+            return reader.Peek() == -1;
+        }
+
+        private bool retryEos()
+        {
+            return false;
+        }
+
         public bool IsMatch(Func<char, bool> comparer)
         {
             int next = peek();
             if (next != -1 && comparer((char)next))
             {
-                read();
+                safeRead();
                 return true;
             }
             return false;
@@ -83,7 +110,7 @@ namespace FlatFiles
             int next = peek();
             if (next != -1 && (char)next == value)
             {
-                read();
+                safeRead();
                 return true;
             }
             return false;
@@ -129,21 +156,27 @@ namespace FlatFiles
         {
             retry.Push(item);
             read = retryRead;
+            safeRead = safeRetryRead;
             peek = retryPeek;
+            eos = retryEos;
         }
 
         private void undo(char[] items, int length)
         {
-            while (length != 0)
+            if (length == 0)
+            {
+                return;
+            }
+            do
             {
                 --length;
                 retry.Push(items[length]);
             }
-            if (retry.Count != 0)
-            {
-                read = retryRead;
-                peek = retryPeek;
-            }
+            while (length != 0);
+            read = retryRead;
+            safeRead = safeRetryRead;
+            peek = retryPeek;
+            eos = retryEos;
         }
     }
 }

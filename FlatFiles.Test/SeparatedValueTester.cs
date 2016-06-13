@@ -431,6 +431,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldHandleLongUndoOperation()
+        {
+            string source = "axxxb";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, Separator = "xxxx" };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "axxxb" }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldExtractQuotedValue()
         {
             string source = "'a'";
