@@ -12,7 +12,7 @@ A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) ei
 
 FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects. It even has support for `DataTable`s and `IDataReader` if you need to interface with ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays.
 
-Unlike many other libraries, FlatFiles also allows you to specify a file's schema by column name, position and type. This allows you to control how FlatFiles interprets each column with fine-grain precision. Take complete control over the way dates, numbers and enums are interpreted in your files.
+Unlike many other libraries, FlatFiles also allows you to control a file's schema. This allows you to control how FlatFiles interprets each column with fine-grain precision. It gives you complete control over the way dates, numbers and enums are interpreted in your files.
 
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
@@ -31,17 +31,21 @@ Writing to a file is just as easily:
 
     mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
     mapper.Property(c => c.AverageSales).OutputFormat("N2");
-    using (StreamWriter writer = new StreamWriter(File.OpenWrite(@"C:\path\to\file2.csv")))
+    using (StreamWriter writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
     {
     	mapper.Write(writer, customers);
     }
+
+Call `Property` in the order that the fields appear in the file to define the schema. The type of the column is determined by the type of the mapped property. Each property configuration provides options for controlling the way FlatFiles handles strings, numbers, date/times, GUIDs, enums and more. Once the properties are configured, you can call `Read` or `Write` on the type mapper.
     
-The `Read` method retrieves records from the underlying file on-demand. This is good for situations where you are reading massive files and only want to process a few at a time. To bring the entire file into memory at once, just call `ToList` or `ToArray`.
-	
-Note that the mapper assumes the order `Property` is called the first time for a particular property matches the order the columns appear in the file. Additional references to the property have no impact on the expected order.
+*Note* The `Read` method only retrieves records from the underlying file on-demand. To bring the entire file into memory at once, just call `ToList` or `ToArray`, or loop over the records inside of a `foreach`.
+
+*Note* I was able to customize the `OutputFormat` of properties that were already configured. The first time `Property` is called on a property, it assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns.
 	
 ## Schemas
-Type mapping internally defines a schema, which defines the name, order and type of each column in the flat file. You can get access to the schema by calling `GetSchema` on the mapper. Otherwise, if you don't plan on using the type mappers you will need to define the schema yourself. For instance, this is how we would define a CSV file schema:
+One of the features that sets FlatFiles apart are schemas. Schemas provide complete control over the way values are interpreted. Under the hood, type mapping internally defines a schema, giving each column a name, order and type in the flat file. You can get access to the schema by calling `GetSchema` on the mapper.
+
+However, you can work directly with schemas if you don't plan on using the type mappers. For instance, this is how we would define a CSV file schema:
 
     SeparatedValueSchema schema = new SeparatedValueSchema();
     schema.AddColumn(new Int64Column("customer_id"))
@@ -57,18 +61,18 @@ Or, if the schema is for a fixed-length file:
       .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
       .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
 	  
-The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width.
+The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width. These settings can also be overridden at the column level.
 
-Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
+*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns for gaps in the input file.
 
 ## SeparatedValueReader
-If you are working with delimited files, such as comma-separated or tab-separated files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a `TextReader`, a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
+If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a `TextReader`, a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
 
-When parsing separated value files, you can surround fields with double quotes. This way you can include the separator string within the field. You can override the quote character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string that separates your fields. A comma (`,`) is the default separator.
+When parsing separated value files, you can surround fields with double quotes (`"`). This way you can include the separator string within the field. You can override the quote character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string that separates your fields. A comma (`,`) is the default separator.
 
 The `RecordSeparator` property specifies what character sequence is used to separate records. By default, this is `Environment.NewLine` (`\r\n`). This is useful if you are working on files from other systems, such as Linux (`\n`) or Macintosh (`\r`).
 
-The `IsFirstRecordSchema` property tells the reader to treat the first record in the file as the schema. Since the types of the fields cannot be determined from a file, they are assumed to be strings. If you provide the schema to the constructor, it will be used instead, and the first record will simply be skipped. By default, this property is set to `false`.
+The `IsFirstRecordSchema` property tells the reader to treat the first record in the file as the schema. Since the types of the fields cannot be determined from a file, they are assumed to be `string`s. If you provide the schema to the constructor, it will be used instead, and the first record will simply be skipped. By default, this property is set to `false`.
 
 ## SeparateValueWriter
 If you want to build a delimited file, you can use the `SeparatedValueWriter` class. It accepts the same schema and options arguments. If the `SeparatedValueOptions`'s `IsFirstRecordSchema` property is set to `true`, the schema will be written to the file upon writing the first record.
