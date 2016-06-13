@@ -8,25 +8,23 @@ namespace FlatFiles
     {
         private readonly TextReader reader;
         private readonly Stack<char> retry;
-        private Func<bool> read;
-        private Action safeRead;
-        private Func<int> peek;
-        private Func<bool> eos;
+        private readonly ReaderState readState;
+        private readonly RetryState retryState;
+        private IReaderState state;
         private char current;
 
         public RetryReader(TextReader reader)
         {
             this.reader = reader;
             this.retry = new Stack<char>();
-            this.read = readerRead;
-            this.safeRead = safeReaderRead;
-            this.peek = readerPeek;
-            this.eos = readerEos;
+            this.readState = new ReaderState(this);
+            this.retryState = new RetryState(this);
+            this.state = readState;
         }
 
         public bool EndOfStream
         {
-            get { return eos(); }
+            get { return state.EndOfStream; }
         }
 
         public char Current
@@ -36,70 +34,15 @@ namespace FlatFiles
 
         public bool Read()
         {
-            return read();
-        }
-
-        private bool readerRead()
-        {
-            int next = reader.Read();
-            if (next == -1)
-            {
-                return false;
-            }
-            current = (char)next;
-            return true;
-        }
-
-        private bool retryRead()
-        {
-            safeRetryRead();
-            return true;
-        }
-
-        private void safeReaderRead()
-        {
-            int next = reader.Read();
-            current = (char)next;
-        }
-
-        private void safeRetryRead()
-        {
-            current = retry.Pop();
-            if (retry.Count == 0)
-            {
-                read = readerRead;
-                safeRead = safeReaderRead;
-                peek = readerPeek;
-                eos = readerEos;
-            }
-        }
-
-        private int readerPeek()
-        {
-            return reader.Peek();
-        }
-
-        private int retryPeek()
-        {
-            return retry.Peek();
-        }
-
-        private bool readerEos()
-        {
-            return reader.Peek() == -1;
-        }
-
-        private bool retryEos()
-        {
-            return false;
+            return state.Read();
         }
 
         public bool IsMatch(Func<char, bool> comparer)
         {
-            int next = peek();
-            if (next != -1 && comparer((char)next))
+            int next = state.Peek();
+            if (next != -1 && comparer(unchecked((char)next)))
             {
-                safeRead();
+                state.SafeRead();
                 return true;
             }
             return false;
@@ -107,10 +50,14 @@ namespace FlatFiles
 
         public bool IsMatch1(char value)
         {
-            int next = peek();
-            if (next != -1 && (char)next == value)
+            int next = state.Peek();
+            if (next == -1)
             {
-                safeRead();
+                return false;
+            }
+            if (unchecked((char)next) == value)
+            {
+                state.SafeRead();
                 return true;
             }
             return false;
@@ -150,10 +97,7 @@ namespace FlatFiles
         private void undo(char item)
         {
             retry.Push(item);
-            read = retryRead;
-            safeRead = safeRetryRead;
-            peek = retryPeek;
-            eos = retryEos;
+            state = retryState;
         }
 
         private void undo(char[] items, int length)
@@ -168,10 +112,109 @@ namespace FlatFiles
                 retry.Push(items[length]);
             }
             while (length != 0);
-            read = retryRead;
-            safeRead = safeRetryRead;
-            peek = retryPeek;
-            eos = retryEos;
+            state = retryState;
+        }
+
+        private interface IReaderState
+        {
+            bool Read();
+
+            void SafeRead();
+
+            int Peek();
+
+            bool EndOfStream { get; }
+        }
+
+        private class ReaderState : IReaderState
+        {
+            private readonly RetryReader reader;
+            private readonly TextReader textReader;
+            private int? peekValue;
+
+            public ReaderState(RetryReader reader)
+            {
+                this.reader = reader;
+                this.textReader = reader.reader;
+            }
+
+            private int getPeeked()
+            {
+                if (!peekValue.HasValue)
+                {
+                    peekValue = textReader.Peek();
+                }                
+                return peekValue.Value;
+            }
+
+            private int read()
+            {
+                peekValue = null;
+                return textReader.Read();
+            }
+
+            public bool EndOfStream
+            {
+                get { return getPeeked() == -1; }
+            }
+
+            public int Peek()
+            {
+                return getPeeked();
+            }
+
+            public bool Read()
+            {
+                int next = read();
+                if (next == -1)
+                {
+                    return false;
+                }
+                reader.current = unchecked((char)next);
+                return true;
+            }
+
+            public void SafeRead()
+            {
+                reader.current = unchecked((char)read());
+            }
+        }
+
+        private class RetryState : IReaderState
+        {
+            private readonly RetryReader reader;
+            private readonly Stack<char> retry;
+
+            public RetryState(RetryReader reader)
+            {
+                this.reader = reader;
+                this.retry = reader.retry;
+            }
+
+            public bool EndOfStream
+            {
+                get { return false; }
+            }
+
+            public int Peek()
+            {
+                return retry.Peek();
+            }
+
+            public bool Read()
+            {
+                SafeRead();
+                return true;
+            }
+
+            public void SafeRead()
+            {
+                reader.current = retry.Pop();
+                if (retry.Count == 0)
+                {
+                    reader.state = reader.readState;
+                }
+            }
         }
     }
 }
