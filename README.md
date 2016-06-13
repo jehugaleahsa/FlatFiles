@@ -1,6 +1,6 @@
 # FlatFiles
 
-Work with flat files using fluent type mapping, with support for ADO.NET.
+Read and write CSV, fixed-length and other flat file formats.
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
@@ -8,9 +8,11 @@ Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 As of version 0.2.0.0, FlatFiles is no longer backward compatible. Read the [wiki](https://github.com/jehugaleahsa/FlatFiles/wiki/FlatFiles-0.2.0.0-and-0.3.0.0-Not-Backward-Compatible) to learn more.
 
 ## Overview
-A lot of us still need to work with flat files (e.g. CSV or fixed-length) whether because we're interfacing with older systems or because we're running one-time migration scripts. It's a pain that there's nothing built into .NET for treating flat files like a database table.
+A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, there's no standard format. There's a general need for a simple library that can be customized to your needs.
 
-FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects, using a style similar to Entity Framework Code First. You can also go back and forth between files and `DataTable`s. It also supports the ability to expose a file using the `IDataReader` interface, for working with the low-level ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays. FlatFiles also supports a large number of options for customizing how files are interpreted, to support the most common types of flat files.
+FlatFiles makes it easy to read and write flat files in many different ways. It supports type mappers for directly reading and writing with data objects. It even has support for `DataTable`s and `IDataReader` if you need to interface with ADO.NET classes. If you really want to, you can read and write values with raw `object` arrays.
+
+Unlike many other libraries, FlatFiles also allows you to specify a file's schema by column name, position and type. This allows you to control how FlatFiles interprets each column with fine-grain precision. Take complete control over the way dates, numbers and enums are interpreted in your files.
 
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
