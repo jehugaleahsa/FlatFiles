@@ -67,6 +67,8 @@
     <Compile Include="TypeMapping\FixedLengthComplexPropertyMapping.cs" />
     <Compile Include="TypeMapping\EnumPropertyMapping.cs" />
     <Compile Include="TypeMapping\SeparatedValueComplexPropertyMapping.cs" />
+    <Compile Include="TypeMapping\TypedReader.cs" />
+    <Compile Include="TypeMapping\TypedWriter.cs" />
     <Compile Include="WindowCollection.cs" />
     <Compile Include="DefaultNullHandler.cs" />
     <Compile Include="FixedAlignment.cs" />

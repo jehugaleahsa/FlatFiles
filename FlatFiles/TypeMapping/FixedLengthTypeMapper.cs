@@ -305,12 +305,28 @@ namespace FlatFiles.TypeMapping
         IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null);
 
         /// <summary>
+        /// Gets a typed reader to read entities from the underlying document.
+        /// </summary>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
+        /// <returns>A typed reader.</returns>
+        ITypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null);
+
+        /// <summary>
         /// Writes the given entities to the given writer.
         /// </summary>
         /// <param name="writer">A writer over the fixed-length document.</param>
         /// <param name="entities">The entities to write to the document.</param>
         /// <param name="options">The options controlling how the separated value document is written.</param>
         void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null);
+
+        /// <summary>
+        /// Gets a typed writer to write entities to the underlying document.
+        /// </summary>
+        /// <param name="writer">The writer over the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is written.</param>
+        /// <returns>A typed writer.</returns>
+        ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null);
     }
 
     internal sealed class FixedLengthTypeMapper<TEntity> : IFixedLengthTypeMapper<TEntity>, IRecordMapper
@@ -773,13 +789,24 @@ namespace FlatFiles.TypeMapping
 
         private IEnumerable<TEntity> read(IReader reader)
         {
-            RecordReader recordReader = new RecordReader(this);
-            while (reader.Read())
+            TypedReader<TEntity> typedReader = getTypedReader(reader);
+            while (typedReader.Read())
             {
-                object[] values = reader.GetValues();
-                TEntity entity = recordReader.Read(values);
-                yield return entity;
+                yield return typedReader.Current;
             }
+        }
+
+        public ITypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null)
+        {
+            FixedLengthSchema schema = getSchema();
+            IReader fixedLengthReader = new FixedLengthReader(reader, schema, options);
+            return getTypedReader(fixedLengthReader);
+        }
+
+        private TypedReader<TEntity> getTypedReader(IReader reader)
+        {
+            RecordReader serializer = new RecordReader(this);
+            return new TypedReader<TEntity>(reader, serializer);
         }
 
         public void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
@@ -795,12 +822,24 @@ namespace FlatFiles.TypeMapping
 
         private void write(IWriter writer, IEnumerable<TEntity> entities)
         {
-            RecordWriter recordWriter = new RecordWriter(this);
+            TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
-                object[] values = recordWriter.Write(entity);
-                writer.Write(values);
+                typedWriter.Write(entity);
             }
+        }
+
+        public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)
+        {
+            FixedLengthSchema schema = getSchema();
+            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            return getTypedWriter(fixedLengthWriter);
+        }
+
+        private TypedWriter<TEntity> getTypedWriter(IWriter writer)
+        {
+            RecordWriter serializer = new RecordWriter(this);
+            return new TypedWriter<TEntity>(writer, serializer);
         }
 
         public FixedLengthSchema GetSchema()
@@ -847,7 +886,7 @@ namespace FlatFiles.TypeMapping
             return new RecordWriter(this);
         }
 
-        private class RecordReader : IRecordReader
+        private class RecordReader : IRecordReader<TEntity>
         {
             private readonly FixedLengthTypeMapper<TEntity> mapper;
             private readonly Action<object[]> transformer;
@@ -904,7 +943,7 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        private class RecordWriter : IRecordWriter
+        private class RecordWriter : IRecordWriter<TEntity>
         {
             private readonly FixedLengthTypeMapper<TEntity> mapper;
             private readonly Action<object[]> transformer;

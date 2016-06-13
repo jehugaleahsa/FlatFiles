@@ -19,9 +19,19 @@ namespace FlatFiles.TypeMapping
         object Read(object[] values);
     }
 
+    internal interface IRecordReader<TEntity> : IRecordReader
+    {
+        new TEntity Read(object[] values);
+    }
+
     internal interface IRecordWriter
     {
         object[] Write(object entity);
+    }
+
+    internal interface IRecordWriter<TEntity> : IRecordWriter
+    {
+        object[] Write(TEntity entity);
     }
 
     internal interface IRecordMapper
