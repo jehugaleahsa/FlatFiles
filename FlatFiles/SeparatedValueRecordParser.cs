@@ -9,9 +9,9 @@ namespace FlatFiles
     {
         private readonly RetryReader reader;
         private readonly SeparatedValueOptions options;
-        private readonly Func<bool> separatorMatcher;
-        private readonly Func<bool> recordSeparatorMatcher;
-        private readonly Func<bool> postfixMatcher;
+        private readonly IMatcher separatorMatcher;
+        private readonly IMatcher recordSeparatorMatcher;
+        private readonly IMatcher postfixMatcher;
         private List<string> values;
         private StringBuilder token;
 
@@ -29,22 +29,19 @@ namespace FlatFiles
             this.token = new StringBuilder();
         }
 
-        private Func<bool> getMatcher(string separator)
+        private IMatcher getMatcher(string separator)
         {
             if (separator.Length == 1)
             {
-                char first = separator[0];
-                return () => reader.IsMatch1(first);
+                return new Matcher1(reader, separator[0]);
             }
             else if (separator.Length == 2)
             {
-                char first = separator[0];
-                char second = separator[1];
-                return () => reader.IsMatch2(first, second);
+                return new Matcher2(reader, separator[0], separator[1]);
             }
             else
             {
-                return () => reader.IsMatch(separator);
+                return new Matcher(reader, separator);
             }
         }
 
@@ -178,11 +175,11 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            else if (separatorMatcher())
+            else if (separatorMatcher.IsMatch())
             {
                 // This code handles the case where the separator is a substring of the record separator.
                 // We check to see if the remaining characters make up the record separator.
-                if (postfixMatcher != null && postfixMatcher())
+                if (postfixMatcher != null && postfixMatcher.IsMatch())
                 {
                     return TokenType.EndOfRecord;
                 }
@@ -191,7 +188,7 @@ namespace FlatFiles
                     return TokenType.EndOfToken;
                 }
             }
-            else if (postfixMatcher == null && recordSeparatorMatcher())
+            else if (postfixMatcher == null && recordSeparatorMatcher.IsMatch())
             {
                 // If the separator is a substring of the record separator and we didn't find it,
                 // we won't find the record separator either.
@@ -209,6 +206,64 @@ namespace FlatFiles
             EndOfStream,
             EndOfRecord,
             EndOfToken
+        }
+
+        private interface IMatcher
+        {
+            bool IsMatch();
+        }
+
+        private sealed class Matcher1 : IMatcher
+        {
+            private readonly RetryReader reader;
+            private readonly char first;
+
+            public Matcher1(RetryReader reader, char first)
+            {
+                this.reader = reader;
+                this.first = first;
+            }
+
+            public bool IsMatch()
+            {
+                return reader.IsMatch1(first);
+            }
+        }
+
+        private sealed class Matcher2 : IMatcher
+        {
+            private readonly RetryReader reader;
+            private readonly char first;
+            private readonly char second;
+
+            public Matcher2(RetryReader reader, char first, char second)
+            {
+                this.reader = reader;
+                this.first = first;
+                this.second = second;
+            }
+
+            public bool IsMatch()
+            {
+                return reader.IsMatch2(first, second);
+            }
+        }
+
+        private sealed class Matcher : IMatcher
+        {
+            private readonly RetryReader reader;
+            private readonly string separator;
+
+            public Matcher(RetryReader reader, string separator)
+            {
+                this.reader = reader;
+                this.separator = separator;
+            }
+
+            public bool IsMatch()
+            {
+                return reader.IsMatch(separator);
+            }
         }
     }
 }

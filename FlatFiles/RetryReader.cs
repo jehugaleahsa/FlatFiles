@@ -126,7 +126,7 @@ namespace FlatFiles
             bool EndOfStream { get; }
         }
 
-        private class ReaderState : IReaderState
+        private sealed class ReaderState : IReaderState
         {
             private readonly RetryReader reader;
             private readonly TextReader textReader;
@@ -180,7 +180,7 @@ namespace FlatFiles
             }
         }
 
-        private class RetryState : IReaderState
+        private sealed class RetryState : IReaderState
         {
             private readonly RetryReader reader;
             private readonly Stack<char> retry;

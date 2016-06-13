@@ -403,6 +403,20 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldNotStripEmbeddedWhitespace_PreservingWhiteSpace()
+        {
+            string source = " a b ";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { " a b " }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
         public void ShouldHandleDoubleWhitespaceAsSeparator()
         {
             string source = " a  b ";
