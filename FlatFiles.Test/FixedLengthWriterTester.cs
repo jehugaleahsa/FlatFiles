@@ -36,6 +36,28 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
+        public void ShouldWriteHeader()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("First"), new Window(10) { FillCharacter = '@' });
+            schema.AddColumn(new StringColumn("Second"), new Window(10) { FillCharacter = '!' });
+            schema.AddColumn(new StringColumn("Third"), new Window(10) { FillCharacter = '$' });
+            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+
+            StringWriter stringWriter = new StringWriter();
+            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);
+            writer.Write(new object[] { "Apple", "Grape", "Pear" });
+
+            string output = stringWriter.ToString();
+
+            string expected = "First@@@@@Second!!!!Third$$$$$" 
+                + Environment.NewLine 
+                + "Apple@@@@@Grape!!!!!Pear$$$$$$"
+                + Environment.NewLine;
+            Assert.AreEqual(expected, output, "The header was not written properly.");
+        }
+
+        [TestMethod]
         public void ShouldHandleNullValues()
         {
             MemoryStream stream = new MemoryStream();

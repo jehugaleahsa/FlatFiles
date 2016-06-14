@@ -41,7 +41,7 @@ namespace FlatFiles
                 {
                     throw new ArgumentException(Resources.BlankColumnName);
                 }
-                columnName = value.ToLowerInvariant();
+                columnName = value;
             }
         }
 

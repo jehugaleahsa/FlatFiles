@@ -86,17 +86,12 @@ namespace FlatFiles
             {
                 if (recordWriter.Options.IsFirstRecordSchema)
                 {
-                    writeSchema();
+                    recordWriter.WriteSchema();
+                    recordWriter.WriteRecordSeparator();
                 }
                 isFirstLine = false;
             }
             recordWriter.WriteRecord(values);
-            recordWriter.WriteRecordSeparator();
-        }
-
-        private void writeSchema()
-        {
-            recordWriter.WriteSchema();
             recordWriter.WriteRecordSeparator();
         }
     }

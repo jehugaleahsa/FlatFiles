@@ -12,6 +12,7 @@ namespace FlatFiles
     public sealed class FixedLengthWriter : IWriter
     {
         private readonly FixedLengthRecordWriter recordWriter;
+        private bool isFirstLine;
 
         /// <summary>
         /// Initializes a new FixedLengthBuilder with the given schema.
@@ -36,6 +37,7 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             this.recordWriter = new FixedLengthRecordWriter(writer, schema, options);
+            this.isFirstLine = true;
         }
 
         /// <summary>
@@ -62,6 +64,15 @@ namespace FlatFiles
             if (values == null)
             {
                 throw new ArgumentNullException("values");
+            }
+            if (isFirstLine)
+            {
+                if (recordWriter.Options.IsFirstRecordHeader)
+                {
+                    recordWriter.WriteSchema();
+                    recordWriter.WriteRecordSeparator();
+                }
+                isFirstLine = false;
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();

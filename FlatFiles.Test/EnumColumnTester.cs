@@ -42,10 +42,10 @@ namespace FlatFiles.Test
         /// The name will also be made lower case.
         /// </summary>
         [TestMethod]
-        public void TestCtor_SetsName_LowerCase_Trimmed()
+        public void TestCtor_SetsName_Trimmed()
         {
             EnumColumn<MyEnum> column = new EnumColumn<MyEnum>(" Name   ");
-            Assert.AreEqual("name", column.ColumnName, "The name was not set as expected.");
+            Assert.AreEqual("Name", column.ColumnName, "The name was not set as expected.");
         }
 
         /// <summary>

@@ -283,8 +283,6 @@ namespace FlatFiles.Test
             var options = new FixedLengthOptions() { IsFirstRecordHeader = true, FillCharacter = '@' };
 
             StringWriter stringWriter = new StringWriter();
-            stringWriter.WriteLine("{0,25}{1,100}{2,8}", "id", "name", "created");
-
             mapper.Write(stringWriter, new Person[] { bob }, options);
 
             StringReader stringReader = new StringReader(stringWriter.ToString());

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace FlatFiles
@@ -38,7 +39,8 @@ namespace FlatFiles
         {
             get 
             {
-                int index = definitions.FindIndex(definition => definition.ColumnName == columnName);
+                Predicate<ColumnDefinition> predicate = (ColumnDefinition c) => StringComparer.CurrentCulture.Compare(c.ColumnName, columnName) == 0;
+                int index = definitions.FindIndex(predicate);
                 return definitions[index];
             }
         }

@@ -23,6 +23,11 @@ namespace FlatFiles
             get { return schema; }
         }
 
+        public FixedLengthOptions Options
+        {
+            get { return options; }
+        }
+
         public void WriteRecord(object[] values)
         {
             if (values.Length != schema.ColumnDefinitions.Count)
@@ -32,6 +37,16 @@ namespace FlatFiles
             var formattedColumns = schema.FormatValues(values);
             var fittedColumns = formattedColumns.Select((v, i) => fitWidth(schema.Windows[i], v));
             foreach (string column in fittedColumns)
+            {
+                writer.Write(column);
+            }
+        }
+
+        public void WriteSchema()
+        {
+            var names = schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => fitWidth(schema.Windows[i], v));
+            foreach (string column in fitted)
             {
                 writer.Write(column);
             }
