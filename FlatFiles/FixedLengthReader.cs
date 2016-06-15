@@ -40,7 +40,7 @@ namespace FlatFiles
             {
                 options = new FixedLengthOptions();
             }
-            parser = new FixedLengthRecordParser(reader, options);
+            parser = new FixedLengthRecordParser(reader, schema, options);
             this.schema = schema;
             this.options = options.Clone();
             if (this.options.IsFirstRecordHeader)

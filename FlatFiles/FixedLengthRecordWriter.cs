@@ -100,6 +100,10 @@ namespace FlatFiles
 
         public void WriteRecordSeparator()
         {
+            if (String.IsNullOrEmpty(options.RecordSeparator))
+            {
+                return;
+            }
             writer.Write(options.RecordSeparator);
         }
     }

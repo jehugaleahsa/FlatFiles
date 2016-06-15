@@ -218,6 +218,34 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// If we specify null or String.Empty as the record separator, the length of the record
+        /// is expected to perfectly match the length of schema.
+        /// </summary>
+        [TestMethod]
+        public void TestGetValues_NoRecordSeparator_SplitsFile()
+        {
+            const string text = "       123                      Bob 1/19/2013       234                      Sam12/20/2013";
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10))
+                  .AddColumn(new StringColumn("name"), new Window(25))
+                  .AddColumn(new DateTimeColumn("created"), new Window(10));
+            FixedLengthOptions options = new FixedLengthOptions() { RecordSeparator = null };
+
+            StringReader stringReader = new StringReader(text);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+
+            Assert.IsTrue(parser.Read(), "Could not read the first record.");
+            object[] expected = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
+            object[] actual = parser.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The values for the first record were wrong.");
+
+            Assert.IsTrue(parser.Read(), "Could not read the second record.");
+            expected = new object[] { 234, "Sam", new DateTime(2013, 12, 20) };
+            actual = parser.GetValues();
+            CollectionAssert.AreEqual(expected, actual, "The values for the second record were wrong.");
+        }
+
+        /// <summary>
         /// If we specify a custom fill character, it should be used to buffer fields in the file.
         /// </summary>
         [TestMethod]
