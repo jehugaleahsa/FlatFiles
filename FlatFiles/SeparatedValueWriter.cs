@@ -84,7 +84,7 @@ namespace FlatFiles
             }
             if (isFirstLine)
             {
-                if (recordWriter.Options.IsFirstRecordSchema)
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();

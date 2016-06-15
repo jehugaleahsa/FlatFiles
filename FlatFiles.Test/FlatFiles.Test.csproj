@@ -67,6 +67,7 @@
     <Compile Include="SchemaTester.cs" />
     <Compile Include="SeparatedValueReaderTester.cs" />
     <Compile Include="SeparatedValueTester.cs" />
+    <Compile Include="SeparatedValueWriterTester.cs" />
     <Compile Include="StringColumnTester.cs" />
   </ItemGroup>
   <ItemGroup>
