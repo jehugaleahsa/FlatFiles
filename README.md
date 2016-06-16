@@ -89,7 +89,7 @@ If you want to build a fixed-length file, you can use the `FixedLengthWriter` cl
 
 If you want to control the alignment of the columns, you can specify the `FixedAlignment` in the `FixedLengthOptions` object or at the column level when defining the schema. This will control whether padding is put to the right or the left of the value.
 
-By default, values are padding using spaces (` `), but you can override the padding character in the options or at the column level. For strings that exceed their length, you can control how they get truncated (chopping off extra characters from the front or the back).
+By default, values are padded using spaces (` `), but you can override the padding character in the options or at the column level. For strings that exceed their length, you can control how they get truncated (chopping off extra characters from the front or the back).
 
 If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, a header will be written to the file upon writing the first record.
 
