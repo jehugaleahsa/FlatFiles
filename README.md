@@ -63,7 +63,7 @@ Or, if the schema is for a fixed-length file:
 	  
 The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width.
 
-*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Simply define "ignored" columns (probably `StringColumn`s) for gaps in the input file.
+*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the **Ignored Fields** section below to learn about ways to to handle this.
 
 ## SeparatedValueReader
 If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you will want to use the `SeparatedValueReader` class. The constructor accepts a combination of a `TextReader`, a `SeparatedValueSchema` object and/or a `SeparatedValueOptions` object.
@@ -103,6 +103,15 @@ Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHa
     mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
     
 You can implement the `INullHandler` interface if you need to support something more complex.
+
+## Ignored Fields
+Most of the time, we don't have control over the flat file we're working with. This usually leads to columns that our code just doesn't care about. Both type mappers and schemas expect columns to be listed in the order they appear in the document. For type mappers, this would mean defining properties in your classes that you'd never use (e.g., Ignored1, Ignored2, etc.). Another common problem with fixed-length files is that they will separate fields with pipes (`|`), or other characters, even though they are fixed-length.
+
+Types mappers support the `Ignored` method that will tell FlatFiles to simply ignore the next column in the file. Unlike other mapper methods, it does not take a property, since the value is simply thrown away. You can optionally call `ColumnName` if you want to provide a column name when writing out schemas.
+
+When working with the `IFixedLengthTypeMapper`, `Ignored` takes a `Window`. This is a great way to skip unused sections within the document. You can even set the `FillCharacter` property to insert pipes (`|`), or another character, between fields.
+
+Under the hood, type mappers is adding an `IgnoredColumn` to the underlying schema. `IgnoredColumn` has a constructor to optionally specify a column name. `IgnoredColumn` affects the way you work with readers and writers. The readers will initially retrieve all columns from the document and then throw away any ignored values. You'll only see values for the columns that aren't ignored. Also, you do not need to provide values to the writers for ignored columns; the schema will automatically take care of writing out blanks for them. From a development perspective, it's as if those columns didn't exist in the underlying document.
 
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.

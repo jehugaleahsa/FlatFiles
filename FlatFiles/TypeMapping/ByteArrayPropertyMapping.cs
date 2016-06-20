@@ -79,7 +79,7 @@ namespace FlatFiles.TypeMapping
             get { return property; }
         }
 
-        public ColumnDefinition ColumnDefinition
+        public IColumnDefinition ColumnDefinition
         {
             get { return column; }
         }

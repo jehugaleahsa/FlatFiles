@@ -302,14 +302,30 @@ namespace FlatFiles.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(FlatFileException))]
-        public void TestGetSchema_FirstRecordSchema_WrongNumberOfColumns_Throws()
+        public void TestGetSchema_FirstRecordSchema_TooFewColumns_Throws()
+        {
+            const string text = @"id,name,created
+123,Bob";
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
+            parser.Read();
+        }
+
+        /// <summary>
+        /// If the first record is the schema, the records in the file can have more columns that are ignored.
+        /// </summary>
+        [TestMethod]
+        public void TestGetSchema_FirstRecordSchema_TooManyColumns_IgnoresTrailing()
         {
             const string text = @"id,name,created
 123,Bob,1/19/2013,Hello";
             StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
-            parser.Read();
+            Assert.IsTrue(parser.Read(), "The record could not be read.");
+            Assert.AreEqual(parser.GetSchema().ColumnDefinitions.Count, parser.GetValues().Length, "The wrong number of records were parsed.");
+            ;
         }
 
         /// <summary>
@@ -490,6 +506,34 @@ namespace FlatFiles.Test
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+        }
+
+        /// <summary>
+        /// We should be able to write and read values using a type mapper with a null value.
+        /// </summary>
+        [TestMethod]
+        public void TestTypeMapper_IgnoredColumns_RoundTrips()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id).ColumnName("id");
+            mapper.Ignored();
+            mapper.Ignored();
+            mapper.Property(p => p.Name).ColumnName("name");
+            mapper.Ignored();
+            mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            var bob = new Person() { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
             var person = people.SingleOrDefault();
             Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");

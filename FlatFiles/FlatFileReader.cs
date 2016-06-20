@@ -101,7 +101,7 @@ namespace FlatFiles
             });
             for (int index = 0; index != schema.ColumnDefinitions.Count; ++index)
             {
-                ColumnDefinition column = schema.ColumnDefinitions[index];
+                IColumnDefinition column = schema.ColumnDefinitions[index];
                 object[] values = new object[]
                 {
                     true,  // AllowDBNull

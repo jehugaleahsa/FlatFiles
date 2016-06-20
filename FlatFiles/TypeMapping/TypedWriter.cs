@@ -24,9 +24,9 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
         private readonly IWriter writer;
-        private readonly IRecordWriter<TEntity> serializer;
+        private readonly TypedRecordWriter<TEntity> serializer;
 
-        public TypedWriter(IWriter writer, IRecordWriter<TEntity> serializer)
+        public TypedWriter(IWriter writer, TypedRecordWriter<TEntity> serializer)
         {
             this.writer = writer;
             this.serializer = serializer;

@@ -85,9 +85,9 @@ namespace FlatFiles.Test
         public void TestColumnDefinitions_FindByIndex()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
-            ColumnDefinition id = new Int32Column("id");
-            ColumnDefinition name = new StringColumn("name");
-            ColumnDefinition created = new DateTimeColumn("created");
+            IColumnDefinition id = new Int32Column("id");
+            IColumnDefinition name = new StringColumn("name");
+            IColumnDefinition created = new DateTimeColumn("created");
             schema.AddColumn(id, new Window(10))
                   .AddColumn(name, new Window(25))
                   .AddColumn(created, new Window(10));
@@ -104,9 +104,9 @@ namespace FlatFiles.Test
         public void TestColumnDefinitions_GetEnumerable_Explicit()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
-            ColumnDefinition id = new Int32Column("id");
-            ColumnDefinition name = new StringColumn("name");
-            ColumnDefinition created = new DateTimeColumn("created");
+            IColumnDefinition id = new Int32Column("id");
+            IColumnDefinition name = new StringColumn("name");
+            IColumnDefinition created = new DateTimeColumn("created");
             schema.AddColumn(id, new Window(10))
                 .AddColumn(name, new Window(25))
                 .AddColumn(created, new Window(10));

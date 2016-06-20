@@ -83,9 +83,9 @@ namespace FlatFiles.Test
         public void TestColumnDefinitions_FindByIndex()
         {
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            ColumnDefinition id = new Int32Column("id");
-            ColumnDefinition name = new StringColumn("name");
-            ColumnDefinition created = new DateTimeColumn("created");
+            IColumnDefinition id = new Int32Column("id");
+            IColumnDefinition name = new StringColumn("name");
+            IColumnDefinition created = new DateTimeColumn("created");
             schema.AddColumn(id).AddColumn(name).AddColumn(created);
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreSame(id, collection[0], "The first column definition was wrong.");
@@ -100,9 +100,9 @@ namespace FlatFiles.Test
         public void TestColumnDefinitions_GetEnumerable_Explicit()
         {
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            ColumnDefinition id = new Int32Column("id");
-            ColumnDefinition name = new StringColumn("name");
-            ColumnDefinition created = new DateTimeColumn("created");
+            IColumnDefinition id = new Int32Column("id");
+            IColumnDefinition name = new StringColumn("name");
+            IColumnDefinition created = new DateTimeColumn("created");
             schema.AddColumn(id).AddColumn(name).AddColumn(created);
             IEnumerable collection = schema.ColumnDefinitions;
             IEnumerator enumerator = collection.GetEnumerator();

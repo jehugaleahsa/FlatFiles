@@ -30,7 +30,7 @@ namespace FlatFiles
 
         public void WriteRecord(object[] values)
         {
-            if (values.Length != schema.ColumnDefinitions.Count)
+            if (values.Length != schema.ColumnDefinitions.HandledCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, "values");
             }

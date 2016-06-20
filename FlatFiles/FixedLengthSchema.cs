@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using FlatFiles.Properties;
 
 namespace FlatFiles
 {
     /// <summary>
     /// Defines the expected format of a fixed-length file record.
     /// </summary>
-    public sealed class FixedLengthSchema : ISchema
+    public sealed class FixedLengthSchema : Schema
     {
-        private readonly SeparatedValueSchema schema;
         private readonly List<Window> windows;
         private int totalWidth;
 
@@ -19,7 +16,6 @@ namespace FlatFiles
         /// </summary>
         public FixedLengthSchema()
         {
-            schema = new SeparatedValueSchema();
             windows = new List<Window>();
         }
 
@@ -29,24 +25,16 @@ namespace FlatFiles
         /// <param name="definition">The definition of the column to add.</param>
         /// <param name="window">Describes the column</param>
         /// <returns>The current schema.</returns>
-        public FixedLengthSchema AddColumn(ColumnDefinition definition, Window window)
+        public FixedLengthSchema AddColumn(IColumnDefinition definition, Window window)
         {
             if (window == null)
             {
                 throw new ArgumentNullException("window");
             }
-            schema.AddColumn(definition);
+            AddColumnBase(definition);
             windows.Add(window);
             totalWidth += window.Width;
             return this;
-        }
-
-        /// <summary>
-        /// Gets the column definitions that make up the schema.
-        /// </summary>
-        public ColumnCollection ColumnDefinitions
-        {
-            get { return schema.ColumnDefinitions; }
         }
 
         /// <summary>
@@ -55,16 +43,6 @@ namespace FlatFiles
         public WindowCollection Windows
         {
             get { return new WindowCollection(windows); }
-        }
-
-        /// <summary>
-        /// Gets the index of the column with the given name.
-        /// </summary>
-        /// <param name="name">The name of the column to get the index for.</param>
-        /// <returns>The index of the column with the given name.</returns>
-        public int GetOrdinal(string name)
-        {
-            return schema.GetOrdinal(name);
         }
 
         /// <summary>
@@ -82,7 +60,7 @@ namespace FlatFiles
         /// <returns>The parsed objects.</returns>
         internal object[] ParseValues(string[] values)
         {
-            return schema.ParseValues(values);
+            return ParseValuesBase(values);
         }
 
         /// <summary>
@@ -92,7 +70,7 @@ namespace FlatFiles
         /// <returns>The formatted values.</returns>
         internal string[] FormatValues(object[] values)
         {
-            return schema.FormatValues(values);
+            return FormatValuesBase(values);
         }
     }
 }

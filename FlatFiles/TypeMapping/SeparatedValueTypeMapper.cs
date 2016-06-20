@@ -43,8 +43,14 @@ namespace FlatFiles.TypeMapping
     /// Supports configuration for mapping between entity properties and flat file columns.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface ISeparatedValueTypeConfiguration<TEntity> : ISchemaBuilder
+    public interface ISeparatedValueTypeConfiguration<TEntity>
     {
+        /// <summary>
+        /// Gets the schema defined by the current configuration.
+        /// </summary>
+        /// <returns>The schema.</returns>
+        SeparatedValueSchema GetSchema();
+
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
@@ -255,10 +261,10 @@ namespace FlatFiles.TypeMapping
         IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property) where TEnum : struct;
 
         /// <summary>
-        /// Gets the schema defined by the current configuration.
+        /// Specifies that the next column is ignored and returns an object for configuration.
         /// </summary>
-        /// <returns>The schema.</returns>
-        new SeparatedValueSchema GetSchema();
+        /// <returns>An object to configure the mapping.</returns>
+        IIgnoredMapping Ignored();
     }
 
     /// <summary>
@@ -300,17 +306,17 @@ namespace FlatFiles.TypeMapping
         ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null);
     }
 
-    internal sealed class SeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeMapper<TEntity>, IRecordMapper
+    internal sealed class SeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeMapper<TEntity>, IRecordMapper<TEntity>
     {
         private readonly Func<TEntity> factory;
-        private readonly Dictionary<string, IPropertyMapping> mappings;
-        private readonly Dictionary<string, int> indexes;
+        private readonly Dictionary<string, IPropertyMapping> mappingLookup;
+        private readonly List<IPropertyMapping> mappings;
 
         public SeparatedValueTypeMapper(Func<TEntity> factory)
         {
             this.factory = factory;
-            this.mappings = new Dictionary<string, IPropertyMapping>();
-            this.indexes = new Dictionary<string, int>();
+            this.mappingLookup = new Dictionary<string, IPropertyMapping>();
+            this.mappings = new List<IPropertyMapping>();
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property)
@@ -328,12 +334,12 @@ namespace FlatFiles.TypeMapping
         private IBooleanPropertyMapping getBooleanMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 BooleanColumn column = new BooleanColumn(propertyInfo.Name);
                 mapping = new BooleanPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IBooleanPropertyMapping)mapping;
         }
@@ -347,12 +353,12 @@ namespace FlatFiles.TypeMapping
         private IByteArrayPropertyMapping getByteArrayMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 ByteArrayColumn column = new ByteArrayColumn(propertyInfo.Name);
                 mapping = new ByteArrayPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
                 
             }
             return (IByteArrayPropertyMapping)mapping;
@@ -373,12 +379,12 @@ namespace FlatFiles.TypeMapping
         private IBytePropertyMapping getByteMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 ByteColumn column = new ByteColumn(propertyInfo.Name);
                 mapping = new BytePropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IBytePropertyMapping)mapping;
         }
@@ -392,12 +398,12 @@ namespace FlatFiles.TypeMapping
         private ICharArrayPropertyMapping getCharArrayMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 CharArrayColumn column = new CharArrayColumn(propertyInfo.Name);
                 mapping = new CharArrayPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (ICharArrayPropertyMapping)mapping;
         }
@@ -417,12 +423,12 @@ namespace FlatFiles.TypeMapping
         private ICharPropertyMapping getCharMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 CharColumn column = new CharColumn(propertyInfo.Name);
                 mapping = new CharPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (ICharPropertyMapping)mapping;
         }
@@ -442,12 +448,12 @@ namespace FlatFiles.TypeMapping
         private IDateTimePropertyMapping getDateTimeMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 DateTimeColumn column = new DateTimeColumn(propertyInfo.Name);
                 mapping = new DateTimePropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IDateTimePropertyMapping)mapping;
         }
@@ -467,12 +473,12 @@ namespace FlatFiles.TypeMapping
         private IDecimalPropertyMapping getDecimalMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 DecimalColumn column = new DecimalColumn(propertyInfo.Name);
                 mapping = new DecimalPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IDecimalPropertyMapping)mapping;
         }
@@ -492,12 +498,12 @@ namespace FlatFiles.TypeMapping
         private IDoublePropertyMapping getDoubleMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 DoubleColumn column = new DoubleColumn(propertyInfo.Name);
                 mapping = new DoublePropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IDoublePropertyMapping)mapping;
         }
@@ -517,12 +523,12 @@ namespace FlatFiles.TypeMapping
         private IGuidPropertyMapping getGuidMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 GuidColumn column = new GuidColumn(propertyInfo.Name);
                 mapping = new GuidPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IGuidPropertyMapping)mapping;
         }
@@ -542,12 +548,12 @@ namespace FlatFiles.TypeMapping
         private IInt16PropertyMapping getInt16Mapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 Int16Column column = new Int16Column(propertyInfo.Name);
                 mapping = new Int16PropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IInt16PropertyMapping)mapping;
         }
@@ -567,12 +573,12 @@ namespace FlatFiles.TypeMapping
         private IInt32PropertyMapping getInt32Mapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 Int32Column column = new Int32Column(propertyInfo.Name);
                 mapping = new Int32PropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IInt32PropertyMapping)mapping;
         }
@@ -592,12 +598,12 @@ namespace FlatFiles.TypeMapping
         private IInt64PropertyMapping getInt64Mapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 Int64Column column = new Int64Column(propertyInfo.Name);
                 mapping = new Int64PropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IInt64PropertyMapping)mapping;
         }
@@ -617,12 +623,12 @@ namespace FlatFiles.TypeMapping
         private ISinglePropertyMapping getSingleMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 SingleColumn column = new SingleColumn(propertyInfo.Name);
                 mapping = new SinglePropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (ISinglePropertyMapping)mapping;
         }
@@ -636,12 +642,12 @@ namespace FlatFiles.TypeMapping
         private IStringPropertyMapping getStringMapping(PropertyInfo propertyInfo)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 StringColumn column = new StringColumn(propertyInfo.Name);
                 mapping = new StringPropertyMapping(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IStringPropertyMapping)mapping;
         }
@@ -655,11 +661,11 @@ namespace FlatFiles.TypeMapping
         private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, ISeparatedValueTypeMapper<TProp> mapper)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (ISeparatedValueComplexPropertyMapping)mapping;
         }
@@ -673,11 +679,11 @@ namespace FlatFiles.TypeMapping
         private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, IFixedLengthTypeMapper<TProp> mapper)
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IFixedLengthComplexPropertyMapping)mapping;
         }
@@ -700,14 +706,22 @@ namespace FlatFiles.TypeMapping
             where TEnum : struct
         {
             IPropertyMapping mapping;
-            if (!mappings.TryGetValue(propertyInfo.Name, out mapping))
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
             {
                 var column = new EnumColumn<TEnum>(propertyInfo.Name);
                 mapping = new EnumPropertyMapping<TEnum>(column, propertyInfo);
-                indexes.Add(propertyInfo.Name, mappings.Count);
-                mappings.Add(propertyInfo.Name, mapping);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
             }
             return (IEnumPropertyMapping<TEnum>)mapping;
+        }
+
+        public IIgnoredMapping Ignored()
+        {
+            var column = new IgnoredColumn();
+            var mapping = new IgnoredMapping(column);
+            mappings.Add(mapping);
+            return mapping;
         }
 
         private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)
@@ -758,7 +772,7 @@ namespace FlatFiles.TypeMapping
 
         private TypedReader<TEntity> getTypedReader(IReader reader)
         {
-            RecordReader deserializer = new RecordReader(this);
+            var deserializer = new TypedRecordReader<TEntity>(this.factory, this.mappings);
             TypedReader<TEntity> typedReader = new TypedReader<TEntity>(reader, deserializer);
             return typedReader;
         }
@@ -792,7 +806,7 @@ namespace FlatFiles.TypeMapping
 
         private TypedWriter<TEntity> getTypedWriter(IWriter writer)
         {
-            RecordWriter serializer = new RecordWriter(this);
+            var serializer = new TypedRecordWriter<TEntity>(this.mappings);
             return new TypedWriter<TEntity>(writer, serializer);
         }
 
@@ -801,154 +815,25 @@ namespace FlatFiles.TypeMapping
             return getSchema();
         }
 
-        ISchema ISchemaBuilder.GetSchema()
-        {
-            return GetSchema();
-        }
-
         private SeparatedValueSchema getSchema()
         {
-            ColumnDefinition[] definitions = getColumnDefinitions();
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            foreach (ColumnDefinition definition in definitions)
+            foreach (IPropertyMapping mapping in mappings)
             {
-                schema.AddColumn(definition);
+                IColumnDefinition column = mapping.ColumnDefinition;
+                schema.AddColumn(column);
             }
             return schema;
         }
 
-        private ColumnDefinition[] getColumnDefinitions()
+        public TypedRecordReader<TEntity> GetReader()
         {
-            ColumnDefinition[] definitions = new ColumnDefinition[mappings.Count];
-            foreach (string propertyName in mappings.Keys)
-            {
-                IPropertyMapping mapping = mappings[propertyName];
-                int index = indexes[propertyName];
-                definitions[index] = mapping.ColumnDefinition;
-            }
-            return definitions;
+            return new TypedRecordReader<TEntity>(this.factory, this.mappings);
         }
 
-        public IRecordReader GetReader()
+        public TypedRecordWriter<TEntity> GetWriter()
         {
-            return new RecordReader(this);
-        }
-
-        public IRecordWriter GetWriter()
-        {
-            return new RecordWriter(this);
-        }
-
-        private class RecordReader : IRecordReader<TEntity>
-        {
-            private readonly SeparatedValueTypeMapper<TEntity> mapper;
-            private readonly Action<object[]> transformer;
-            private readonly Action<TEntity, object[]> setter;
-
-            public RecordReader(SeparatedValueTypeMapper<TEntity> mapper)
-            {
-                this.mapper = mapper;
-                this.transformer = getTransformer(mapper);
-                this.setter = CodeGenerator.GetReader<TEntity>(mapper.mappings, mapper.indexes);
-            }
-
-            private static Action<object[]> getTransformer(SeparatedValueTypeMapper<TEntity> mapper)
-            {
-                List<Action<object[]>> transforms = new List<Action<object[]>>();
-                foreach (string propertyName in mapper.mappings.Keys)
-                {
-                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
-                    if (complexMapping != null)
-                    {
-                        int index = mapper.indexes[propertyName];
-                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
-                        IRecordReader nestedReader = nestedMapper.GetReader();
-                        Action<object[]> transform = (object[] values) =>
-                        {
-                            object value = values[index];
-                            object[] nestedValues = value as object[];
-                            if (nestedValues != null)
-                            {
-                                values[index] = nestedReader.Read(nestedValues);
-                            }
-                        };
-                        transforms.Add(transform);
-                    }
-                }
-                if (transforms.Count == 0)
-                {
-                    transforms.Add((object[] values) => { });
-                }
-                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
-            }
-
-            public TEntity Read(object[] values)
-            {
-                TEntity entity = mapper.factory();
-                transformer(values);
-                setter(entity, values);
-                return entity;
-            }
-
-            object IRecordReader.Read(object[] values)
-            {
-                return Read(values);
-            }
-        }
-
-        private class RecordWriter : IRecordWriter<TEntity>
-        {
-            private readonly SeparatedValueTypeMapper<TEntity> mapper;
-            private readonly Action<object[]> transformer;
-            private readonly Func<TEntity, object[]> getter;
-
-            public RecordWriter(SeparatedValueTypeMapper<TEntity> mapper)
-            {
-                this.mapper = mapper;
-                this.transformer = getTransformer(mapper);
-                this.getter = CodeGenerator.GetWriter<TEntity>(mapper.mappings, mapper.indexes);
-            }
-
-            private static Action<object[]> getTransformer(SeparatedValueTypeMapper<TEntity> mapper)
-            {
-                List<Action<object[]>> transforms = new List<Action<object[]>>();
-                foreach (string propertyName in mapper.mappings.Keys)
-                {
-                    var complexMapping = mapper.mappings[propertyName] as IComplexPropertyMapping;
-                    if (complexMapping != null)
-                    {
-                        int index = mapper.indexes[propertyName];
-                        IRecordMapper nestedMapper = complexMapping.RecordMapper;
-                        IRecordWriter nestedWriter = nestedMapper.GetWriter();
-                        Action<object[]> transform = (object[] values) =>
-                        {
-                            object value = values[index];
-                            if (value != null)
-                            {
-                                values[index] = nestedWriter.Write(value);
-                            }
-                        };
-                        transforms.Add(transform);
-                    }
-                }
-                if (transforms.Count == 0)
-                {
-                    transforms.Add((object[] values) => { });
-                }
-                return (Action<object[]>)Delegate.Combine(transforms.ToArray());
-            }
-
-            public object[] Write(TEntity entity)
-            {
-                object[] values = getter(entity);
-                transformer(values);
-                return values;
-            }
-
-            object[] IRecordWriter.Write(object entity)
-            {
-                return Write((TEntity)entity);
-            }
+            return new TypedRecordWriter<TEntity>(this.mappings);
         }
     }
 }

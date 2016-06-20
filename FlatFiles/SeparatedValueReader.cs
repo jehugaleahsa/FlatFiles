@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using FlatFiles.Properties;
 
@@ -121,7 +122,7 @@ namespace FlatFiles
             {
                 values = rawValues;
             }
-            else if (rawValues.Length != schema.ColumnDefinitions.Count)
+            else if (rawValues.Length < schema.ColumnDefinitions.HandledCount)
             {
                 hasError = true;
                 throw new FlatFileException(Resources.SeparatedValueRecordWrongNumberOfColumns, recordCount);

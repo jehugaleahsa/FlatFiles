@@ -38,7 +38,7 @@ namespace FlatFiles.TypeMapping
         IFixedLengthComplexPropertyMapping NullHandler(INullHandler handler);
     }
 
-    internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IComplexPropertyMapping
+    internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IPropertyMapping
     {
         private readonly IFixedLengthTypeMapper<TEntity> mapper;
         private readonly PropertyInfo property;
@@ -53,12 +53,7 @@ namespace FlatFiles.TypeMapping
             this.columnName = property.Name;
         }
 
-        public IRecordMapper RecordMapper
-        {
-            get { return (IRecordMapper)mapper; }
-        }
-
-        public ColumnDefinition ColumnDefinition
+        public IColumnDefinition ColumnDefinition
         {
             get
             {
@@ -66,7 +61,9 @@ namespace FlatFiles.TypeMapping
                 FixedLengthComplexColumn column = new FixedLengthComplexColumn(columnName, schema);
                 column.Options = options;
                 column.NullHandler = nullHandler;
-                return column;
+
+                var recordMapper = (IRecordMapper<TEntity>)mapper;
+                return new ComplexMapperColumn<TEntity>(column, recordMapper);
             }
         }
 

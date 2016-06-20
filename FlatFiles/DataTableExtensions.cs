@@ -53,7 +53,7 @@ namespace FlatFiles
                 object[] values = new object[schema.ColumnDefinitions.Count];
                 for (int index = 0; index != values.Length; ++index)
                 {
-                    ColumnDefinition column = schema.ColumnDefinitions[index];
+                    IColumnDefinition column = schema.ColumnDefinitions[index];
                     values[index] = row[column.ColumnName];
                 }
                 writer.Write(values);

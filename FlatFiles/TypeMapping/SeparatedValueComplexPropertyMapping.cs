@@ -38,7 +38,7 @@ namespace FlatFiles.TypeMapping
         ISeparatedValueComplexPropertyMapping NullHandler(INullHandler handler);
     }
 
-    internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IComplexPropertyMapping
+    internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IPropertyMapping
     {
         private readonly ISeparatedValueTypeMapper<TEntity> mapper;
         private readonly PropertyInfo property;
@@ -53,7 +53,7 @@ namespace FlatFiles.TypeMapping
             this.columnName = property.Name;
         }
 
-        public ColumnDefinition ColumnDefinition
+        public IColumnDefinition ColumnDefinition
         {
             get
             {
@@ -61,13 +61,10 @@ namespace FlatFiles.TypeMapping
                 SeparatedValueComplexColumn column = new SeparatedValueComplexColumn(columnName, schema);
                 column.Options = options;
                 column.NullHandler = nullHandler;
-                return column;
-            }
-        }
 
-        public IRecordMapper RecordMapper
-        {
-            get { return (IRecordMapper)mapper; }
+                var recordMapper = (IRecordMapper<TEntity>)mapper;
+                return new ComplexMapperColumn<TEntity>(column, recordMapper);
+            }
         }
 
         public PropertyInfo Property

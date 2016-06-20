@@ -35,10 +35,10 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedReader<TEntity> : ITypedReader<TEntity>
     {
         private readonly IReader reader;
-        private readonly IRecordReader<TEntity> deserializer;
+        private readonly TypedRecordReader<TEntity> deserializer;
         private TEntity current;
 
-        public TypedReader(IReader reader, IRecordReader<TEntity> deserializer)
+        public TypedReader(IReader reader, TypedRecordReader<TEntity> deserializer)
         {
             this.reader = reader;
             this.deserializer = deserializer;

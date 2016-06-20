@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
     /// <summary>
     /// Holds the column definitions that make up a schema.
     /// </summary>
-    public sealed class ColumnCollection : IEnumerable<ColumnDefinition>
+    public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
-        private readonly List<ColumnDefinition> definitions;
+        private readonly List<IColumnDefinition> definitions;
+        private readonly Dictionary<string, int> ordinals;
+        private int ignoredCount;
 
         /// <summary>
         /// Initializes a new ColumnCollection.
         /// </summary>
-        /// <param name="definitions">The column definitions making up the collection.</param>
-        internal ColumnCollection(List<ColumnDefinition> definitions)
+        internal ColumnCollection()
         {
-            this.definitions = definitions;
+            definitions = new List<IColumnDefinition>();
+            ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -25,7 +28,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="index">The index of the column definition to get.</param>
         /// <returns>The column definition at the given index.</returns>
-        public ColumnDefinition this[int index]
+        public IColumnDefinition this[int index]
         {
             get { return definitions[index]; }
         }
@@ -35,12 +38,11 @@ namespace FlatFiles
         /// </summary>
         /// <param name="columnName">The name of the column to get the definition for.</param>
         /// <returns>The column definition with the given name.</returns>
-        public ColumnDefinition this[string columnName]
+        public IColumnDefinition this[string columnName]
         {
             get 
             {
-                Predicate<ColumnDefinition> predicate = (ColumnDefinition c) => StringComparer.CurrentCulture.Compare(c.ColumnName, columnName) == 0;
-                int index = definitions.FindIndex(predicate);
+                int index = ordinals.ContainsKey(columnName) ? ordinals[columnName] : -1;
                 return definitions[index];
             }
         }
@@ -54,10 +56,66 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the number of columns that are ignored.
+        /// </summary>
+        public int IgnoredCount
+        {
+            get { return ignoredCount; }
+        }
+
+        /// <summary>
+        /// Gets the number of columns that are not ignored.
+        /// </summary>
+        public int HandledCount
+        {
+            get { return definitions.Count - ignoredCount; }
+        }
+
+        internal void AddColumn(IColumnDefinition definition)
+        {
+            if (definition == null)
+            {
+                throw new ArgumentNullException("definition");
+            }
+            if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName))
+            {
+                throw new ArgumentException(Resources.DuplicateColumnName, "definition");
+            }
+            addColumn(definition);
+        }
+
+        private void addColumn(IColumnDefinition definition)
+        {
+            definitions.Add(definition);
+            if (definition.IsIgnored)
+            {
+                ++ignoredCount;
+            }
+            if (!String.IsNullOrEmpty(definition.ColumnName))
+            {
+                ordinals.Add(definition.ColumnName, definitions.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// Gets the index of the column with the given name.
+        /// </summary>
+        /// <param name="columnName">The name of the column to get the index for.</param>
+        /// <returns>The index of the column with the given name -or- -1 if the column is not found.</returns>
+        public int GetOrdinal(string columnName)
+        {
+            if (!ordinals.ContainsKey(columnName))
+            {
+                return -1;
+            }
+            return ordinals[columnName];
+        }
+
+        /// <summary>
         /// Gets an enumerator over the column definitions in the collection.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<ColumnDefinition> GetEnumerator()
+        public IEnumerator<IColumnDefinition> GetEnumerator()
         {
             return definitions.GetEnumerator();
         }

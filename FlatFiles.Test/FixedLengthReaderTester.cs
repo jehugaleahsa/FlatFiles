@@ -348,6 +348,34 @@ namespace FlatFiles.Test
             Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
         }
 
+        /// <summary>
+        /// We should be able to round-trip a schema that has separators in a fixed-length schema.
+        /// </summary>
+        [TestMethod]
+        public void TestTypeMapper_IgnoredSeparators_RoundTrip()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id, new Window(25)).ColumnName("id");
+            mapper.Ignored(new Window(1) { FillCharacter = '|' });
+            mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
+            mapper.Ignored(new Window(1) { FillCharacter = '|' });
+            mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            var bob = new Person() { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions() { FillCharacter = ' ' };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { bob }, options);
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.AreEqual(1, people.Count(), "The wrong number of people were returned.");
+            var person = people.SingleOrDefault();
+            Assert.AreEqual(bob.Id, person.Id, "The ID value was not persisted.");
+            Assert.AreEqual(bob.Name, person.Name, "The Name value was not persisted.");
+            Assert.AreEqual(bob.Created, person.Created, "The Created value was not persisted.");
+        }
+
         private class Person
         {
             public int Id { get; set; }

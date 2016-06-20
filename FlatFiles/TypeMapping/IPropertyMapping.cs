@@ -16,11 +16,6 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Gets the column that is mapped to. 
         /// </summary>
-        ColumnDefinition ColumnDefinition { get; }
-    }
-
-    internal interface IComplexPropertyMapping : IPropertyMapping
-    {
-        IRecordMapper RecordMapper { get; }
+        IColumnDefinition ColumnDefinition { get; }
     }
 }
