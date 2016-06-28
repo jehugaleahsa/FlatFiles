@@ -1,7 +1,7 @@
 {
   "language": "en-US",
   "title": "FlatFiles",
-  "version": "0.3.17.0",
+  "version": "0.3.18.0",
   "authors": [ "Truncon" ],
   "description": "Read and write flat files.",
   "packOptions": {
@@ -10,7 +10,7 @@
 	"owners": ["Truncon"],
 	"repository": {
 		"type": "git",
-		"url": "http://github.com/jehugaleahsa/FlatFiles",
+		"url": "http://github.com/jehugaleahsa/FlatFiles"
 	},
 	"tags": [
 	  "csv",
@@ -39,19 +39,17 @@
       "imports": "dnxcore50",
       "dependencies": {
         "System.Linq.Expressions": "4.1.0",
-        "System.Reflection.Emit.Lightweight": "4.0.1"
+        "System.Reflection.Emit.Lightweight": "4.0.1",
+        "NETStandard.Library": "1.6.0"
       }
     },
-    "net45": {
+    "net451": {
       "dependencies": {
-        "System.Data.Common": "4.0.1-rc2-24027"
+        "System.Data.Common": "4.1.0"
       },
       "buildOptions": {
         "define": [ "NET45" ]
       }
     }
-  },
-  "dependencies": {
-    "NETStandard.Library": "1.6.0"
   }
 }
