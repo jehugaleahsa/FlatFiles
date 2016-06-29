@@ -4,6 +4,9 @@ Read and write CSV, fixed-length and other flat file formats.
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
+## Support for .NET Core
+As of version 0.3.18.0, FlatFiles now supports .NET Core (.NETStandard v1.6) and .NET 4.5.1!
+
 ## Backward Compatibility
 As of version 0.2.0.0, FlatFiles is no longer backward compatible. Read the [wiki](https://github.com/jehugaleahsa/FlatFiles/wiki/FlatFiles-0.2.0.0-and-0.3.0.0-Not-Backward-Compatible) to learn more.
 
