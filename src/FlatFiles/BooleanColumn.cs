@@ -44,6 +44,10 @@ namespace FlatFiles
         /// <returns>True if the value equals the TrueString; otherwise, false.</returns>
         public override object Parse(string value)
         {
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
             if (NullHandler.IsNullRepresentation(value))
             {
                 return null;

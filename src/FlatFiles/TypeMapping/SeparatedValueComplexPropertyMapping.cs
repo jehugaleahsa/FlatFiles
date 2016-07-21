@@ -37,6 +37,13 @@ namespace FlatFiles.TypeMapping
         /// <returns>The property mapping for further configuration.</returns>
         /// <remarks>Setting the handler to null with use the default handler.</remarks>
         ISeparatedValueComplexPropertyMapping NullHandler(INullHandler handler);
+
+        /// <summary>
+        /// Sets a function to preprocess in the input before parsing it.
+        /// </summary>
+        /// <param name="preprocessor">A preprocessor function.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ISeparatedValueComplexPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
     internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IPropertyMapping
@@ -46,6 +53,7 @@ namespace FlatFiles.TypeMapping
         private string columnName;
         private SeparatedValueOptions options;
         private INullHandler nullHandler;
+        private Func<string, string> preprocessor;
 
         public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, PropertyInfo property)
         {
@@ -62,6 +70,7 @@ namespace FlatFiles.TypeMapping
                 SeparatedValueComplexColumn column = new SeparatedValueComplexColumn(columnName, schema);
                 column.Options = options;
                 column.NullHandler = nullHandler;
+                column.Preprocessor = preprocessor;
 
                 var recordMapper = (IRecordMapper<TEntity>)mapper;
                 return new ComplexMapperColumn<TEntity>(column, recordMapper);
@@ -98,6 +107,12 @@ namespace FlatFiles.TypeMapping
         public ISeparatedValueComplexPropertyMapping NullValue(string value)
         {
             this.nullHandler = new ConstantNullHandler(value);
+            return this;
+        }
+
+        public ISeparatedValueComplexPropertyMapping Preprocessor(Func<string, string> preprocessor)
+        {
+            this.preprocessor = preprocessor;
             return this;
         }
     }

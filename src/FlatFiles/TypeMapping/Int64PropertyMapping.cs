@@ -51,6 +51,13 @@ namespace FlatFiles.TypeMapping
         /// <returns>The property mapping for further configuration.</returns>
         /// <remarks>Setting the handler to null with use the default handler.</remarks>
         IInt64PropertyMapping NullHandler(INullHandler handler);
+
+        /// <summary>
+        /// Sets a function to preprocess in the input before parsing it.
+        /// </summary>
+        /// <param name="preprocessor">A preprocessor function.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IInt64PropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
     internal sealed class Int64PropertyMapping : IInt64PropertyMapping, IPropertyMapping
@@ -97,6 +104,12 @@ namespace FlatFiles.TypeMapping
         public IInt64PropertyMapping NullHandler(INullHandler handler)
         {
             this.column.NullHandler = handler;
+            return this;
+        }
+
+        public IInt64PropertyMapping Preprocessor(Func<string, string> preprocessor)
+        {
+            this.column.Preprocessor = preprocessor;
             return this;
         }
 

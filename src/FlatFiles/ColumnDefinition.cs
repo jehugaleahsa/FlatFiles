@@ -24,6 +24,11 @@ namespace FlatFiles
         INullHandler NullHandler { get; set; }
 
         /// <summary>
+        /// Gets or sets a function used to preprocess input before trying to parse it.
+        /// </summary>
+        Func<string, string> Preprocessor { get; set; }
+
+        /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
         Type ColumnType { get; }
@@ -108,6 +113,11 @@ namespace FlatFiles
             get { return nullHandler; }
             set { nullHandler = value ?? new DefaultNullHandler(); }
         }
+
+        /// <summary>
+        /// Gets or sets a function used to preprocess input before trying to parse it.
+        /// </summary>
+        public Func<string, string> Preprocessor { get; set; }
 
         /// <summary>
         /// Gets the type of the values in the column.

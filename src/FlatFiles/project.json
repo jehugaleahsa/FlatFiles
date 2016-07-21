@@ -1,42 +1,13 @@
 {
-  "language": "en-US",
-  "title": "FlatFiles",
-  "version": "0.3.18.0",
   "authors": [ "Truncon" ],
-  "description": "Read and write flat files.",
-  "packOptions": {
-    "summary": "Read and write flat files.",
-	"requireLicenseAcceptance": false,
-	"owners": ["Truncon"],
-	"repository": {
-		"type": "git",
-		"url": "http://github.com/jehugaleahsa/FlatFiles"
-	},
-	"tags": [
-	  "csv",
-	  "comma",
-	  "separated",
-	  "value",
-	  "delimited",
-	  "flat",
-	  "file",
-	  "fixed",
-	  "width",
-	  "fixed-width",
-	  "length",
-	  "fixed-length",
-	  "parser",
-	  "parsing"
-	]
-  },
   "buildOptions": {
     "debugType": "portable",
     "keyFile": "FlatFiles.snk",
     "xmlDoc": true
   },
+  "description": "Read and write flat files.",
   "frameworks": {
     "netstandard1.6": {
-      "imports": "dnxcore50",
       "dependencies": {
         "System.Linq.Expressions": "4.1.0",
         "System.Reflection.Emit.Lightweight": "4.0.1",
@@ -51,5 +22,33 @@
         "define": [ "NET45" ]
       }
     }
-  }
+  },
+  "language": "en-US",
+  "packOptions": {
+    "owners": [ "Truncon" ],
+    "projectUrl": "http://github.com/jehugaleahsa/FlatFiles",
+    "repository": {
+      "type": "git",
+      "url": "http://github.com/jehugaleahsa/FlatFiles"
+    },
+    "requireLicenseAcceptance": false,
+    "summary": "Read and write flat files.",
+    "tags": [
+      "csv",
+      "comma",
+      "separated",
+      "value",
+      "delimited",
+      "flat",
+      "file",
+      "fixed",
+      "width",
+      "fixed-width",
+      "length",
+      "fixed-length",
+      "parser",
+      "parsing"
+    ]
+  },
+  "title": "FlatFiles",
 }

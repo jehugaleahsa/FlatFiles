@@ -36,6 +36,12 @@ namespace FlatFiles.TypeMapping
             set { column.NullHandler = value; }
         }
 
+        public Func<string, string> Preprocessor
+        {
+            get { return column.Preprocessor; }
+            set { column.Preprocessor = value; }
+        }
+
         public object Parse(string value)
         {
             object parsed = column.Parse(value);

@@ -36,6 +36,13 @@ namespace FlatFiles.TypeMapping
         /// <returns>The property mapping for further configuration.</returns>
         /// <remarks>Setting the handler to null with use the default handler.</remarks>
         ICharPropertyMapping NullHandler(INullHandler handler);
+
+        /// <summary>
+        /// Sets a function to preprocess in the input before parsing it.
+        /// </summary>
+        /// <param name="preprocessor">A preprocessor function.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ICharPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
     internal sealed class CharPropertyMapping : ICharPropertyMapping, IPropertyMapping
@@ -70,6 +77,12 @@ namespace FlatFiles.TypeMapping
         public ICharPropertyMapping NullHandler(INullHandler handler)
         {
             this.column.NullHandler = handler;
+            return this;
+        }
+
+        public ICharPropertyMapping Preprocessor(Func<string, string> preprocessor)
+        {
+            this.column.Preprocessor = preprocessor;
             return this;
         }
 

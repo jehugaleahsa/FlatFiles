@@ -38,6 +38,10 @@ namespace FlatFiles
         /// <returns>The value trimmed.</returns>
         public override object Parse(string value)
         {
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
             if (Trim && value != null)
             {
                 value = TrimValue(value);

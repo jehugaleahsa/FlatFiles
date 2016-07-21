@@ -48,6 +48,10 @@ namespace FlatFiles
         /// <returns>The parsed DateTime instance.</returns>
         public override object Parse(string value)
         {
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
             if (NullHandler.IsNullRepresentation(value))
             {
                 return null;

@@ -68,7 +68,11 @@ namespace FlatFiles
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
         public override object Parse(string value)
-        {            
+        {
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
             if (NullHandler.IsNullRepresentation(value))
             {
                 return null;

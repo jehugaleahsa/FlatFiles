@@ -37,6 +37,13 @@ namespace FlatFiles.TypeMapping
         /// <returns>The property mapping for further configuration.</returns>
         /// <remarks>Setting the handler to null with use the default handler.</remarks>
         IFixedLengthComplexPropertyMapping NullHandler(INullHandler handler);
+
+        /// <summary>
+        /// Sets a function to preprocess in the input before parsing it.
+        /// </summary>
+        /// <param name="preprocessor">A preprocessor function.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IFixedLengthComplexPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
     internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IPropertyMapping
@@ -46,6 +53,7 @@ namespace FlatFiles.TypeMapping
         private string columnName;
         private FixedLengthOptions options;
         private INullHandler nullHandler;
+        private Func<string, string> preprocessor;
 
         public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, PropertyInfo property)
         {
@@ -62,6 +70,7 @@ namespace FlatFiles.TypeMapping
                 FixedLengthComplexColumn column = new FixedLengthComplexColumn(columnName, schema);
                 column.Options = options;
                 column.NullHandler = nullHandler;
+                column.Preprocessor = preprocessor;
 
                 var recordMapper = (IRecordMapper<TEntity>)mapper;
                 return new ComplexMapperColumn<TEntity>(column, recordMapper);
@@ -98,6 +107,12 @@ namespace FlatFiles.TypeMapping
         public IFixedLengthComplexPropertyMapping NullValue(string value)
         {
             this.nullHandler = new ConstantNullHandler(value);
+            return this;
+        }
+
+        public IFixedLengthComplexPropertyMapping Preprocessor(Func<string, string> preprocessor)
+        {
+            this.preprocessor = preprocessor;
             return this;
         }
     }
