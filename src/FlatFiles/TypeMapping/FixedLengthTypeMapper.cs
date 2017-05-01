@@ -97,6 +97,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="property">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window);
 
         /// <summary>
@@ -201,6 +217,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="property">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window);
 
         /// <summary>
@@ -217,6 +249,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="property">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window);
 
         /// <summary>
@@ -226,6 +274,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> property, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> property, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -423,6 +487,32 @@ namespace FlatFiles.TypeMapping
             return (IBytePropertyMapping)mapping;
         }
 
+        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getSByteMapping(propertyInfo, window);
+        }
+
+        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getSByteMapping(propertyInfo, window);
+        }
+
+        private ISBytePropertyMapping getSByteMapping(PropertyInfo propertyInfo, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                SByteColumn column = new SByteColumn(propertyInfo.Name);
+                mapping = new SBytePropertyMapping(column, propertyInfo);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
+            }
+            windowLookup[mapping] = window;
+            return (ISBytePropertyMapping)mapping;
+        }
+
         public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
@@ -599,6 +689,32 @@ namespace FlatFiles.TypeMapping
             return (IInt16PropertyMapping)mapping;
         }
 
+        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt16Mapping(propertyInfo, window);
+        }
+
+        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt16Mapping(propertyInfo, window);
+        }
+
+        private IUInt16PropertyMapping getUInt16Mapping(PropertyInfo propertyInfo, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                UInt16Column column = new UInt16Column(propertyInfo.Name);
+                mapping = new UInt16PropertyMapping(column, propertyInfo);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
+            }
+            windowLookup[mapping] = window;
+            return (IUInt16PropertyMapping)mapping;
+        }
+
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
@@ -625,6 +741,32 @@ namespace FlatFiles.TypeMapping
             return (IInt32PropertyMapping)mapping;
         }
 
+        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt32Mapping(propertyInfo, window);
+        }
+
+        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt32Mapping(propertyInfo, window);
+        }
+
+        private IUInt32PropertyMapping getUInt32Mapping(PropertyInfo propertyInfo, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                UInt32Column column = new UInt32Column(propertyInfo.Name);
+                mapping = new UInt32PropertyMapping(column, propertyInfo);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
+            }
+            windowLookup[mapping] = window;
+            return (IUInt32PropertyMapping)mapping;
+        }
+
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window)
         {
             PropertyInfo propertyInfo = getProperty(property);
@@ -649,6 +791,32 @@ namespace FlatFiles.TypeMapping
             }
             windowLookup[mapping] = window;
             return (IInt64PropertyMapping)mapping;
+        }
+
+        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt64Mapping(propertyInfo, window);
+        }
+
+        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> property, Window window)
+        {
+            PropertyInfo propertyInfo = getProperty(property);
+            return getUInt64Mapping(propertyInfo, window);
+        }
+
+        private IUInt64PropertyMapping getUInt64Mapping(PropertyInfo propertyInfo, Window window)
+        {
+            IPropertyMapping mapping;
+            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            {
+                UInt64Column column = new UInt64Column(propertyInfo.Name);
+                mapping = new UInt64PropertyMapping(column, propertyInfo);
+                mappings.Add(mapping);
+                mappingLookup.Add(propertyInfo.Name, mapping);
+            }
+            windowLookup[mapping] = window;
+            return (IUInt64PropertyMapping)mapping;
         }
 
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window)
