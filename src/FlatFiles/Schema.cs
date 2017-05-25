@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FlatFiles.Resources;
 
 namespace FlatFiles
 {
@@ -73,10 +74,24 @@ namespace FlatFiles
         {
             var parsedValues = from definition in definitions
                                where !definition.IsIgnored
-                               let position = definitions.GetOrdinal(definition.ColumnName)
-                               let value = values[position]
-                               select definition.Parse(value);
+                               select parse(definition, values);
             return parsedValues.ToArray();
+        }
+
+        private object parse(IColumnDefinition definition, string[] values)
+        {
+            int position = definitions.GetOrdinal(definition.ColumnName);
+            string rawValue = values[position];
+            try
+            {
+                object parsedValue = definition.Parse(rawValue);
+                return parsedValue;
+            }
+            catch (Exception exception)
+            {
+                string message = String.Format(null, SharedResources.InvalidColumnConversion, rawValue, definition.ColumnType.FullName, definition.ColumnName, position);
+                throw new FlatFileException(message, exception);
+            }
         }
 
         /// <summary>

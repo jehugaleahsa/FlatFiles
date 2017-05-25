@@ -123,11 +123,29 @@ namespace FlatFiles.Resources {
         }
         
         /// <summary>
+        ///    Looks up a localized string similar to Failed to convert &apos;{0}&apos; to &apos;{1}&apos;. Column: {2}, Position: {3}..
+        /// </summary>
+        public static string InvalidColumnConversion {
+            get {
+                return ResourceManager.GetString("InvalidColumnConversion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///    Looks up a localized string similar to An attempt was made to define a column with a negative width..
         /// </summary>
         public static string InvalidColumnWidth {
             get {
                 return ResourceManager.GetString("InvalidColumnWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///    Looks up a localized string similar to Encountered an invalid conversion while processing the record. Record {0}..
+        /// </summary>
+        public static string InvalidRecordConversion {
+            get {
+                return ResourceManager.GetString("InvalidRecordConversion", resourceCulture);
             }
         }
         

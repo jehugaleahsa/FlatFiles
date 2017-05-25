@@ -174,4 +174,10 @@
   <data name="UnmatchedQuote" xml:space="preserve">
     <value>A syntax error was encountered: Unmatched quote.</value>
   </data>
+  <data name="InvalidRecordConversion" xml:space="preserve">
+    <value>Encountered an invalid conversion while processing the record. Record {0}.</value>
+  </data>
+  <data name="InvalidColumnConversion" xml:space="preserve">
+    <value>Failed to convert '{0}' to '{1}'. Column: {2}, Position: {3}.</value>
+  </data>
 </root>

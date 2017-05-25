@@ -127,9 +127,21 @@ namespace FlatFiles
             }
             else
             {
-                values = schema.ParseValues(rawValues);
+                values = parseValues(rawValues);
             }
             return true;
+        }
+
+        private object[] parseValues(string[] rawValues)
+        {
+            try
+            {
+                return schema.ParseValues(rawValues);
+            }
+            catch (FlatFileException exception)
+            {
+                throw new FlatFileException(SharedResources.InvalidRecordConversion, recordCount, exception);
+            }
         }
 
         /// <summary>

@@ -71,6 +71,17 @@ namespace FlatFiles.Test
             Assert.False(canRead, "No more records should have been read.");
         }
 
+        [Fact]
+        public void TestRead_InvalidConversion_Throws()
+        {
+            const string text = "a";
+            StringReader stringReader = new StringReader(text);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("First"));
+            SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
+            Assert.Throws<FlatFileException>(() => parser.Read());
+        }
+
         /// <summary>
         /// If we skip a bad record, it should not result in a parsing error.
         /// </summary>
