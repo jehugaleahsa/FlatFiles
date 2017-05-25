@@ -77,7 +77,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets a filter to use to skip records.
         /// </summary>
-        public Func<string[], bool> SeparatedRecordFilter { get; set; }
+        public Func<string[], bool> PartitionedRecordFilter { get; set; }
 
         /// <summary>
         /// Duplicates the options.

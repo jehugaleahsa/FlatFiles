@@ -132,7 +132,7 @@ namespace FlatFiles
         private string[] readWithFilter()
         {
             string[] rawValues = readNextRecord();
-            while (rawValues != null && parser.Options.SeparatedRecordFilter != null && parser.Options.SeparatedRecordFilter(rawValues))
+            while (rawValues != null && parser.Options.PartitionedRecordFilter != null && parser.Options.PartitionedRecordFilter(rawValues))
             {
                 rawValues = readNextRecord();
             }

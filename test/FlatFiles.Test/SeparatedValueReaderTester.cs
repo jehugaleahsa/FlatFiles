@@ -239,7 +239,7 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("created"));
             SeparatedValueOptions options = new SeparatedValueOptions()
             {
-                SeparatedRecordFilter = (record) => record.Length < 3
+                PartitionedRecordFilter = (record) => record.Length < 3
             };
 
             const string text = @"123,Bob Smith,4/21/2017

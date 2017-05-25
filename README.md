@@ -31,7 +31,7 @@ Using the type mappers, you can directly read file contents into your classes:
     }
 
 To define the schema when working with type mappers, call `Property` in the order that the fields appear in the file. The type of the column is determined by the type of the mapped property. Each property configuration provides options for controlling the way FlatFiles handles strings, numbers, date/times, GUIDs, enums and more. Once the properties are configured, you can call `Read` or `Write` on the type mapper.
-    
+
 *Note* The `Read` method only retrieves records from the underlying file on-demand. To bring the entire file into memory at once, just call `ToList` or `ToArray`, or loop over the records inside of a `foreach`.
 
 Writing to a file is just as easily:
@@ -44,7 +44,7 @@ Writing to a file is just as easily:
     }
 
 *Note* I was able to customize the `OutputFormat` of properties that were already configured. The first time `Property` is called on a property, it assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns or reset any other settings.
-	
+
 ## Schemas
 Under the hood, type mapping internally defines a schema, giving each column a name, order and type in the flat file. You can get access to the schema by calling `GetSchema` on the mapper.
 
@@ -55,7 +55,7 @@ You can work directly with schemas if you don't plan on using the type mappers. 
           .AddColumn(new StringColumn("name"))
           .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
           .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" });
-		  
+
 Or, if the schema is for a fixed-length file:
 
     FixedLengthSchema schema = new FixedLengthSchema();
@@ -63,7 +63,7 @@ Or, if the schema is for a fixed-length file:
       .AddColumn(new StringColumn("name"), 255)
       .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
       .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
-	  
+
 The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width.
 
 *Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the **Ignored Fields** section below to learn about ways to to handle this.
@@ -85,7 +85,7 @@ If you are working with files whose fields are a fixed-length you will want to u
 
 The `FixedLengthOptions` class supports a `FillCharacter` property to specify which character is used as a fill character in the columns. A space (` `) is the default. You can also override this at the column level.
 
-It also supports a `RecordSeparator` property for specifying what value indicates the end of a record. By default, this is `Environment.NewLine` (`\r\n`). This is useful if you are working on files from other systems, such as Linux (`\n`) or Macintosh (`\r`). Be sure to inspect your file to see which newline is being used. If you set the `RecordSeparator` to `null` or `String.Empty`, FlatFiles assumes that there is no record separator; instead, it expects the schema represents the full width of the record. The next record will be read directly following the last character of the previous record. 
+It also supports a `RecordSeparator` property for specifying what value indicates the end of a record. By default, this is `Environment.NewLine` (`\r\n`). This is useful if you are working on files from other systems, such as Linux (`\n`) or Macintosh (`\r`). Be sure to inspect your file to see which newline is being used. If you set the `RecordSeparator` to `null` or `String.Empty`, FlatFiles assumes that there is no record separator; instead, it expects the schema represents the full width of the record. The next record will be read directly following the last character of the previous record.
 
 ## FixedLengthWriter
 If you want to build a fixed-length file, you can use the `FixedLengthWriter` class. It accepts the same schema and options arguments used to read files.
@@ -100,11 +100,11 @@ If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, a
 By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
 
     DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
-    
+
 Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
 
     mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
-    
+
 You can implement the `INullHandler` interface if you need to support something more complex.
 
 ## Ignored Fields
@@ -117,21 +117,21 @@ When working with the `IFixedLengthTypeMapper`, `Ignored` takes a `Window`. This
 Under the hood, type mappers is adding an `IgnoredColumn` to the underlying schema. `IgnoredColumn` has a constructor to optionally specify a column name. `IgnoredColumn` affects the way you work with readers and writers. The readers will initially retrieve all columns from the document and then throw away any ignored values. You'll only see values for the columns that aren't ignored. Also, you do not need to provide values to the writers for ignored columns; the schema will automatically take care of writing out blanks for them. From a development perspective, it's as if those columns didn't exist in the underlying document.
 
 ## Skipping Records
-If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. However, what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides options to inspect records during the parsing process. These options work the same whether you use type mappers or directly with readers. 
+If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. However, what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides options to inspect records during the parsing process. These options work the same whether you use type mappers or directly with readers.
 
 Parsing a record goes through the following life-cycle:
 1) Read text until a record terminator (usually a newline) is found.
 2) For fixed-length records, partition the text into string columns based on the configured windows.
 3) Converting the string columns to the designated column types, as defined in the schema.
 
-For CSV files, breaking a record into columns is automatically performed while searching for the record terminator. Prior to trying to convert the text to ints, date/times, etc., FlatFiles provides you the opportunity to inspect the raw string values and skip records. 
+For CSV files, breaking a record into columns is automatically performed while searching for the record terminator. Prior to trying to convert the text to ints, date/times, etc., FlatFiles provides you the opportunity to inspect the raw string values and skip records.
 
-Within the `SeparatedValueOptions` class, there is a `Func<string[], bool> SeparatedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
+Within the `SeparatedValueOptions` class, there is a `Func<string[], bool> PartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
 
 ```csharp
 var options = new SeparatedValueOptions()
 {
-    SeparatedRecordFilter = (values) => values.Length < 10
+    PartitionedRecordFilter = (values) => values.Length < 10
 };
 ```
 
@@ -146,7 +146,7 @@ var options = new FixedLengthOptions()
 };
 ```
 
-Similar to CSV files, you can also filter out fixed-length records *after* they are broken into columns. However, it is important to note that the record is expected to fit the configured windows.  You could use this filter to skip records whose values cannot be parsed. 
+Similar to CSV files, you can also filter out fixed-length records *after* they are broken into columns. However, it is important to note that the record is expected to fit the configured windows.  You could use this filter to skip records whose values cannot be parsed.
 
 Within the `FixedLengthOptions` class, you can use the `Func<string[], bool> PartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip records whose third column has a flag:
 
@@ -183,7 +183,7 @@ For low-level ADO.NET file reading, you can use the `FlatFileReader` class. It p
     	customers.Add(customer);
     }
     return customers;
-    
+
 Usually in cases like this, it is just easier to use the type mappers. However, this could be useful if you are swapping out an actual database call with CSV data inside of a unit test.
 
 ## License
