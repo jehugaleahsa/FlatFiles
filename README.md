@@ -116,6 +116,47 @@ When working with the `IFixedLengthTypeMapper`, `Ignored` takes a `Window`. This
 
 Under the hood, type mappers is adding an `IgnoredColumn` to the underlying schema. `IgnoredColumn` has a constructor to optionally specify a column name. `IgnoredColumn` affects the way you work with readers and writers. The readers will initially retrieve all columns from the document and then throw away any ignored values. You'll only see values for the columns that aren't ignored. Also, you do not need to provide values to the writers for ignored columns; the schema will automatically take care of writing out blanks for them. From a development perspective, it's as if those columns didn't exist in the underlying document.
 
+## Skipping Records
+If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. However, what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides options to inspect records during the parsing process. These options work the same whether you use type mappers or directly with readers. 
+
+Parsing a record goes through the following life-cycle:
+1) Read text until a record terminator (usually a newline) is found.
+2) For fixed-length records, partition the text into string columns based on the configured windows.
+3) Converting the string columns to the designated column types, as defined in the schema.
+
+For CSV files, breaking a record into columns is automatically performed while searching for the record terminator. Prior to trying to convert the text to ints, date/times, etc., FlatFiles provides you the opportunity to inspect the raw string values and skip records. 
+
+Within the `SeparatedValueOptions` class, there is a `Func<string[], bool> SeparatedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
+
+```csharp
+var options = new SeparatedValueOptions()
+{
+    SeparatedRecordFilter = (values) => values.Length < 10
+};
+```
+
+Fixed-length files come in two flavors: those with and without record terminators. If there is no record terminator, the assumption is *all records are the same length*. Otherwise, each record can be a different length. For that reason, FlatFiles provides an extra opportunity to filter out records prior to splitting the text into columns. This is useful for filtering out records not meeting a minimum length requirement or those using a character to indicate something like comments.
+
+Within the `FixedLengthOptions` class, you can use the `Func<string, bool> UnpartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip records starting with a `#` symbol:
+
+```csharp
+var options = new FixedLengthOptions()
+{
+    UnpartitionedRecordFilter = (record) => record.StartsWith("#")
+};
+```
+
+Similar to CSV files, you can also filter out fixed-length records *after* they are broken into columns. However, it is important to note that the record is expected to fit the configured windows.  You could use this filter to skip records whose values cannot be parsed. 
+
+Within the `FixedLengthOptions` class, you can use the `Func<string[], bool> PartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip records whose third column has a flag:
+
+```csharp
+var options = new FixedLengthOptions()
+{
+    PartitionedRecordFilter = (values) => values[2] == "ERROR"
+};
+```
+
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 
