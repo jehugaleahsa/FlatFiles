@@ -72,14 +72,35 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
-            if (parser.EndOfStream)
+            string[] rawValues = partitionWithFilter();
+            if (rawValues == null)
             {
-                endOfFile = true;
                 return false;
             }
-            string[] rawValues = readNextLine();
             values = parseValues(rawValues);
             return true;
+        }
+
+        private string[] partitionWithFilter()
+        {
+            string record = readWithFilter();
+            string[] rawValues = partitionRecord(record);
+            while (rawValues != null && options.PartitionedRecordFilter != null && options.PartitionedRecordFilter(rawValues))
+            {
+                record = readWithFilter();
+                rawValues = partitionRecord(record);
+            }
+            return rawValues;
+        }
+
+        private string readWithFilter()
+        {
+            string record = readNextRecord();
+            while (record != null && options.UnpartitionedRecordFilter != null && options.UnpartitionedRecordFilter(record))
+            {
+                record = readNextRecord();
+            }
+            return record;
         }
 
         private object[] parseValues(string[] rawValues)
@@ -110,20 +131,16 @@ namespace FlatFiles
 
         private bool skip()
         {
-            if (parser.EndOfStream)
-            {
-                endOfFile = true;
-                return false;
-            }
-            parser.ReadRecord();
-            ++recordCount;
-            return true;
+            string record = readNextRecord();
+            return record != null;
         }
 
-        private string[] readNextLine()
+        private string[] partitionRecord(string record)
         {
-            string record = parser.ReadRecord();
-            ++recordCount;
+            if (record == null)
+            {
+                return null;
+            }
             if (record.Length < schema.TotalWidth)
             {
                 hasError = true;
@@ -148,6 +165,18 @@ namespace FlatFiles
                 offset += window.Width;
             }
             return values;
+        }
+
+        private string readNextRecord()
+        {
+            if (parser.EndOfStream)
+            {
+                endOfFile = true;
+                return null;
+            }
+            string record = parser.ReadRecord();
+            ++recordCount;
+            return record;
         }
 
         /// <summary>

@@ -227,6 +227,38 @@ namespace FlatFiles.Test
             Assert.False(parser.Read(), "The schema record was not skipped.");
         }
 
+        /// <summary>
+        /// If we provide a record filter, those records should be skipped while processing the file.
+        /// </summary>
+        [Fact]
+        public void TestRead_WithSeparatedRecordFilter_SkipsRecordsMatchingCriteria()
+        {
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+            SeparatedValueOptions options = new SeparatedValueOptions()
+            {
+                SeparatedRecordFilter = (record) => record.Length < 3
+            };
+
+            const string text = @"123,Bob Smith,4/21/2017
+This is not a real record
+234,Jay Smith,5/21/2017";
+            StringReader stringReader = new StringReader(text);
+            IReader parser = new SeparatedValueReader(stringReader, schema, options);
+
+            Assert.True(parser.Read(), "Could not read the first record.");
+            object[] actual1 = parser.GetValues();
+            Assert.Equal(new object[] { 123, "Bob Smith", new DateTime(2017, 04, 21) }, actual1);
+
+            Assert.True(parser.Read(), "Could not read the second record.");
+            object[] actual2 = parser.GetValues();
+            Assert.Equal(new object[] { 234, "Jay Smith", new DateTime(2017, 05, 21) }, actual2);
+
+            Assert.False(parser.Read(), "There should not be any more records.");
+        }
+
         private class Person
         {
             public int Id { get; set; }

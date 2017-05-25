@@ -29,6 +29,11 @@ namespace FlatFiles
             this.token = new StringBuilder();
         }
 
+        internal SeparatedValueOptions Options
+        {
+            get { return options; }
+        }
+
         private IMatcher getMatcher(string separator)
         {
             if (separator.Length == 1)

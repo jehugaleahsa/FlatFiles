@@ -259,6 +259,72 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// If we specify a record filter, those records should be automatically skipped while reading the document.
+        /// </summary>
+        [Fact]
+        public void TestGetValues_WithUnpartitionedRecordFilter_SkipRecordsMatchingCriteria()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
+            FixedLengthOptions options = new FixedLengthOptions()
+            {
+                UnpartitionedRecordFilter = (record) => record.StartsWith("a")
+            };
+
+            const string lines = @"       123                Bob Smith 4/21/2017
+a weird row that should be skipped
+       234                Jay Smith 5/21/2017";
+
+            StringReader stringReader = new StringReader(lines);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+
+            Assert.True(parser.Read(), "Could not read the first record.");
+            object[] actual1 = parser.GetValues();
+            Assert.Equal(new object[] { 123, "Bob Smith", new DateTime(2017, 04, 21) }, actual1);
+
+            Assert.True(parser.Read(), "Could not read the second record.");
+            object[] actual2 = parser.GetValues();
+            Assert.Equal(new object[] { 234, "Jay Smith", new DateTime(2017, 05, 21) }, actual2);
+
+            Assert.False(parser.Read(), "There should not be any more records.");
+        }
+
+        /// <summary>
+        /// If we specify a record filter, those records should be automatically skipped while reading the document.
+        /// </summary>
+        [Fact]
+        public void TestGetValues_WithPartitionedRecordFilter_SkipRecordsMatchingCriteria()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
+            FixedLengthOptions options = new FixedLengthOptions()
+            {
+                PartitionedRecordFilter = (parts) => parts.Length == 3 && parts[0].StartsWith("-")
+            };
+
+            const string lines = @"       123                Bob Smith 4/21/2017
+        -1                Jay Smith 8/14/2017
+       234                Jay Smith 5/21/2017";
+
+            StringReader stringReader = new StringReader(lines);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+
+            Assert.True(parser.Read(), "Could not read the first record.");
+            object[] actual1 = parser.GetValues();
+            Assert.Equal(new object[] { 123, "Bob Smith", new DateTime(2017, 04, 21) }, actual1);
+
+            Assert.True(parser.Read(), "Could not read the second record.");
+            object[] actual2 = parser.GetValues();
+            Assert.Equal(new object[] { 234, "Jay Smith", new DateTime(2017, 05, 21) }, actual2);
+
+            Assert.False(parser.Read(), "There should not be any more records.");
+        }
+
+        /// <summary>
         /// We should be able to write and read values using a type mappers.
         /// </summary>
         [Fact]

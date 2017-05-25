@@ -108,14 +108,11 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
-            if (parser.EndOfStream)
+            string[] rawValues = readWithFilter();
+            if (rawValues == null)
             {
-                endOfFile = true;
-                values = null;
                 return false;
             }
-            string[] rawValues = readNextRecord();
-            ++recordCount;
             if (schema == null)
             {
                 values = rawValues;
@@ -130,6 +127,16 @@ namespace FlatFiles
                 values = parseValues(rawValues);
             }
             return true;
+        }
+
+        private string[] readWithFilter()
+        {
+            string[] rawValues = readNextRecord();
+            while (rawValues != null && parser.Options.SeparatedRecordFilter != null && parser.Options.SeparatedRecordFilter(rawValues))
+            {
+                rawValues = readNextRecord();
+            }
+            return rawValues;
         }
 
         private object[] parseValues(string[] rawValues)
@@ -156,27 +163,13 @@ namespace FlatFiles
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
             bool result = skip();
-            ++recordCount;
             return result;
         }
 
         private bool skip()
         {
-            if (parser.EndOfStream)
-            {
-                endOfFile = true;
-                values = null;
-                return false;
-            }
-            try
-            {
-                parser.ReadRecord();
-                return true;
-            }
-            catch (SeparatedValueSyntaxException exception)
-            {
-                throw new FlatFileException(recordCount, exception);
-            }
+            string[] rawValues = readNextRecord();
+            return rawValues != null;
         }
 
         /// <summary>
@@ -204,9 +197,16 @@ namespace FlatFiles
 
         private string[] readNextRecord()
         {
+            if (parser.EndOfStream)
+            {
+                endOfFile = true;
+                values = null;
+                return null;
+            }
             try
             {
                 string[] results = parser.ReadRecord();
+                ++recordCount;
                 return results;
             }
             catch (SeparatedValueSyntaxException exception)

@@ -36,6 +36,16 @@ namespace FlatFiles
         public bool IsFirstRecordHeader { get; set; }
 
         /// <summary>
+        /// Gets or sets a filter to use to skip records prior to record being partitioned.
+        /// </summary>
+        public Func<string, bool> UnpartitionedRecordFilter { get; set; }
+
+        /// <summary>
+        /// Gets or sets a filter to use to skip records after the record is partitioned.
+        /// </summary>
+        public Func<string[], bool> PartitionedRecordFilter { get; set; }
+
+        /// <summary>
         /// Gets or sets the default overflow truncation policy to use
         /// when a value exceeds the maximum length of its column.
         /// </summary>

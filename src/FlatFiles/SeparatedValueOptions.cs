@@ -75,6 +75,11 @@ namespace FlatFiles
         public bool PreserveWhiteSpace { get; set; }
 
         /// <summary>
+        /// Gets or sets a filter to use to skip records.
+        /// </summary>
+        public Func<string[], bool> SeparatedRecordFilter { get; set; }
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>
