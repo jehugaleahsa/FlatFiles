@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Threading;
 using FlatFiles.TypeMapping;
 using Xunit;
+using System.Collections.Generic;
 
 namespace FlatFiles.Test
 {
@@ -667,6 +668,33 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             Assert.Equal(1, people.Count());
             var first = people.SingleOrDefault();
             Assert.True(first.IsActive);
+        }
+
+        [Fact]
+        public void TestTypeMapper_BadRecordColumn_SkipError()
+        {
+            const string data = @"1,2017-06-11,John Smith
+2,2017-12-32,Tom Stallon
+3,2017-08-13,Walter Kay";
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(x => x.Id);
+            mapper.Property(x => x.Created);
+            mapper.Property(x => x.Name);
+
+            StringReader stringReader = new StringReader(data);
+            List<int> errorRecords = new List<int>();
+            var options = new SeparatedValueOptions()
+            {
+                ErrorHandler = (sender, e) =>
+                {
+                    errorRecords.Add(e.RecordNumber);
+                    e.IsHandled = true;
+                }
+            };
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.Equal(2, people.Count());
+            Assert.Equal(1, errorRecords.Count);
+            Assert.Equal(2, errorRecords[0]);
         }
     }
 }

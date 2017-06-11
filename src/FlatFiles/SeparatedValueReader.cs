@@ -108,25 +108,38 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
-            string[] rawValues = readWithFilter();
-            if (rawValues == null)
+            try
             {
-                return false;
+                values = parsePartitions();
+                return values != null;
             }
-            if (schema == null)
-            {
-                values = rawValues;
-            }
-            else if (rawValues.Length < schema.ColumnDefinitions.HandledCount)
+            catch (FlatFileException)
             {
                 hasError = true;
-                throw new RecordProcessingException(recordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns);
+                throw;
             }
-            else
+        }
+
+        private object[] parsePartitions()
+        {
+            string[] rawValues = readWithFilter();
+            while (rawValues != null)
             {
-                values = parseValues(rawValues);
+                if (schema != null && rawValues.Length < schema.ColumnDefinitions.HandledCount)
+                {
+                    processError(new RecordProcessingException(recordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
+                }
+                else
+                {
+                    object[] values = parseValues(rawValues);
+                    if (values != null)
+                    {
+                        return values;
+                    }
+                }
+                rawValues = readWithFilter();
             }
-            return true;
+            return null;
         }
 
         private string[] readWithFilter()
@@ -141,13 +154,18 @@ namespace FlatFiles
 
         private object[] parseValues(string[] rawValues)
         {
+            if (schema == null)
+            {
+                return rawValues;
+            }
             try
             {
                 return schema.ParseValues(rawValues);
             }
             catch (FlatFileException exception)
             {
-                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception);
+                processError(new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception));
+                return null;
             }
         }
 
@@ -172,6 +190,40 @@ namespace FlatFiles
             return rawValues != null;
         }
 
+        private void processError(RecordProcessingException exception)
+        {
+            if (parser.Options.ErrorHandler != null)
+            {
+                var args = new ProcessingErrorEventArgs(exception);
+                parser.Options.ErrorHandler(this, args);
+                if (args.IsHandled)
+                {
+                    return;
+                }
+            }
+            throw exception;
+        }
+
+        private string[] readNextRecord()
+        {
+            if (parser.EndOfStream)
+            {
+                endOfFile = true;
+                values = null;
+                return null;
+            }
+            try
+            {
+                string[] results = parser.ReadRecord();
+                ++recordCount;
+                return results;
+            }
+            catch (SeparatedValueSyntaxException exception)
+            {
+                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordFormatNumber, exception);
+            }
+        }
+
         /// <summary>
         /// Gets the values for the current record.
         /// </summary>
@@ -193,26 +245,6 @@ namespace FlatFiles
             object[] copy = new object[values.Length];
             Array.Copy(values, copy, values.Length);
             return copy;
-        }
-
-        private string[] readNextRecord()
-        {
-            if (parser.EndOfStream)
-            {
-                endOfFile = true;
-                values = null;
-                return null;
-            }
-            try
-            {
-                string[] results = parser.ReadRecord();
-                ++recordCount;
-                return results;
-            }
-            catch (SeparatedValueSyntaxException exception)
-            {
-                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordFormatNumber, exception);
-            }
         }
     }
 }
