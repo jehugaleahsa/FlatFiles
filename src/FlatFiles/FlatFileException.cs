@@ -82,7 +82,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets the zero-based index of the record that was being parsed when the error occurred.
+        /// Gets the index of the record that was being parsed when the error occurred.
         /// </summary>
         public int RecordNumber { get; private set; }
     }

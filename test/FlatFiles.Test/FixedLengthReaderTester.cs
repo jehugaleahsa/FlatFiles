@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Threading;
 using FlatFiles.TypeMapping;
 using Xunit;
+using System.Collections.Generic;
 
 namespace FlatFiles.Test
 {
@@ -503,6 +504,33 @@ a weird row that should be skipped
             
             SeparatedValueReader reader = new SeparatedValueReader(new StringReader(data), schema);
             Assert.Throws<RecordProcessingException>(() => reader.Read());
+        }
+
+        [Fact]
+        public void TestTypeMapper_BadRecordColumn_SkipError()
+        {
+            const string data = @"         12017-06-11     John Smith
+         22017-12-32    Tom Stallon
+         32017-08-13     Walter Kay";
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(x => x.Id, 10);
+            mapper.Property(x => x.Created, 10);
+            mapper.Property(x => x.Name, 15);
+
+            StringReader stringReader = new StringReader(data);
+            List<int> errorRecords = new List<int>();
+            var options = new FixedLengthOptions()
+            {
+                ErrorHandler = (sender, e) => 
+                {
+                    errorRecords.Add(e.RecordNumber);
+                    e.IsHandled = true;
+                }
+            };
+            var people = mapper.Read(stringReader, options).ToArray();
+            Assert.Equal(2, people.Count());
+            Assert.Equal(1, errorRecords.Count);
+            Assert.Equal(2, errorRecords[0]);
         }
     }
 }

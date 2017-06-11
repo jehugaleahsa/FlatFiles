@@ -72,13 +72,31 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
-            string[] rawValues = partitionWithFilter();
-            if (rawValues == null)
+            try
             {
-                return false;
+                values = parsePartitions();
+                return values != null;
             }
-            values = parseValues(rawValues);
-            return true;
+            catch (FlatFileException)
+            {
+                hasError = true;
+                throw;
+            }
+        }
+
+        private object[] parsePartitions()
+        {
+            string[] rawValues = partitionWithFilter();
+            while (rawValues != null)
+            {
+                object[] values = parseValues(rawValues);
+                if (values != null)
+                {
+                    return values;
+                }
+                rawValues = partitionWithFilter();
+            }
+            return null;
         }
 
         private string[] partitionWithFilter()
@@ -111,7 +129,8 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception);
+                processError(new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception));
+                return null;
             }
         }
 
@@ -143,8 +162,8 @@ namespace FlatFiles
             }
             if (record.Length < schema.TotalWidth)
             {
-                hasError = true;
-                throw new RecordProcessingException(recordCount, SharedResources.FixedLengthRecordTooShort);
+                processError(new RecordProcessingException(recordCount, SharedResources.FixedLengthRecordTooShort));
+                return null;
             }
             WindowCollection windows = schema.Windows;
             string[] values = new string[windows.Count];
@@ -177,6 +196,20 @@ namespace FlatFiles
             string record = parser.ReadRecord();
             ++recordCount;
             return record;
+        }
+
+        private void processError(RecordProcessingException exception)
+        {
+            if (options.ErrorHandler != null)
+            {
+                var args = new ProcessingErrorEventArgs(exception);
+                options.ErrorHandler(this, args);
+                if (args.IsHandled)
+                {
+                    return;
+                }
+            }
+            throw exception;
         }
 
         /// <summary>
