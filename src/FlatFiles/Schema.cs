@@ -89,8 +89,7 @@ namespace FlatFiles
             }
             catch (Exception exception)
             {
-                string message = String.Format(null, SharedResources.InvalidColumnConversion, rawValue, definition.ColumnType.FullName, definition.ColumnName, position);
-                throw new FlatFileException(message, exception);
+                throw new ColumnProcessingException(this, definition, rawValue, exception);
             }
         }
 

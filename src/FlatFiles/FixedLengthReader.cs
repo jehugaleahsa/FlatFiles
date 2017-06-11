@@ -111,7 +111,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                throw new FlatFileException(SharedResources.InvalidRecordConversion, recordCount, exception);
+                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception);
             }
         }
 
@@ -144,7 +144,7 @@ namespace FlatFiles
             if (record.Length < schema.TotalWidth)
             {
                 hasError = true;
-                throw new FlatFileException(SharedResources.FixedLengthRecordTooShort, recordCount);
+                throw new RecordProcessingException(recordCount, SharedResources.FixedLengthRecordTooShort);
             }
             WindowCollection windows = schema.Windows;
             string[] values = new string[windows.Count];

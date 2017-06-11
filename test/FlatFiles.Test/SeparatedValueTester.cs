@@ -575,7 +575,7 @@ namespace FlatFiles.Test
                 Quote = '\''
             };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
-            Assert.Throws<FlatFileException>(() => reader.Read());
+            Assert.Throws<RecordProcessingException>(() => reader.Read());
         }
 
         [Fact]
@@ -589,7 +589,7 @@ namespace FlatFiles.Test
                 Quote = '\''
             };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
-            Assert.Throws<FlatFileException>(() => reader.Read());
+            Assert.Throws<RecordProcessingException>(() => reader.Read());
         }
 
         [Fact]

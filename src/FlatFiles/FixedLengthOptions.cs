@@ -66,6 +66,11 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public EventHandler<ProcessingErrorEventArgs> ErrorHandler;
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

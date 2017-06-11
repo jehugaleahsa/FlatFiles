@@ -174,7 +174,7 @@ namespace FlatFiles.Test
 
             StringReader stringReader = new StringReader(text);
             FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
-            Assert.Throws<FlatFileException>(() => parser.Read());
+            Assert.Throws<RecordProcessingException>(() => parser.Read());
         }
 
         /// <summary>
@@ -437,6 +437,72 @@ a weird row that should be skipped
             public string Name { get; set; }
 
             public DateTime Created { get; set; }
+
+            public bool? IsActive { get; set; }
+        }
+
+        public void TestTypeMapper_NullableBoolean_RoundTripsNull()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = null };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.Null(first.IsActive);
+        }
+
+        [Fact]
+        public void TestTypeMapper_NullableBoolean_RoundTripsFalse()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = false };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.False(first.IsActive);
+        }
+
+        [Fact]
+        public void TestTypeMapper_NullableBoolean_RoundTripsTrue()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = true };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.True(first.IsActive);
+        }
+
+        [Fact]
+        public void TestReader_BadDecimal_ThrowsException()
+        {
+            const string data = "bad";
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new DecimalColumn("value"));
+            
+            SeparatedValueReader reader = new SeparatedValueReader(new StringReader(data), schema);
+            Assert.Throws<RecordProcessingException>(() => reader.Read());
         }
     }
 }

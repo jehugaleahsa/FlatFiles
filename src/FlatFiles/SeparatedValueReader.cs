@@ -120,7 +120,7 @@ namespace FlatFiles
             else if (rawValues.Length < schema.ColumnDefinitions.HandledCount)
             {
                 hasError = true;
-                throw new FlatFileException(SharedResources.SeparatedValueRecordWrongNumberOfColumns, recordCount);
+                throw new RecordProcessingException(recordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns);
             }
             else
             {
@@ -147,7 +147,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                throw new FlatFileException(SharedResources.InvalidRecordConversion, recordCount, exception);
+                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception);
             }
         }
 
@@ -211,7 +211,7 @@ namespace FlatFiles
             }
             catch (SeparatedValueSyntaxException exception)
             {
-                throw new FlatFileException(recordCount, exception);
+                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordFormatNumber, exception);
             }
         }
     }

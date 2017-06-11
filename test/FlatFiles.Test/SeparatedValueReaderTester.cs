@@ -79,7 +79,7 @@ namespace FlatFiles.Test
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("First"));
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
-            Assert.Throws<FlatFileException>(() => parser.Read());
+            Assert.Throws<RecordProcessingException>(() => parser.Read());
         }
 
         /// <summary>
@@ -268,6 +268,8 @@ This is not a real record
             public DateTime Created { get; set; }
 
             public int? ParentId { get; set; }
+
+            public bool? IsActive { get; set; }
         }
 
         /// <summary>
@@ -324,7 +326,7 @@ This is not a real record
 
             StringReader stringReader = new StringReader(text);
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, schema);
-            Assert.Throws<FlatFileException>(() => parser.Read());
+            Assert.Throws<RecordProcessingException>(() => parser.Read());
         }
 
         /// <summary>
@@ -339,7 +341,7 @@ This is not a real record
             StringReader stringReader = new StringReader(text);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
-            Assert.Throws<FlatFileException>(() => parser.Read());
+            Assert.Throws<RecordProcessingException>(() => parser.Read());
         }
 
         /// <summary>
@@ -611,6 +613,60 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             Assert.Equal(city, values[3]);
             Assert.Equal(state, values[4]);
             Assert.Equal(zip, values[5]);
+        }
+
+        [Fact]
+        public void TestTypeMapper_NullableBoolean_RoundTripsNull()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = null };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.Null(first.IsActive);
+        }
+
+        [Fact]
+        public void TestTypeMapper_NullableBoolean_RoundTripsFalse()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = false };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.False(first.IsActive);
+        }
+
+        [Fact]
+        public void TestTypeMapper_NullableBoolean_RoundTripsTrue()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            mapper.Property(x => x.IsActive).ColumnName("is_active");
+
+            Person person = new Person() { IsActive = true };
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, new Person[] { person });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var people = mapper.Read(stringReader).ToArray();
+            Assert.Equal(1, people.Count());
+            var first = people.SingleOrDefault();
+            Assert.True(first.IsActive);
         }
     }
 }
