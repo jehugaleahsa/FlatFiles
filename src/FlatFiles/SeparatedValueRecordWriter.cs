@@ -72,8 +72,17 @@ namespace FlatFiles
 
         private bool needsEscaped(string value)
         {
-            // Don't escape null or empty strings.
-            if (String.IsNullOrEmpty(value))
+            // Never escape null.
+            if (value == null)
+            {
+                return false;
+            }
+            if (options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
+            {
+                return true;
+            }
+            // Don't escape empty strings.
+            if (value == String.Empty)
             {
                 return false;
             }

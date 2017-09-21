@@ -1,22 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1D458A8B-0CB4-4D26-B980-F8ED5BA35CFE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{461DF6BA-DC34-4CCE-A2CB-2D8567546471}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FlatFiles", "src\FlatFiles\FlatFiles.xproj", "{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B6B5A0D4-4A32-4AB7-B161-B51F52C901E4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FlatFiles.Test", "test\FlatFiles.Test\FlatFiles.Test.xproj", "{A4CFA466-327F-4D5A-A6B1-76223D41613E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles", "src\FlatFiles\FlatFiles.csproj", "{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FlatFiles.Test.DotNet45", "test\FlatFiles.Test.DotNet45\FlatFiles.Test.DotNet45.xproj", "{E746F1ED-D634-491F-B594-EC5D06829A7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Test", "test\FlatFiles.Test\FlatFiles.Test.csproj", "{17584620-5396-46CD-94C6-7C97A9BBCAA2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Test.DotNet45", "test\FlatFiles.Test.DotNet45\FlatFiles.Test.DotNet45.csproj", "{03712D30-1E10-4895-ADB9-FA23828FD821}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,21 +25,24 @@ Global
 		{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A4CFA466-327F-4D5A-A6B1-76223D41613E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4CFA466-327F-4D5A-A6B1-76223D41613E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4CFA466-327F-4D5A-A6B1-76223D41613E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4CFA466-327F-4D5A-A6B1-76223D41613E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E746F1ED-D634-491F-B594-EC5D06829A7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E746F1ED-D634-491F-B594-EC5D06829A7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E746F1ED-D634-491F-B594-EC5D06829A7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E746F1ED-D634-491F-B594-EC5D06829A7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03712D30-1E10-4895-ADB9-FA23828FD821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03712D30-1E10-4895-ADB9-FA23828FD821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03712D30-1E10-4895-ADB9-FA23828FD821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03712D30-1E10-4895-ADB9-FA23828FD821}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645} = {1D458A8B-0CB4-4D26-B980-F8ED5BA35CFE}
-		{A4CFA466-327F-4D5A-A6B1-76223D41613E} = {B6B5A0D4-4A32-4AB7-B161-B51F52C901E4}
-		{E746F1ED-D634-491F-B594-EC5D06829A7B} = {B6B5A0D4-4A32-4AB7-B161-B51F52C901E4}
+		{17584620-5396-46CD-94C6-7C97A9BBCAA2} = {B6B5A0D4-4A32-4AB7-B161-B51F52C901E4}
+		{03712D30-1E10-4895-ADB9-FA23828FD821} = {B6B5A0D4-4A32-4AB7-B161-B51F52C901E4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FED1B85A-5EFC-47F7-83D8-BA8BEDAD518F}
 	EndGlobalSection
 EndGlobal
