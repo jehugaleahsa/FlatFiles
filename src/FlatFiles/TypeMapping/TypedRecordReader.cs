@@ -8,10 +8,13 @@ namespace FlatFiles.TypeMapping
         private readonly Func<TEntity> factory;
         private readonly Action<TEntity, object[]> setter;
 
-        public TypedRecordReader(Func<TEntity> factory, List<IPropertyMapping> mappings)
+        public TypedRecordReader(
+            Func<TEntity> factory,
+            ICodeGenerator codeGenerator,
+            List<IPropertyMapping> mappings)
         {
             this.factory = factory;
-            this.setter = CodeGenerator.GetReader<TEntity>(mappings);
+            this.setter = codeGenerator.GetReader<TEntity>(mappings);
         }
 
         public TEntity Read(object[] values)

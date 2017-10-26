@@ -52,8 +52,7 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(entityType));
             }
             var mapperType = typeof(FixedLengthTypeMapper<>).MakeGenericType(entityType);
-            Func<object> factory = CodeGenerator.GetFactory(entityType);
-            var mapper = Activator.CreateInstance(mapperType, factory);
+            var mapper = Activator.CreateInstance(mapperType);
             return (IDynamicFixedLengthTypeMapper)mapper;
         }
 
@@ -439,6 +438,15 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options controlling how the fixed-length document is written.</param>
         /// <returns>A typed writer.</returns>
         ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null);
+
+        /// <summary>
+        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
+        /// code to get and set entity properties, resulting in significant performance improvements. 
+        /// However, some environments do not support runtime JIT, so disabling optimization will allow
+        /// FlatFiles to work.
+        /// </summary>
+        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
+        void OptimizeMapping(bool isOptimized = true);
     }
 
     /// <summary>
@@ -669,6 +677,15 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options controlling how the separated value document is written.</param>
         /// <returns>A typed writer.</returns>
         ITypedWriter<object> GetWriter(TextWriter writer, FixedLengthOptions options = null);
+
+        /// <summary>
+        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
+        /// code to get and set entity properties, resulting in significant performance improvements. 
+        /// However, some environments do not support runtime JIT, so disabling optimization will allow
+        /// FlatFiles to work.
+        /// </summary>
+        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
+        void OptimizeMapping(bool isOptimized = true);
     }
 
     internal sealed class FixedLengthTypeMapper<TEntity> 
@@ -680,6 +697,12 @@ namespace FlatFiles.TypeMapping
         private readonly Dictionary<string, IPropertyMapping> mappingLookup;
         private readonly List<IPropertyMapping> mappings;
         private readonly Dictionary<IPropertyMapping, Window> windowLookup;
+        private bool isOptimized;
+
+        public FixedLengthTypeMapper()
+            : this(null)
+        {
+        }
 
         public FixedLengthTypeMapper(Func<object> factory)
             : this(() => (TEntity)factory())
@@ -692,6 +715,7 @@ namespace FlatFiles.TypeMapping
             this.mappingLookup = new Dictionary<string, IPropertyMapping>();
             this.mappings = new List<IPropertyMapping>();
             this.windowLookup = new Dictionary<IPropertyMapping, Window>();
+            this.isOptimized = true;
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window)
@@ -1268,7 +1292,9 @@ namespace FlatFiles.TypeMapping
 
         private TypedReader<TEntity> getTypedReader(IReader reader)
         {
-            var serializer = new TypedRecordReader<TEntity>(this.factory, this.mappings);
+            var factory = getLateBoundFactory();
+            var codeGenerator = getCodeGenerator();
+            var serializer = new TypedRecordReader<TEntity>(factory, codeGenerator, this.mappings);
             return new TypedReader<TEntity>(reader, serializer);
         }
 
@@ -1301,7 +1327,8 @@ namespace FlatFiles.TypeMapping
 
         private TypedWriter<TEntity> getTypedWriter(IWriter writer)
         {
-            var serializer = new TypedRecordWriter<TEntity>(this.mappings);
+            var codeGenerator = getCodeGenerator();
+            var serializer = new TypedRecordWriter<TEntity>(codeGenerator, this.mappings);
             return new TypedWriter<TEntity>(writer, serializer);
         }
 
@@ -1324,12 +1351,15 @@ namespace FlatFiles.TypeMapping
 
         public TypedRecordReader<TEntity> GetReader()
         {
-            return new TypedRecordReader<TEntity>(this.factory, this.mappings);
+            var factory = getLateBoundFactory();
+            var codeGenerator = getCodeGenerator();
+            return new TypedRecordReader<TEntity>(factory, codeGenerator, this.mappings);
         }
 
         public TypedRecordWriter<TEntity> GetWriter()
         {
-            return new TypedRecordWriter<TEntity>(this.mappings);
+            var codeGenerator = getCodeGenerator();
+            return new TypedRecordWriter<TEntity>(codeGenerator, this.mappings);
         }
 
         FixedLengthSchema IDynamicFixedLengthTypeConfiguration.GetSchema()
@@ -1505,6 +1535,37 @@ namespace FlatFiles.TypeMapping
         ITypedWriter<object> IDynamicFixedLengthTypeMapper.GetWriter(TextWriter writer, FixedLengthOptions options)
         {
             return new UntypedWriter<TEntity>(GetWriter(writer, options));
+        }
+
+        public void OptimizeMapping(bool isOptimized = true)
+        {
+            this.isOptimized = isOptimized;
+        }
+
+        void IDynamicFixedLengthTypeMapper.OptimizeMapping(bool isOptimized)
+        {
+            OptimizeMapping(isOptimized);
+        }
+
+        private Func<TEntity> getLateBoundFactory()
+        {
+            if (factory == null)
+            {
+                var codeGenerator = getCodeGenerator();
+                var factory = codeGenerator.GetFactory(typeof(TEntity));
+                return () => (TEntity)factory();
+            }
+            else
+            {
+                return factory;
+            }
+        }
+
+        private ICodeGenerator getCodeGenerator()
+        {
+            return isOptimized 
+                ? (ICodeGenerator)new EmitCodeGenerator() 
+                : new ReflectionCodeGenerator();
         }
     }
 }
