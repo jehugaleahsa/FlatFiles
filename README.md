@@ -20,15 +20,17 @@ FlatFiles makes it easy to work with flat files in many different ways. It suppo
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
 
-    var mapper = SeparatedValueTypeMapper.Define<Customer>();
-    mapper.Property(c => c.CustomerId).ColumnName("customer_id");
-    mapper.Property(c => c.Name).ColumnName("name");
-    mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
-    mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
-    using (StreamReader reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
-    {
-    	var customers = mapper.Read(reader).ToList();
-    }
+```csharp
+var mapper = SeparatedValueTypeMapper.Define<Customer>();
+mapper.Property(c => c.CustomerId).ColumnName("customer_id");
+mapper.Property(c => c.Name).ColumnName("name");
+mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
+mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
+using (StreamReader reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
+{
+    var customers = mapper.Read(reader).ToList();
+}
+```
 
 To define the schema when working with type mappers, call `Property` in the order that the fields appear in the file. The type of the column is determined by the type of the mapped property. Each property configuration provides options for controlling the way FlatFiles handles strings, numbers, date/times, GUIDs, enums and more. Once the properties are configured, you can call `Read` or `Write` on the type mapper.
 
@@ -36,12 +38,14 @@ To define the schema when working with type mappers, call `Property` in the orde
 
 Writing to a file is just as easily:
 
-    mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
-    mapper.Property(c => c.AverageSales).OutputFormat("N2");
-    using (StreamWriter writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
-    {
-    	mapper.Write(writer, customers);
-    }
+```csharp
+mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
+mapper.Property(c => c.AverageSales).OutputFormat("N2");
+using (StreamWriter writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
+{
+    mapper.Write(writer, customers);
+}
+```
 
 *Note* I was able to customize the `OutputFormat` of properties that were already configured. The first time `Property` is called on a property, it assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns or reset any other settings.
 
@@ -50,19 +54,23 @@ Under the hood, type mapping internally defines a schema, giving each column a n
 
 You can work directly with schemas if you don't plan on using the type mappers. For instance, this is how we would define a CSV file schema:
 
-    SeparatedValueSchema schema = new SeparatedValueSchema();
-    schema.AddColumn(new Int64Column("customer_id"))
-          .AddColumn(new StringColumn("name"))
-          .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
-          .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" });
+```csharp
+SeparatedValueSchema schema = new SeparatedValueSchema();
+schema.AddColumn(new Int64Column("customer_id"))
+      .AddColumn(new StringColumn("name"))
+      .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
+      .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" });
+```
 
 Or, if the schema is for a fixed-length file:
 
-    FixedLengthSchema schema = new FixedLengthSchema();
-    schema.AddColumn(new Int64Column("customer_id"), 10)
-      .AddColumn(new StringColumn("name"), 255)
-      .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
-      .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
+```csharp
+FixedLengthSchema schema = new FixedLengthSchema();
+schema.AddColumn(new Int64Column("customer_id"), 10)
+  .AddColumn(new StringColumn("name"), 255)
+  .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
+  .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
+```
 
 The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width.
 
@@ -99,11 +107,15 @@ If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, a
 ## Handling Nulls
 By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
 
-    DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
+```csharp
+DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
+```
 
 Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
 
-    mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
+```csharp
+mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
+```
 
 You can implement the `INullHandler` interface if you need to support something more complex.
 
@@ -157,32 +169,50 @@ var options = new FixedLengthOptions()
 };
 ```
 
+## Runtime Types and Support for Other Programming Languages
+Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
+
+The code below illustrates how you could define a mapper for a type that is only known at runtime:
+
+```csharp
+// Assume there is a runtime-generated type called "entityType" and a "TextReader".
+var mapper = SeparatedValueMapper.DefineDynamic(entityType);
+mapper.Int32Property("Id");
+mapper.StringProperty("Name");
+var entities = mapper.Read(reader).ToArray();
+// Do something with the entities.
+```
+
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 
-    DataTable customerTable = new DataTable("Customer");
-    using (StreamReader streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
-    {
-        IReader reader = new SeparatedValueReader(streamReader, schema);
-        customerTable.ReadFlatFile(reader);
-    }
+```csharp
+DataTable customerTable = new DataTable("Customer");
+using (StreamReader streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
+{
+    IReader reader = new SeparatedValueReader(streamReader, schema);
+    customerTable.ReadFlatFile(reader);
+}
+```
 
 ## FlatFileReader
 For low-level ADO.NET file reading, you can use the `FlatFileReader` class. It provides an `IDataReader` interface to the records in the file, making it compatible with other ADO.NET interfaces.
 
-    // The DataReader Approach
-    FlatFileReader reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema);
-    List<Customer> customers = new List<Customer>();
-    while (reader.Read())
-    {
-    	Customer customer = new Customer();
-    	customer.CustomerId = reader.GetInt32(0);
-    	customer.Name = reader.GetString(1);
-    	customer.Created = reader.GetDateTime(2);
-    	customer.AverageSales = reader.GetDouble(3);
-    	customers.Add(customer);
-    }
-    return customers;
+```csharp
+// The DataReader Approach
+FlatFileReader reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema);
+List<Customer> customers = new List<Customer>();
+while (reader.Read())
+{
+    Customer customer = new Customer();
+    customer.CustomerId = reader.GetInt32(0);
+    customer.Name = reader.GetString(1);
+    customer.Created = reader.GetDateTime(2);
+    customer.AverageSales = reader.GetDouble(3);
+    customers.Add(customer);
+}
+return customers;
+```
 
 Usually in cases like this, it is just easier to use the type mappers. However, this could be useful if you are swapping out an actual database call with CSV data inside of a unit test.
 
