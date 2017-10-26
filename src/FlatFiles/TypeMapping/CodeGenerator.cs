@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using FlatFiles.Resources;
 
 namespace FlatFiles.TypeMapping
 {
@@ -27,6 +28,11 @@ namespace FlatFiles.TypeMapping
                 }
 
                 MethodInfo setter = mapping.Property.GetSetMethod();
+                if (setter == null)
+                {
+                    string message = String.Format(null, SharedResources.ReadOnlyProperty, mapping.Property.Name);
+                    throw new FlatFileException(message);
+                }
                 generator.Emit(OpCodes.Ldarg, 0);
 
                 generator.Emit(OpCodes.Ldarg, 1);
@@ -70,6 +76,11 @@ namespace FlatFiles.TypeMapping
                 generator.Emit(OpCodes.Ldc_I4, index);
                 
                 MethodInfo getter = mapping.Property.GetGetMethod();
+                if (getter == null)
+                {
+                    string message = String.Format(null, SharedResources.WriteOnlyProperty, mapping.Property.Name);
+                    throw new FlatFileException(message);
+                }
                 generator.Emit(OpCodes.Ldarg_0);
                 generator.Emit(OpCodes.Callvirt, getter);
                 Type propertyType = mapping.Property.PropertyType;
@@ -118,6 +129,20 @@ namespace FlatFiles.TypeMapping
                 return values.ToArray();
             };
             return writer;
+        }
+
+        public static Func<object> GetFactory(Type entityType)
+        {
+            var constructorInfo = entityType.GetTypeInfo().GetConstructor(Type.EmptyTypes);
+            if (constructorInfo == null)
+            {
+                throw new FlatFileException(SharedResources.NoDefaultConstructor);
+            }
+            DynamicMethod method = new DynamicMethod("", entityType, Type.EmptyTypes);
+            var generator = method.GetILGenerator();
+            generator.Emit(OpCodes.Newobj, constructorInfo);
+            generator.Emit(OpCodes.Ret);
+            return (Func<object>)method.CreateDelegate(typeof(Func<object>));
         }
     }
 }

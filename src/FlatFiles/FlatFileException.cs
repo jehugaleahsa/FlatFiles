@@ -12,7 +12,7 @@ namespace FlatFiles
         /// Initializes a new instance of a FlatFileException, recording which record caused the error.
         /// </summary>
         /// <param name="message">A message describing the cause of the error.</param>
-        protected FlatFileException(string message)
+        internal FlatFileException(string message)
             : base(message)
         {
         }

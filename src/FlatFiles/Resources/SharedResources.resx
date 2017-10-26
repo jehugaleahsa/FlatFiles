@@ -180,4 +180,16 @@
   <data name="InvalidColumnConversion" xml:space="preserve">
     <value>Failed to convert '{0}' to '{1}'. Column: {2}, Position: {3}.</value>
   </data>
+  <data name="WrongPropertyType" xml:space="preserve">
+    <value>The actual property type did not match the indicated type.</value>
+  </data>
+  <data name="NoDefaultConstructor" xml:space="preserve">
+    <value>The type you are trying to map does not have a default constructor.</value>
+  </data>
+  <data name="ReadOnlyProperty" xml:space="preserve">
+    <value>Cannot read values into the {0} property because it is read-only.</value>
+  </data>
+  <data name="WriteOnlyProperty" xml:space="preserve">
+    <value>Cannot write values from the {0} property because it is write-only.</value>
+  </data>
 </root>

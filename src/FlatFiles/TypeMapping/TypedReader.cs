@@ -6,7 +6,7 @@ namespace FlatFiles.TypeMapping
     ///  Represents a reader that will generate entities.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
-    public interface ITypedReader<TEntity>
+    public interface ITypedReader<out TEntity>
     {
         /// <summary>
         /// Gets the schema being used by the parser to parse record values.
