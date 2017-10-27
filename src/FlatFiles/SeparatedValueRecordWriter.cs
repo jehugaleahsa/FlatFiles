@@ -97,7 +97,7 @@ namespace FlatFiles
                 return true;
             }
             // Escape strings containing the record separator.
-            if (value.Contains(options.RecordSeparator))
+            if (options.RecordSeparator != null && value.Contains(options.RecordSeparator))
             {
                 return true;
             }
@@ -122,7 +122,7 @@ namespace FlatFiles
 
         public void WriteRecordSeparator()
         {
-            writer.Write(options.RecordSeparator);
+            writer.Write(options.RecordSeparator ?? Environment.NewLine);
         }
     }
 }

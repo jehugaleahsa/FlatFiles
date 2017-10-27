@@ -223,7 +223,7 @@ namespace FlatFiles.Test
         {
             string source = "  a, \t\n  b";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -237,7 +237,7 @@ namespace FlatFiles.Test
         {
             string source = "  a, \t\n  b";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -279,7 +279,7 @@ namespace FlatFiles.Test
         {
             string source = "a  ,b \t\n  ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -293,7 +293,7 @@ namespace FlatFiles.Test
         {
             string source = "a  ,b \t\n  ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -335,7 +335,7 @@ namespace FlatFiles.Test
         {
             string source = "  a  , \t\n  b \t\n  ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -349,7 +349,7 @@ namespace FlatFiles.Test
         {
             string source = "  a  , \t\n  b \t\n  ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -363,7 +363,7 @@ namespace FlatFiles.Test
         {
             string source = " \t\n\r ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
@@ -377,7 +377,7 @@ namespace FlatFiles.Test
         {
             string source = " \t\n\r ";
             StringReader stringReader = new StringReader(source);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {

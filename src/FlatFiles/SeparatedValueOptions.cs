@@ -9,7 +9,6 @@ namespace FlatFiles
     public sealed class SeparatedValueOptions
     {
         private string separator;
-        private string recordSeparator;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParserOptions.
@@ -17,13 +16,12 @@ namespace FlatFiles
         public SeparatedValueOptions()
         {
             Separator = ",";
-            RecordSeparator = Environment.NewLine;
             Quote = '"';
             QuoteBehavior = QuoteBehavior.Default;
         }
 
         /// <summary>
-        /// Gets or sets the separator used to separate the columns.
+        /// Gets or sets the character or characters used to separate the columns.
         /// </summary>
         public string Separator
         {
@@ -42,23 +40,14 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets or sets the separator used to separate the records.
+        /// Gets or sets the character or characters used to separate the records.
         /// </summary>
-        public string RecordSeparator
-        {
-            get
-            {
-                return recordSeparator;
-            }
-            set
-            {
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException(SharedResources.EmptyRecordSeparator);
-                }
-                this.recordSeparator = value;
-            }
-        }
+        /// <remarks>
+        /// By default, FlatFiles will look a combination of /r, /n, or /r/n. Setting
+        /// the record separator to null will enable this default behavior. When writing,
+        /// FlatFiles will use Environment.NewLine as the default record separator.
+        /// </remarks>
+        public string RecordSeparator { get; set; }
 
         /// <summary>
         /// Gets or sets the character used to quote records containing special characters.

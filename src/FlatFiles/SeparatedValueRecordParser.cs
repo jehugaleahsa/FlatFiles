@@ -21,7 +21,7 @@ namespace FlatFiles
             this.options = options.Clone();
             this.separatorMatcher = getMatcher(options.Separator);
             this.recordSeparatorMatcher = getMatcher(options.RecordSeparator);
-            if (options.RecordSeparator.StartsWith(options.Separator))
+            if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
             {
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
                 this.postfixMatcher = getMatcher(postfix);
@@ -36,17 +36,21 @@ namespace FlatFiles
 
         private IMatcher getMatcher(string separator)
         {
-            if (separator.Length == 1)
+            if (separator == null)
             {
-                return new Matcher1(reader, separator[0]);
+                return new DefaultMatcher(reader);
+            }
+            else if (separator.Length == 1)
+            {
+                return new OneCharacterMatcher(reader, separator[0]);
             }
             else if (separator.Length == 2)
             {
-                return new Matcher2(reader, separator[0], separator[1]);
+                return new TwoCharacterMatcher(reader, separator[0], separator[1]);
             }
             else
             {
-                return new Matcher(reader, separator);
+                return new StringMatcher(reader, separator);
             }
         }
 
@@ -218,12 +222,36 @@ namespace FlatFiles
             bool IsMatch();
         }
 
-        private sealed class Matcher1 : IMatcher
+        private sealed class DefaultMatcher : IMatcher
+        {
+            private readonly RetryReader reader;
+
+            public DefaultMatcher(RetryReader reader)
+            {
+                this.reader = reader;
+            }
+
+            public bool IsMatch()
+            {
+                if (reader.IsMatch1('\r'))
+                {
+                    reader.IsMatch1('\n');
+                    return true;
+                }
+                else if (reader.IsMatch1('\n'))
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        private sealed class OneCharacterMatcher : IMatcher
         {
             private readonly RetryReader reader;
             private readonly char first;
 
-            public Matcher1(RetryReader reader, char first)
+            public OneCharacterMatcher(RetryReader reader, char first)
             {
                 this.reader = reader;
                 this.first = first;
@@ -235,13 +263,13 @@ namespace FlatFiles
             }
         }
 
-        private sealed class Matcher2 : IMatcher
+        private sealed class TwoCharacterMatcher : IMatcher
         {
             private readonly RetryReader reader;
             private readonly char first;
             private readonly char second;
 
-            public Matcher2(RetryReader reader, char first, char second)
+            public TwoCharacterMatcher(RetryReader reader, char first, char second)
             {
                 this.reader = reader;
                 this.first = first;
@@ -254,12 +282,12 @@ namespace FlatFiles
             }
         }
 
-        private sealed class Matcher : IMatcher
+        private sealed class StringMatcher : IMatcher
         {
             private readonly RetryReader reader;
             private readonly string separator;
 
-            public Matcher(RetryReader reader, string separator)
+            public StringMatcher(RetryReader reader, string separator)
             {
                 this.reader = reader;
                 this.separator = separator;
