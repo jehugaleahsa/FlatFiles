@@ -180,7 +180,7 @@ var entities = mapper.Read(reader).ToArray();
 ## Disabling Optimization
 FlatFile's type mappers can serialize and deserialize extremely quickly by generating code at runtime, using classes in the  `System.Reflection.Emit` namespace. For most of us, that's awesome news because it means mapping values to and from your entities is almost as fast as if you had done the mapping by hand. However, there are some enviornments, like Mono running on iOS, that do not support runtime JIT'ing, so FlatFiles would not work.
 
-As of version 1.0, mappers support a new method `OptimizeMapping` that switches mappers to use normal, slow reflection. For example:
+As of version 1.0, mappers support a new method `OptimizeMapping` that can be used to switch to normal (A.K.A., slow) reflection. For example:
 
 ```csharp
 var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
