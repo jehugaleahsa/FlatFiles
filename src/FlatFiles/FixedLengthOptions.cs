@@ -8,6 +8,7 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthOptions
     {
+        private FixedAlignment alignment;
         private OverflowTruncationPolicy truncationPolicy;
 
         /// <summary>
@@ -17,12 +18,14 @@ namespace FlatFiles
         {
             FillCharacter = ' ';
             RecordSeparator = Environment.NewLine;
+            alignment = FixedAlignment.LeftAligned;
             truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
         }
 
         /// <summary>
         /// Gets or sets the character used to buffer values in a column.
         /// </summary>
+        /// <remarks>The fill character can be controlled at the column level using the Window class.</remarks>
         public char FillCharacter { get; set; }
 
         /// <summary>
@@ -46,9 +49,29 @@ namespace FlatFiles
         public Func<string[], bool> PartitionedRecordFilter { get; set; }
 
         /// <summary>
-        /// Gets or sets the default overflow truncation policy to use
-        /// when a value exceeds the maximum length of its column.
+        /// Gets or sets the default alignment for the values in the fixed length file.
         /// </summary>
+        /// <remarks>The alignment can be controlled at the columnm level using the Window class.</remarks>
+        public FixedAlignment Alignment
+        {
+            get
+            {
+                return alignment;
+            }
+            set
+            {
+                if (!Enum.IsDefined(typeof(FixedAlignment), value))
+                {
+                    throw new ArgumentException(SharedResources.InvalidAlignment, nameof(value));
+                }
+                alignment = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the default overflow truncation policy to use when a value exceeds the maximum length of its column.
+        /// </summary>
+        /// <remarks>The trunaction policy can be controlled at the column level using the Window class.</remarks>
         public OverflowTruncationPolicy TruncationPolicy
         {
             get 

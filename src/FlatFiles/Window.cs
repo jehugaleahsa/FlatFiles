@@ -9,7 +9,7 @@ namespace FlatFiles
     public class Window
     {
         private readonly int width;
-        private FixedAlignment alignment;
+        private FixedAlignment? alignment;
         private OverflowTruncationPolicy? truncationPolicy;
 
         /// <summary>
@@ -20,10 +20,9 @@ namespace FlatFiles
         {
             if (width < 0)
             {
-                throw new ArgumentOutOfRangeException("width", width, SharedResources.InvalidColumnWidth);
+                throw new ArgumentOutOfRangeException(nameof(width), width, SharedResources.InvalidColumnWidth);
             }
             this.width = width;
-            this.alignment = FixedAlignment.LeftAligned;
         }
 
         /// <summary>
@@ -35,9 +34,9 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets or sets the alignment of the value in the column.
+        /// Gets or sets the alignment of the value in the column, using the value found in the FixedLengthOptions object by default.
         /// </summary>
-        public FixedAlignment Alignment
+        public FixedAlignment? Alignment
         {
             get
             {
@@ -45,9 +44,9 @@ namespace FlatFiles
             }
             set
             {
-                if (!Enum.IsDefined(typeof(FixedAlignment), value))
+                if (value != null && !Enum.IsDefined(typeof(FixedAlignment), value.Value))
                 {
-                    throw new ArgumentException(SharedResources.InvalidAlignment, "value");
+                    throw new ArgumentException(SharedResources.InvalidAlignment, nameof(value));
                 }
                 alignment = value;
             }
@@ -70,17 +69,13 @@ namespace FlatFiles
             }
             set
             {
-                if (value == null)
-                {
-                    truncationPolicy = value;
-                }
-                else if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))
+                if (value != null && !Enum.IsDefined(typeof(OverflowTruncationPolicy), value.Value))
                 {
                     throw new ArgumentException(SharedResources.InvalidTruncationPolicy, "value");
                 }
                 else
                 {
-                    truncationPolicy = value.Value;
+                    truncationPolicy = value;
                 }
             }
         }

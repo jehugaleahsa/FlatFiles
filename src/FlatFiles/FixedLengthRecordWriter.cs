@@ -88,7 +88,8 @@ namespace FlatFiles
 
         private string getPaddedValue(string value, Window window)
         {
-            if (window.Alignment == FixedAlignment.LeftAligned)
+            var alignment = window.Alignment ?? options.Alignment;
+            if (alignment == FixedAlignment.LeftAligned)
             {
                 return value.PadRight(window.Width, window.FillCharacter ?? options.FillCharacter);
             }

@@ -172,7 +172,8 @@ namespace FlatFiles
             {
                 Window window = windows[index];
                 string value = record.Substring(offset, window.Width);
-                if (window.Alignment == FixedAlignment.LeftAligned)
+                var alignment = window.Alignment ?? options.Alignment;
+                if (alignment == FixedAlignment.LeftAligned)
                 {
                     value = value.TrimEnd(window.FillCharacter ?? options.FillCharacter);
                 }
