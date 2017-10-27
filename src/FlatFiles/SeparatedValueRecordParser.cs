@@ -9,9 +9,9 @@ namespace FlatFiles
     {
         private readonly RetryReader reader;
         private readonly SeparatedValueOptions options;
-        private readonly IMatcher separatorMatcher;
-        private readonly IMatcher recordSeparatorMatcher;
-        private readonly IMatcher postfixMatcher;
+        private readonly ISeparatorMatcher separatorMatcher;
+        private readonly ISeparatorMatcher recordSeparatorMatcher;
+        private readonly ISeparatorMatcher postfixMatcher;
         private List<string> values;
         private StringBuilder token;
 
@@ -19,12 +19,12 @@ namespace FlatFiles
         {
             this.reader = reader;
             this.options = options.Clone();
-            this.separatorMatcher = getMatcher(options.Separator);
-            this.recordSeparatorMatcher = getMatcher(options.RecordSeparator);
+            this.separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
+            this.recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
             if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
             {
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
-                this.postfixMatcher = getMatcher(postfix);
+                this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
             this.token = new StringBuilder();
         }
@@ -32,26 +32,6 @@ namespace FlatFiles
         internal SeparatedValueOptions Options
         {
             get { return options; }
-        }
-
-        private IMatcher getMatcher(string separator)
-        {
-            if (separator == null)
-            {
-                return new DefaultMatcher(reader);
-            }
-            else if (separator.Length == 1)
-            {
-                return new OneCharacterMatcher(reader, separator[0]);
-            }
-            else if (separator.Length == 2)
-            {
-                return new TwoCharacterMatcher(reader, separator[0], separator[1]);
-            }
-            else
-            {
-                return new StringMatcher(reader, separator);
-            }
         }
 
         public bool EndOfStream
@@ -215,88 +195,6 @@ namespace FlatFiles
             EndOfStream,
             EndOfRecord,
             EndOfToken
-        }
-
-        private interface IMatcher
-        {
-            bool IsMatch();
-        }
-
-        private sealed class DefaultMatcher : IMatcher
-        {
-            private readonly RetryReader reader;
-
-            public DefaultMatcher(RetryReader reader)
-            {
-                this.reader = reader;
-            }
-
-            public bool IsMatch()
-            {
-                if (reader.IsMatch1('\r'))
-                {
-                    reader.IsMatch1('\n');
-                    return true;
-                }
-                else if (reader.IsMatch1('\n'))
-                {
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        private sealed class OneCharacterMatcher : IMatcher
-        {
-            private readonly RetryReader reader;
-            private readonly char first;
-
-            public OneCharacterMatcher(RetryReader reader, char first)
-            {
-                this.reader = reader;
-                this.first = first;
-            }
-
-            public bool IsMatch()
-            {
-                return reader.IsMatch1(first);
-            }
-        }
-
-        private sealed class TwoCharacterMatcher : IMatcher
-        {
-            private readonly RetryReader reader;
-            private readonly char first;
-            private readonly char second;
-
-            public TwoCharacterMatcher(RetryReader reader, char first, char second)
-            {
-                this.reader = reader;
-                this.first = first;
-                this.second = second;
-            }
-
-            public bool IsMatch()
-            {
-                return reader.IsMatch2(first, second);
-            }
-        }
-
-        private sealed class StringMatcher : IMatcher
-        {
-            private readonly RetryReader reader;
-            private readonly string separator;
-
-            public StringMatcher(RetryReader reader, string separator)
-            {
-                this.reader = reader;
-                this.separator = separator;
-            }
-
-            public bool IsMatch()
-            {
-                return reader.IsMatch(separator);
-            }
         }
     }
 }

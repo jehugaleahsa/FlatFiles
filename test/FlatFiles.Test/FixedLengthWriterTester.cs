@@ -86,7 +86,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("First"), new Window(10) { FillCharacter = '@' });
             schema.AddColumn(new StringColumn("Second"), new Window(10) { FillCharacter = '!' });
             schema.AddColumn(new StringColumn("Third"), new Window(10) { FillCharacter = '$' });
-            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true, RecordSeparator = String.Empty };
+            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true, HasRecordSeparator = false };
 
             StringWriter stringWriter = new StringWriter();
             FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);

@@ -101,11 +101,11 @@ namespace FlatFiles
 
         public void WriteRecordSeparator()
         {
-            if (String.IsNullOrEmpty(options.RecordSeparator))
+            if (!options.HasRecordSeparator)
             {
                 return;
             }
-            writer.Write(options.RecordSeparator);
+            writer.Write(options.RecordSeparator ?? Environment.NewLine);
         }
     }
 }

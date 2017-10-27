@@ -10,13 +10,13 @@ namespace FlatFiles
 
         public FixedLengthRecordParser(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options)
         {
-            if (String.IsNullOrEmpty(options.RecordSeparator))
+            if (options.HasRecordSeparator)
             {
-                this.recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
+                this.recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
             }
             else
             {
-                this.recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
+                this.recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
             }
         }
 
@@ -37,48 +37,34 @@ namespace FlatFiles
             string ReadRecord();
         }
 
-        private class SeparatorRecordReader : IRecordReader
+        private sealed class SeparatorRecordReader : IRecordReader
         {
-            private readonly TextReader reader;
-            private readonly string separator;
+            private readonly RetryReader reader;
+            private readonly ISeparatorMatcher matcher;
 
             public SeparatorRecordReader(TextReader reader, string separator)
             {
-                this.reader = reader;
-                this.separator = separator;
+                this.reader = new RetryReader(reader);
+                this.matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
             }
 
             public bool EndOfStream
             {
-                get { return reader.Peek() == -1; }
+                get { return reader.EndOfStream; }
             }
 
             public string ReadRecord()
             {
                 StringBuilder builder = new StringBuilder();
-                int positionIndex = 0;
-                while (reader.Peek() != -1 && positionIndex != separator.Length)
+                while (!matcher.IsMatch() && reader.Read())
                 {
-                    char next = (char)reader.Read();
-                    if (next == separator[positionIndex])
-                    {
-                        ++positionIndex;
-                    }
-                    else
-                    {
-                        positionIndex = 0;
-                    }
-                    builder.Append(next);
-                }
-                if (positionIndex == separator.Length)
-                {
-                    builder.Length -= separator.Length;
+                    builder.Append(reader.Current);
                 }
                 return builder.ToString();
             }
         }
 
-        private class FixedLengthRecordReader : IRecordReader
+        private sealed class FixedLengthRecordReader : IRecordReader
         {
             private readonly TextReader reader;
             private readonly char[] buffer;

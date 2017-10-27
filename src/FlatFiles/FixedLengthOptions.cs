@@ -17,8 +17,8 @@ namespace FlatFiles
         public FixedLengthOptions()
         {
             FillCharacter = ' ';
-            RecordSeparator = Environment.NewLine;
             alignment = FixedAlignment.LeftAligned;
+            HasRecordSeparator = true;
             truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
         }
 
@@ -27,6 +27,16 @@ namespace FlatFiles
         /// </summary>
         /// <remarks>The fill character can be controlled at the column level using the Window class.</remarks>
         public char FillCharacter { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether a separator is present between records.
+        /// </summary>
+        /// <remarks>
+        /// By default, FlatFiles assumes records are separated by a newline. If set to false,
+        /// FlatFiles will attempt to start reading the next record immediately after the end of
+        /// the previous record.
+        /// </remarks>
+        public bool HasRecordSeparator { get; set; }
 
         /// <summary>
         /// Gets or sets the string that indicates the end of a record.

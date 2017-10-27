@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Globalization;
-using System.Threading;
 using FlatFiles.TypeMapping;
 using Xunit;
-using System.Collections.Generic;
 
 namespace FlatFiles.Test
 {
@@ -207,7 +206,7 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
-        /// If we specify null or String.Empty as the record separator, the length of the record
+        /// If we specify no record separator, the length of the record
         /// is expected to perfectly match the length of schema.
         /// </summary>
         [Fact]
@@ -218,7 +217,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                   .AddColumn(new StringColumn("name"), new Window(25))
                   .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthOptions options = new FixedLengthOptions() { RecordSeparator = null };
+            FixedLengthOptions options = new FixedLengthOptions() { HasRecordSeparator = false };
 
             StringReader stringReader = new StringReader(text);
             FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
@@ -531,6 +530,23 @@ a weird row that should be skipped
             Assert.Equal(2, people.Count());
             Assert.Equal(1, errorRecords.Count);
             Assert.Equal(2, errorRecords[0]);
+        }
+
+        [Fact]
+        public void TestTypeMapper_DefaultRecordSeparator_Intermixed()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Person>();
+            mapper.Property(p => p.Id, new Window(25)).ColumnName("id");
+            mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
+            mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
+
+            string rawData = "123                      Bob                                                                                                 20130119\r\n234                      Sam                                                                                                 20130119\r345                      Ron                                                                                                 20130119\n456                      Carl                                                                                                20130119\r\n";
+            StringReader stringReader = new StringReader(rawData);
+
+            var options = new FixedLengthOptions() { HasRecordSeparator = true, RecordSeparator = null };
+            var people = mapper.Read(stringReader, options).ToArray();
+
+            Assert.Equal(4, people.Count());
         }
     }
 }
