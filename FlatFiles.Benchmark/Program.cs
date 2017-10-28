@@ -20,12 +20,7 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            BenchmarkRunner.Run<SimpleCsvTester>(configuration);
-            //var tester = new PreconfiguredCsvTester();
-            //foreach (int i in Enumerable.Range(0, 1000))
-            //{
-            //    tester.RunFlatFiles();
-            //}
+            BenchmarkRunner.Run<QuotedCsvTester>(configuration);
 
             Console.Out.Write("Hit <enter> to exit...");
             Console.In.ReadLine();
