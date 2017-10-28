@@ -37,10 +37,10 @@ namespace FlatFiles
             return state.Read();
         }
 
-        public bool IsMatch(Func<char, bool> comparer)
+        public bool IsWhitespace()
         {
             int next = state.Peek();
-            if (next != -1 && comparer(unchecked((char)next)))
+            if (next != -1 && Char.IsWhiteSpace(unchecked((char)next)))
             {
                 state.SafeRead();
                 return true;
@@ -51,11 +51,7 @@ namespace FlatFiles
         public bool IsMatch1(char value)
         {
             int next = state.Peek();
-            if (next == -1)
-            {
-                return false;
-            }
-            if (unchecked((char)next) == value)
+            if (next != -1 && unchecked((char)next) == value)
             {
                 state.SafeRead();
                 return true;
@@ -130,7 +126,8 @@ namespace FlatFiles
         {
             private readonly RetryReader reader;
             private readonly TextReader textReader;
-            private int? peekValue;
+            private bool hasPeekValue;
+            private int peekValue;
 
             public ReaderState(RetryReader reader)
             {
@@ -140,16 +137,17 @@ namespace FlatFiles
 
             private int getPeeked()
             {
-                if (!peekValue.HasValue)
+                if (!hasPeekValue)
                 {
                     peekValue = textReader.Peek();
+                    hasPeekValue = true;
                 }                
-                return peekValue.Value;
+                return peekValue;
             }
 
             private int read()
             {
-                peekValue = null;
+                hasPeekValue = false;
                 return textReader.Read();
             }
 

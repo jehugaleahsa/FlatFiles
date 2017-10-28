@@ -86,12 +86,14 @@ namespace FlatFiles
                 token.Append(reader.Current);
                 tokenType = getSeparator();
             }
-            if (!options.PreserveWhiteSpace)
+            if (!options.PreserveWhiteSpace && Char.IsWhiteSpace(token[token.Length - 1]))
             {
-                while (Char.IsWhiteSpace(token[token.Length - 1]))
+                int trailingSize = 1;
+                while (Char.IsWhiteSpace(token[token.Length - trailingSize - 1]))
                 {
-                    token.Length -= 1;
+                    ++trailingSize;
                 }
+                token.Length -= trailingSize;
             }
             addToken();
             return tokenType;
@@ -140,7 +142,7 @@ namespace FlatFiles
         private TokenType skipWhiteSpace()
         {
             TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
+            while (tokenType == TokenType.Normal && reader.IsWhitespace())
             {
                 tokenType = getSeparator();
             }
@@ -150,7 +152,7 @@ namespace FlatFiles
         private TokenType appendWhiteSpace()
         {
             TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal && reader.IsMatch(Char.IsWhiteSpace))
+            while (tokenType == TokenType.Normal && reader.IsWhitespace())
             {
                 token.Append(reader.Current);
                 tokenType = getSeparator();
