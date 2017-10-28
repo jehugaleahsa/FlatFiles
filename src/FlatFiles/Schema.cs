@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FlatFiles.Resources;
 
@@ -72,16 +73,23 @@ namespace FlatFiles
         /// <returns>The parsed objects.</returns>
         protected object[] ParseValuesBase(string[] values)
         {
-            var parsedValues = from definition in definitions
-                               where !definition.IsIgnored
-                               select parse(definition, values);
-            return parsedValues.ToArray();
+            object[] parsedValues = new object[definitions.HandledCount];
+            for (int columnIndex = 0, valueIndex = 0; columnIndex != definitions.Count; ++columnIndex)
+            {
+                IColumnDefinition definition = definitions[columnIndex];
+                if (!definition.IsIgnored)
+                {
+                    string rawValue = values[columnIndex];
+                    object parsedValue = parse(definition, rawValue);
+                    parsedValues[valueIndex] = parsedValue;
+                    ++valueIndex;
+                }
+            }
+            return parsedValues;
         }
 
-        private object parse(IColumnDefinition definition, string[] values)
+        private object parse(IColumnDefinition definition, string rawValue)
         {
-            int position = definitions.GetOrdinal(definition.ColumnName);
-            string rawValue = values[position];
             try
             {
                 object parsedValue = definition.Parse(rawValue);
@@ -101,14 +109,16 @@ namespace FlatFiles
         protected string[] FormatValuesBase(object[] values)
         {
             string[] formattedValues = new string[definitions.Count];
-            int index = 0;
-            foreach (IColumnDefinition definition in definitions.Where(d => !d.IsIgnored))
+            for (int columnIndex = 0, valueIndex = 0; columnIndex != definitions.Count; ++columnIndex)
             {
-                int position = definitions.GetOrdinal(definition.ColumnName);
-                object value = values[index];
-                string formattedValue = definition.Format(value);
-                formattedValues[position] = formattedValue;
-                ++index;
+                IColumnDefinition definition = definitions[columnIndex];
+                if (!definition.IsIgnored)
+                {
+                    object value = values[valueIndex];
+                    string formattedValue = definition.Format(value);
+                    formattedValues[columnIndex] = formattedValue;
+                    ++valueIndex;
+                }
             }
             return formattedValues;
         }

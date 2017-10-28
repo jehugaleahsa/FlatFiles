@@ -126,8 +126,6 @@ namespace FlatFiles
         {
             private readonly RetryReader reader;
             private readonly TextReader textReader;
-            private bool hasPeekValue;
-            private int peekValue;
 
             public ReaderState(RetryReader reader)
             {
@@ -135,30 +133,19 @@ namespace FlatFiles
                 this.textReader = reader.reader;
             }
 
-            private int getPeeked()
-            {
-                if (!hasPeekValue)
-                {
-                    peekValue = textReader.Peek();
-                    hasPeekValue = true;
-                }                
-                return peekValue;
-            }
-
             private int read()
             {
-                hasPeekValue = false;
                 return textReader.Read();
             }
 
             public bool EndOfStream
             {
-                get { return getPeeked() == -1; }
+                get { return textReader.Peek() == -1; }
             }
 
             public int Peek()
             {
-                return getPeeked();
+                return textReader.Peek();
             }
 
             public bool Read()
