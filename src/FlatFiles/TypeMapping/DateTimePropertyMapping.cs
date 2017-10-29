@@ -59,15 +59,15 @@ namespace FlatFiles.TypeMapping
         IDateTimePropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class DateTimePropertyMapping : IDateTimePropertyMapping, IPropertyMapping
+    internal sealed class DateTimePropertyMapping : IDateTimePropertyMapping, IMemberMapping
     {
         private readonly DateTimeColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public DateTimePropertyMapping(DateTimeColumn column, PropertyInfo property)
+        public DateTimePropertyMapping(DateTimeColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IDateTimePropertyMapping ColumnName(string name)
@@ -112,9 +112,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

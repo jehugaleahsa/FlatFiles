@@ -11,9 +11,9 @@ namespace FlatFiles.TypeMapping
     {
         Func<object> GetFactory(Type entityType);
 
-        Action<TEntity, object[]> GetReader<TEntity>(List<IPropertyMapping> mappings);
+        Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings);
 
-        Func<TEntity, object[]> GetWriter<TEntity>(List<IPropertyMapping> mappings);
+        Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings);
     }
 
     internal sealed class ReflectionCodeGenerator : ICodeGenerator
@@ -23,33 +23,38 @@ namespace FlatFiles.TypeMapping
             return () => Activator.CreateInstance(entityType);
         }
 
-        public Action<TEntity, object[]> GetReader<TEntity>(List<IPropertyMapping> mappings)
+        public Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings)
         {
             Action<TEntity, object[]> reader = (entity, values) =>
             {
-                int position = 0;
-                for (int index = 0; index != mappings.Count; ++index)
+                for (int index = 0, position = 0; index != mappings.Count; ++index)
                 {
-                    IPropertyMapping mapping = mappings[index];
-                    if (mapping.Property == null)
+                    IMemberMapping mapping = mappings[index];
+                    if (mapping.Member != null)
                     {
-                        continue;
+                        object value = values[position];
+                        mapping.Member.SetValue(entity, value);
+                        ++position;
                     }
-                    object value = values[position];
-                    mapping.Property.SetValue(entity, value, null);
-                    ++position;
                 }
             };
             return reader;
         }
 
-        public Func<TEntity, object[]> GetWriter<TEntity>(List<IPropertyMapping> mappings)
+        public Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings)
         {
             Func<TEntity, object[]> writer = (entity) =>
             {
-                var values = from mapping in mappings
-                             where mapping.Property != null
-                             select mapping.Property.GetValue(entity, null);
+                List<object> values = new List<object>();
+                for (int index = 0; index != mappings.Count; ++index)
+                {
+                    IMemberMapping mapping = mappings[index];
+                    if (mapping.Member != null)
+                    {
+                        object value = mapping.Member.GetValue(entity);
+                        values.Add(value);
+                    }
+                }
                 return values.ToArray();
             };
             return writer;
@@ -72,7 +77,7 @@ namespace FlatFiles.TypeMapping
             return (Func<object>)method.CreateDelegate(typeof(Func<object>));
         }
 
-        public Action<TEntity, object[]> GetReader<TEntity>(List<IPropertyMapping> mappings)
+        public Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings)
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
@@ -84,28 +89,34 @@ namespace FlatFiles.TypeMapping
             int position = 0;
             for (int index = 0; index != mappings.Count; ++index)
             {
-                IPropertyMapping mapping = mappings[index];
-                if (mapping.Property == null)
+                IMemberMapping mapping = mappings[index];
+                if (mapping.Member == null)
                 {
                     continue;
                 }
-
-                MethodInfo setter = mapping.Property.GetSetMethod();
-                if (setter == null)
-                {
-                    string message = String.Format(null, SharedResources.ReadOnlyProperty, mapping.Property.Name);
-                    throw new FlatFileException(message);
-                }
                 generator.Emit(OpCodes.Ldarg, 0);
-
                 generator.Emit(OpCodes.Ldarg, 1);
                 generator.Emit(OpCodes.Ldc_I4, position);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
-                Type propertyType = mapping.Property.PropertyType;
-                generator.Emit(OpCodes.Unbox_Any, propertyType);
-
-                generator.Emit(OpCodes.Callvirt, setter);
+                if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
+                {
+                    Type fieldType = fieldInfo.FieldType;
+                    generator.Emit(OpCodes.Unbox_Any, fieldType);
+                    generator.Emit(OpCodes.Stfld, fieldInfo);
+                }
+                else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
+                {
+                    MethodInfo setter = propertyInfo.GetSetMethod();
+                    if (setter == null)
+                    {
+                        string message = String.Format(null, SharedResources.ReadOnlyProperty, propertyInfo.Name);
+                        throw new FlatFileException(message);
+                    }
+                    Type propertyType = propertyInfo.PropertyType;
+                    generator.Emit(OpCodes.Unbox_Any, propertyType);
+                    generator.Emit(OpCodes.Callvirt, setter);
+                }
 
                 ++position;
             }
@@ -116,7 +127,7 @@ namespace FlatFiles.TypeMapping
             return result;
         }
 
-        public Func<TEntity, object[]> GetWriter<TEntity>(List<IPropertyMapping> mappings)
+        public Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings)
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
@@ -124,7 +135,7 @@ namespace FlatFiles.TypeMapping
                 typeof(object[]),
                 new Type[] { entityType },
                 true);
-            var remaining = mappings.Where(m => m.Property != null).ToArray();
+            var remaining = mappings.Where(m => m.Member != null).ToArray();
             var generator = method.GetILGenerator();
             generator.DeclareLocal(typeof(object[]));
             generator.Emit(OpCodes.Ldc_I4, remaining.Length);
@@ -133,23 +144,36 @@ namespace FlatFiles.TypeMapping
 
             for (int index = 0; index != remaining.Length; ++index)
             {
-                IPropertyMapping mapping = remaining[index];
+                IMemberMapping mapping = remaining[index];
 
                 generator.Emit(OpCodes.Ldloc_0);
                 generator.Emit(OpCodes.Ldc_I4, index);
 
-                MethodInfo getter = mapping.Property.GetGetMethod();
-                if (getter == null)
+                if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
                 {
-                    string message = String.Format(null, SharedResources.WriteOnlyProperty, mapping.Property.Name);
-                    throw new FlatFileException(message);
+                    generator.Emit(OpCodes.Ldarg_0);
+                    generator.Emit(OpCodes.Ldfld, fieldInfo);
+                    Type fieldType = fieldInfo.FieldType;
+                    if (!fieldType.GetTypeInfo().IsClass)
+                    {
+                        generator.Emit(OpCodes.Box, fieldType);
+                    }
                 }
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Callvirt, getter);
-                Type propertyType = mapping.Property.PropertyType;
-                if (!propertyType.GetTypeInfo().IsClass)
+                else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
                 {
-                    generator.Emit(OpCodes.Box, propertyType);
+                    MethodInfo getter = propertyInfo.GetGetMethod();
+                    if (getter == null)
+                    {
+                        string message = String.Format(null, SharedResources.WriteOnlyProperty, propertyInfo.Name);
+                        throw new FlatFileException(message);
+                    }
+                    generator.Emit(OpCodes.Ldarg_0);
+                    generator.Emit(OpCodes.Callvirt, getter);
+                    Type propertyType = propertyInfo.PropertyType;
+                    if (!propertyType.GetTypeInfo().IsClass)
+                    {
+                        generator.Emit(OpCodes.Box, propertyType);
+                    }
                 }
 
                 generator.Emit(OpCodes.Stelem_Ref);

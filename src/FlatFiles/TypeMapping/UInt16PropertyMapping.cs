@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         IUInt16PropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class UInt16PropertyMapping : IUInt16PropertyMapping, IPropertyMapping
+    internal sealed class UInt16PropertyMapping : IUInt16PropertyMapping, IMemberMapping
     {
         private readonly UInt16Column column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public UInt16PropertyMapping(UInt16Column column, PropertyInfo property)
+        public UInt16PropertyMapping(UInt16Column column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IUInt16PropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

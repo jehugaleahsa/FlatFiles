@@ -11,7 +11,7 @@ namespace FlatFiles.TypeMapping
         public TypedRecordReader(
             Func<TEntity> factory,
             ICodeGenerator codeGenerator,
-            List<IPropertyMapping> mappings)
+            List<IMemberMapping> mappings)
         {
             this.factory = factory;
             this.setter = codeGenerator.GetReader<TEntity>(mappings);

@@ -7,7 +7,7 @@ namespace FlatFiles.TypeMapping
     {
         private readonly Func<TEntity, object[]> getter;
 
-        public TypedRecordWriter(ICodeGenerator codeGenerator, List<IPropertyMapping> mappings)
+        public TypedRecordWriter(ICodeGenerator codeGenerator, List<IMemberMapping> mappings)
         {
             this.getter = codeGenerator.GetWriter<TEntity>(mappings);
         }

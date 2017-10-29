@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         IInt32PropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class Int32PropertyMapping : IInt32PropertyMapping, IPropertyMapping
+    internal sealed class Int32PropertyMapping : IInt32PropertyMapping, IMemberMapping
     {
         private readonly Int32Column column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public Int32PropertyMapping(Int32Column column, PropertyInfo property)
+        public Int32PropertyMapping(Int32Column column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IInt32PropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

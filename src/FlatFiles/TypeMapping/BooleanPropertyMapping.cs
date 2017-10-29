@@ -52,15 +52,15 @@ namespace FlatFiles.TypeMapping
         IBooleanPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class BooleanPropertyMapping : IBooleanPropertyMapping, IPropertyMapping
+    internal sealed class BooleanPropertyMapping : IBooleanPropertyMapping, IMemberMapping
     {
         private readonly BooleanColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public BooleanPropertyMapping(BooleanColumn column, PropertyInfo property)
+        public BooleanPropertyMapping(BooleanColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IBooleanPropertyMapping ColumnName(string name)
@@ -99,9 +99,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

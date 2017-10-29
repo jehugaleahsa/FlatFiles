@@ -46,20 +46,20 @@ namespace FlatFiles.TypeMapping
         ISeparatedValueComplexPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IPropertyMapping
+    internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IMemberMapping
     {
         private readonly ISeparatedValueTypeMapper<TEntity> mapper;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
         private string columnName;
         private SeparatedValueOptions options;
         private INullHandler nullHandler;
         private Func<string, string> preprocessor;
 
-        public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, PropertyInfo property)
+        public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member)
         {
             this.mapper = mapper;
-            this.property = property;
-            this.columnName = property.Name;
+            this.member = member;
+            this.columnName = member.Name;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -77,9 +77,9 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public ISeparatedValueComplexPropertyMapping ColumnName(string name)

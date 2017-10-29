@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
+using CsvHelper.Configuration;
 using FlatFiles.TypeMapping;
 
 namespace FlatFiles.Benchmark
@@ -22,14 +23,14 @@ namespace FlatFiles.Benchmark
             };
             string header = String.Join(",", headers);
             string record = String.Join(",", values);
-            data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 1000).Select(i => record)));
+            data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
         }
 
         [Benchmark]
         public void RunCsvHelper()
         {
             StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader);
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() {  });
             var people = csvReader.GetRecords<Person>().ToArray();
         }
 
@@ -54,7 +55,7 @@ namespace FlatFiles.Benchmark
             StringReader reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
-
+        
         public class Person
         {
             public string FirstName { get; set; }
@@ -78,7 +79,7 @@ namespace FlatFiles.Benchmark
             public string FavoriteFood { get; set; }
 
             public string FavoriteSport { get; set; }
-
+            
             public DateTime? CreatedOn { get; set; }
 
             public bool IsActive { get; set; }

@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         IDecimalPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class DecimalPropertyMapping : IDecimalPropertyMapping, IPropertyMapping
+    internal sealed class DecimalPropertyMapping : IDecimalPropertyMapping, IMemberMapping
     {
         private readonly DecimalColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public DecimalPropertyMapping(DecimalColumn column, PropertyInfo property)
+        public DecimalPropertyMapping(DecimalColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IDecimalPropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

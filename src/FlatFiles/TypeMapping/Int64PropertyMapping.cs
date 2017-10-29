@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         IInt64PropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class Int64PropertyMapping : IInt64PropertyMapping, IPropertyMapping
+    internal sealed class Int64PropertyMapping : IInt64PropertyMapping, IMemberMapping
     {
         private readonly Int64Column column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public Int64PropertyMapping(Int64Column column, PropertyInfo property)
+        public Int64PropertyMapping(Int64Column column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IInt64PropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

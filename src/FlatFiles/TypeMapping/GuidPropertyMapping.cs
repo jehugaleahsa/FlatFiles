@@ -45,15 +45,15 @@ namespace FlatFiles.TypeMapping
         IGuidPropertyMapping NullHandler(INullHandler handler);
     }
 
-    internal sealed class GuidPropertyMapping : IGuidPropertyMapping, IPropertyMapping
+    internal sealed class GuidPropertyMapping : IGuidPropertyMapping, IMemberMapping
     {
         private readonly GuidColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public GuidPropertyMapping(GuidColumn column, PropertyInfo property)
+        public GuidPropertyMapping(GuidColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IGuidPropertyMapping ColumnName(string name)
@@ -86,9 +86,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

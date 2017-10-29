@@ -54,16 +54,16 @@ namespace FlatFiles.TypeMapping
         IEnumPropertyMapping<TEnum> Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class EnumPropertyMapping<TEnum> : IEnumPropertyMapping<TEnum>, IPropertyMapping
+    internal sealed class EnumPropertyMapping<TEnum> : IEnumPropertyMapping<TEnum>, IMemberMapping
         where TEnum : struct
     {
         private readonly EnumColumn<TEnum> column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public EnumPropertyMapping(EnumColumn<TEnum> column, PropertyInfo property)
+        public EnumPropertyMapping(EnumColumn<TEnum> column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IEnumPropertyMapping<TEnum> ColumnName(string name)
@@ -102,9 +102,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

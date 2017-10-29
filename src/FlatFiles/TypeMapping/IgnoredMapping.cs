@@ -16,7 +16,7 @@ namespace FlatFiles.TypeMapping
         IIgnoredMapping ColumnName(string name);
     }
 
-    internal sealed class IgnoredMapping : IIgnoredMapping, IPropertyMapping
+    internal sealed class IgnoredMapping : IIgnoredMapping, IMemberMapping
     {
         private readonly IgnoredColumn column;
 
@@ -31,7 +31,7 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
             get { return null; }
         }

@@ -46,20 +46,20 @@ namespace FlatFiles.TypeMapping
         IFixedLengthComplexPropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IPropertyMapping
+    internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IMemberMapping
     {
         private readonly IFixedLengthTypeMapper<TEntity> mapper;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
         private string columnName;
         private FixedLengthOptions options;
         private INullHandler nullHandler;
         private Func<string, string> preprocessor;
 
-        public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, PropertyInfo property)
+        public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, IMemberAccessor member)
         {
             this.mapper = mapper;
-            this.property = property;
-            this.columnName = property.Name;
+            this.member = member;
+            this.columnName = member.Name;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -77,9 +77,9 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IFixedLengthComplexPropertyMapping ColumnName(string name)

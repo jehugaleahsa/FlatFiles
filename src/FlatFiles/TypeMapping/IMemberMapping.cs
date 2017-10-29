@@ -4,14 +4,14 @@ using System.Reflection;
 namespace FlatFiles.TypeMapping
 {
     /// <summary>
-    /// Represents the mapping from a type property to a column.
+    /// Represents the mapping from a type property/field to a column.
     /// </summary>
-    internal interface IPropertyMapping
+    internal interface IMemberMapping
     {
         /// <summary>
-        /// Gets the property that is mapped to.
+        /// Gets the property/field that is mapped to.
         /// </summary>
-        PropertyInfo Property { get; }
+        IMemberAccessor Member { get; }
 
         /// <summary>
         /// Gets the column that is mapped to. 

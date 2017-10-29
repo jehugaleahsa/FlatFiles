@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         ISBytePropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class SBytePropertyMapping : ISBytePropertyMapping, IPropertyMapping
+    internal sealed class SBytePropertyMapping : ISBytePropertyMapping, IMemberMapping
     {
         private readonly SByteColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public SBytePropertyMapping(SByteColumn column, PropertyInfo property)
+        public SBytePropertyMapping(SByteColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public ISBytePropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition

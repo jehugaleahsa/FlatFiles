@@ -94,304 +94,304 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window);
+        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window);
+        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window);
+        IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window);
+        IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window);
+        IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> property, Window window);
+        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> property, Window window);
+        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window);
+        ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window);
+        ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window);
+        ICharPropertyMapping Property(Expression<Func<TEntity, char?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window);
+        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window);
+        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window);
+        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window);
+        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window);
+        IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window);
+        IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window);
+        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window);
+        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window);
+        IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window);
+        IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> property, Window window);
+        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> property, Window window);
+        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window);
+        IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window);
+        IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> property, Window window);
+        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> property, Window window);
+        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window);
+        IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window);
+        IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> property, Window window);
+        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> property, Window window);
+        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window);
+        ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window);
+        ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> accessor, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window);
+        IStringPropertyMapping Property(Expression<Func<TEntity, string>> accessor, Window window);
         
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="accessor">An expression tha returns the property to map.</param>
         /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper, Window window);
+        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper, Window window);
         
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="property">An expression tha returns the property to map.</param>
+        /// <param name="accessor">An expression tha returns the property to map.</param>
         /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper, Window window);
+        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IFixedLengthTypeMapper<TProp> mapper, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) where TEnum : struct;
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="property">An expression that returns the property to map.</param>
+        /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor, Window window) where TEnum : struct;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -399,6 +399,15 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored(Window window);
+
+        /// <summary>
+        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
+        /// code to get and set entity properties, resulting in significant performance improvements. 
+        /// However, some environments do not support runtime JIT, so disabling optimization will allow
+        /// FlatFiles to work.
+        /// </summary>
+        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
+        void OptimizeMapping(bool isOptimized = true);
     }
 
     /// <summary>
@@ -438,15 +447,6 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options controlling how the fixed-length document is written.</param>
         /// <returns>A typed writer.</returns>
         ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null);
-
-        /// <summary>
-        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
-        /// code to get and set entity properties, resulting in significant performance improvements. 
-        /// However, some environments do not support runtime JIT, so disabling optimization will allow
-        /// FlatFiles to work.
-        /// </summary>
-        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
-        void OptimizeMapping(bool isOptimized = true);
     }
 
     /// <summary>
@@ -463,175 +463,175 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping BooleanProperty(string propertyName, Window window);
+        IBooleanPropertyMapping BooleanProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IByteArrayPropertyMapping ByteArrayProperty(string propertyName, Window window);
+        IByteArrayPropertyMapping ByteArrayProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping ByteProperty(string propertyName, Window window);
+        IBytePropertyMapping ByteProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping SByteProperty(string propertyName, Window window);
+        ISBytePropertyMapping SByteProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharArrayPropertyMapping CharArrayProperty(string propertyName, Window window);
+        ICharArrayPropertyMapping CharArrayProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping CharProperty(string propertyName, Window window);
+        ICharPropertyMapping CharProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping DateTimeProperty(string propertyName, Window window);
+        IDateTimePropertyMapping DateTimeProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping DecimalProperty(string propertyName, Window window);
+        IDecimalPropertyMapping DecimalProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping DoubleProperty(string propertyName, Window window);
+        IDoublePropertyMapping DoubleProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping GuidProperty(string propertyName, Window window);
+        IGuidPropertyMapping GuidProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Int16Property(string propertyName, Window window);
+        IInt16PropertyMapping Int16Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping UInt16Property(string propertyName, Window window);
+        IUInt16PropertyMapping UInt16Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Int32Property(string propertyName, Window window);
+        IInt32PropertyMapping Int32Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping UInt32Property(string propertyName, Window window);
+        IUInt32PropertyMapping UInt32Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Int64Property(string propertyName, Window window);
+        IInt64PropertyMapping Int64Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping UInt64Property(string propertyName, Window window);
+        IUInt64PropertyMapping UInt64Property(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping SingleProperty(string propertyName, Window window);
+        ISinglePropertyMapping SingleProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IStringPropertyMapping StringProperty(string propertyName, Window window);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="propertyName">The name of the property to map.</param>
-        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
-        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(string propertyName, ISeparatedValueTypeMapper<TProp> mapper, Window window);
+        IStringPropertyMapping StringProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(string propertyName, IFixedLengthTypeMapper<TProp> mapper, Window window);
+        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(string memberName, IFixedLengthTypeMapper<TProp> mapper, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
         /// </summary>
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="propertyName">The name of the property to map.</param>
+        /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string propertyName, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName, Window window) where TEnum : struct;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -639,6 +639,15 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored(Window window);
+
+        /// <summary>
+        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
+        /// code to get and set entity properties, resulting in significant performance improvements. 
+        /// However, some environments do not support runtime JIT, so disabling optimization will allow
+        /// FlatFiles to work.
+        /// </summary>
+        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
+        void OptimizeMapping(bool isOptimized = true);
     }
 
     /// <summary>
@@ -677,15 +686,6 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options controlling how the separated value document is written.</param>
         /// <returns>A typed writer.</returns>
         ITypedWriter<object> GetWriter(TextWriter writer, FixedLengthOptions options = null);
-
-        /// <summary>
-        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
-        /// code to get and set entity properties, resulting in significant performance improvements. 
-        /// However, some environments do not support runtime JIT, so disabling optimization will allow
-        /// FlatFiles to work.
-        /// </summary>
-        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
-        void OptimizeMapping(bool isOptimized = true);
     }
 
     internal sealed class FixedLengthTypeMapper<TEntity> 
@@ -694,9 +694,9 @@ namespace FlatFiles.TypeMapping
         IRecordMapper<TEntity>
     {
         private readonly Func<TEntity> factory;
-        private readonly Dictionary<string, IPropertyMapping> mappingLookup;
-        private readonly List<IPropertyMapping> mappings;
-        private readonly Dictionary<IPropertyMapping, Window> windowLookup;
+        private readonly Dictionary<string, IMemberMapping> mappingLookup;
+        private readonly List<IMemberMapping> mappings;
+        private readonly Dictionary<IMemberMapping, Window> windowLookup;
         private bool isOptimized;
 
         public FixedLengthTypeMapper()
@@ -712,524 +712,524 @@ namespace FlatFiles.TypeMapping
         public FixedLengthTypeMapper(Func<TEntity> factory)
         {
             this.factory = factory;
-            this.mappingLookup = new Dictionary<string, IPropertyMapping>();
-            this.mappings = new List<IPropertyMapping>();
-            this.windowLookup = new Dictionary<IPropertyMapping, Window>();
+            this.mappingLookup = new Dictionary<string, IMemberMapping>();
+            this.mappings = new List<IMemberMapping>();
+            this.windowLookup = new Dictionary<IMemberMapping, Window>();
             this.isOptimized = true;
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> property, Window window)
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getBooleanMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getBooleanMapping(member, window);
         }
 
-        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> property, Window window)
+        public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getBooleanMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getBooleanMapping(member, window);
         }
 
-        private IBooleanPropertyMapping getBooleanMapping(PropertyInfo propertyInfo, Window window)
+        private IBooleanPropertyMapping getBooleanMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                BooleanColumn column = new BooleanColumn(propertyInfo.Name);
-                mapping = new BooleanPropertyMapping(column, propertyInfo);
+                BooleanColumn column = new BooleanColumn(member.Name);
+                mapping = new BooleanPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IBooleanPropertyMapping)mapping;
         }
 
-        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> property, Window window)
+        public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getByteArrayMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getByteArrayMapping(member, window);
         }
 
-        private IByteArrayPropertyMapping getByteArrayMapping(PropertyInfo propertyInfo, Window window)
+        private IByteArrayPropertyMapping getByteArrayMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                ByteArrayColumn column = new ByteArrayColumn(propertyInfo.Name);
-                mapping = new ByteArrayPropertyMapping(column, propertyInfo);
+                ByteArrayColumn column = new ByteArrayColumn(member.Name);
+                mapping = new ByteArrayPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IByteArrayPropertyMapping)mapping;
         }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> property, Window window)
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getByteMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getByteMapping(member, window);
         }
 
-        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> property, Window window)
+        public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getByteMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getByteMapping(member, window);
         }
 
-        private IBytePropertyMapping getByteMapping(PropertyInfo propertyInfo, Window window)
+        private IBytePropertyMapping getByteMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                ByteColumn column = new ByteColumn(propertyInfo.Name);
-                mapping = new BytePropertyMapping(column, propertyInfo);
+                ByteColumn column = new ByteColumn(member.Name);
+                mapping = new BytePropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IBytePropertyMapping)mapping;
         }
 
-        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> property, Window window)
+        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getSByteMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getSByteMapping(member, window);
         }
 
-        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> property, Window window)
+        public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getSByteMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getSByteMapping(member, window);
         }
 
-        private ISBytePropertyMapping getSByteMapping(PropertyInfo propertyInfo, Window window)
+        private ISBytePropertyMapping getSByteMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                SByteColumn column = new SByteColumn(propertyInfo.Name);
-                mapping = new SBytePropertyMapping(column, propertyInfo);
+                SByteColumn column = new SByteColumn(member.Name);
+                mapping = new SBytePropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (ISBytePropertyMapping)mapping;
         }
 
-        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> property, Window window)
+        public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getCharArrayMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getCharArrayMapping(member, window);
         }
 
-        private ICharArrayPropertyMapping getCharArrayMapping(PropertyInfo propertyInfo, Window window)
+        private ICharArrayPropertyMapping getCharArrayMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                CharArrayColumn column = new CharArrayColumn(propertyInfo.Name);
-                mapping = new CharArrayPropertyMapping(column, propertyInfo);
+                CharArrayColumn column = new CharArrayColumn(member.Name);
+                mapping = new CharArrayPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (ICharArrayPropertyMapping)mapping;
         }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> property, Window window)
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getCharMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getCharMapping(member, window);
         }
 
-        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> property, Window window)
+        public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getCharMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getCharMapping(member, window);
         }
 
-        private ICharPropertyMapping getCharMapping(PropertyInfo propertyInfo, Window window)
+        private ICharPropertyMapping getCharMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                CharColumn column = new CharColumn(propertyInfo.Name);
-                mapping = new CharPropertyMapping(column, propertyInfo);
+                CharColumn column = new CharColumn(member.Name);
+                mapping = new CharPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (ICharPropertyMapping)mapping;
         }
 
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> property, Window window)
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDateTimeMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDateTimeMapping(member, window);
         }
 
-        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> property, Window window)
+        public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDateTimeMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDateTimeMapping(member, window);
         }
 
-        private IDateTimePropertyMapping getDateTimeMapping(PropertyInfo propertyInfo, Window window)
+        private IDateTimePropertyMapping getDateTimeMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                DateTimeColumn column = new DateTimeColumn(propertyInfo.Name);
-                mapping = new DateTimePropertyMapping(column, propertyInfo);
+                DateTimeColumn column = new DateTimeColumn(member.Name);
+                mapping = new DateTimePropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IDateTimePropertyMapping)mapping;
         }
 
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> property, Window window)
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDecimalMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDecimalMapping(member, window);
         }
 
-        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> property, Window window)
+        public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDecimalMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDecimalMapping(member, window);
         }
 
-        private IDecimalPropertyMapping getDecimalMapping(PropertyInfo propertyInfo, Window window)
+        private IDecimalPropertyMapping getDecimalMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                DecimalColumn column = new DecimalColumn(propertyInfo.Name);
-                mapping = new DecimalPropertyMapping(column, propertyInfo);
+                DecimalColumn column = new DecimalColumn(member.Name);
+                mapping = new DecimalPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IDecimalPropertyMapping)mapping;
         }
 
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> property, Window window)
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDoubleMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDoubleMapping(member, window);
         }
 
-        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> property, Window window)
+        public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getDoubleMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getDoubleMapping(member, window);
         }
 
-        private IDoublePropertyMapping getDoubleMapping(PropertyInfo propertyInfo, Window window)
+        private IDoublePropertyMapping getDoubleMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                DoubleColumn column = new DoubleColumn(propertyInfo.Name);
-                mapping = new DoublePropertyMapping(column, propertyInfo);
+                DoubleColumn column = new DoubleColumn(member.Name);
+                mapping = new DoublePropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IDoublePropertyMapping)mapping;
         }
 
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> property, Window window)
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getGuidMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getGuidMapping(member, window);
         }
 
-        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> property, Window window)
+        public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getGuidMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getGuidMapping(member, window);
         }
 
-        private IGuidPropertyMapping getGuidMapping(PropertyInfo propertyInfo, Window window)
+        private IGuidPropertyMapping getGuidMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                GuidColumn column = new GuidColumn(propertyInfo.Name);
-                mapping = new GuidPropertyMapping(column, propertyInfo);
+                GuidColumn column = new GuidColumn(member.Name);
+                mapping = new GuidPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IGuidPropertyMapping)mapping;
         }
 
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> property, Window window)
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt16Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt16Mapping(member, window);
         }
 
-        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> property, Window window)
+        public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt16Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt16Mapping(member, window);
         }
 
-        private IInt16PropertyMapping getInt16Mapping(PropertyInfo propertyInfo, Window window)
+        private IInt16PropertyMapping getInt16Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                Int16Column column = new Int16Column(propertyInfo.Name);
-                mapping = new Int16PropertyMapping(column, propertyInfo);
+                Int16Column column = new Int16Column(member.Name);
+                mapping = new Int16PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IInt16PropertyMapping)mapping;
         }
 
-        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> property, Window window)
+        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt16Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt16Mapping(member, window);
         }
 
-        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> property, Window window)
+        public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt16Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt16Mapping(member, window);
         }
 
-        private IUInt16PropertyMapping getUInt16Mapping(PropertyInfo propertyInfo, Window window)
+        private IUInt16PropertyMapping getUInt16Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                UInt16Column column = new UInt16Column(propertyInfo.Name);
-                mapping = new UInt16PropertyMapping(column, propertyInfo);
+                UInt16Column column = new UInt16Column(member.Name);
+                mapping = new UInt16PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IUInt16PropertyMapping)mapping;
         }
 
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> property, Window window)
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt32Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt32Mapping(member, window);
         }
 
-        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> property, Window window)
+        public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt32Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt32Mapping(member, window);
         }
 
-        private IInt32PropertyMapping getInt32Mapping(PropertyInfo propertyInfo, Window window)
+        private IInt32PropertyMapping getInt32Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                Int32Column column = new Int32Column(propertyInfo.Name);
-                mapping = new Int32PropertyMapping(column, propertyInfo);
+                Int32Column column = new Int32Column(member.Name);
+                mapping = new Int32PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IInt32PropertyMapping)mapping;
         }
 
-        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> property, Window window)
+        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt32Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt32Mapping(member, window);
         }
 
-        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> property, Window window)
+        public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt32Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt32Mapping(member, window);
         }
 
-        private IUInt32PropertyMapping getUInt32Mapping(PropertyInfo propertyInfo, Window window)
+        private IUInt32PropertyMapping getUInt32Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                UInt32Column column = new UInt32Column(propertyInfo.Name);
-                mapping = new UInt32PropertyMapping(column, propertyInfo);
+                UInt32Column column = new UInt32Column(member.Name);
+                mapping = new UInt32PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IUInt32PropertyMapping)mapping;
         }
 
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> property, Window window)
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt64Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt64Mapping(member, window);
         }
 
-        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> property, Window window)
+        public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getInt64Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getInt64Mapping(member, window);
         }
 
-        private IInt64PropertyMapping getInt64Mapping(PropertyInfo propertyInfo, Window window)
+        private IInt64PropertyMapping getInt64Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                Int64Column column = new Int64Column(propertyInfo.Name);
-                mapping = new Int64PropertyMapping(column, propertyInfo);
+                Int64Column column = new Int64Column(member.Name);
+                mapping = new Int64PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IInt64PropertyMapping)mapping;
         }
 
-        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> property, Window window)
+        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt64Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt64Mapping(member, window);
         }
 
-        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> property, Window window)
+        public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getUInt64Mapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getUInt64Mapping(member, window);
         }
 
-        private IUInt64PropertyMapping getUInt64Mapping(PropertyInfo propertyInfo, Window window)
+        private IUInt64PropertyMapping getUInt64Mapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                UInt64Column column = new UInt64Column(propertyInfo.Name);
-                mapping = new UInt64PropertyMapping(column, propertyInfo);
+                UInt64Column column = new UInt64Column(member.Name);
+                mapping = new UInt64PropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IUInt64PropertyMapping)mapping;
         }
 
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> property, Window window)
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getSingleMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getSingleMapping(member, window);
         }
 
-        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> property, Window window)
+        public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> accessor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getSingleMapping(propertyInfo, window);
+            var member = getMember(accessor);
+            return getSingleMapping(member, window);
         }
 
-        private ISinglePropertyMapping getSingleMapping(PropertyInfo propertyInfo, Window window)
+        private ISinglePropertyMapping getSingleMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                SingleColumn column = new SingleColumn(propertyInfo.Name);
-                mapping = new SinglePropertyMapping(column, propertyInfo);
+                SingleColumn column = new SingleColumn(member.Name);
+                mapping = new SinglePropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (ISinglePropertyMapping)mapping;
         }
 
-        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> property, Window window)
+        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> accesor, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getStringMapping(propertyInfo, window);
+            var member = getMember(accesor);
+            return getStringMapping(member, window);
         }
 
-        private IStringPropertyMapping getStringMapping(PropertyInfo propertyInfo, Window window)
+        private IStringPropertyMapping getStringMapping(IMemberAccessor member, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                StringColumn column = new StringColumn(propertyInfo.Name);
-                mapping = new StringPropertyMapping(column, propertyInfo);
+                StringColumn column = new StringColumn(member.Name);
+                mapping = new StringPropertyMapping(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IStringPropertyMapping)mapping;
         }
 
-        public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getComplexMapping(propertyInfo, mapper, window);
+            var member = getMember(accessor);
+            return getComplexMapping(member, mapper, window);
         }
 
-        private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, ISeparatedValueTypeMapper<TProp> mapper, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (ISeparatedValueComplexPropertyMapping)mapping;
         }
 
-        public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> property, IFixedLengthTypeMapper<TProp> mapper, Window window)
+        public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IFixedLengthTypeMapper<TProp> mapper, Window window)
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getComplexMapping(propertyInfo, mapper, window);
+            var member = getMember(accessor);
+            return getComplexMapping(member, mapper, window);
         }
 
-        private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(PropertyInfo propertyInfo, IFixedLengthTypeMapper<TProp> mapper, Window window)
+        private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, IFixedLengthTypeMapper<TProp> mapper, Window window)
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, propertyInfo);
+                mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IFixedLengthComplexPropertyMapping)mapping;
         }
 
-        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> property, Window window) 
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) 
             where TEnum : struct
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getEnumMapping<TEnum>(propertyInfo, window);
+            var member = getMember(accessor);
+            return getEnumMapping<TEnum>(member, window);
         }
 
-        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> property, Window window)
+        public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor, Window window)
             where TEnum : struct
         {
-            PropertyInfo propertyInfo = getProperty(property);
-            return getEnumMapping<TEnum>(propertyInfo, window);
+            var member = getMember(accessor);
+            return getEnumMapping<TEnum>(member, window);
         }
 
-        private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(PropertyInfo propertyInfo, Window window)
+        private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(IMemberAccessor member, Window window)
             where TEnum : struct
         {
-            IPropertyMapping mapping;
-            if (!mappingLookup.TryGetValue(propertyInfo.Name, out mapping))
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
             {
-                var column = new EnumColumn<TEnum>(propertyInfo.Name);
-                mapping = new EnumPropertyMapping<TEnum>(column, propertyInfo);
+                var column = new EnumColumn<TEnum>(member.Name);
+                mapping = new EnumPropertyMapping<TEnum>(column, member);
                 mappings.Add(mapping);
-                mappingLookup.Add(propertyInfo.Name, mapping);
+                mappingLookup.Add(member.Name, mapping);
             }
             windowLookup[mapping] = window;
             return (IEnumPropertyMapping<TEnum>)mapping;
@@ -1244,27 +1244,37 @@ namespace FlatFiles.TypeMapping
             return mapping;
         }
 
-        private static PropertyInfo getProperty<TProp>(Expression<Func<TEntity, TProp>> property)
+        private static IMemberAccessor getMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
-            if (property == null)
+            if (accessor == null)
             {
-                throw new ArgumentNullException("property");
+                throw new ArgumentNullException(nameof(accessor));
             }
-            MemberExpression member = property.Body as MemberExpression;
+            MemberExpression member = accessor.Body as MemberExpression;
             if (member == null)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, "property");
+                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
             }
-            PropertyInfo propertyInfo = member.Member as PropertyInfo;
-            if (propertyInfo == null)
+            if (member.Member is PropertyInfo propertyInfo)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, "property");
+                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
+                }
+                return new PropertyAccessor(propertyInfo);
             }
-            if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            else if (member.Member is FieldInfo fieldInfo)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, "property");
+                if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
+                }
+                return new FieldAccessor(fieldInfo);
             }
-            return propertyInfo;
+            else
+            {
+                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
+            }
         }
 
         public IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null)
@@ -1340,7 +1350,7 @@ namespace FlatFiles.TypeMapping
         private FixedLengthSchema getSchema()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
-            foreach (IPropertyMapping mapping in mappings)
+            foreach (IMemberMapping mapping in mappings)
             {
                 IColumnDefinition column = mapping.ColumnDefinition;
                 Window window = windowLookup[mapping];
@@ -1367,130 +1377,130 @@ namespace FlatFiles.TypeMapping
             return GetSchema();
         }
 
-        IBooleanPropertyMapping IDynamicFixedLengthTypeConfiguration.BooleanProperty(string propertyName, Window window)
+        IBooleanPropertyMapping IDynamicFixedLengthTypeConfiguration.BooleanProperty(string memberName, Window window)
         {
-            var property = getProperty<bool?>(propertyName);
-            return getBooleanMapping(property, window);
+            var member = getMember<bool?>(memberName);
+            return getBooleanMapping(member, window);
         }
 
-        IByteArrayPropertyMapping IDynamicFixedLengthTypeConfiguration.ByteArrayProperty(string propertyName, Window window)
+        IByteArrayPropertyMapping IDynamicFixedLengthTypeConfiguration.ByteArrayProperty(string memberName, Window window)
         {
-            var property = getProperty<byte[]>(propertyName);
-            return getByteArrayMapping(property, window);
+            var member = getMember<byte[]>(memberName);
+            return getByteArrayMapping(member, window);
         }
 
-        IBytePropertyMapping IDynamicFixedLengthTypeConfiguration.ByteProperty(string propertyName, Window window)
+        IBytePropertyMapping IDynamicFixedLengthTypeConfiguration.ByteProperty(string memberName, Window window)
         {
-            var property = getProperty<byte?>(propertyName);
-            return getByteMapping(property, window);
+            var member = getMember<byte?>(memberName);
+            return getByteMapping(member, window);
         }
 
-        ISBytePropertyMapping IDynamicFixedLengthTypeConfiguration.SByteProperty(string propertyName, Window window)
+        ISBytePropertyMapping IDynamicFixedLengthTypeConfiguration.SByteProperty(string memberName, Window window)
         {
-            var property = getProperty<sbyte?>(propertyName);
-            return getSByteMapping(property, window);
+            var member = getMember<sbyte?>(memberName);
+            return getSByteMapping(member, window);
         }
 
-        ICharArrayPropertyMapping IDynamicFixedLengthTypeConfiguration.CharArrayProperty(string propertyName, Window window)
+        ICharArrayPropertyMapping IDynamicFixedLengthTypeConfiguration.CharArrayProperty(string memberName, Window window)
         {
-            var property = getProperty<char[]>(propertyName);
-            return getCharArrayMapping(property, window);
+            var member = getMember<char[]>(memberName);
+            return getCharArrayMapping(member, window);
         }
 
-        ICharPropertyMapping IDynamicFixedLengthTypeConfiguration.CharProperty(string propertyName, Window window)
+        ICharPropertyMapping IDynamicFixedLengthTypeConfiguration.CharProperty(string memberName, Window window)
         {
-            var property = getProperty<char?>(propertyName);
-            return getCharMapping(property, window);
+            var member = getMember<char?>(memberName);
+            return getCharMapping(member, window);
         }
 
-        IDateTimePropertyMapping IDynamicFixedLengthTypeConfiguration.DateTimeProperty(string propertyName, Window window)
+        IDateTimePropertyMapping IDynamicFixedLengthTypeConfiguration.DateTimeProperty(string memberName, Window window)
         {
-            var property = getProperty<DateTime?>(propertyName);
-            return getDateTimeMapping(property, window);
+            var member = getMember<DateTime?>(memberName);
+            return getDateTimeMapping(member, window);
         }
 
-        IDecimalPropertyMapping IDynamicFixedLengthTypeConfiguration.DecimalProperty(string propertyName, Window window)
+        IDecimalPropertyMapping IDynamicFixedLengthTypeConfiguration.DecimalProperty(string memberName, Window window)
         {
-            var property = getProperty<decimal?>(propertyName);
-            return getDecimalMapping(property, window);
+            var member = getMember<decimal?>(memberName);
+            return getDecimalMapping(member, window);
         }
 
-        IDoublePropertyMapping IDynamicFixedLengthTypeConfiguration.DoubleProperty(string propertyName, Window window)
+        IDoublePropertyMapping IDynamicFixedLengthTypeConfiguration.DoubleProperty(string memberName, Window window)
         {
-            var property = getProperty<double?>(propertyName);
-            return getDoubleMapping(property, window);
+            var member = getMember<double?>(memberName);
+            return getDoubleMapping(member, window);
         }
 
-        IGuidPropertyMapping IDynamicFixedLengthTypeConfiguration.GuidProperty(string propertyName, Window window)
+        IGuidPropertyMapping IDynamicFixedLengthTypeConfiguration.GuidProperty(string memberName, Window window)
         {
-            var property = getProperty<Guid?>(propertyName);
-            return getGuidMapping(property, window);
+            var member = getMember<Guid?>(memberName);
+            return getGuidMapping(member, window);
         }
 
-        IInt16PropertyMapping IDynamicFixedLengthTypeConfiguration.Int16Property(string propertyName, Window window)
+        IInt16PropertyMapping IDynamicFixedLengthTypeConfiguration.Int16Property(string memberName, Window window)
         {
-            var property = getProperty<short?>(propertyName);
-            return getInt16Mapping(property, window);
+            var member = getMember<short?>(memberName);
+            return getInt16Mapping(member, window);
         }
 
-        IUInt16PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt16Property(string propertyName, Window window)
+        IUInt16PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt16Property(string memberName, Window window)
         {
-            var property = getProperty<ushort?>(propertyName);
-            return getUInt16Mapping(property, window);
+            var member = getMember<ushort?>(memberName);
+            return getUInt16Mapping(member, window);
         }
 
-        IInt32PropertyMapping IDynamicFixedLengthTypeConfiguration.Int32Property(string propertyName, Window window)
+        IInt32PropertyMapping IDynamicFixedLengthTypeConfiguration.Int32Property(string memberName, Window window)
         {
-            var property = getProperty<int?>(propertyName);
-            return getInt32Mapping(property, window);
+            var member = getMember<int?>(memberName);
+            return getInt32Mapping(member, window);
         }
 
-        IUInt32PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt32Property(string propertyName, Window window)
+        IUInt32PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt32Property(string memberName, Window window)
         {
-            var property = getProperty<uint?>(propertyName);
-            return getUInt32Mapping(property, window);
+            var member = getMember<uint?>(memberName);
+            return getUInt32Mapping(member, window);
         }
 
-        IInt64PropertyMapping IDynamicFixedLengthTypeConfiguration.Int64Property(string propertyName, Window window)
+        IInt64PropertyMapping IDynamicFixedLengthTypeConfiguration.Int64Property(string memberName, Window window)
         {
-            var property = getProperty<long?>(propertyName);
-            return getInt64Mapping(property, window);
+            var member = getMember<long?>(memberName);
+            return getInt64Mapping(member, window);
         }
 
-        IUInt64PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt64Property(string propertyName, Window window)
+        IUInt64PropertyMapping IDynamicFixedLengthTypeConfiguration.UInt64Property(string memberName, Window window)
         {
-            var property = getProperty<ulong?>(propertyName);
-            return getUInt64Mapping(property, window);
+            var member = getMember<ulong?>(memberName);
+            return getUInt64Mapping(member, window);
         }
 
-        ISinglePropertyMapping IDynamicFixedLengthTypeConfiguration.SingleProperty(string propertyName, Window window)
+        ISinglePropertyMapping IDynamicFixedLengthTypeConfiguration.SingleProperty(string memberName, Window window)
         {
-            var property = getProperty<float?>(propertyName);
-            return getSingleMapping(property, window);
+            var member = getMember<float?>(memberName);
+            return getSingleMapping(member, window);
         }
 
-        IStringPropertyMapping IDynamicFixedLengthTypeConfiguration.StringProperty(string propertyName, Window window)
+        IStringPropertyMapping IDynamicFixedLengthTypeConfiguration.StringProperty(string memberName, Window window)
         {
-            var property = getProperty<string>(propertyName);
-            return getStringMapping(property, window);
+            var member = getMember<string>(memberName);
+            return getStringMapping(member, window);
         }
 
-        ISeparatedValueComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string propertyName, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        ISeparatedValueComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper, Window window)
         {
-            var property = getProperty<string>(propertyName);
-            return getComplexMapping(property, mapper, window);
+            var member = getMember<string>(memberName);
+            return getComplexMapping(member, mapper, window);
         }
 
-        IFixedLengthComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string propertyName, IFixedLengthTypeMapper<TProp> mapper, Window window)
+        IFixedLengthComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string memberName, IFixedLengthTypeMapper<TProp> mapper, Window window)
         {
-            var property = getProperty<string>(propertyName);
-            return getComplexMapping(property, mapper, window);
+            var member = getMember<string>(memberName);
+            return getComplexMapping(member, mapper, window);
         }
 
-        IEnumPropertyMapping<TEnum> IDynamicFixedLengthTypeConfiguration.EnumProperty<TEnum>(string propertyName, Window window)
+        IEnumPropertyMapping<TEnum> IDynamicFixedLengthTypeConfiguration.EnumProperty<TEnum>(string memberName, Window window)
         {
-            var property = getProperty<TEnum?>(propertyName);
-            return getEnumMapping<TEnum>(property, window);
+            var member = getMember<TEnum?>(memberName);
+            return getEnumMapping<TEnum>(member, window);
         }
 
         IIgnoredMapping IDynamicFixedLengthTypeConfiguration.Ignored(Window window)
@@ -1498,22 +1508,35 @@ namespace FlatFiles.TypeMapping
             return Ignored(window);
         }
 
-        private static PropertyInfo getProperty<TProp>(string propertyName)
+        private static IMemberAccessor getMember<TProp>(string memberName)
         {
-            var propertyInfo = typeof(TEntity).GetTypeInfo().GetProperty(propertyName);
-            if (propertyInfo == null)
+            var propertyInfo = typeof(TEntity).GetTypeInfo().GetProperty(memberName);
+            if (propertyInfo != null)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, "property");
+                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
+                }
+                if (propertyInfo.PropertyType != typeof(TProp) && propertyInfo.PropertyType != Nullable.GetUnderlyingType(typeof(TProp)))
+                {
+                    throw new ArgumentException(SharedResources.WrongPropertyType);
+                }
+                return new PropertyAccessor(propertyInfo);
             }
-            if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            var fieldInfo = typeof(TEntity).GetTypeInfo().GetField(memberName);
+            if (fieldInfo != null)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, "property");
+                if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
+                }
+                if (fieldInfo.FieldType != typeof(TProp) && fieldInfo.FieldType != Nullable.GetUnderlyingType(typeof(TProp)))
+                {
+                    throw new ArgumentException(SharedResources.WrongPropertyType);
+                }
+                return new FieldAccessor(fieldInfo);
             }
-            if (propertyInfo.PropertyType != typeof(TProp) && propertyInfo.PropertyType != Nullable.GetUnderlyingType(typeof(TProp)))
-            {
-                throw new ArgumentException(SharedResources.WrongPropertyType);
-            }
-            return propertyInfo;
+            throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
         }
 
         IEnumerable<object> IDynamicFixedLengthTypeMapper.Read(TextReader reader, FixedLengthOptions options)
@@ -1542,7 +1565,7 @@ namespace FlatFiles.TypeMapping
             this.isOptimized = isOptimized;
         }
 
-        void IDynamicFixedLengthTypeMapper.OptimizeMapping(bool isOptimized)
+        void IDynamicFixedLengthTypeConfiguration.OptimizeMapping(bool isOptimized)
         {
             OptimizeMapping(isOptimized);
         }

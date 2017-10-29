@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
         IDoublePropertyMapping Preprocessor(Func<string, string> preprocessor);
     }
 
-    internal sealed class DoublePropertyMapping : IDoublePropertyMapping, IPropertyMapping
+    internal sealed class DoublePropertyMapping : IDoublePropertyMapping, IMemberMapping
     {
         private readonly DoubleColumn column;
-        private readonly PropertyInfo property;
+        private readonly IMemberAccessor member;
 
-        public DoublePropertyMapping(DoubleColumn column, PropertyInfo property)
+        public DoublePropertyMapping(DoubleColumn column, IMemberAccessor member)
         {
             this.column = column;
-            this.property = property;
+            this.member = member;
         }
 
         public IDoublePropertyMapping ColumnName(string name)
@@ -113,9 +113,9 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public PropertyInfo Property
+        public IMemberAccessor Member
         {
-            get { return property; }
+            get { return member; }
         }
 
         public IColumnDefinition ColumnDefinition
