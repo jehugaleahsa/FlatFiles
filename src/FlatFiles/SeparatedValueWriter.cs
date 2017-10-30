@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
@@ -89,6 +90,30 @@ namespace FlatFiles
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();
+        }
+
+        /// <summary>
+        /// Writes the textual representation of the given values to the writer.
+        /// </summary>
+        /// <param name="values">The values to write.</param>
+        /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
+        public async Task WriteAsync(object[] values)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+            if (isFirstLine)
+            {
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
+                {
+                    await recordWriter.WriteSchemaAsync();
+                    await recordWriter.WriteRecordSeparatorAsync();
+                }
+                isFirstLine = false;
+            }
+            await recordWriter.WriteRecordAsync(values);
+            await recordWriter.WriteRecordSeparatorAsync();
         }
     }
 }

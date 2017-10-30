@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
@@ -20,9 +21,14 @@ namespace FlatFiles
             }
         }
 
-        public bool EndOfStream
+        public bool IsEndOfStream()
         {
-            get { return recordReader.EndOfStream; }
+            return recordReader.IsEndOfStream();
+        }
+
+        public async ValueTask<bool> IsEndOfStreamAsync()
+        {
+            return await recordReader.IsEndOfStreamAsync();
         }
 
         public string ReadRecord()
@@ -30,11 +36,20 @@ namespace FlatFiles
             return recordReader.ReadRecord();
         }
 
+        public async Task<string> ReadRecordAsync()
+        {
+            return await recordReader.ReadRecordAsync();
+        }
+
         private interface IRecordReader
         {
-            bool EndOfStream { get; }
+            bool IsEndOfStream();
+
+            ValueTask<bool> IsEndOfStreamAsync();
 
             string ReadRecord();
+
+            Task<string> ReadRecordAsync();
         }
 
         private sealed class SeparatorRecordReader : IRecordReader
@@ -48,9 +63,14 @@ namespace FlatFiles
                 this.matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
             }
 
-            public bool EndOfStream
+            public bool IsEndOfStream()
             {
-                get { return reader.EndOfStream; }
+                return reader.IsEndOfStream();
+            }
+
+            public async ValueTask<bool> IsEndOfStreamAsync()
+            {
+                return await reader.IsEndOfStreamAsync();
             }
 
             public string ReadRecord()
@@ -62,12 +82,24 @@ namespace FlatFiles
                 }
                 return builder.ToString();
             }
+
+            public async Task<string> ReadRecordAsync()
+            {
+                StringBuilder builder = new StringBuilder();
+                while (!await matcher.IsMatchAsync() && await reader.ReadAsync())
+                {
+                    builder.Append(reader.Current);
+                }
+                return builder.ToString();
+            }
         }
 
         private sealed class FixedLengthRecordReader : IRecordReader
         {
             private readonly TextReader reader;
             private readonly char[] buffer;
+            private int length;
+            private bool isEndOfStream;
 
             public FixedLengthRecordReader(TextReader reader, int totalWidth)
             {
@@ -75,15 +107,44 @@ namespace FlatFiles
                 this.buffer = new char[totalWidth];
             }
 
-            public bool EndOfStream
+            public bool IsEndOfStream()
             {
-                get { return reader.Peek() == -1; }
+                if (isEndOfStream)
+                {
+                    return true;
+                }
+                length = reader.ReadBlock(buffer, 0, buffer.Length);
+                if (length == 0)
+                {
+                    isEndOfStream = true;
+                    return true;
+                }
+                return false;
+            }
+
+            public async ValueTask<bool> IsEndOfStreamAsync()
+            {
+                if (isEndOfStream)
+                {
+                    return true;
+                }
+                length = await reader.ReadBlockAsync(buffer, 0, buffer.Length);
+                if (length == 0)
+                {
+                    isEndOfStream = true;
+                    return true;
+                }
+                return false;
             }
 
             public string ReadRecord()
             {
-                int length = reader.ReadBlock(buffer, 0, buffer.Length);
                 return new String(buffer, 0, length);
+            }
+
+            public Task<string> ReadRecordAsync()
+            {
+                return Task.FromResult(new String(buffer, 0, length));
             }
         }
     }

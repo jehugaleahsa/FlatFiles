@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
@@ -20,10 +21,22 @@ namespace FlatFiles
         bool Read();
 
         /// <summary>
+        /// Reads the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was read; otherwise, false if the end of file was reached.</returns>
+        ValueTask<bool> ReadAsync();
+
+        /// <summary>
         /// Skips the next record from the file.
         /// </summary>
         /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
         bool Skip();
+
+        /// <summary>
+        /// Skips the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
+        ValueTask<bool> SkipAsync();
 
         /// <summary>
         /// Gets the values of the current record.

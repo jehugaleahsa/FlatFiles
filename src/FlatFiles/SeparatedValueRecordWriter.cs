@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FlatFiles.Resources;
 
 namespace FlatFiles
@@ -43,6 +44,18 @@ namespace FlatFiles
             var escapedValues = formattedValues.Select(v => escape(v));
             string joined = String.Join(options.Separator, escapedValues);
             writer.Write(joined);
+        }
+
+        public async Task WriteRecordAsync(object[] values)
+        {
+            if (schema != null && values.Length != schema.ColumnDefinitions.HandledCount)
+            {
+                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
+            }
+            var formattedValues = formatValues(values);
+            var escapedValues = formattedValues.Select(v => escape(v));
+            string joined = String.Join(options.Separator, escapedValues);
+            await writer.WriteAsync(joined);
         }
 
         private IEnumerable<string> formatValues(object[] values)
@@ -120,9 +133,25 @@ namespace FlatFiles
             writer.Write(joined);
         }
 
+        public async Task WriteSchemaAsync()
+        {
+            if (schema == null)
+            {
+                return;
+            }
+            var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
+            string joined = String.Join(options.Separator, names);
+            await writer.WriteAsync(joined);
+        }
+
         public void WriteRecordSeparator()
         {
             writer.Write(options.RecordSeparator ?? Environment.NewLine);
+        }
+
+        public async Task WriteRecordSeparatorAsync()
+        {
+            await writer.WriteAsync(options.RecordSeparator ?? Environment.NewLine);
         }
     }
 }

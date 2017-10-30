@@ -18,4 +18,10 @@
     <Folder Include="BenchmarkDotNet.Artifacts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestFiles\SampleData.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

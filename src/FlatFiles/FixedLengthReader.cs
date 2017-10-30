@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using FlatFiles.Resources;
 
 namespace FlatFiles
@@ -121,6 +122,65 @@ namespace FlatFiles
             return record;
         }
 
+        /// <summary>
+        /// Reads the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was parsed; otherwise, false if all files are read.</returns>
+        public async ValueTask<bool> ReadAsync()
+        {
+            if (hasError)
+            {
+                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+            }
+            try
+            {
+                values = await parsePartitionsAsync();
+                return values != null;
+            }
+            catch (FlatFileException)
+            {
+                hasError = true;
+                throw;
+            }
+        }
+
+        private async Task<object[]> parsePartitionsAsync()
+        {
+            string[] rawValues = await partitionWithFilterAsync();
+            while (rawValues != null)
+            {
+                object[] values = parseValues(rawValues);
+                if (values != null)
+                {
+                    return values;
+                }
+                rawValues = await partitionWithFilterAsync();
+            }
+            return null;
+        }
+
+        private async Task<string[]> partitionWithFilterAsync()
+        {
+            string record = await readWithFilterAsync();
+            string[] rawValues = partitionRecord(record);
+            while (rawValues != null && options.PartitionedRecordFilter != null && options.PartitionedRecordFilter(rawValues))
+            {
+                record = await readWithFilterAsync();
+                rawValues = partitionRecord(record);
+            }
+            return rawValues;
+        }
+
+        private async Task<string> readWithFilterAsync()
+        {
+            string record = await readNextRecordAsync();
+            while (record != null && options.UnpartitionedRecordFilter != null && options.UnpartitionedRecordFilter(record))
+            {
+                record = await readNextRecordAsync();
+            }
+            return record;
+        }
+
         private object[] parseValues(string[] rawValues)
         {
             try
@@ -151,6 +211,26 @@ namespace FlatFiles
         private bool skip()
         {
             string record = readNextRecord();
+            return record != null;
+        }
+
+        /// <summary>
+        /// Skips the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was skipped; otherwise, false if all records are read.</returns>
+        /// <remarks>The previously parsed values remain available.</remarks>
+        public async ValueTask<bool> SkipAsync()
+        {
+            if (hasError)
+            {
+                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+            }
+            return await skipAsync();
+        }
+
+        private async ValueTask<bool> skipAsync()
+        {
+            string record = await readNextRecordAsync();
             return record != null;
         }
 
@@ -189,12 +269,24 @@ namespace FlatFiles
 
         private string readNextRecord()
         {
-            if (parser.EndOfStream)
+            if (parser.IsEndOfStream())
             {
                 endOfFile = true;
                 return null;
             }
             string record = parser.ReadRecord();
+            ++recordCount;
+            return record;
+        }
+
+        private async Task<string> readNextRecordAsync()
+        {
+            if (await parser.IsEndOfStreamAsync())
+            {
+                endOfFile = true;
+                return null;
+            }
+            string record = await parser.ReadRecordAsync();
             ++recordCount;
             return record;
         }

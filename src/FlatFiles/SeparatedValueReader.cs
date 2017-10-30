@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using FlatFiles.Resources;
 
 namespace FlatFiles
@@ -152,6 +153,60 @@ namespace FlatFiles
             return rawValues;
         }
 
+        /// <summary>
+        /// Attempts to read the next record from the stream.
+        /// </summary>
+        /// <returns>True if the next record was read or false if all records have been read.</returns>
+        public async ValueTask<bool> ReadAsync()
+        {
+            if (hasError)
+            {
+                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+            }
+            try
+            {
+                values = await parsePartitionsAsync();
+                return values != null;
+            }
+            catch (FlatFileException)
+            {
+                hasError = true;
+                throw;
+            }
+        }
+
+        private async Task<object[]> parsePartitionsAsync()
+        {
+            string[] rawValues = await readWithFilterAsync();
+            while (rawValues != null)
+            {
+                if (schema != null && rawValues.Length < schema.ColumnDefinitions.HandledCount)
+                {
+                    processError(new RecordProcessingException(recordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
+                }
+                else
+                {
+                    object[] values = parseValues(rawValues);
+                    if (values != null)
+                    {
+                        return values;
+                    }
+                }
+                rawValues = await readWithFilterAsync();
+            }
+            return null;
+        }
+
+        private async Task<string[]> readWithFilterAsync()
+        {
+            string[] rawValues = await readNextRecordAsync();
+            while (rawValues != null && parser.Options.PartitionedRecordFilter != null && parser.Options.PartitionedRecordFilter(rawValues))
+            {
+                rawValues = await readNextRecordAsync();
+            }
+            return rawValues;
+        }
+
         private object[] parseValues(string[] rawValues)
         {
             if (schema == null)
@@ -190,6 +245,27 @@ namespace FlatFiles
             return rawValues != null;
         }
 
+        /// <summary>
+        /// Attempts to skip the next record from the stream.
+        /// </summary>
+        /// <returns>True if the next record was skipped or false if all records have been read.</returns>
+        /// <remarks>The previously parsed values remain available.</remarks>
+        public async ValueTask<bool> SkipAsync()
+        {
+            if (hasError)
+            {
+                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+            }
+            bool result = await skipAsync();
+            return result;
+        }
+
+        private async ValueTask<bool> skipAsync()
+        {
+            string[] rawValues = await readNextRecordAsync();
+            return rawValues != null;
+        }
+
         private void processError(RecordProcessingException exception)
         {
             if (parser.Options.ErrorHandler != null)
@@ -206,7 +282,7 @@ namespace FlatFiles
 
         private string[] readNextRecord()
         {
-            if (parser.EndOfStream)
+            if (parser.IsEndOfStream())
             {
                 endOfFile = true;
                 values = null;
@@ -215,6 +291,26 @@ namespace FlatFiles
             try
             {
                 string[] results = parser.ReadRecord();
+                ++recordCount;
+                return results;
+            }
+            catch (SeparatedValueSyntaxException exception)
+            {
+                throw new RecordProcessingException(recordCount, SharedResources.InvalidRecordFormatNumber, exception);
+            }
+        }
+
+        private async Task<string[]> readNextRecordAsync()
+        {
+            if (await parser.IsEndOfStreamAsync())
+            {
+                endOfFile = true;
+                values = null;
+                return null;
+            }
+            try
+            {
+                string[] results = await parser.ReadRecordAsync();
                 ++recordCount;
                 return results;
             }

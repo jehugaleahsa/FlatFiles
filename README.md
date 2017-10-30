@@ -7,8 +7,10 @@ Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 ## Support for .NET Core
 As of version 0.3.18.0, FlatFiles now supports .NET Core (.NETStandard v1.6) and .NET 4.5.1!
 
-## Backward Compatibility
-As of version 0.2.0.0, FlatFiles is no longer backward compatible. Read the [wiki](https://github.com/jehugaleahsa/FlatFiles/wiki/FlatFiles-0.2.0.0-and-0.3.0.0-Not-Backward-Compatible) to learn more.
+## Performance Tuning & Field Support
+As a bonus for those of you using FlatFiles, as of version 1.2, you should now be seeing a nearly 2x performance improvement over previous versions, both read and write, both CSV and fixed-length. I spent some time playing with BenchmarkDotNet and using the profiler to squeeze every ounce of performance out of FlatFiles.
+
+You can also now map to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love.
 
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.

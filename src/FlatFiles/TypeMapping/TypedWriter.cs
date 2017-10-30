@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
 {
@@ -19,6 +20,12 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="entity">The entity to write.</param>
         void Write(TEntity entity);
+
+        /// <summary>
+        /// Writes the given entity to the underlying document.
+        /// </summary>
+        /// <param name="entity">The entity to write.</param>
+        Task WriteAsync(TEntity entity);
     }
 
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
@@ -41,6 +48,12 @@ namespace FlatFiles.TypeMapping
         {
             object[] values = serializer.Write(entity);
             writer.Write(values);
+        }
+
+        public async Task WriteAsync(TEntity entity)
+        {
+            object[] values = serializer.Write(entity);
+            await writer.WriteAsync(values);
         }
     }
 }

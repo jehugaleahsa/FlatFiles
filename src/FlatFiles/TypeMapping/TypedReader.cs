@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
 {
@@ -21,10 +22,22 @@ namespace FlatFiles.TypeMapping
         bool Read();
 
         /// <summary>
+        /// Reads the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was read; otherwise, false if the end of file was reached.</returns>
+        Task<bool> ReadAsync();
+
+        /// <summary>
         /// Skips the next record from the file.
         /// </summary>
         /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
         bool Skip();
+
+        /// <summary>
+        /// Skips the next record from the file.
+        /// </summary>
+        /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
+        Task<bool> SkipAsync();
 
         /// <summary>
         /// Gets the last read entity.
@@ -60,9 +73,25 @@ namespace FlatFiles.TypeMapping
             return true;
         }
 
+        public async Task<bool> ReadAsync()
+        {
+            if (!await reader.ReadAsync())
+            {
+                return false;
+            }
+            object[] values = reader.GetValues();
+            current = deserializer.Read(values);
+            return true;
+        }
+
         public bool Skip()
         {
             return reader.Skip();
+        }
+
+        public async Task<bool> SkipAsync()
+        {
+            return await reader.SkipAsync();
         }
 
         public TEntity Current

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FlatFiles.Resources;
 
 namespace FlatFiles
@@ -42,6 +43,20 @@ namespace FlatFiles
             }
         }
 
+        public async Task WriteRecordAsync(object[] values)
+        {
+            if (values.Length != schema.ColumnDefinitions.HandledCount)
+            {
+                throw new ArgumentException(SharedResources.WrongNumberOfValues, "values");
+            }
+            var formattedColumns = schema.FormatValues(values);
+            var fittedColumns = formattedColumns.Select((v, i) => fitWidth(schema.Windows[i], v));
+            foreach (string column in fittedColumns)
+            {
+                await writer.WriteAsync(column);
+            }
+        }
+
         public void WriteSchema()
         {
             var names = schema.ColumnDefinitions.Select(c => c.ColumnName);
@@ -49,6 +64,16 @@ namespace FlatFiles
             foreach (string column in fitted)
             {
                 writer.Write(column);
+            }
+        }
+
+        public async Task WriteSchemaAsync()
+        {
+            var names = schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => fitWidth(schema.Windows[i], v));
+            foreach (string column in fitted)
+            {
+                await writer.WriteAsync(column);
             }
         }
 
@@ -106,6 +131,15 @@ namespace FlatFiles
                 return;
             }
             writer.Write(options.RecordSeparator ?? Environment.NewLine);
+        }
+
+        public async Task WriteRecordSeparatorAsync()
+        {
+            if (!options.HasRecordSeparator)
+            {
+                return;
+            }
+            await writer.WriteAsync(options.RecordSeparator ?? Environment.NewLine);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
 {
@@ -19,6 +20,11 @@ namespace FlatFiles.TypeMapping
         public void Write(object entity)
         {
             writer.Write((TEntity)entity);
+        }
+
+        public async Task WriteAsync(object entity)
+        {
+            await writer.WriteAsync((TEntity)entity);
         }
     }
 }

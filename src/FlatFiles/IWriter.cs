@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
@@ -20,5 +21,12 @@ namespace FlatFiles
         /// <param name="values">The values to write.</param>
         /// <returns>The textual representation of the given values.</returns>
         void Write(object[] values);
+
+        /// <summary>
+        /// Writes the textual representation of the given values to the writer.
+        /// </summary>
+        /// <param name="values">The values to write.</param>
+        /// <returns>The textual representation of the given values.</returns>
+        Task WriteAsync(object[] values);
     }
 }

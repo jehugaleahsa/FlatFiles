@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>

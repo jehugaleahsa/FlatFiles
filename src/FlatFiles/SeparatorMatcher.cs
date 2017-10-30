@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
     internal interface ISeparatorMatcher
     {
         bool IsMatch();
+
+        Task<bool> IsMatchAsync();
     }
 
     internal static class SeparatorMatcher
@@ -52,6 +55,20 @@ namespace FlatFiles
             }
             return false;
         }
+
+        public async Task<bool> IsMatchAsync()
+        {
+            if (await reader.IsMatch1Async('\r'))
+            {
+                await reader.IsMatch1Async('\n');
+                return true;
+            }
+            else if (await reader.IsMatch1Async('\n'))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 
     internal sealed class OneCharacterSeparatorMatcher : ISeparatorMatcher
@@ -68,6 +85,11 @@ namespace FlatFiles
         public bool IsMatch()
         {
             return reader.IsMatch1(first);
+        }
+
+        public async Task<bool> IsMatchAsync()
+        {
+            return await reader.IsMatch1Async(first);
         }
     }
 
@@ -88,6 +110,11 @@ namespace FlatFiles
         {
             return reader.IsMatch2(first, second);
         }
+
+        public async Task<bool> IsMatchAsync()
+        {
+            return await reader.IsMatch2Async(first, second);
+        }
     }
 
     internal sealed class StringSeparatorMatcher : ISeparatorMatcher
@@ -104,6 +131,11 @@ namespace FlatFiles
         public bool IsMatch()
         {
             return reader.IsMatch(separator);
+        }
+
+        public async Task<bool> IsMatchAsync()
+        {
+            return await reader.IsMatchAsync(separator);
         }
     }
 }

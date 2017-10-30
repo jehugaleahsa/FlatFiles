@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace FlatFiles
 {
     internal sealed class RetryReader
     {
         private readonly TextReader reader;
-        private readonly Stack<char> retry;
         private readonly ReaderState readState;
         private readonly RetryState retryState;
         private IReaderState state;
@@ -16,15 +15,19 @@ namespace FlatFiles
         public RetryReader(TextReader reader)
         {
             this.reader = reader;
-            this.retry = new Stack<char>();
             this.readState = new ReaderState(this);
             this.retryState = new RetryState(this);
             this.state = readState;
         }
 
-        public bool EndOfStream
+        public bool IsEndOfStream()
         {
-            get { return state.EndOfStream; }
+            return state.IsEndOfStream();
+        }
+
+        public async ValueTask<bool> IsEndOfStreamAsync()
+        {
+            return await state.IsEndOfStreamAsync();
         }
 
         public char Current
@@ -37,9 +40,25 @@ namespace FlatFiles
             return state.Read();
         }
 
+        public async ValueTask<bool> ReadAsync()
+        {
+            return await state.ReadAsync();
+        }
+
         public bool IsWhitespace()
         {
             int next = state.Peek();
+            if (next != -1 && Char.IsWhiteSpace(unchecked((char)next)))
+            {
+                state.SafeRead();
+                return true;
+            }
+            return false;
+        }
+
+        public async ValueTask<bool> IsWhitespaceAsync()
+        {
+            int next = await state.PeekAsync();
             if (next != -1 && Char.IsWhiteSpace(unchecked((char)next)))
             {
                 state.SafeRead();
@@ -59,6 +78,17 @@ namespace FlatFiles
             return false;
         }
 
+        public async ValueTask<bool> IsMatch1Async(char value)
+        {
+            int next = await state.PeekAsync();
+            if (next != -1 && unchecked((char)next) == value)
+            {
+                state.SafeRead();
+                return true;
+            }
+            return false;
+        }
+
         public bool IsMatch2(char first, char second)
         {
             if (!IsMatch1(first))
@@ -66,6 +96,20 @@ namespace FlatFiles
                 return false;
             }
             if (!IsMatch1(second))
+            {
+                undo(current);
+                return false;
+            }
+            return true;
+        }
+
+        public async ValueTask<bool> IsMatch2Async(char first, char second)
+        {
+            if (!await IsMatch1Async(first))
+            {
+                return false;
+            }
+            if (!await IsMatch1Async(second))
             {
                 undo(current);
                 return false;
@@ -90,9 +134,26 @@ namespace FlatFiles
             return false;
         }
 
+        public async ValueTask<bool> IsMatchAsync(string value)
+        {
+            int position = 0;
+            char[] buffer = new char[value.Length];
+            while (await IsMatch1Async(value[position]))
+            {
+                buffer[position] = value[position];
+                ++position;
+                if (position == value.Length)
+                {
+                    return true;
+                }
+            }
+            undo(buffer, position);
+            return false;
+        }
+
         private void undo(char item)
         {
-            retry.Push(item);
+            retryState.Add(item);
             state = retryState;
         }
 
@@ -102,12 +163,7 @@ namespace FlatFiles
             {
                 return;
             }
-            do
-            {
-                --length;
-                retry.Push(items[length]);
-            }
-            while (length != 0);
+            retryState.AddRange(items, length);
             state = retryState;
         }
 
@@ -115,11 +171,17 @@ namespace FlatFiles
         {
             bool Read();
 
+            ValueTask<bool> ReadAsync();
+
             void SafeRead();
 
             int Peek();
 
-            bool EndOfStream { get; }
+            ValueTask<int> PeekAsync();
+
+            bool IsEndOfStream();
+
+            ValueTask<bool> IsEndOfStreamAsync();
         }
 
         private sealed class ReaderState : IReaderState
@@ -133,19 +195,32 @@ namespace FlatFiles
                 this.textReader = reader.reader;
             }
 
-            private int read()
+            public bool IsEndOfStream()
             {
-                return textReader.Read();
+                return textReader.Peek() == -1;
             }
 
-            public bool EndOfStream
+            public async ValueTask<bool> IsEndOfStreamAsync()
             {
-                get { return textReader.Peek() == -1; }
+                return await PeekAsync() == -1;
             }
 
             public int Peek()
             {
                 return textReader.Peek();
+            }
+
+            public async ValueTask<int> PeekAsync()
+            {
+                char[] buffer = new char[4096];
+                int length = await textReader.ReadBlockAsync(buffer, 0, buffer.Length);
+                if (length == 0)
+                {
+                    return -1;
+                }
+                reader.retryState.AddRange(buffer, length);
+                reader.state = reader.retryState;
+                return await reader.retryState.PeekAsync();
             }
 
             public bool Read()
@@ -159,31 +234,69 @@ namespace FlatFiles
                 return true;
             }
 
+            public async ValueTask<bool> ReadAsync()
+            {
+                char[] buffer = new char[4096];
+                int length = await textReader.ReadBlockAsync(buffer, 0, buffer.Length);
+                if (length == 0)
+                {
+                    return false;
+                }
+                reader.retryState.AddRange(buffer, length);
+                reader.state = reader.retryState;
+                return await reader.retryState.ReadAsync();
+            }
+
             public void SafeRead()
             {
                 reader.current = unchecked((char)read());
+            }
+
+            private int read()
+            {
+                return textReader.Read();
             }
         }
 
         private sealed class RetryState : IReaderState
         {
             private readonly RetryReader reader;
-            private readonly Stack<char> retry;
+            private CircularQueue<char> queue;
 
             public RetryState(RetryReader reader)
             {
                 this.reader = reader;
-                this.retry = reader.retry;
+                this.queue = new CircularQueue<char>();
             }
 
-            public bool EndOfStream
+            public bool IsEndOfStream()
             {
-                get { return false; }
+                return false;
+            }
+
+            public ValueTask<bool> IsEndOfStreamAsync()
+            {
+                return new ValueTask<bool>(false);
+            }
+
+            public void Add(char item)
+            {
+                queue.Enqueue(item);
+            }
+
+            public void AddRange(char[] items, int length)
+            {
+                queue.EnqueueRange(items, length);
             }
 
             public int Peek()
             {
-                return retry.Peek();
+                return queue.Peek();
+            }
+
+            public ValueTask<int> PeekAsync()
+            {
+                return new ValueTask<int>((int)queue.Peek());
             }
 
             public bool Read()
@@ -192,10 +305,16 @@ namespace FlatFiles
                 return true;
             }
 
+            public ValueTask<bool> ReadAsync()
+            {
+                SafeRead();
+                return new ValueTask<bool>(true);
+            }
+
             public void SafeRead()
             {
-                reader.current = retry.Pop();
-                if (retry.Count == 0)
+                reader.current = queue.Dequeue();
+                if (queue.Count == 0)
                 {
                     reader.state = reader.readState;
                 }

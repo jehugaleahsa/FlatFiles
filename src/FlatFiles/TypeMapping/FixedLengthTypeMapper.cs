@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using FlatFiles.Resources;
 
 namespace FlatFiles.TypeMapping
@@ -441,6 +442,14 @@ namespace FlatFiles.TypeMapping
         void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null);
 
         /// <summary>
+        /// Writes the given entities to the given writer.
+        /// </summary>
+        /// <param name="writer">A writer over the fixed-length document.</param>
+        /// <param name="entities">The entities to write to the document.</param>
+        /// <param name="options">The options controlling how the separated value document is written.</param>
+        Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null);
+
+        /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
         /// </summary>
         /// <param name="writer">The writer over the fixed-length document.</param>
@@ -678,6 +687,14 @@ namespace FlatFiles.TypeMapping
         /// <param name="entities">The entities to write to the stream.</param>
         /// <param name="options">The options used to format the output.</param>
         void Write(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options = null);
+
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="writer">A writer over the separated value document.</param>
+        /// <param name="entities">The entities to write to the stream.</param>
+        /// <param name="options">The options used to format the output.</param>
+        Task WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options = null);
 
         /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
@@ -1328,6 +1345,26 @@ namespace FlatFiles.TypeMapping
             }
         }
 
+        public async Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
+        {
+            if (entities == null)
+            {
+                throw new ArgumentNullException(nameof(entities));
+            }
+            FixedLengthSchema schema = getSchema();
+            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            await writeAsync(fixedLengthWriter, entities);
+        }
+
+        private async Task writeAsync(IWriter writer, IEnumerable<TEntity> entities)
+        {
+            TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
+            foreach (TEntity entity in entities)
+            {
+                await typedWriter.WriteAsync(entity);
+            }
+        }
+
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)
         {
             FixedLengthSchema schema = getSchema();
@@ -1553,6 +1590,12 @@ namespace FlatFiles.TypeMapping
         {
             var converted = entities.Cast<TEntity>();
             Write(writer, converted, options);
+        }
+
+        async Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)
+        {
+            var converted = entities.Cast<TEntity>();
+            await WriteAsync(writer, converted, options);
         }
 
         ITypedWriter<object> IDynamicFixedLengthTypeMapper.GetWriter(TextWriter writer, FixedLengthOptions options)
