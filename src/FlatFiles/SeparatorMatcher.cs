@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace FlatFiles
 {
     internal interface ISeparatorMatcher
     {
+        int Size { get; }
         bool IsMatch();
-
-        Task<bool> IsMatchAsync();
     }
 
     internal static class SeparatorMatcher
@@ -42,6 +40,11 @@ namespace FlatFiles
             this.reader = reader;
         }
 
+        public int Size
+        {
+            get { return 2; }
+        }
+
         public bool IsMatch()
         {
             if (reader.IsMatch1('\r'))
@@ -50,20 +53,6 @@ namespace FlatFiles
                 return true;
             }
             else if (reader.IsMatch1('\n'))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public async Task<bool> IsMatchAsync()
-        {
-            if (await reader.IsMatch1Async('\r'))
-            {
-                await reader.IsMatch1Async('\n');
-                return true;
-            }
-            else if (await reader.IsMatch1Async('\n'))
             {
                 return true;
             }
@@ -82,14 +71,14 @@ namespace FlatFiles
             this.first = first;
         }
 
+        public int Size
+        {
+            get { return 1; }
+        }
+
         public bool IsMatch()
         {
             return reader.IsMatch1(first);
-        }
-
-        public async Task<bool> IsMatchAsync()
-        {
-            return await reader.IsMatch1Async(first);
         }
     }
 
@@ -106,14 +95,14 @@ namespace FlatFiles
             this.second = second;
         }
 
+        public int Size
+        {
+            get { return 2; }
+        }
+
         public bool IsMatch()
         {
             return reader.IsMatch2(first, second);
-        }
-
-        public async Task<bool> IsMatchAsync()
-        {
-            return await reader.IsMatch2Async(first, second);
         }
     }
 
@@ -127,15 +116,14 @@ namespace FlatFiles
             this.reader = reader;
             this.separator = separator;
         }
+        public int Size
+        {
+            get { return separator.Length; }
+        }
 
         public bool IsMatch()
         {
             return reader.IsMatch(separator);
-        }
-
-        public async Task<bool> IsMatchAsync()
-        {
-            return await reader.IsMatchAsync(separator);
         }
     }
 }

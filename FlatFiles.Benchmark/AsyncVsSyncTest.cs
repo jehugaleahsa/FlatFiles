@@ -1,13 +1,15 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 using FlatFiles.TypeMapping;
 
 namespace FlatFiles.Benchmark
 {
     public class AsyncVsSyncTest
     {
-        public void SyncTest()
+        [Benchmark]
+        public string SyncTest()
         {
             var mapper = SeparatedValueTypeMapper.Define<SampleData>();
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
@@ -59,9 +61,11 @@ namespace FlatFiles.Benchmark
                     writer.Write(reader.Current);
                 }
             }
+            return textWriter.ToString();
         }
 
-        public async Task AsyncTest()
+        [Benchmark]
+        public async Task<string> AsyncTest()
         {
             var mapper = SeparatedValueTypeMapper.Define<SampleData>();
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
@@ -113,6 +117,7 @@ namespace FlatFiles.Benchmark
                     await writer.WriteAsync(reader.Current);
                 }
             }
+            return textWriter.ToString();
         }
 
         private class SampleData

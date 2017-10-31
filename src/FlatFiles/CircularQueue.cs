@@ -2,7 +2,7 @@
 
 namespace FlatFiles
 {
-    internal class CircularQueue<T>
+    internal sealed class CircularQueue<T>
     {
         private T[] items;
         private int front;

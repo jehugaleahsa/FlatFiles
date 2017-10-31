@@ -21,24 +21,23 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            var tester = new AsyncVsSyncTest();
-            Stopwatch timer = Stopwatch.StartNew();
-            tester.SyncTest();
-            timer.Stop();
-            Console.Out.WriteLine($"Sync: {timer.Elapsed}.");
+            BenchmarkRunner.Run<SimpleAsyncCsvTester>(configuration);
+            //var tester = new AsyncVsSyncTest();
+            //tester.SyncTest();
 
-            timer.Restart();
-            tester.AsyncTest().Wait();
-            timer.Stop();
-            Console.Out.WriteLine($"Async: {timer.Elapsed}");
+            //var stopwatch = Stopwatch.StartNew();
+            //string syncResult = tester.SyncTest();
+            //stopwatch.Stop();
+            //Console.Out.WriteLine(stopwatch.Elapsed);
+            //Console.Out.WriteLine(syncResult.Length);
 
-            //BenchmarkRunner.Run<SimpleCsvTester>(configuration);
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    var tester = new PropertyVsFieldTester();
-            //    tester.RunPropertyTest();
-            //    tester.RunFieldTest();
-            //}
+            //tester.AsyncTest().Wait();
+
+            //stopwatch.Restart();
+            //string asyncResult = tester.AsyncTest().Result;
+            //stopwatch.Stop();
+            //Console.Out.WriteLine(stopwatch.Elapsed);
+            //Console.Out.WriteLine(asyncResult.Length);
 
             Console.Out.Write("Hit <enter> to exit...");
             Console.In.ReadLine();

@@ -13,6 +13,7 @@ namespace FlatFiles
         private readonly ISeparatorMatcher separatorMatcher;
         private readonly ISeparatorMatcher recordSeparatorMatcher;
         private readonly ISeparatorMatcher postfixMatcher;
+        private readonly int separatorLength;
         private List<string> values;
         private StringBuilder token;
 
@@ -27,6 +28,7 @@ namespace FlatFiles
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
                 this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
+            this.separatorLength = Math.Max(this.options.RecordSeparator?.Length ?? 2, this.options.Separator.Length);
             this.token = new StringBuilder();
         }
 
@@ -42,7 +44,11 @@ namespace FlatFiles
 
         public async ValueTask<bool> IsEndOfStreamAsync()
         {
-            return await reader.IsEndOfStreamAsync();
+            if (!reader.IsBufferLargeEnough(1))
+            {
+                await reader.LoadBuffer(1);
+            }
+            return reader.IsEndOfStream();
         }
 
         private void addToken()
@@ -105,7 +111,11 @@ namespace FlatFiles
                     return tokenType;
                 }
             }
-            if (await reader.IsMatch1Async(options.Quote))
+            if (!reader.IsBufferLargeEnough(1))
+            {
+                await reader.LoadBuffer(1);
+            }
+            if (reader.IsMatch1(options.Quote))
             {
                 return await getQuotedTokenAsync();
             }
@@ -131,12 +141,20 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> getUnquotedTokenAsync()
         {
-            TokenType tokenType = await getSeparatorAsync();
+            if (!reader.IsBufferLargeEnough(separatorLength))
+            {
+                await reader.LoadBuffer(separatorLength);
+            }
+            TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
-                await reader.ReadAsync();
+                reader.Read();
                 token.Append(reader.Current);
-                tokenType = await getSeparatorAsync();
+                if (!reader.IsBufferLargeEnough(separatorLength))
+                {
+                    await reader.LoadBuffer(separatorLength);
+                }
+                tokenType = getSeparator();
             }
             trimTokenEnd();
             addToken();
@@ -202,39 +220,54 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> getQuotedTokenAsync()
         {
+            if (!reader.IsBufferLargeEnough(1))
+            {
+                await reader.LoadBuffer(1);
+            }
             TokenType tokenType = TokenType.Normal;
-            while (tokenType == TokenType.Normal && await reader.ReadAsync())
+            while (tokenType == TokenType.Normal && reader.Read())
             {
                 if (reader.Current != options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
                 }
-                else if (await reader.IsMatch1Async(options.Quote))
-                {
-                    // Escaped quote (two quotes in a row)
-                    token.Append(reader.Current);
-                }
                 else
                 {
-                    if (options.PreserveWhiteSpace)
+                    if (!reader.IsBufferLargeEnough(1))
                     {
-                        // We've encountered a stand-alone quote.
-                        // We go looking for a separator, keeping any leading whitespace.
-                        tokenType = await appendWhiteSpaceAsync();
+                        await reader.LoadBuffer(1);
+                    }
+                    if (reader.IsMatch1(options.Quote))
+                    {
+                        // Escaped quote (two quotes in a row)
+                        token.Append(reader.Current);
                     }
                     else
                     {
-                        // We've encountered a stand-alone quote.
-                        // We go looking for a separator, skipping any leading whitespace.
-                        tokenType = await skipWhiteSpaceAsync();
+                        if (options.PreserveWhiteSpace)
+                        {
+                            // We've encountered a stand-alone quote.
+                            // We go looking for a separator, keeping any leading whitespace.
+                            tokenType = await appendWhiteSpaceAsync();
+                        }
+                        else
+                        {
+                            // We've encountered a stand-alone quote.
+                            // We go looking for a separator, skipping any leading whitespace.
+                            tokenType = await skipWhiteSpaceAsync();
+                        }
+                        // If we find anything other than a separator, it's a syntax error.
+                        if (tokenType != TokenType.Normal)
+                        {
+                            addToken();
+                            return tokenType;
+                        }
                     }
-                    // If we find anything other than a separator, it's a syntax error.
-                    if (tokenType != TokenType.Normal)
-                    {
-                        addToken();
-                        return tokenType;
-                    }
+                }
+                if (!reader.IsBufferLargeEnough(1))
+                {
+                    await reader.LoadBuffer(1);
                 }
             }
             throw new SeparatedValueSyntaxException(SharedResources.UnmatchedQuote);
@@ -252,10 +285,22 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> skipWhiteSpaceAsync()
         {
-            TokenType tokenType = await getSeparatorAsync();
-            while (tokenType == TokenType.Normal && await reader.IsWhitespaceAsync())
+            if (!reader.IsBufferLargeEnough(separatorLength))
             {
-                tokenType = await getSeparatorAsync();
+                await reader.LoadBuffer(separatorLength);
+            }
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal)
+            {
+                if (!reader.IsBufferLargeEnough(separatorLength + 1))
+                {
+                    await reader.LoadBuffer(separatorLength + 1);
+                }
+                if (!reader.IsWhitespace())
+                {
+                    break;
+                }
+                tokenType = getSeparator();
             }
             return tokenType;
         }
@@ -273,11 +318,23 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> appendWhiteSpaceAsync()
         {
-            TokenType tokenType = await getSeparatorAsync();
-            while (tokenType == TokenType.Normal && await reader.IsWhitespaceAsync())
+            if (!reader.IsBufferLargeEnough(separatorLength))
             {
+                await reader.LoadBuffer(separatorLength);
+            }
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal)
+            {
+                if (!reader.IsBufferLargeEnough(separatorLength + 1))
+                {
+                    await reader.LoadBuffer(separatorLength + 1);
+                }
+                if (!reader.IsWhitespace())
+                {
+                    break;
+                }
                 token.Append(reader.Current);
-                tokenType = await getSeparatorAsync();
+                tokenType = getSeparator();
             }
             return tokenType;
         }
@@ -302,37 +359,6 @@ namespace FlatFiles
                 }
             }
             else if (postfixMatcher == null && recordSeparatorMatcher.IsMatch())
-            {
-                // If the separator is a substring of the record separator and we didn't find it,
-                // we won't find the record separator either.
-                return TokenType.EndOfRecord;
-            }
-            else
-            {
-                return TokenType.Normal;
-            }
-        }
-
-        private async ValueTask<TokenType> getSeparatorAsync()
-        {
-            if (await reader.IsEndOfStreamAsync())
-            {
-                return TokenType.EndOfStream;
-            }
-            else if (await separatorMatcher.IsMatchAsync())
-            {
-                // This code handles the case where the separator is a substring of the record separator.
-                // We check to see if the remaining characters make up the record separator.
-                if (postfixMatcher != null && await postfixMatcher.IsMatchAsync())
-                {
-                    return TokenType.EndOfRecord;
-                }
-                else
-                {
-                    return TokenType.EndOfToken;
-                }
-            }
-            else if (postfixMatcher == null && await recordSeparatorMatcher.IsMatchAsync())
             {
                 // If the separator is a substring of the record separator and we didn't find it,
                 // we won't find the record separator either.

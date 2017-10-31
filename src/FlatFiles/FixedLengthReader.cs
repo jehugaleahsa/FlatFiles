@@ -43,10 +43,6 @@ namespace FlatFiles
             parser = new FixedLengthRecordParser(reader, schema, options);
             this.schema = schema;
             this.options = options.Clone();
-            if (this.options.IsFirstRecordHeader)
-            {
-                skip();
-            }
         }
 
         /// <summary>
@@ -64,6 +60,20 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the schema being used by the parser.
+        /// </summary>
+        /// <returns>The schema being used by the parser.</returns>
+        public Task<FixedLengthSchema> GetSchemaAsync()
+        {
+            return Task.FromResult(schema);
+        }
+
+        Task<ISchema> IReader.GetSchemaAsync()
+        {
+            return Task.FromResult<ISchema>(schema);
+        }
+
+        /// <summary>
         /// Reads the next record from the file.
         /// </summary>
         /// <returns>True if the next record was parsed; otherwise, false if all files are read.</returns>
@@ -73,6 +83,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            handleHeader();
             try
             {
                 values = parsePartitions();
@@ -82,6 +93,14 @@ namespace FlatFiles
             {
                 hasError = true;
                 throw;
+            }
+        }
+
+        private void handleHeader()
+        {
+            if (recordCount == 0 && options.IsFirstRecordHeader)
+            {
+                skip();
             }
         }
 
@@ -132,6 +151,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            await handleHeaderAsync();
             try
             {
                 values = await parsePartitionsAsync();
@@ -141,6 +161,14 @@ namespace FlatFiles
             {
                 hasError = true;
                 throw;
+            }
+        }
+
+        private async Task handleHeaderAsync()
+        {
+            if (recordCount == 0 && options.IsFirstRecordHeader)
+            {
+                await skipAsync();
             }
         }
 
@@ -205,6 +233,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            handleHeader();
             return skip();
         }
 
@@ -225,6 +254,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            await handleHeaderAsync();
             return await skipAsync();
         }
 

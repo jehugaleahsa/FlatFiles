@@ -70,7 +70,11 @@ namespace FlatFiles
 
             public async ValueTask<bool> IsEndOfStreamAsync()
             {
-                return await reader.IsEndOfStreamAsync();
+                if (!reader.IsBufferLargeEnough(1))
+                {
+                    await reader.LoadBuffer(1);
+                }
+                return reader.IsEndOfStream();
             }
 
             public string ReadRecord()
@@ -85,10 +89,18 @@ namespace FlatFiles
 
             public async Task<string> ReadRecordAsync()
             {
+                if (!reader.IsBufferLargeEnough(matcher.Size))
+                {
+                    await reader.LoadBuffer(matcher.Size);
+                }
                 StringBuilder builder = new StringBuilder();
-                while (!await matcher.IsMatchAsync() && await reader.ReadAsync())
+                while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
+                    if (!reader.IsBufferLargeEnough(matcher.Size))
+                    {
+                        await reader.LoadBuffer(matcher.Size);
+                    }
                 }
                 return builder.ToString();
             }

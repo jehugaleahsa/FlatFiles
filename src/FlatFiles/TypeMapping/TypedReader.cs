@@ -25,7 +25,7 @@ namespace FlatFiles.TypeMapping
         /// Reads the next record from the file.
         /// </summary>
         /// <returns>True if the next record was read; otherwise, false if the end of file was reached.</returns>
-        Task<bool> ReadAsync();
+        ValueTask<bool> ReadAsync();
 
         /// <summary>
         /// Skips the next record from the file.
@@ -37,7 +37,7 @@ namespace FlatFiles.TypeMapping
         /// Skips the next record from the file.
         /// </summary>
         /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
-        Task<bool> SkipAsync();
+        ValueTask<bool> SkipAsync();
 
         /// <summary>
         /// Gets the last read entity.
@@ -73,7 +73,7 @@ namespace FlatFiles.TypeMapping
             return true;
         }
 
-        public async Task<bool> ReadAsync()
+        public async ValueTask<bool> ReadAsync()
         {
             if (!await reader.ReadAsync())
             {
@@ -89,7 +89,7 @@ namespace FlatFiles.TypeMapping
             return reader.Skip();
         }
 
-        public async Task<bool> SkipAsync()
+        public async ValueTask<bool> SkipAsync()
         {
             return await reader.SkipAsync();
         }

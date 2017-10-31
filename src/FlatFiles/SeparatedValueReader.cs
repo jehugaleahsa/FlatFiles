@@ -11,7 +11,7 @@ namespace FlatFiles
     public sealed class SeparatedValueReader : IReader
     {
         private readonly SeparatedValueRecordParser parser;
-        private readonly SeparatedValueSchema schema;
+        private SeparatedValueSchema schema;
         private int recordCount;
         private object[] values;
         private bool endOfFile;
@@ -63,21 +63,7 @@ namespace FlatFiles
             this.parser = new SeparatedValueRecordParser(retryReader, options);
             if (hasSchema)
             {
-                if (options.IsFirstRecordSchema)
-                {
-                    skip();  // skip header record
-                }
                 this.schema = schema;
-            }
-            else if (options.IsFirstRecordSchema)
-            {
-                string[] columnNames = readNextRecord();
-                this.schema = new SeparatedValueSchema();
-                foreach (string columnName in columnNames)
-                {
-                    StringColumn column = new StringColumn(columnName);
-                    this.schema.AddColumn(column);
-                }
             }
         }
 
@@ -87,6 +73,7 @@ namespace FlatFiles
         /// <returns>The names.</returns>
         public SeparatedValueSchema GetSchema()
         {
+            handleSchema();
             if (schema == null)
             {
                 throw new InvalidOperationException(SharedResources.SchemaNotDefined);
@@ -100,6 +87,26 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the schema being used by the parser.
+        /// </summary>
+        /// <returns>The schema being used by the parser.</returns>
+        public async Task<SeparatedValueSchema> GetSchemaAsync()
+        {
+            await handleSchemaAsync();
+            if (schema == null)
+            {
+                throw new InvalidOperationException(SharedResources.SchemaNotDefined);
+            }
+            return schema;
+        }
+
+        async Task<ISchema> IReader.GetSchemaAsync()
+        {
+            var schema = await GetSchemaAsync();
+            return schema;
+        }
+
+        /// <summary>
         /// Attempts to read the next record from the stream.
         /// </summary>
         /// <returns>True if the next record was read or false if all records have been read.</returns>
@@ -109,6 +116,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            handleSchema();
             try
             {
                 values = parsePartitions();
@@ -118,6 +126,30 @@ namespace FlatFiles
             {
                 hasError = true;
                 throw;
+            }
+        }
+
+        private void handleSchema()
+        {
+            if (recordCount != 0)
+            {
+                return;
+            }
+            if (!parser.Options.IsFirstRecordSchema)
+            {
+                return;
+            }
+            if (schema != null)
+            {
+                skip();
+                return;
+            }
+            string[] columnNames = readNextRecord();
+            schema = new SeparatedValueSchema();
+            foreach (string columnName in columnNames)
+            {
+                StringColumn column = new StringColumn(columnName);
+                schema.AddColumn(column);
             }
         }
 
@@ -163,6 +195,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            await handleSchemaAsync();
             try
             {
                 values = await parsePartitionsAsync();
@@ -172,6 +205,30 @@ namespace FlatFiles
             {
                 hasError = true;
                 throw;
+            }
+        }
+
+        private async Task handleSchemaAsync()
+        {
+            if (recordCount != 0)
+            {
+                return;
+            }
+            if (!parser.Options.IsFirstRecordSchema)
+            {
+                return;
+            }
+            if (schema != null)
+            {
+                await skipAsync();
+                return;
+            }
+            string[] columnNames = await readNextRecordAsync();
+            schema = new SeparatedValueSchema();
+            foreach (string columnName in columnNames)
+            {
+                StringColumn column = new StringColumn(columnName);
+                schema.AddColumn(column);
             }
         }
 
@@ -235,6 +292,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            handleSchema();
             bool result = skip();
             return result;
         }
@@ -256,6 +314,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
+            await handleSchemaAsync();
             bool result = await skipAsync();
             return result;
         }
