@@ -12,6 +12,9 @@ As a bonus for those of you using FlatFiles, as of version 1.2, you should now b
 
 You can also now map to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love.
 
+## Async Support
+As of version 1.3, you can now read and write files asynchronously!
+
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
 
