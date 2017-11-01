@@ -1,6 +1,6 @@
 # FlatFiles
 
-Read and write CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed.
+Read and write CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
