@@ -22,7 +22,7 @@ namespace FlatFiles.Benchmark
             };
             string header = String.Join(",", headers);
             string record = String.Join(",", values);
-            data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 1000).Select(i => record)));
+            data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
         }
 
         [Benchmark]

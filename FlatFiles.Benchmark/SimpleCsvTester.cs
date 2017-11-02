@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -54,6 +55,31 @@ namespace FlatFiles.Benchmark
 
             StringReader reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public void RunStringSplit()
+        {
+            var records = data.Split(Environment.NewLine).Skip(1).Select(l => l.Split(",").ToArray());
+            List<Person> people = new List<Person>();
+            foreach (var record in records)
+            {
+                Person person = new Person();
+                person.FirstName = record[0];
+                person.LastName = record[1];
+                person.Age = Int32.Parse(record[2]);
+                person.Street1 = record[3];
+                person.Street2 = record[4];
+                person.City = record[5];
+                person.State = record[6];
+                person.Zip = record[7];
+                person.FavoriteColor = record[8];
+                person.FavoriteFood = record[9];
+                person.FavoriteSport = record[10];
+                person.CreatedOn = DateTime.Parse(record[11]);
+                person.IsActive = Boolean.Parse(record[12]);
+                people.Add(person);
+            }
         }
         
         public class Person

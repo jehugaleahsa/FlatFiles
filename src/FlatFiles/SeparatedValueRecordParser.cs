@@ -39,14 +39,18 @@ namespace FlatFiles
 
         public bool IsEndOfStream()
         {
+            if (reader.ShouldLoadBuffer(1))
+            {
+                reader.LoadBuffer();
+            }
             return reader.IsEndOfStream();
         }
 
         public async ValueTask<bool> IsEndOfStreamAsync()
         {
-            if (!reader.IsBufferLargeEnough(1))
+            if (reader.ShouldLoadBuffer(1))
             {
-                await reader.LoadBuffer(1);
+                await reader.LoadBufferAsync();
             }
             return reader.IsEndOfStream();
         }
@@ -54,7 +58,7 @@ namespace FlatFiles
         private void addToken()
         {
             values.Add(token.ToString());
-            token.Length = 0;
+            token.Clear();
         }
 
         public string[] ReadRecord()
@@ -90,6 +94,10 @@ namespace FlatFiles
                     return tokenType;
                 }
             }
+            if (reader.ShouldLoadBuffer(1))
+            {
+                reader.LoadBuffer();
+            }
             if (reader.IsMatch1(options.Quote))
             {
                 return getQuotedToken();
@@ -111,9 +119,9 @@ namespace FlatFiles
                     return tokenType;
                 }
             }
-            if (!reader.IsBufferLargeEnough(1))
+            if (reader.ShouldLoadBuffer(1))
             {
-                await reader.LoadBuffer(1);
+                await reader.LoadBufferAsync();
             }
             if (reader.IsMatch1(options.Quote))
             {
@@ -127,11 +135,19 @@ namespace FlatFiles
 
         private TokenType getUnquotedToken()
         {
+            if (reader.ShouldLoadBuffer(separatorLength))
+            {
+                reader.LoadBuffer();
+            }
             TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
                 token.Append(reader.Current);
+                if (reader.ShouldLoadBuffer(separatorLength))
+                {
+                    reader.LoadBuffer();
+                }
                 tokenType = getSeparator();
             }
             trimTokenEnd();
@@ -141,18 +157,18 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> getUnquotedTokenAsync()
         {
-            if (!reader.IsBufferLargeEnough(separatorLength))
+            if (reader.ShouldLoadBuffer(separatorLength))
             {
-                await reader.LoadBuffer(separatorLength);
+                await reader.LoadBufferAsync();
             }
             TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
                 token.Append(reader.Current);
-                if (!reader.IsBufferLargeEnough(separatorLength))
+                if (reader.ShouldLoadBuffer(separatorLength))
                 {
-                    await reader.LoadBuffer(separatorLength);
+                    await reader.LoadBufferAsync();
                 }
                 tokenType = getSeparator();
             }
@@ -180,6 +196,10 @@ namespace FlatFiles
 
         private TokenType getQuotedToken()
         {
+            if (reader.ShouldLoadBuffer(1))
+            {
+                reader.LoadBuffer();
+            }
             TokenType tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
             {
@@ -188,31 +208,46 @@ namespace FlatFiles
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
                 }
-                else if (reader.IsMatch1(options.Quote))
-                {
-                    // Escaped quote (two quotes in a row)
-                    token.Append(reader.Current);
-                }
                 else
                 {
-                    if (options.PreserveWhiteSpace)
+                    if (reader.ShouldLoadBuffer(1))
                     {
-                        // We've encountered a stand-alone quote.
-                        // We go looking for a separator, keeping any leading whitespace.
-                        tokenType = appendWhiteSpace();
+                        reader.LoadBuffer();
+                    }
+                    if (reader.IsMatch1(options.Quote))
+                    {
+                        // Escaped quote (two quotes in a row)
+                        token.Append(reader.Current);
                     }
                     else
                     {
-                        // We've encountered a stand-alone quote.
-                        // We go looking for a separator, skipping any leading whitespace.
-                        tokenType = skipWhiteSpace();
+                        if (options.PreserveWhiteSpace)
+                        {
+                            // We've encountered a stand-alone quote.
+                            // We go looking for a separator, keeping any leading whitespace.
+                            tokenType = appendWhiteSpace();
+                        }
+                        else
+                        {
+                            // We've encountered a stand-alone quote.
+                            // We go looking for a separator, skipping any leading whitespace.
+                            tokenType = skipWhiteSpace();
+                        }
+                        // If we find anything other than a separator, it's a syntax error.
+                        if (tokenType == TokenType.Normal)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            addToken();
+                            return tokenType;
+                        }
                     }
-                    // If we find anything other than a separator, it's a syntax error.
-                    if (tokenType != TokenType.Normal)
-                    {
-                        addToken();
-                        return tokenType;
-                    }
+                }
+                if (reader.ShouldLoadBuffer(1))
+                {
+                    reader.LoadBuffer();
                 }
             }
             throw new SeparatedValueSyntaxException(SharedResources.UnmatchedQuote);
@@ -220,9 +255,9 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> getQuotedTokenAsync()
         {
-            if (!reader.IsBufferLargeEnough(1))
+            if (reader.ShouldLoadBuffer(1))
             {
-                await reader.LoadBuffer(1);
+                await reader.LoadBufferAsync();
             }
             TokenType tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
@@ -234,9 +269,9 @@ namespace FlatFiles
                 }
                 else
                 {
-                    if (!reader.IsBufferLargeEnough(1))
+                    if (reader.ShouldLoadBuffer(1))
                     {
-                        await reader.LoadBuffer(1);
+                        await reader.LoadBufferAsync();
                     }
                     if (reader.IsMatch1(options.Quote))
                     {
@@ -258,16 +293,20 @@ namespace FlatFiles
                             tokenType = await skipWhiteSpaceAsync();
                         }
                         // If we find anything other than a separator, it's a syntax error.
-                        if (tokenType != TokenType.Normal)
+                        if (tokenType == TokenType.Normal)
+                        {
+                            break;
+                        }
+                        else
                         {
                             addToken();
                             return tokenType;
                         }
                     }
                 }
-                if (!reader.IsBufferLargeEnough(1))
+                if (reader.ShouldLoadBuffer(1))
                 {
-                    await reader.LoadBuffer(1);
+                    await reader.LoadBufferAsync();
                 }
             }
             throw new SeparatedValueSyntaxException(SharedResources.UnmatchedQuote);
@@ -275,9 +314,21 @@ namespace FlatFiles
 
         private TokenType skipWhiteSpace()
         {
-            TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal && reader.IsWhitespace())
+            if (reader.ShouldLoadBuffer(separatorLength))
             {
+                reader.LoadBuffer();
+            }
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal)
+            {
+                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                {
+                    reader.LoadBuffer();
+                }
+                if (!reader.IsWhitespace())
+                {
+                    break;
+                }
                 tokenType = getSeparator();
             }
             return tokenType;
@@ -285,16 +336,16 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> skipWhiteSpaceAsync()
         {
-            if (!reader.IsBufferLargeEnough(separatorLength))
+            if (reader.ShouldLoadBuffer(separatorLength))
             {
-                await reader.LoadBuffer(separatorLength);
+                await reader.LoadBufferAsync();
             }
             TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (!reader.IsBufferLargeEnough(separatorLength + 1))
+                if (reader.ShouldLoadBuffer(separatorLength + 1))
                 {
-                    await reader.LoadBuffer(separatorLength + 1);
+                    await reader.LoadBufferAsync();
                 }
                 if (!reader.IsWhitespace())
                 {
@@ -307,9 +358,21 @@ namespace FlatFiles
 
         private TokenType appendWhiteSpace()
         {
-            TokenType tokenType = getSeparator();
-            while (tokenType == TokenType.Normal && reader.IsWhitespace())
+            if (reader.ShouldLoadBuffer(separatorLength))
             {
+                reader.LoadBuffer();
+            }
+            TokenType tokenType = getSeparator();
+            while (tokenType == TokenType.Normal)
+            {
+                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                {
+                    reader.LoadBuffer();
+                }
+                if (!reader.IsWhitespace())
+                {
+                    break;
+                }
                 token.Append(reader.Current);
                 tokenType = getSeparator();
             }
@@ -318,16 +381,16 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> appendWhiteSpaceAsync()
         {
-            if (!reader.IsBufferLargeEnough(separatorLength))
+            if (reader.ShouldLoadBuffer(separatorLength))
             {
-                await reader.LoadBuffer(separatorLength);
+                await reader.LoadBufferAsync();
             }
             TokenType tokenType = getSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (!reader.IsBufferLargeEnough(separatorLength + 1))
+                if (reader.ShouldLoadBuffer(separatorLength + 1))
                 {
-                    await reader.LoadBuffer(separatorLength + 1);
+                    await reader.LoadBufferAsync();
                 }
                 if (!reader.IsWhitespace())
                 {

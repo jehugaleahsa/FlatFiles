@@ -21,23 +21,29 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            BenchmarkRunner.Run<SimpleAsyncCsvTester>(configuration);
-            //var tester = new AsyncVsSyncTest();
-            //tester.SyncTest();
+            //BenchmarkRunner.Run<EmitVsReflectionReadTester>(configuration);
+            //var tester = new SimpleCsvTester();
+            //for (int i = 0; i != 10000; ++i)
+            //{
+            //    tester.RunFlatFiles();
+            //}
 
-            //var stopwatch = Stopwatch.StartNew();
-            //string syncResult = tester.SyncTest();
-            //stopwatch.Stop();
-            //Console.Out.WriteLine(stopwatch.Elapsed);
-            //Console.Out.WriteLine(syncResult.Length);
+            var tester = new AsyncVsSyncTest();
+            tester.SyncTest();
 
-            //tester.AsyncTest().Wait();
+            var stopwatch = Stopwatch.StartNew();
+            string syncResult = tester.SyncTest();
+            stopwatch.Stop();
+            Console.Out.WriteLine(stopwatch.Elapsed);
+            Console.Out.WriteLine(syncResult.Length);
 
-            //stopwatch.Restart();
-            //string asyncResult = tester.AsyncTest().Result;
-            //stopwatch.Stop();
-            //Console.Out.WriteLine(stopwatch.Elapsed);
-            //Console.Out.WriteLine(asyncResult.Length);
+            tester.AsyncTest().Wait();
+
+            stopwatch.Restart();
+            string asyncResult = tester.AsyncTest().Result;
+            stopwatch.Stop();
+            Console.Out.WriteLine(stopwatch.Elapsed);
+            Console.Out.WriteLine(asyncResult.Length);
 
             Console.Out.Write("Hit <enter> to exit...");
             Console.In.ReadLine();

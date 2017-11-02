@@ -65,41 +65,53 @@ namespace FlatFiles
 
             public bool IsEndOfStream()
             {
+                if (reader.ShouldLoadBuffer(1))
+                {
+                    reader.LoadBuffer();
+                }
                 return reader.IsEndOfStream();
             }
 
             public async ValueTask<bool> IsEndOfStreamAsync()
             {
-                if (!reader.IsBufferLargeEnough(1))
+                if (reader.ShouldLoadBuffer(1))
                 {
-                    await reader.LoadBuffer(1);
+                    await reader.LoadBufferAsync();
                 }
                 return reader.IsEndOfStream();
             }
 
             public string ReadRecord()
             {
+                if (reader.ShouldLoadBuffer(matcher.Size))
+                {
+                    reader.LoadBuffer();
+                }
                 StringBuilder builder = new StringBuilder();
                 while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
+                    if (reader.ShouldLoadBuffer(matcher.Size))
+                    {
+                        reader.LoadBuffer();
+                    }
                 }
                 return builder.ToString();
             }
 
             public async Task<string> ReadRecordAsync()
             {
-                if (!reader.IsBufferLargeEnough(matcher.Size))
+                if (reader.ShouldLoadBuffer(matcher.Size))
                 {
-                    await reader.LoadBuffer(matcher.Size);
+                    await reader.LoadBufferAsync();
                 }
                 StringBuilder builder = new StringBuilder();
                 while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
-                    if (!reader.IsBufferLargeEnough(matcher.Size))
+                    if (reader.ShouldLoadBuffer(matcher.Size))
                     {
-                        await reader.LoadBuffer(matcher.Size);
+                        await reader.LoadBufferAsync();
                     }
                 }
                 return builder.ToString();

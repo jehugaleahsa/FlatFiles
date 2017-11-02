@@ -56,7 +56,7 @@ namespace FlatFiles.Benchmark
                 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
                 var reader = mapper.GetReader(textReader, options);
                 var writer = mapper.GetWriter(textWriter, options);
-                for (int i = 0; i < 100_000 && reader.Read(); ++i)
+                while (reader.Read())
                 {
                     writer.Write(reader.Current);
                 }

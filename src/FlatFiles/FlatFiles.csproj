@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Read and write flat files.</Description>
+    <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
     <AssemblyTitle>FlatFiles</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <VersionPrefix>0.3.24.0</VersionPrefix>
-    <Authors>Truncon</Authors>
+    <Authors>Travis Parks</Authors>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -14,7 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>FlatFiles</PackageId>
-    <PackageTags>csv;comma;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing</PackageTags>
+    <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
     <PackageProjectUrl>http://github.com/jehugaleahsa/FlatFiles</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
@@ -23,9 +23,11 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <AssemblyVersion>1.3.1.0</AssemblyVersion>
-    <FileVersion>1.3.1.0</FileVersion>
-    <Version>1.3.1.0</Version>
+    <AssemblyVersion>1.4.0.0</AssemblyVersion>
+    <FileVersion>1.4.0.0</FileVersion>
+    <Version>1.4.0.0</Version>
+    <PackageLicenseUrl>https://github.com/jehugaleahsa/FlatFiles/blob/master/UNLICENSE.txt</PackageLicenseUrl>
+    <PackageReleaseNotes>Performance enhancements and additional async testing.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">

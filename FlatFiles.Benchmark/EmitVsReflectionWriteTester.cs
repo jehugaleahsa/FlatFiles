@@ -6,12 +6,12 @@ using FlatFiles.TypeMapping;
 
 namespace FlatFiles.Benchmark
 {
-    public class MapperReadTester
+    public class EmitVsReflectionWriteTester
     {
         private readonly ISeparatedValueTypeMapper<Person> mapper;
-        private readonly string peopleData;
+        private readonly Person[] people;
 
-        public MapperReadTester()
+        public EmitVsReflectionWriteTester()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
             mapper.Property(x => x.Name).ColumnName("Name");
@@ -20,32 +20,31 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.TopSpeed).ColumnName("TopSpeed");
             this.mapper = mapper;
 
-            var people = Enumerable.Range(0, 10000).Select(i => new Person()
+            this.people = Enumerable.Range(0, 10000).Select(i => new Person()
             {
                 Name = "Susan",
                 IQ = 132,
                 BirthDate = new DateTime(1984, 3, 15),
                 TopSpeed = 10.1m
             }).ToArray();
-            StringWriter writer = new StringWriter();
-            mapper.Write(writer, people);
-            peopleData = writer.ToString();
         }
 
-        [Benchmark(Description = "DeserializeEmit")]
-        public void DeserializeEmit()
+        [Benchmark(Description = "SerializeEmit")]
+        public string SerializeEmit()
         {
             mapper.OptimizeMapping(true);
-            StringReader reader = new StringReader(peopleData);
-            mapper.Read(reader).ToList();
+            StringWriter writer = new StringWriter();
+            mapper.Write(writer, people);
+            return writer.ToString();
         }
 
-        [Benchmark(Description = "DeserializeReflection")]
-        public void DeserializeReflection()
+        [Benchmark(Description = "SerializeReflection")]
+        public string SerializeReflection()
         {
             mapper.OptimizeMapping(false);
-            StringReader reader = new StringReader(peopleData);
-            mapper.Read(reader).ToList();
+            StringWriter writer = new StringWriter();
+            mapper.Write(writer, people);
+            return writer.ToString();
         }
 
         public class Person

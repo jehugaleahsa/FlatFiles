@@ -12,22 +12,19 @@ namespace FlatFiles
 
         public void Enqueue(T item)
         {
-            if (front == back)
+            if (items == null)
             {
-                if (items == null)
-                {
-                    items = new T[10];
-                }
-                else
-                {
-                    T[] newItems = new T[items.Length * 2];
-                    int middle = items.Length - front;
-                    Array.Copy(items, front, newItems, 0, middle);
-                    Array.Copy(items, 0, newItems, middle, front);
-                    front = 0;
-                    back = items.Length;
-                    items = newItems;
-                }
+                items = new T[10];
+            }
+            else if (Count == items.Length)
+            {
+                T[] newItems = new T[Count * 2];
+                int middle = Count - front;
+                Array.Copy(items, front, newItems, 0, middle);
+                Array.Copy(items, 0, newItems, middle, front);
+                front = 0;
+                back = Count;
+                items = newItems;
             }
             items[back] = item;
             ++back;
@@ -100,16 +97,39 @@ namespace FlatFiles
             return items[front];
         }
 
-        public T Dequeue()
+        public T Peek(int index)
         {
-            T item = items[front];
+            int position = front + index;
+            if (position >= items.Length)
+            {
+                position -= items.Length;
+            }
+            return items[position];
+        }
+
+        public void Dequeue()
+        {
             ++front;
             if (front == items.Length)
             {
                 front = 0;
             }
             --Count;
-            return item;
+        }
+
+        public void Dequeue(int count)
+        {
+            int remaining = count;
+            while (remaining != 0)
+            {
+                ++front;
+                if (front == items.Length)
+                {
+                    front = 0;
+                }
+                --remaining;
+            }
+            Count -= count;
         }
     }
 }

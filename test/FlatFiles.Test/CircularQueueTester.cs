@@ -29,7 +29,8 @@ namespace FlatFiles.Test
             queue.Enqueue(1);
             Assert.Equal(1, queue.Count);
 
-            var value = queue.Dequeue();
+            var value = queue.Peek();
+            queue.Dequeue();
             Assert.Equal(0, queue.Count);
             Assert.Equal(1, value);
         }
@@ -42,13 +43,13 @@ namespace FlatFiles.Test
             {
                 queue.Enqueue(i);
             }
-            queue.Dequeue();
-            queue.Dequeue();
+            queue.Dequeue(2);
             for (int i = 8; i != 14; ++i)
             {
                 queue.Enqueue(i);
             }
-            var value = queue.Dequeue();
+            var value = queue.Peek();
+            queue.Dequeue();
             Assert.Equal(2, value);
         }
 
@@ -83,7 +84,8 @@ namespace FlatFiles.Test
                 int half = size / 2;
                 for (int i = 0; i != half; ++i)
                 {
-                    lastDequeued = queue.Dequeue();
+                    lastDequeued = queue.Peek();
+                    queue.Dequeue();
                 }
                 ++size;
             }
@@ -107,13 +109,15 @@ namespace FlatFiles.Test
                 int half = size / 2;
                 for (int i = 0; i != half; ++i)
                 {
-                    captured.Add(queue.Dequeue());
+                    captured.Add(queue.Peek());
+                    queue.Dequeue();
                 }
                 ++size;
             }
             while (queue.Count != 0)
             {
-                captured.Add(queue.Dequeue());
+                captured.Add(queue.Peek());
+                queue.Dequeue();
             }
             var expected = Enumerable.Range(0, value).ToArray();
             Assert.Equal(expected, captured);
