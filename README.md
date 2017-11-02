@@ -1,16 +1,17 @@
 # FlatFiles
 
-Read and write CSV, fixed-length and other flat file formats.
+Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
 ## Support for .NET Core
 As of version 0.3.18.0, FlatFiles now supports .NET Core (.NETStandard v1.6) and .NET 4.5.1!
 
-## Performance Tuning & Field Support
+## Performance Tuning
 As a bonus for those of you using FlatFiles, as of version 1.2, you should now be seeing a nearly 2x performance improvement over previous versions, both read and write, both CSV and fixed-length. I spent some time playing with BenchmarkDotNet and using the profiler to squeeze every ounce of performance out of FlatFiles.
 
-You can also now map to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love.
+## Field Support
+Also as part of version 1.2, there is now support for mapping to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love. Performance-wise, I've not seen much of a difference; however, this may be more convenient for some users.
 
 ## Async Support
 As of version 1.3, you can now read and write files asynchronously!
