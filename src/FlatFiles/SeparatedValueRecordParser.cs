@@ -14,7 +14,7 @@ namespace FlatFiles
         private readonly ISeparatorMatcher recordSeparatorMatcher;
         private readonly ISeparatorMatcher postfixMatcher;
         private readonly int separatorLength;
-        private List<string> values;
+        private List<string> tokens;
         private StringBuilder token;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
@@ -29,6 +29,7 @@ namespace FlatFiles
                 this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
             this.separatorLength = Math.Max(this.options.RecordSeparator?.Length ?? 2, this.options.Separator.Length);
+            this.tokens = new List<string>();
             this.token = new StringBuilder();
         }
 
@@ -57,30 +58,32 @@ namespace FlatFiles
 
         private void addToken()
         {
-            values.Add(token.ToString());
+            string value = token.ToString();
+            tokens.Add(value);
             token.Clear();
         }
 
         public string[] ReadRecord()
         {
-            values = new List<string>();
             TokenType tokenType = getNextToken();
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = getNextToken();
             }
-            return values.ToArray();
+            string[] results = tokens.ToArray();
+            tokens.Clear();
+            return results;
         }
 
         public async Task<string[]> ReadRecordAsync()
         {
-            values = new List<string>();
+            tokens = new List<string>();
             TokenType tokenType = await getNextTokenAsync();
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = await getNextTokenAsync();
             }
-            return values.ToArray();
+            return tokens.ToArray();
         }
 
         private TokenType getNextToken()

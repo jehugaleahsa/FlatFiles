@@ -56,11 +56,13 @@ namespace FlatFiles
         {
             private readonly RetryReader reader;
             private readonly ISeparatorMatcher matcher;
+            private readonly StringBuilder builder;
 
             public SeparatorRecordReader(TextReader reader, string separator)
             {
                 this.reader = new RetryReader(reader);
                 this.matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
+                this.builder = new StringBuilder();
             }
 
             public bool IsEndOfStream()
@@ -87,7 +89,6 @@ namespace FlatFiles
                 {
                     reader.LoadBuffer();
                 }
-                StringBuilder builder = new StringBuilder();
                 while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
@@ -96,7 +97,9 @@ namespace FlatFiles
                         reader.LoadBuffer();
                     }
                 }
-                return builder.ToString();
+                string record = builder.ToString();
+                builder.Clear();
+                return record;
             }
 
             public async Task<string> ReadRecordAsync()
@@ -105,7 +108,6 @@ namespace FlatFiles
                 {
                     await reader.LoadBufferAsync();
                 }
-                StringBuilder builder = new StringBuilder();
                 while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
@@ -114,7 +116,9 @@ namespace FlatFiles
                         await reader.LoadBufferAsync();
                     }
                 }
-                return builder.ToString();
+                string record = builder.ToString();
+                builder.Clear();
+                return record;
             }
         }
 

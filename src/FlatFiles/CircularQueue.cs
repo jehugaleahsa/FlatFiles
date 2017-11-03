@@ -10,85 +10,103 @@ namespace FlatFiles
 
         public int Count { get; private set; }
 
-        public void Enqueue(T item)
+        public ArraySegment<T> Reserve(int size)
         {
-            if (items == null)
+            if (size == 0)
             {
-                items = new T[10];
-            }
-            else if (Count == items.Length)
-            {
-                T[] newItems = new T[Count * 2];
-                int middle = Count - front;
-                Array.Copy(items, front, newItems, 0, middle);
-                Array.Copy(items, 0, newItems, middle, front);
-                front = 0;
-                back = Count;
-                items = newItems;
-            }
-            items[back] = item;
-            ++back;
-            if (back == items.Length)
-            {
-                back = 0;
-            }
-            ++Count;
-        }
-
-        public void EnqueueRange(T[] values, int valuesLength)
-        {
-            if (valuesLength == 0)
-            {
-                return;
+                return new ArraySegment<T>(items, back, 0);
             }
             if (items == null)
             {
-                items = new T[valuesLength];
-                Array.Copy(values, 0, items, 0, valuesLength);
-                Count += valuesLength;
+                items = new T[size];
+                return new ArraySegment<T>(items, 0, size);
             }
-            else if (Count + valuesLength > items.Length)
+            if (Count + size <= items.Length)
             {
-                T[] newItems = new T[Math.Max(Count + valuesLength, items.Length * 2)];
-                if (back >= front)
+                // The buffer is large enough to hold the new items.
+                // Determine if we need to shift the items to create a contiguous block.
+                if (front > back || items.Length - back < size)
                 {
-                    int length = back - front;
-                    Array.Copy(items, front, newItems, 0, length);
-                    Array.Copy(values, 0, newItems, length, valuesLength);
+                    // If the back has wrapped around to the front of the array, we need to shift the elements.
+                    // If the back is too close to the end of the array, we need to shift the elements.
+                    rotateLeft(items, 0, front, front + Count);
+                    front = 0;
+                    back = Count;
                 }
-                else
-                {
-                    int length = items.Length - front;
-                    Array.Copy(items, front, newItems, 0, length);
-                    Array.Copy(items, 0, newItems, length, back);
-                    Array.Copy(values, 0, newItems, Count, valuesLength);
-                }
-                items = newItems;
-                front = 0;
-                Count += valuesLength;
-                back = Count;
-            }
-            else if (back >= front)
-            {
-                int length = items.Length - back;
-                if (length > valuesLength)
-                {
-                    length = valuesLength;
-                }
-                Array.Copy(values, 0, items, back, length);
-                Array.Copy(values, length, items, 0, valuesLength - length);
-                Count += valuesLength;
-                back += valuesLength;
-                if (back >= items.Length)
-                {
-                    back -= items.Length;
-                }
+                return new ArraySegment<T>(items, back, size);
             }
             else
             {
-                Array.Copy(values, 0, items, back, valuesLength);
-                Count += valuesLength;
-                back += valuesLength;
+                // The buffer is not large enough to hold the new items.
+                // Create a new buffer, copying the current contents into it, shifting the content to the front.
+                T[] newItems = new T[Math.Max(Count + size, items.Length * 2)];
+                if (back < front)
+                {
+                    // The back has wrapped around to the front of the array; copy from the front to the end (the middle) of the old list.
+                    // Then copy from the front of the old list (the middle) until the end.
+                    int length = items.Length - front;
+                    Array.Copy(items, front, newItems, 0, length);
+                    Array.Copy(items, 0, newItems, length, back);
+                }
+                else
+                {
+                    // The range, from the front to the back, is contiguous. Copy to the new buffer and shift the elements to the front.
+                    int length = back - front;
+                    Array.Copy(items, front, newItems, 0, length);
+                }
+                front = 0;
+                back = Count;
+                items = newItems;
+                return new ArraySegment<T>(items, Count, size);
+            }
+        }
+
+        public void AddItemCount(int size)
+        {
+            Count += size;
+            back += size;
+            if (back >= items.Length)
+            {
+                back -= items.Length;
+            }
+        }
+
+        private static void rotateLeft(T[] list, int first, int middle, int past)
+        {
+            int shift = middle - first;
+            int count = past - first;
+            for (int factor = shift; factor != 0;)
+            {
+                int temp = count % factor;
+                count = factor;
+                factor = temp;
+            }
+            if (count < past - first)
+            {
+                while (count > 0)
+                {
+                    int hole = first + count;
+                    T value = list[hole];
+                    int temp = hole + shift;
+                    int next = temp == past ? first : temp;
+                    int current = hole;
+                    while (next != hole)
+                    {
+                        list[current] = list[next];
+                        current = next;
+                        int difference = past - next;
+                        if (shift < difference)
+                        {
+                            next += shift;
+                        }
+                        else
+                        {
+                            next = first + (shift - difference);
+                        }
+                    }
+                    list[current] = value;
+                    --count;
+                }
             }
         }
 
@@ -107,27 +125,12 @@ namespace FlatFiles
             return items[position];
         }
 
-        public void Dequeue()
-        {
-            ++front;
-            if (front == items.Length)
-            {
-                front = 0;
-            }
-            --Count;
-        }
-
         public void Dequeue(int count)
         {
-            int remaining = count;
-            while (remaining != 0)
+            front += count;
+            if (front >= items.Length)
             {
-                ++front;
-                if (front == items.Length)
-                {
-                    front = 0;
-                }
-                --remaining;
+                front -= items.Length;
             }
             Count -= count;
         }

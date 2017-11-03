@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -14,113 +15,101 @@ namespace FlatFiles.Test
         }
 
         [Fact]
-        public void TestAdd()
+        public void TestReserve_Uninitialized_CreatesNewArray()
         {
             CircularQueue<int> queue = new CircularQueue<int>();
-            queue.Enqueue(1);
-            Assert.Equal(1, queue.Count);
-        }
+            var segment = queue.Reserve(10);
 
-        [Fact]
-        public void TestAddAndRemove()
-        {
-            CircularQueue<int> queue = new CircularQueue<int>();
-
-            queue.Enqueue(1);
-            Assert.Equal(1, queue.Count);
-
-            var value = queue.Peek();
-            queue.Dequeue();
             Assert.Equal(0, queue.Count);
-            Assert.Equal(1, value);
+            Assert.Equal(0, segment.Offset);
+            Assert.Equal(10, segment.Count);
         }
 
         [Fact]
-        public void TestShiftedFront()
+        public void TestReserve_NoRoom_ExpandsBuffer()
         {
             CircularQueue<int> queue = new CircularQueue<int>();
-            for (int i = 0; i != 8; ++i)
-            {
-                queue.Enqueue(i);
-            }
-            queue.Dequeue(2);
-            for (int i = 8; i != 14; ++i)
-            {
-                queue.Enqueue(i);
-            }
-            var value = queue.Peek();
-            queue.Dequeue();
-            Assert.Equal(2, value);
+            queue.Reserve(1);
+
+            var segment = queue.Reserve(10);
+
+            Assert.Equal(0, queue.Count);
+            Assert.Equal(0, segment.Offset);
+            Assert.Equal(10, segment.Count);
         }
 
         [Fact]
-        public void TestLargeCollection()
+        public void TestReserve_HasRoom_NoRoomAtEnd_ShiftsBuffer()
         {
-            const int size = 10000;
             CircularQueue<int> queue = new CircularQueue<int>();
-            for (int i = 0; i != size; ++i)
-            {
-                queue.Enqueue(i);
-            }
-            Assert.Equal(size, queue.Count);
-            while (queue.Count != 0)
-            {
-                queue.Dequeue();
-            }
+            var segment = queue.Reserve(10);
+            segment = fill(segment);
+            queue.AddItemCount(10);
+            dequeue(queue, 5);
+            segment = queue.Reserve(5);  // We have room for this, but the elements are at the end. Shift them.
+
+            Assert.Equal(5, queue.Count);
+            Assert.Equal(5, segment.Offset);
+            Assert.Equal(5, segment.Count);
         }
 
         [Fact]
-        public void TestLargeShifting()
+        public void TestReserve_HasRoom_RoomAtEnd_ReturnsEnd()
         {
-            int size = 2;
-            int lastDequeued = -1;
             CircularQueue<int> queue = new CircularQueue<int>();
-            for (int iteration = 0, value = 0; iteration != 1000; ++iteration)
-            {
-                for (int i = 0; i != size; ++i, ++value)
-                {
-                    queue.Enqueue(value);
-                }
-                int half = size / 2;
-                for (int i = 0; i != half; ++i)
-                {
-                    lastDequeued = queue.Peek();
-                    queue.Dequeue();
-                }
-                ++size;
-            }
+            var segment = queue.Reserve(10);
+            segment = fill(segment);
+            queue.AddItemCount(5);  // Claim we only added 5 items
+            segment = queue.Reserve(5);  // We have room for this and there's room at the end.
+
+            Assert.Equal(5, segment.Offset);
+            Assert.Equal(5, segment.Count);
         }
 
         [Fact]
-        public void TestLargeRangeShifting()
+        public void TestReserve_NotEnoughRoom_ItemsInMiddle_CopiesAndShifts()
         {
-            int size = 2;
-            int value = 0;
-            List<int> captured = new List<int>();
             CircularQueue<int> queue = new CircularQueue<int>();
-            for (int iteration = 0; iteration != 1000; ++iteration)
+            var segment = queue.Reserve(10);
+            segment = fill(segment);
+            queue.AddItemCount(10);
+            dequeue(queue, 5);  // Remove the front 5 items
+            segment = queue.Reserve(10);  // We are asking for 10, but only have room for 5.
+
+            Assert.Equal(5, queue.Count);
+            Assert.Equal(5, segment.Offset);
+            Assert.Equal(10, segment.Count);
+        }
+
+        [Fact]
+        public void TestReserve_NotEnoughRoom_ItemsAtFront_CopiesAndShifts()
+        {
+            CircularQueue<int> queue = new CircularQueue<int>();
+            var segment = queue.Reserve(10);
+            segment = fill(segment);
+            queue.AddItemCount(5);  // Pretend like we only added 5 items.
+            segment = queue.Reserve(10);  // We are asking for 10, but only have room for 5.
+
+            Assert.Equal(5, queue.Count);
+            Assert.Equal(5, segment.Offset);
+            Assert.Equal(10, segment.Count);
+        }
+
+        private static ArraySegment<int> fill(ArraySegment<int> segment)
+        {
+            for (int i = 0; i != segment.Count; ++i)
             {
-                List<int> values = new List<int>(size);
-                for (int i = 0; i != size; ++i, ++value)
-                {
-                    values.Add(value);
-                }
-                queue.EnqueueRange(values.ToArray(), values.Count);
-                int half = size / 2;
-                for (int i = 0; i != half; ++i)
-                {
-                    captured.Add(queue.Peek());
-                    queue.Dequeue();
-                }
-                ++size;
+                segment.Array[i + segment.Offset] = i;
             }
-            while (queue.Count != 0)
+            return segment;
+        }
+
+        private static void dequeue(CircularQueue<int> queue, int count)
+        {
+            for (int i = 0; i != count; ++i)
             {
-                captured.Add(queue.Peek());
-                queue.Dequeue();
+                queue.Dequeue(1);
             }
-            var expected = Enumerable.Range(0, value).ToArray();
-            Assert.Equal(expected, captured);
         }
     }
 }

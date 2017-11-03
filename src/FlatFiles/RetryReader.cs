@@ -35,7 +35,7 @@ namespace FlatFiles
                 return false;
             }
             current = queue.Peek();
-            queue.Dequeue();
+            queue.Dequeue(1);
             return true;
         }
 
@@ -50,13 +50,13 @@ namespace FlatFiles
             {
                 return;
             }
-            char[] buffer = new char[bufferSize];
-            int length = reader.ReadBlock(buffer, 0, bufferSize);
+            var segment = queue.Reserve(bufferSize);
+            int length = reader.ReadBlock(segment.Array, segment.Offset, segment.Count);
             if (length < bufferSize)
             {
                 isEndOfStreamFound = true;
             }
-            queue.EnqueueRange(buffer, length);
+            queue.AddItemCount(length);
         }
 
         public async Task LoadBufferAsync()
@@ -65,13 +65,13 @@ namespace FlatFiles
             {
                 return;
             }
-            char[] buffer = new char[bufferSize];
-            int length = await reader.ReadBlockAsync(buffer, 0, bufferSize);
+            var segment = queue.Reserve(bufferSize);
+            int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count);
             if (length < bufferSize)
             {
                 isEndOfStreamFound = true;
             }
-            queue.EnqueueRange(buffer, length);
+            queue.AddItemCount(length);
         }
 
         public bool IsWhitespace()
@@ -80,7 +80,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            queue.Dequeue();
+            queue.Dequeue(1);
             return true;
         }
 
@@ -90,7 +90,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            queue.Dequeue();
+            queue.Dequeue(1);
             return true;
         }
 
