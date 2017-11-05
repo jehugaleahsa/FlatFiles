@@ -21,13 +21,7 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            BenchmarkRunner.Run<SimpleSyncVsAsyncCsvTester>(configuration);
-            //new RealWorldCsvTester().RunFlatFiles();
-            //var tester = new SimpleCsvTester();
-            //for (int i = 0; i != 1000; ++i)
-            //{
-            //    tester.RunFlatFiles();
-            //}
+            BenchmarkRunner.Run<RealWorldCsvTester>(configuration);
     
             //var tester = new AsyncVsSyncTest();
             //for (int i = 0; i != 10; ++i)

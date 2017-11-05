@@ -65,10 +65,12 @@ namespace FlatFiles.TypeMapping
         private readonly DoubleColumn column;
         private readonly IMemberAccessor member;
 
-        public DoublePropertyMapping(DoubleColumn column, IMemberAccessor member)
+        public DoublePropertyMapping(DoubleColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IDoublePropertyMapping ColumnName(string name)
@@ -122,5 +124,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

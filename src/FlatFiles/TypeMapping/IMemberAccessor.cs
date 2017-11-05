@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace FlatFiles.TypeMapping
 {
@@ -6,7 +7,11 @@ namespace FlatFiles.TypeMapping
     {
         MemberInfo MemberInfo { get; }
 
+        IMemberAccessor ParentAccessor { get; }
+
         string Name { get; }
+
+        Type Type { get; }
 
         object GetValue(object instance);
 
@@ -17,9 +22,10 @@ namespace FlatFiles.TypeMapping
     {
         private readonly FieldInfo fieldInfo;
 
-        public FieldAccessor(FieldInfo fieldInfo)
+        public FieldAccessor(FieldInfo fieldInfo, IMemberAccessor parent)
         {
             this.fieldInfo = fieldInfo;
+            this.ParentAccessor = parent;
         }
 
         public MemberInfo MemberInfo
@@ -27,9 +33,16 @@ namespace FlatFiles.TypeMapping
             get { return fieldInfo; }
         }
 
+        public IMemberAccessor ParentAccessor { get; private set;  }
+
         public string Name
         {
-            get { return fieldInfo.Name; }
+            get { return ParentAccessor == null ? fieldInfo.Name : $"{ParentAccessor.Name}.{fieldInfo.Name}"; }
+        }
+
+        public Type Type
+        {
+            get { return fieldInfo.FieldType; }
         }
 
         public object GetValue(object instance)
@@ -47,9 +60,10 @@ namespace FlatFiles.TypeMapping
     {
         private readonly PropertyInfo propertyInfo;
 
-        public PropertyAccessor(PropertyInfo propertyInfo)
+        public PropertyAccessor(PropertyInfo propertyInfo, IMemberAccessor parent)
         {
             this.propertyInfo = propertyInfo;
+            this.ParentAccessor = parent;
         }
 
         public MemberInfo MemberInfo
@@ -57,9 +71,16 @@ namespace FlatFiles.TypeMapping
             get { return propertyInfo; }
         }
 
+        public IMemberAccessor ParentAccessor { get; private set; }
+
         public string Name
         {
-            get { return propertyInfo.Name; }
+            get { return ParentAccessor == null ? propertyInfo.Name : $"{ParentAccessor.Name}.{propertyInfo.Name}"; }
+        }
+
+        public Type Type
+        {
+            get { return propertyInfo.PropertyType; }
         }
 
         public object GetValue(object instance)

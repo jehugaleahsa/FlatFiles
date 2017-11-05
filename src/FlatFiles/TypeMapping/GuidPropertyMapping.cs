@@ -50,10 +50,12 @@ namespace FlatFiles.TypeMapping
         private readonly GuidColumn column;
         private readonly IMemberAccessor member;
 
-        public GuidPropertyMapping(GuidColumn column, IMemberAccessor member)
+        public GuidPropertyMapping(GuidColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IGuidPropertyMapping ColumnName(string name)
@@ -95,5 +97,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

@@ -65,10 +65,12 @@ namespace FlatFiles.TypeMapping
         private readonly Int32Column column;
         private readonly IMemberAccessor member;
 
-        public Int32PropertyMapping(Int32Column column, IMemberAccessor member)
+        public Int32PropertyMapping(Int32Column column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IInt32PropertyMapping ColumnName(string name)
@@ -122,5 +124,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

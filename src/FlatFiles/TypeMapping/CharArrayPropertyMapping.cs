@@ -43,10 +43,12 @@ namespace FlatFiles.TypeMapping
         private readonly CharArrayColumn column;
         private readonly IMemberAccessor member;
 
-        public CharArrayPropertyMapping(CharArrayColumn column, IMemberAccessor member)
+        public CharArrayPropertyMapping(CharArrayColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public ICharArrayPropertyMapping ColumnName(string name)
@@ -82,5 +84,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

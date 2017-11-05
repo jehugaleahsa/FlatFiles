@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace FlatFiles.TypeMapping
 {
@@ -8,10 +7,7 @@ namespace FlatFiles.TypeMapping
         private readonly Func<TEntity> factory;
         private readonly Action<TEntity, object[]> setter;
 
-        public TypedRecordReader(
-            Func<TEntity> factory,
-            ICodeGenerator codeGenerator,
-            List<IMemberMapping> mappings)
+        public TypedRecordReader(Func<TEntity> factory, ICodeGenerator codeGenerator, IMemberMapping[] mappings)
         {
             this.factory = factory;
             this.setter = codeGenerator.GetReader<TEntity>(mappings);

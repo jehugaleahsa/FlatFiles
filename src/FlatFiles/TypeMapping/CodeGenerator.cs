@@ -11,9 +11,9 @@ namespace FlatFiles.TypeMapping
     {
         Func<object> GetFactory(Type entityType);
 
-        Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings);
+        Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings);
 
-        Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings);
+        Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings);
     }
 
     internal sealed class ReflectionCodeGenerator : ICodeGenerator
@@ -23,39 +23,36 @@ namespace FlatFiles.TypeMapping
             return () => Activator.CreateInstance(entityType);
         }
 
-        public Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings)
+        public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
         {
             Action<TEntity, object[]> reader = (entity, values) =>
             {
-                for (int index = 0, position = 0; index != mappings.Count; ++index)
+                for (int index = 0; index != mappings.Length; ++index)
                 {
                     IMemberMapping mapping = mappings[index];
                     if (mapping.Member != null)
                     {
-                        object value = values[position];
+                        object value = values[mapping.WorkIndex];
                         mapping.Member.SetValue(entity, value);
-                        ++position;
                     }
                 }
             };
             return reader;
         }
 
-        public Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings)
+        public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
-            Func<TEntity, object[]> writer = (entity) =>
+            Action<TEntity, object[]> writer = (entity, values) =>
             {
-                List<object> values = new List<object>();
-                for (int index = 0; index != mappings.Count; ++index)
+                for (int index = 0; index != mappings.Length; ++index)
                 {
                     IMemberMapping mapping = mappings[index];
                     if (mapping.Member != null)
                     {
                         object value = mapping.Member.GetValue(entity);
-                        values.Add(value);
+                        values[mapping.WorkIndex] = value;
                     }
                 }
-                return values.ToArray();
             };
             return writer;
         }
@@ -77,7 +74,7 @@ namespace FlatFiles.TypeMapping
             return (Func<object>)method.CreateDelegate(typeof(Func<object>));
         }
 
-        public Action<TEntity, object[]> GetReader<TEntity>(List<IMemberMapping> mappings)
+        public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
@@ -86,8 +83,7 @@ namespace FlatFiles.TypeMapping
                 new Type[] { entityType, typeof(object[]) },
                 true);
             var generator = method.GetILGenerator();
-            int position = 0;
-            for (int index = 0; index != mappings.Count; ++index)
+            for (int index = 0; index != mappings.Length; ++index)
             {
                 IMemberMapping mapping = mappings[index];
                 if (mapping.Member == null)
@@ -96,7 +92,7 @@ namespace FlatFiles.TypeMapping
                 }
                 generator.Emit(OpCodes.Ldarg, 0);
                 generator.Emit(OpCodes.Ldarg, 1);
-                generator.Emit(OpCodes.Ldc_I4, position);
+                generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
                 if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
@@ -117,8 +113,6 @@ namespace FlatFiles.TypeMapping
                     generator.Emit(OpCodes.Unbox_Any, propertyType);
                     generator.Emit(OpCodes.Callvirt, setter);
                 }
-
-                ++position;
             }
 
             generator.Emit(OpCodes.Ret);
@@ -127,27 +121,26 @@ namespace FlatFiles.TypeMapping
             return result;
         }
 
-        public Func<TEntity, object[]> GetWriter<TEntity>(List<IMemberMapping> mappings)
+        public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
             Type entityType = typeof(TEntity);
             DynamicMethod method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_write",
-                typeof(object[]),
-                new Type[] { entityType },
+                null,
+                new Type[] { entityType, typeof(object[]) },
                 true);
-            var remaining = mappings.Where(m => m.Member != null).ToArray();
             var generator = method.GetILGenerator();
-            generator.DeclareLocal(typeof(object[]));
-            generator.Emit(OpCodes.Ldc_I4, remaining.Length);
-            generator.Emit(OpCodes.Newarr, typeof(object));
-            generator.Emit(OpCodes.Stloc_0);
 
-            for (int index = 0; index != remaining.Length; ++index)
+            for (int index = 0; index != mappings.Length; ++index)
             {
-                IMemberMapping mapping = remaining[index];
+                IMemberMapping mapping = mappings[index];
+                if (mapping.Member == null)
+                {
+                    continue;
+                }
 
-                generator.Emit(OpCodes.Ldloc_0);
-                generator.Emit(OpCodes.Ldc_I4, index);
+                generator.Emit(OpCodes.Ldarg_1);
+                generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
 
                 if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
                 {
@@ -178,11 +171,10 @@ namespace FlatFiles.TypeMapping
 
                 generator.Emit(OpCodes.Stelem_Ref);
             }
-
-            generator.Emit(OpCodes.Ldloc_0);
+            
             generator.Emit(OpCodes.Ret);
 
-            var result = (Func<TEntity, object[]>)method.CreateDelegate(typeof(Func<TEntity, object[]>));
+            var result = (Action<TEntity, object[]>)method.CreateDelegate(typeof(Action<TEntity, object[]>));
             return result;
         }
     }

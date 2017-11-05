@@ -57,10 +57,12 @@ namespace FlatFiles.TypeMapping
         private readonly BooleanColumn column;
         private readonly IMemberAccessor member;
 
-        public BooleanPropertyMapping(BooleanColumn column, IMemberAccessor member)
+        public BooleanPropertyMapping(BooleanColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IBooleanPropertyMapping ColumnName(string name)
@@ -108,5 +110,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

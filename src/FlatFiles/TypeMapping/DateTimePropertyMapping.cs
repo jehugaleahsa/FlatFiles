@@ -64,10 +64,12 @@ namespace FlatFiles.TypeMapping
         private readonly DateTimeColumn column;
         private readonly IMemberAccessor member;
 
-        public DateTimePropertyMapping(DateTimeColumn column, IMemberAccessor member)
+        public DateTimePropertyMapping(DateTimeColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IDateTimePropertyMapping ColumnName(string name)
@@ -121,5 +123,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

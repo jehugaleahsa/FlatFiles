@@ -46,13 +46,15 @@ namespace FlatFiles.TypeMapping
 
         public void Write(TEntity entity)
         {
-            object[] values = serializer.Write(entity);
+            object[] values = new object[serializer.MemberCount];
+            serializer.Write(entity, values);
             writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            object[] values = serializer.Write(entity);
+            object[] values = new object[serializer.MemberCount];
+            serializer.Write(entity, values);
             await writer.WriteAsync(values);
         }
     }

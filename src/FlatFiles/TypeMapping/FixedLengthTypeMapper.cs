@@ -729,9 +729,8 @@ namespace FlatFiles.TypeMapping
         IDynamicFixedLengthTypeMapper,
         IRecordMapper<TEntity>
     {
-        private readonly Func<TEntity> factory;
-        private readonly Dictionary<string, IMemberMapping> mappingLookup;
-        private readonly List<IMemberMapping> mappings;
+        private readonly Dictionary<Type, Func<TEntity>> factories;
+        private readonly MemberLookup lookup;
         private readonly Dictionary<IMemberMapping, Window> windowLookup;
         private bool isOptimized;
 
@@ -747,9 +746,12 @@ namespace FlatFiles.TypeMapping
 
         public FixedLengthTypeMapper(Func<TEntity> factory)
         {
-            this.factory = factory;
-            this.mappingLookup = new Dictionary<string, IMemberMapping>();
-            this.mappings = new List<IMemberMapping>();
+            this.factories = new Dictionary<Type, Func<TEntity>>();
+            if (factory != null)
+            {
+                this.factories.Add(typeof(TEntity), factory);
+            }
+            this.lookup = new MemberLookup();
             this.windowLookup = new Dictionary<IMemberMapping, Window>();
             this.isOptimized = true;
         }
@@ -768,16 +770,13 @@ namespace FlatFiles.TypeMapping
 
         private IBooleanPropertyMapping getBooleanMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 BooleanColumn column = new BooleanColumn(member.Name);
-                mapping = new BooleanPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new BooleanPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IBooleanPropertyMapping)mapping;
+            return mapping;
         }
 
         public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> accessor, Window window)
@@ -788,16 +787,13 @@ namespace FlatFiles.TypeMapping
 
         private IByteArrayPropertyMapping getByteArrayMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 ByteArrayColumn column = new ByteArrayColumn(member.Name);
-                mapping = new ByteArrayPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new ByteArrayPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IByteArrayPropertyMapping)mapping;
+            return mapping;
         }
 
         public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor, Window window)
@@ -814,16 +810,13 @@ namespace FlatFiles.TypeMapping
 
         private IBytePropertyMapping getByteMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 ByteColumn column = new ByteColumn(member.Name);
-                mapping = new BytePropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new BytePropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IBytePropertyMapping)mapping;
+            return mapping;
         }
 
         public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor, Window window)
@@ -840,16 +833,13 @@ namespace FlatFiles.TypeMapping
 
         private ISBytePropertyMapping getSByteMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 SByteColumn column = new SByteColumn(member.Name);
-                mapping = new SBytePropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new SBytePropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ISBytePropertyMapping)mapping;
+            return mapping;
         }
 
         public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> accessor, Window window)
@@ -860,16 +850,13 @@ namespace FlatFiles.TypeMapping
 
         private ICharArrayPropertyMapping getCharArrayMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 CharArrayColumn column = new CharArrayColumn(member.Name);
-                mapping = new CharArrayPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new CharArrayPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ICharArrayPropertyMapping)mapping;
+            return mapping;
         }
 
         public ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor, Window window)
@@ -886,16 +873,13 @@ namespace FlatFiles.TypeMapping
 
         private ICharPropertyMapping getCharMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 CharColumn column = new CharColumn(member.Name);
-                mapping = new CharPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new CharPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ICharPropertyMapping)mapping;
+            return mapping;
         }
 
         public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor, Window window)
@@ -912,16 +896,13 @@ namespace FlatFiles.TypeMapping
 
         private IDateTimePropertyMapping getDateTimeMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DateTimeColumn column = new DateTimeColumn(member.Name);
-                mapping = new DateTimePropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IDateTimePropertyMapping)mapping;
+            return mapping;
         }
 
         public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor, Window window)
@@ -938,16 +919,13 @@ namespace FlatFiles.TypeMapping
 
         private IDecimalPropertyMapping getDecimalMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DecimalColumn column = new DecimalColumn(member.Name);
-                mapping = new DecimalPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new DecimalPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IDecimalPropertyMapping)mapping;
+            return mapping;
         }
 
         public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor, Window window)
@@ -964,16 +942,13 @@ namespace FlatFiles.TypeMapping
 
         private IDoublePropertyMapping getDoubleMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DoubleColumn column = new DoubleColumn(member.Name);
-                mapping = new DoublePropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new DoublePropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IDoublePropertyMapping)mapping;
+            return mapping;
         }
 
         public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor, Window window)
@@ -990,16 +965,13 @@ namespace FlatFiles.TypeMapping
 
         private IGuidPropertyMapping getGuidMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 GuidColumn column = new GuidColumn(member.Name);
-                mapping = new GuidPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new GuidPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IGuidPropertyMapping)mapping;
+            return mapping;
         }
 
         public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor, Window window)
@@ -1016,16 +988,13 @@ namespace FlatFiles.TypeMapping
 
         private IInt16PropertyMapping getInt16Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int16Column column = new Int16Column(member.Name);
-                mapping = new Int16PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new Int16PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IInt16PropertyMapping)mapping;
+            return mapping;
         }
 
         public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor, Window window)
@@ -1042,16 +1011,13 @@ namespace FlatFiles.TypeMapping
 
         private IUInt16PropertyMapping getUInt16Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt16Column column = new UInt16Column(member.Name);
-                mapping = new UInt16PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new UInt16PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IUInt16PropertyMapping)mapping;
+            return mapping;
         }
 
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor, Window window)
@@ -1068,16 +1034,13 @@ namespace FlatFiles.TypeMapping
 
         private IInt32PropertyMapping getInt32Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int32Column column = new Int32Column(member.Name);
-                mapping = new Int32PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new Int32PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IInt32PropertyMapping)mapping;
+            return mapping;
         }
 
         public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor, Window window)
@@ -1094,16 +1057,13 @@ namespace FlatFiles.TypeMapping
 
         private IUInt32PropertyMapping getUInt32Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt32Column column = new UInt32Column(member.Name);
-                mapping = new UInt32PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new UInt32PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IUInt32PropertyMapping)mapping;
+            return mapping;
         }
 
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor, Window window)
@@ -1120,16 +1080,13 @@ namespace FlatFiles.TypeMapping
 
         private IInt64PropertyMapping getInt64Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int64Column column = new Int64Column(member.Name);
-                mapping = new Int64PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new Int64PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IInt64PropertyMapping)mapping;
+            return mapping;
         }
 
         public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor, Window window)
@@ -1146,16 +1103,13 @@ namespace FlatFiles.TypeMapping
 
         private IUInt64PropertyMapping getUInt64Mapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt64Column column = new UInt64Column(member.Name);
-                mapping = new UInt64PropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new UInt64PropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IUInt64PropertyMapping)mapping;
+            return mapping;
         }
 
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor, Window window)
@@ -1172,16 +1126,13 @@ namespace FlatFiles.TypeMapping
 
         private ISinglePropertyMapping getSingleMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 SingleColumn column = new SingleColumn(member.Name);
-                mapping = new SinglePropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new SinglePropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ISinglePropertyMapping)mapping;
+            return mapping;
         }
 
         public IStringPropertyMapping Property(Expression<Func<TEntity, string>> accesor, Window window)
@@ -1192,16 +1143,13 @@ namespace FlatFiles.TypeMapping
 
         private IStringPropertyMapping getStringMapping(IMemberAccessor member, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 StringColumn column = new StringColumn(member.Name);
-                mapping = new StringPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new StringPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IStringPropertyMapping)mapping;
+            return mapping;
         }
 
         public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper, Window window)
@@ -1212,15 +1160,12 @@ namespace FlatFiles.TypeMapping
 
         private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, ISeparatedValueTypeMapper<TProp> mapper, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                mapping = new SeparatedValueComplexPropertyMapping<TProp>(mapper, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new SeparatedValueComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ISeparatedValueComplexPropertyMapping)mapping;
+            return mapping;
         }
 
         public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IFixedLengthTypeMapper<TProp> mapper, Window window)
@@ -1231,15 +1176,12 @@ namespace FlatFiles.TypeMapping
 
         private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, IFixedLengthTypeMapper<TProp> mapper, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                mapping = new FixedLengthComplexPropertyMapping<TProp>(mapper, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new FixedLengthComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IFixedLengthComplexPropertyMapping)mapping;
+            return mapping;
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) 
@@ -1259,23 +1201,18 @@ namespace FlatFiles.TypeMapping
         private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(IMemberAccessor member, Window window)
             where TEnum : struct
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 var column = new EnumColumn<TEnum>(member.Name);
-                mapping = new EnumPropertyMapping<TEnum>(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new EnumPropertyMapping<TEnum>(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (IEnumPropertyMapping<TEnum>)mapping;
+            return mapping;
         }
 
         public IIgnoredMapping Ignored(Window window)
         {
-            IgnoredColumn column = new IgnoredColumn();
-            IgnoredMapping mapping = new IgnoredMapping(column);
-            mappings.Add(mapping);
+            var mapping = lookup.AddIgnored();
             windowLookup[mapping] = window;
             return mapping;
         }
@@ -1288,48 +1225,17 @@ namespace FlatFiles.TypeMapping
 
         private ICustomPropertyMapping getCustomMapping(IMemberAccessor member, IColumnDefinition column, Window window)
         {
-            IMemberMapping mapping;
-            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                mapping = new CustomPropertyMapping(column, member);
-                mappings.Add(mapping);
-                mappingLookup.Add(member.Name, mapping);
-            }
+                return new CustomPropertyMapping(column, member, fileIndex, workIndex);
+            });
             windowLookup[mapping] = window;
-            return (ICustomPropertyMapping)mapping;
+            return mapping;
         }
 
         private static IMemberAccessor getMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
-            if (accessor == null)
-            {
-                throw new ArgumentNullException(nameof(accessor));
-            }
-            MemberExpression member = accessor.Body as MemberExpression;
-            if (member == null)
-            {
-                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
-            }
-            if (member.Member is PropertyInfo propertyInfo)
-            {
-                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
-                {
-                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
-                }
-                return new PropertyAccessor(propertyInfo);
-            }
-            else if (member.Member is FieldInfo fieldInfo)
-            {
-                if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
-                {
-                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
-                }
-                return new FieldAccessor(fieldInfo);
-            }
-            else
-            {
-                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(accessor));
-            }
+            return MemberAccessorBuilder.GetMember(accessor);
         }
 
         public IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null)
@@ -1359,7 +1265,8 @@ namespace FlatFiles.TypeMapping
         {
             var factory = getLateBoundFactory();
             var codeGenerator = getCodeGenerator();
-            var serializer = new TypedRecordReader<TEntity>(factory, codeGenerator, this.mappings);
+            var mappings = lookup.GetMappings();
+            var serializer = new TypedRecordReader<TEntity>(factory, codeGenerator, mappings);
             return new TypedReader<TEntity>(reader, serializer);
         }
 
@@ -1413,7 +1320,8 @@ namespace FlatFiles.TypeMapping
         private TypedWriter<TEntity> getTypedWriter(IWriter writer)
         {
             var codeGenerator = getCodeGenerator();
-            var serializer = new TypedRecordWriter<TEntity>(codeGenerator, this.mappings);
+            var mappings = lookup.GetMappings();
+            var serializer = new TypedRecordWriter<TEntity>(codeGenerator, mappings);
             return new TypedWriter<TEntity>(writer, serializer);
         }
 
@@ -1425,6 +1333,7 @@ namespace FlatFiles.TypeMapping
         private FixedLengthSchema getSchema()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
+            var mappings = lookup.GetMappings();
             foreach (IMemberMapping mapping in mappings)
             {
                 IColumnDefinition column = mapping.ColumnDefinition;
@@ -1438,13 +1347,15 @@ namespace FlatFiles.TypeMapping
         {
             var factory = getLateBoundFactory();
             var codeGenerator = getCodeGenerator();
-            return new TypedRecordReader<TEntity>(factory, codeGenerator, this.mappings);
+            var mappings = lookup.GetMappings();
+            return new TypedRecordReader<TEntity>(factory, codeGenerator, mappings);
         }
 
         public TypedRecordWriter<TEntity> GetWriter()
         {
             var codeGenerator = getCodeGenerator();
-            return new TypedRecordWriter<TEntity>(codeGenerator, this.mappings);
+            var mappings = lookup.GetMappings();
+            return new TypedRecordWriter<TEntity>(codeGenerator, mappings);
         }
 
         FixedLengthSchema IDynamicFixedLengthTypeConfiguration.GetSchema()
@@ -1585,44 +1496,13 @@ namespace FlatFiles.TypeMapping
 
         ICustomPropertyMapping IDynamicFixedLengthTypeConfiguration.CustomProperty(string memberName, IColumnDefinition column, Window window)
         {
-            var member = getMember(null, memberName);
+            var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
             return getCustomMapping(member, column, window);
         }
 
         private static IMemberAccessor getMember<TProp>(string memberName)
         {
-            return getMember(typeof(TProp), memberName);
-        }
-
-        private static IMemberAccessor getMember(Type propertyType, string memberName)
-        {
-            var propertyInfo = typeof(TEntity).GetTypeInfo().GetProperty(memberName);
-            if (propertyInfo != null)
-            {
-                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
-                {
-                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
-                }
-                if (propertyType != null && propertyInfo.PropertyType != propertyType && propertyInfo.PropertyType != Nullable.GetUnderlyingType(propertyType))
-                {
-                    throw new ArgumentException(SharedResources.WrongPropertyType);
-                }
-                return new PropertyAccessor(propertyInfo);
-            }
-            var fieldInfo = typeof(TEntity).GetTypeInfo().GetField(memberName);
-            if (fieldInfo != null)
-            {
-                if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
-                {
-                    throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
-                }
-                if (propertyType != null && fieldInfo.FieldType != propertyType && fieldInfo.FieldType != Nullable.GetUnderlyingType(propertyType))
-                {
-                    throw new ArgumentException(SharedResources.WrongPropertyType);
-                }
-                return new FieldAccessor(fieldInfo);
-            }
-            throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
+            return MemberAccessorBuilder.GetMember<TEntity, TProp>(memberName);
         }
 
         IEnumerable<object> IDynamicFixedLengthTypeMapper.Read(TextReader reader, FixedLengthOptions options)
@@ -1664,15 +1544,15 @@ namespace FlatFiles.TypeMapping
 
         private Func<TEntity> getLateBoundFactory()
         {
-            if (factory == null)
+            if (factories.TryGetValue(typeof(TEntity), out var factory))
             {
-                var codeGenerator = getCodeGenerator();
-                var factory = codeGenerator.GetFactory(typeof(TEntity));
-                return () => (TEntity)factory();
+                return factory;
             }
             else
             {
-                return factory;
+                var codeGenerator = getCodeGenerator();
+                var dynamicFactory = codeGenerator.GetFactory(typeof(TEntity));
+                return () => (TEntity)dynamicFactory();
             }
         }
 

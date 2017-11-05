@@ -20,9 +20,10 @@ namespace FlatFiles.TypeMapping
     {
         private readonly IgnoredColumn column;
 
-        public IgnoredMapping(IgnoredColumn column)
+        public IgnoredMapping(IgnoredColumn column, int fileIndex)
         {
             this.column = column;
+            this.FileIndex = fileIndex;
         }
 
         public IIgnoredMapping ColumnName(string name)
@@ -39,6 +40,13 @@ namespace FlatFiles.TypeMapping
         public IColumnDefinition ColumnDefinition
         {
             get { return column; }
+        }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex
+        {
+            get { return -1; }
         }
     }
 }

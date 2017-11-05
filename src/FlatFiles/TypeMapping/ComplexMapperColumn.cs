@@ -45,15 +45,16 @@ namespace FlatFiles.TypeMapping
         public object Parse(string value)
         {
             object parsed = column.Parse(value);
-            object[] rawValues = parsed as object[];
-            TEntity result = reader.Read(rawValues);
+            object[] values = parsed as object[];
+            TEntity result = reader.Read(values);
             return result;
         }
 
         public string Format(object value)
         {
-            object[] rawValues = writer.Write((TEntity)value);
-            string formatted = column.Format(rawValues);
+            object[] values = new object[writer.MemberCount];
+            writer.Write((TEntity)value, values);
+            string formatted = column.Format(values);
             return formatted;
         }
     }

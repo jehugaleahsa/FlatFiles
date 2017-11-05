@@ -1,21 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace FlatFiles.TypeMapping
 {
     internal class TypedRecordWriter<TEntity>
     {
-        private readonly Func<TEntity, object[]> getter;
+        private readonly Action<TEntity, object[]> getter;
 
-        public TypedRecordWriter(ICodeGenerator codeGenerator, List<IMemberMapping> mappings)
+        public TypedRecordWriter(ICodeGenerator codeGenerator, IMemberMapping[] mappings)
         {
             this.getter = codeGenerator.GetWriter<TEntity>(mappings);
+            this.MemberCount = mappings.Where(x => x.Member != null).Count();
         }
 
-        public object[] Write(TEntity entity)
+        public int MemberCount { get; private set; }
+
+        public void Write(TEntity entity, object[] values)
         {
-            object[] values = getter(entity);
-            return values;
+            getter(entity, values);
         }
     }
 }

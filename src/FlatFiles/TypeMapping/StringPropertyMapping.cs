@@ -50,10 +50,12 @@ namespace FlatFiles.TypeMapping
         private readonly StringColumn column;
         private readonly IMemberAccessor member;
 
-        public StringPropertyMapping(StringColumn column, IMemberAccessor member)
+        public StringPropertyMapping(StringColumn column, IMemberAccessor member, int fileIndex, int workFile)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workFile;
         }
 
         public IStringPropertyMapping ColumnName(string name)
@@ -95,5 +97,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

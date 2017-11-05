@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Reflection;
 
 namespace FlatFiles.TypeMapping
 {
@@ -65,10 +64,12 @@ namespace FlatFiles.TypeMapping
         private readonly DecimalColumn column;
         private readonly IMemberAccessor member;
 
-        public DecimalPropertyMapping(DecimalColumn column, IMemberAccessor member)
+        public DecimalPropertyMapping(DecimalColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
             this.member = member;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IDecimalPropertyMapping ColumnName(string name)
@@ -122,5 +123,9 @@ namespace FlatFiles.TypeMapping
         {
             get { return column; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
     }
 }

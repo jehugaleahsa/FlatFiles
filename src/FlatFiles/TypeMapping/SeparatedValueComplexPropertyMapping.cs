@@ -55,11 +55,13 @@ namespace FlatFiles.TypeMapping
         private INullHandler nullHandler;
         private Func<string, string> preprocessor;
 
-        public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member)
+        public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.mapper = mapper;
             this.member = member;
             this.columnName = member.Name;
+            this.FileIndex = fileIndex;
+            this.WorkIndex = workIndex;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -81,6 +83,10 @@ namespace FlatFiles.TypeMapping
         {
             get { return member; }
         }
+
+        public int FileIndex { get; private set; }
+
+        public int WorkIndex { get; private set; }
 
         public ISeparatedValueComplexPropertyMapping ColumnName(string name)
         {
