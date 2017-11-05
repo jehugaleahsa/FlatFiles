@@ -23,11 +23,11 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
-    <Version>1.4.0.0</Version>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.5.0.0</Version>
     <PackageLicenseUrl>https://github.com/jehugaleahsa/FlatFiles/blob/master/UNLICENSE.txt</PackageLicenseUrl>
-    <PackageReleaseNotes>Performance enhancements and additional async testing.</PackageReleaseNotes>
+    <PackageReleaseNotes>Simplified buffering, even more (insane) performance and type mapper support for custom column definitions.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">

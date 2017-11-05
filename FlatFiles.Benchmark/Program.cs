@@ -21,7 +21,8 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            BenchmarkRunner.Run<SimpleAsyncCsvTester>(configuration);
+            BenchmarkRunner.Run<SimpleSyncVsAsyncCsvTester>(configuration);
+            //new RealWorldCsvTester().RunFlatFiles();
             //var tester = new SimpleCsvTester();
             //for (int i = 0; i != 1000; ++i)
             //{
@@ -29,7 +30,10 @@ namespace FlatFiles.Benchmark
             //}
     
             //var tester = new AsyncVsSyncTest();
-            //tester.SyncTest();
+            //for (int i = 0; i != 10; ++i)
+            //{
+            //    tester.SyncTest();
+            //}
 
             //var stopwatch = Stopwatch.StartNew();
             //string syncResult = tester.SyncTest();
@@ -37,7 +41,10 @@ namespace FlatFiles.Benchmark
             //Console.Out.WriteLine(stopwatch.Elapsed);
             //Console.Out.WriteLine(syncResult.Length);
 
-            //tester.AsyncTest().Wait();
+            //for (int i = 0; i != 10; ++i)
+            //{
+            //    tester.AsyncTest().Wait();
+            //}
 
             //stopwatch.Restart();
             //string asyncResult = tester.AsyncTest().Result;

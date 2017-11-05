@@ -6,7 +6,6 @@ namespace FlatFiles
 {
     internal sealed class RetryReader
     {
-        private const int bufferSize = 4096;
         private readonly TextReader reader;
         private readonly CircularQueue<char> queue;
         private char current;
@@ -15,7 +14,7 @@ namespace FlatFiles
         public RetryReader(TextReader reader)
         {
             this.reader = reader;
-            this.queue = new CircularQueue<char>();
+            this.queue = new CircularQueue<char>(4096);
         }
 
         public bool IsEndOfStream()
@@ -50,13 +49,13 @@ namespace FlatFiles
             {
                 return;
             }
-            var segment = queue.Reserve(bufferSize);
+            var segment = queue.PrepareBlock();
             int length = reader.ReadBlock(segment.Array, segment.Offset, segment.Count);
-            if (length < bufferSize)
+            if (length < segment.Count)
             {
                 isEndOfStreamFound = true;
             }
-            queue.AddItemCount(length);
+            queue.RecordGrowth(length);
         }
 
         public async Task LoadBufferAsync()
@@ -65,13 +64,13 @@ namespace FlatFiles
             {
                 return;
             }
-            var segment = queue.Reserve(bufferSize);
+            var segment = queue.PrepareBlock();
             int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count);
-            if (length < bufferSize)
+            if (length < segment.Count)
             {
                 isEndOfStreamFound = true;
             }
-            queue.AddItemCount(length);
+            queue.RecordGrowth(length);
         }
 
         public bool IsWhitespace()

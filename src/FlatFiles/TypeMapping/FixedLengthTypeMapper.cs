@@ -402,6 +402,16 @@ namespace FlatFiles.TypeMapping
         IIgnoredMapping Ignored(Window window);
 
         /// <summary>
+        /// Specifies that the next column is a custom definition and returns an object for configuration.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property that the custom column definition parses and formats.</typeparam>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column, Window window);
+
+        /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
         /// code to get and set entity properties, resulting in significant performance improvements. 
         /// However, some environments do not support runtime JIT, so disabling optimization will allow
@@ -648,6 +658,15 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored(Window window);
+
+        /// <summary>
+        /// Specifies that the next column is a custom definition and returns an object for configuration.
+        /// </summary>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ICustomPropertyMapping CustomProperty(string memberName, IColumnDefinition column, Window window);
 
         /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
@@ -1261,6 +1280,25 @@ namespace FlatFiles.TypeMapping
             return mapping;
         }
 
+        public ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column, Window window)
+        {
+            var member = getMember(accessor);
+            return getCustomMapping(member, column, window);
+        }
+
+        private ICustomPropertyMapping getCustomMapping(IMemberAccessor member, IColumnDefinition column, Window window)
+        {
+            IMemberMapping mapping;
+            if (!mappingLookup.TryGetValue(member.Name, out mapping))
+            {
+                mapping = new CustomPropertyMapping(column, member);
+                mappings.Add(mapping);
+                mappingLookup.Add(member.Name, mapping);
+            }
+            windowLookup[mapping] = window;
+            return (ICustomPropertyMapping)mapping;
+        }
+
         private static IMemberAccessor getMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
             if (accessor == null)
@@ -1545,7 +1583,18 @@ namespace FlatFiles.TypeMapping
             return Ignored(window);
         }
 
+        ICustomPropertyMapping IDynamicFixedLengthTypeConfiguration.CustomProperty(string memberName, IColumnDefinition column, Window window)
+        {
+            var member = getMember(null, memberName);
+            return getCustomMapping(member, column, window);
+        }
+
         private static IMemberAccessor getMember<TProp>(string memberName)
+        {
+            return getMember(typeof(TProp), memberName);
+        }
+
+        private static IMemberAccessor getMember(Type propertyType, string memberName)
         {
             var propertyInfo = typeof(TEntity).GetTypeInfo().GetProperty(memberName);
             if (propertyInfo != null)
@@ -1554,7 +1603,7 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
                 }
-                if (propertyInfo.PropertyType != typeof(TProp) && propertyInfo.PropertyType != Nullable.GetUnderlyingType(typeof(TProp)))
+                if (propertyType != null && propertyInfo.PropertyType != propertyType && propertyInfo.PropertyType != Nullable.GetUnderlyingType(propertyType))
                 {
                     throw new ArgumentException(SharedResources.WrongPropertyType);
                 }
@@ -1567,7 +1616,7 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
                 }
-                if (fieldInfo.FieldType != typeof(TProp) && fieldInfo.FieldType != Nullable.GetUnderlyingType(typeof(TProp)))
+                if (propertyType != null && fieldInfo.FieldType != propertyType && fieldInfo.FieldType != Nullable.GetUnderlyingType(propertyType))
                 {
                     throw new ArgumentException(SharedResources.WrongPropertyType);
                 }

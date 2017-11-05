@@ -152,4 +152,72 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public abstract string Format(object value);
     }
+
+    /// <summary>
+    /// Represents the command base class for defining custom column definitions for a class.
+    /// </summary>
+    /// <typeparam name="T">The type of the column.</typeparam>
+    public abstract class ColumnDefinition<T> : ColumnDefinition
+    {
+        /// <summary>
+        /// Initializes a new instance of a ColumnDefinition.
+        /// </summary>
+        /// <param name="columnName">The name of the column to define.</param>
+        protected ColumnDefinition(string columnName) 
+            : base(columnName)
+        {
+        }
+
+        /// <summary>
+        /// Gets the type of the values in the column.
+        /// </summary>
+        public override Type ColumnType => typeof(T);
+
+        /// <summary>
+        /// Parses the given value and returns the parsed object.
+        /// </summary>
+        /// <param name="value">The value to parse.</param>
+        /// <returns>The parsed value.</returns>
+        public override object Parse(string value)
+        {
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
+            if (NullHandler.IsNullRepresentation(value))
+            {
+                return null;
+            }
+            string trimmed = TrimValue(value);
+            return OnParse(trimmed);
+        }
+
+        /// <summary>
+        /// Parses the given value and returns the parsed object.
+        /// </summary>
+        /// <param name="value">The value to parse.</param>
+        /// <returns>The parsed value.</returns>
+        protected abstract T OnParse(string value);
+
+        /// <summary>
+        /// Formats the given object.
+        /// </summary>
+        /// <param name="value">The object to format.</param>
+        /// <returns>The formatted value.</returns>
+        public override string Format(object value)
+        {
+            if (value == null)
+            {
+                return NullHandler.GetNullRepresentation();
+            }
+            return OnFormat((T)value);
+        }
+
+        /// <summary>
+        /// Formats the given object.
+        /// </summary>
+        /// <param name="value">The object to format.</param>
+        /// <returns>The formatted value.</returns>
+        protected abstract string OnFormat(T value);
+    }
 }

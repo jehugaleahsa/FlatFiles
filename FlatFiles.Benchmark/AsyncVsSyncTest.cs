@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -34,7 +38,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.Property(x => x.GeoLocation).ColumnName("GeoLocation");
+            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
@@ -48,14 +52,12 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.StratificationId3).ColumnName("StratificationID3");
 
             StringWriter textWriter = new StringWriter();
-            string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
-            using (var stream = File.OpenRead(path))
-            using (var textReader = new StreamReader(stream))
+            var http = WebRequest.CreateHttp("https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/FlatFiles.Benchmark/TestFiles/SampleData.csv");
+            using (var response = http.GetResponse())
+            using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-                var reader = mapper.GetReader(textReader, options);
-                var writer = mapper.GetWriter(textWriter, options);
+                var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                var writer = mapper.GetWriter(textWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
                 while (reader.Read())
                 {
                     writer.Write(reader.Current);
@@ -90,7 +92,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.Property(x => x.GeoLocation).ColumnName("GeoLocation");
+            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
@@ -104,20 +106,34 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.StratificationId3).ColumnName("StratificationID3");
 
             StringWriter textWriter = new StringWriter();
-            string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
-            using (var stream = File.OpenRead(path))
-            using (var textReader = new StreamReader(stream))
+            var http = WebRequest.CreateHttp("https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/FlatFiles.Benchmark/TestFiles/SampleData.csv");
+            using (var response = await http.GetResponseAsync())
+            using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
-                var reader = mapper.GetReader(textReader, options);
-                var writer = mapper.GetWriter(textWriter, options);
+                var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                var writer = mapper.GetWriter(textWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
                 while (await reader.ReadAsync())
                 {
                     await writer.WriteAsync(reader.Current);
                 }
             }
             return textWriter.ToString();
+
+            //StringWriter textWriter = new StringWriter();
+            //string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            //string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
+            //using (var stream = File.OpenRead(path))
+            //using (var textReader = new StreamReader(stream))
+            //{
+            //    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            //    var reader = mapper.GetReader(textReader, options);
+            //    var writer = mapper.GetWriter(textWriter, options);
+            //    while (await reader.ReadAsync())
+            //    {
+            //        await writer.WriteAsync(reader.Current);
+            //    }
+            //}
+            //return textWriter.ToString();
         }
 
         private class SampleData
@@ -166,7 +182,7 @@ namespace FlatFiles.Benchmark
 
             public string Stratification3 { get; set; }
 
-            public string GeoLocation { get; set; }
+            public GeoLocation GeoLocation { get; set; }
 
             public string ResponseId { get; set; }
 
@@ -189,6 +205,42 @@ namespace FlatFiles.Benchmark
             public string StratificationCategoryId3 { get; set; }
 
             public string StratificationId3 { get; set; }
+        }
+
+        private class GeoLocation
+        {
+            public decimal Latitude { get; set; }
+
+            public decimal Longitude { get; set; }
+
+            public override string ToString()
+            {
+                return $"({Latitude}, {Longitude})";
+            }
+        }
+
+        private class GeoLocationColumn : ColumnDefinition<GeoLocation>
+        {
+            public GeoLocationColumn(string columnName)
+                : base(columnName)
+            {
+            }
+
+            protected override string OnFormat(GeoLocation value)
+            {
+                return value.ToString();
+            }
+
+            protected override GeoLocation OnParse(string value)
+            {
+                string[] parts = value.Substring(1, value.Length - 2).Split(',', 2);
+                var result = new GeoLocation()
+                {
+                    Latitude = Convert.ToDecimal(parts[0].Trim()),
+                    Longitude = Convert.ToDecimal(parts[1].Trim())
+                };
+                return result;
+            }
         }
     }
 }
