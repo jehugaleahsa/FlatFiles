@@ -7,7 +7,7 @@ Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 ## Support for .NET Core
 As of version 0.3.18.0, FlatFiles now supports .NET Core (.NETStandard v1.6) and .NET 4.5.1!
 
-## Awesome New Features
+## Awesome News
 As a bonus for those of you using FlatFiles, as of version 1.2, you should now be seeing a nearly 2x performance improvement over previous versions, both read and write, both CSV and fixed-length. I spent some time playing with BenchmarkDotNet and using the profiler to squeeze every ounce of performance out of FlatFiles.
 
 Also as part of version 1.2, there is now support for mapping to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love. Performance-wise, I've not seen much of a difference; however, this may be more convenient for some users.
