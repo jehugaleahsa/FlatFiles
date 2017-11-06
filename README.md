@@ -14,7 +14,7 @@ Also as part of version 1.2, there is now support for mapping to both properties
 
 As of version 1.3, you can now read and write files asynchronously!
 
-With version 1.6, you can now map into nested members, such as `mapper.Property(x => x.Address.City)`. Go as deep as you like! You can also use `mapper.UseFactory(() => new Address())` to provide methods for customizing nested member instantiation, using `Activator.CreateInstance` by default.
+With version 1.6, you can now map into nested members, such as `mapper.Property(x => x.Address.City)`. Go as deep as you like! You can also use `mapper.UseFactory(() => new Address())` to provide methods for customizing nested object instantiation; otherwise, FlatFiles will instantiate nested objects using `Activator.CreateInstance`.
 
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
