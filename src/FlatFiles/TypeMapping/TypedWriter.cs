@@ -31,12 +31,14 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
         private readonly IWriter writer;
-        private readonly TypedRecordWriter<TEntity> serializer;
+        private readonly Action<TEntity, object[]> serializer;
+        private readonly int workCount;
 
-        public TypedWriter(IWriter writer, TypedRecordWriter<TEntity> serializer)
+        public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
-            this.serializer = serializer;
+            this.serializer = mapper.GetWriter();
+            this.workCount = mapper.WorkCount;
         }
 
         public ISchema GetSchema()
@@ -46,15 +48,15 @@ namespace FlatFiles.TypeMapping
 
         public void Write(TEntity entity)
         {
-            object[] values = new object[serializer.MemberCount];
-            serializer.Write(entity, values);
+            object[] values = new object[workCount];
+            serializer(entity, values);
             writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            object[] values = new object[serializer.MemberCount];
-            serializer.Write(entity, values);
+            object[] values = new object[workCount];
+            serializer(entity, values);
             await writer.WriteAsync(values);
         }
     }

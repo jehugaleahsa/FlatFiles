@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using FlatFiles.Resources;
@@ -9,7 +7,7 @@ namespace FlatFiles.TypeMapping
 {
     internal interface ICodeGenerator
     {
-        Func<object> GetFactory(Type entityType);
+        Func<TEntity> GetFactory<TEntity>();
 
         Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings);
 
@@ -18,9 +16,9 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class ReflectionCodeGenerator : ICodeGenerator
     {
-        public Func<object> GetFactory(Type entityType)
+        public Func<TEntity> GetFactory<TEntity>()
         {
-            return () => Activator.CreateInstance(entityType);
+            return Activator.CreateInstance<TEntity>;
         }
 
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
@@ -60,8 +58,9 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class EmitCodeGenerator : ICodeGenerator
     {
-        public Func<object> GetFactory(Type entityType)
+        public Func<TEntity> GetFactory<TEntity>()
         {
+            Type entityType = typeof(TEntity);
             var constructorInfo = entityType.GetTypeInfo().GetConstructor(Type.EmptyTypes);
             if (constructorInfo == null)
             {
@@ -71,7 +70,7 @@ namespace FlatFiles.TypeMapping
             var generator = method.GetILGenerator();
             generator.Emit(OpCodes.Newobj, constructorInfo);
             generator.Emit(OpCodes.Ret);
-            return (Func<object>)method.CreateDelegate(typeof(Func<object>));
+            return (Func<TEntity>)method.CreateDelegate(typeof(Func<TEntity>));
         }
 
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)

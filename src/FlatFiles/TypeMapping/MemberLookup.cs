@@ -7,11 +7,18 @@ namespace FlatFiles.TypeMapping
     internal class MemberLookup
     {
         private readonly Dictionary<string, IMemberMapping> lookup;
+        private readonly Dictionary<Type, object> factories;
         private int ignoredCount;
 
         public MemberLookup()
         {
             this.lookup = new Dictionary<string, IMemberMapping>();
+            this.factories = new Dictionary<Type, object>();
+        }
+
+        public int WorkCount
+        {
+            get { return lookup.Count - ignoredCount; }
         }
 
         public TMemberMapping GetOrAddMember<TMemberMapping>(IMemberAccessor member, Func<int, int, TMemberMapping> factory)
@@ -44,6 +51,32 @@ namespace FlatFiles.TypeMapping
         public IMemberMapping[] GetMappings()
         {
             return lookup.Values.OrderBy(m => m.FileIndex).ToArray();
+        }
+
+        public Func<TEntity> GetFactory<TEntity>()
+        {
+            if (factories.TryGetValue(typeof(TEntity), out var factory))
+            {
+                if (factory is Func<TEntity> entityFactory)
+                {
+                    return entityFactory;
+                }
+                else if (factory is Func<object> objectFactory)
+                {
+                    return () => (TEntity)objectFactory();
+                }
+            }
+            return null;
+        }
+
+        public void SetFactory<TEntity>(Func<TEntity> factory)
+        {
+            factories.Add(typeof(TEntity), factory);
+        }
+
+        public void SetFactory(Type entityType, Func<object> factory)
+        {
+            factories.Add(entityType, factory);
         }
     }
 }

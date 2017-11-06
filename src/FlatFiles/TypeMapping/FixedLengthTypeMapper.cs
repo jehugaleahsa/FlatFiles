@@ -419,6 +419,13 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
         void OptimizeMapping(bool isOptimized = true);
+
+        /// <summary>
+        /// Specifies a different factory method to use when initializing nested members.
+        /// </summary>
+        /// <typeparam name="TOther">The type of the entity created by the factory.</typeparam>
+        /// <param name="factory">A method that generates an instance of the entity.</param>
+        void UseFactory<TOther>(Func<TOther> factory);
     }
 
     /// <summary>
@@ -676,6 +683,15 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
         void OptimizeMapping(bool isOptimized = true);
+
+        /// <summary>
+        /// Specifies a different factory method to use when initializing nested members.
+        /// </summary>
+        /// <param name="entityType">
+        /// The type of the entity to associate the factory with. The factory must return instances of that type.
+        /// </param>
+        /// <param name="factory">A method that generates an instance of the entity.</param>
+        void UseFactory(Type entityType, Func<object> factory);
     }
 
     /// <summary>
@@ -727,9 +743,8 @@ namespace FlatFiles.TypeMapping
     internal sealed class FixedLengthTypeMapper<TEntity> 
         : IFixedLengthTypeMapper<TEntity>, 
         IDynamicFixedLengthTypeMapper,
-        IRecordMapper<TEntity>
+        IMapperSource<TEntity>
     {
-        private readonly Dictionary<Type, Func<TEntity>> factories;
         private readonly MemberLookup lookup;
         private readonly Dictionary<IMemberMapping, Window> windowLookup;
         private bool isOptimized;
@@ -746,12 +761,11 @@ namespace FlatFiles.TypeMapping
 
         public FixedLengthTypeMapper(Func<TEntity> factory)
         {
-            this.factories = new Dictionary<Type, Func<TEntity>>();
+            this.lookup = new MemberLookup();
             if (factory != null)
             {
-                this.factories.Add(typeof(TEntity), factory);
+                lookup.SetFactory<TEntity>(factory);
             }
-            this.lookup = new MemberLookup();
             this.windowLookup = new Dictionary<IMemberMapping, Window>();
             this.isOptimized = true;
         }
@@ -1263,11 +1277,8 @@ namespace FlatFiles.TypeMapping
 
         private TypedReader<TEntity> getTypedReader(IReader reader)
         {
-            var factory = getLateBoundFactory();
-            var codeGenerator = getCodeGenerator();
-            var mappings = lookup.GetMappings();
-            var serializer = new TypedRecordReader<TEntity>(factory, codeGenerator, mappings);
-            return new TypedReader<TEntity>(reader, serializer);
+            var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
+            return new TypedReader<TEntity>(reader, mapper);
         }
 
         public void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
@@ -1319,10 +1330,8 @@ namespace FlatFiles.TypeMapping
 
         private TypedWriter<TEntity> getTypedWriter(IWriter writer)
         {
-            var codeGenerator = getCodeGenerator();
-            var mappings = lookup.GetMappings();
-            var serializer = new TypedRecordWriter<TEntity>(codeGenerator, mappings);
-            return new TypedWriter<TEntity>(writer, serializer);
+            var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
+            return new TypedWriter<TEntity>(writer, mapper);
         }
 
         public FixedLengthSchema GetSchema()
@@ -1341,21 +1350,6 @@ namespace FlatFiles.TypeMapping
                 schema.AddColumn(column, window);
             }
             return schema;
-        }
-
-        public TypedRecordReader<TEntity> GetReader()
-        {
-            var factory = getLateBoundFactory();
-            var codeGenerator = getCodeGenerator();
-            var mappings = lookup.GetMappings();
-            return new TypedRecordReader<TEntity>(factory, codeGenerator, mappings);
-        }
-
-        public TypedRecordWriter<TEntity> GetWriter()
-        {
-            var codeGenerator = getCodeGenerator();
-            var mappings = lookup.GetMappings();
-            return new TypedRecordWriter<TEntity>(codeGenerator, mappings);
         }
 
         FixedLengthSchema IDynamicFixedLengthTypeConfiguration.GetSchema()
@@ -1542,18 +1536,19 @@ namespace FlatFiles.TypeMapping
             OptimizeMapping(isOptimized);
         }
 
-        private Func<TEntity> getLateBoundFactory()
+        public void UseFactory<TOther>(Func<TOther> factory)
         {
-            if (factories.TryGetValue(typeof(TEntity), out var factory))
-            {
-                return factory;
-            }
-            else
-            {
-                var codeGenerator = getCodeGenerator();
-                var dynamicFactory = codeGenerator.GetFactory(typeof(TEntity));
-                return () => (TEntity)dynamicFactory();
-            }
+            lookup.SetFactory(factory);
+        }
+
+        void IDynamicFixedLengthTypeConfiguration.UseFactory(Type entityType, Func<object> factory)
+        {
+            lookup.SetFactory(entityType, factory);
+        }
+
+        public IMapper<TEntity> GetMapper()
+        {
+            return new Mapper<TEntity>(lookup, getCodeGenerator());
         }
 
         private ICodeGenerator getCodeGenerator()

@@ -73,8 +73,8 @@ namespace FlatFiles.TypeMapping
                 column.Options = options;
                 column.NullHandler = nullHandler;
                 column.Preprocessor = preprocessor;
-
-                var recordMapper = (IRecordMapper<TEntity>)mapper;
+                var mapperSource = (IMapperSource<TEntity>)mapper;
+                var recordMapper = mapperSource.GetMapper();
                 return new ComplexMapperColumn<TEntity>(column, recordMapper);
             }
         }

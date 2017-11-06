@@ -48,13 +48,13 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedReader<TEntity> : ITypedReader<TEntity>
     {
         private readonly IReader reader;
-        private readonly TypedRecordReader<TEntity> deserializer;
+        private readonly Func<object[], TEntity> deserializer;
         private TEntity current;
 
-        public TypedReader(IReader reader, TypedRecordReader<TEntity> deserializer)
+        public TypedReader(IReader reader, IMapper<TEntity> mapper)
         {
             this.reader = reader;
-            this.deserializer = deserializer;
+            this.deserializer = mapper.GetReader();
         }
 
         public ISchema GetSchema()
@@ -69,7 +69,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            current = deserializer.Read(values);
+            current = deserializer(values);
             return true;
         }
 
@@ -80,7 +80,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            current = deserializer.Read(values);
+            current = deserializer(values);
             return true;
         }
 

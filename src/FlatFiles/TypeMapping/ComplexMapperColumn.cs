@@ -5,14 +5,16 @@ namespace FlatFiles.TypeMapping
     internal class ComplexMapperColumn<TEntity> : IColumnDefinition
     {
         private readonly IColumnDefinition column;
-        private readonly TypedRecordReader<TEntity> reader;
-        private readonly TypedRecordWriter<TEntity> writer;
+        private readonly Func<object[], TEntity> reader;
+        private readonly Action<TEntity, object[]> writer;
+        private readonly int workCount;
 
-        public ComplexMapperColumn(IColumnDefinition column, IRecordMapper<TEntity> mapper)
+        public ComplexMapperColumn(IColumnDefinition column, IMapper<TEntity> mapper)
         {
             this.column = column;
             this.reader = mapper.GetReader();
             this.writer = mapper.GetWriter();
+            this.workCount = mapper.WorkCount;
         }
 
         public string ColumnName
@@ -46,14 +48,14 @@ namespace FlatFiles.TypeMapping
         {
             object parsed = column.Parse(value);
             object[] values = parsed as object[];
-            TEntity result = reader.Read(values);
+            TEntity result = reader(values);
             return result;
         }
 
         public string Format(object value)
         {
-            object[] values = new object[writer.MemberCount];
-            writer.Write((TEntity)value, values);
+            object[] values = new object[workCount];
+            writer((TEntity)value, values);
             string formatted = column.Format(values);
             return formatted;
         }
