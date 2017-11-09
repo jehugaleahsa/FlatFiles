@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using FlatFiles.Resources;
@@ -18,7 +19,7 @@ namespace FlatFiles.TypeMapping
     {
         public Func<TEntity> GetFactory<TEntity>()
         {
-            return Activator.CreateInstance<TEntity>;
+            return () => (TEntity)Activator.CreateInstance(typeof(TEntity), true);
         }
 
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
@@ -61,7 +62,10 @@ namespace FlatFiles.TypeMapping
         public Func<TEntity> GetFactory<TEntity>()
         {
             Type entityType = typeof(TEntity);
-            var constructorInfo = entityType.GetTypeInfo().GetConstructor(Type.EmptyTypes);
+            var bindingFlags = BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            var constructorInfo = entityType.GetTypeInfo().GetConstructors(bindingFlags)
+                .Where(c => c.GetParameters().Length == 0)
+                .SingleOrDefault();
             if (constructorInfo == null)
             {
                 throw new FlatFileException(SharedResources.NoDefaultConstructor);
@@ -101,7 +105,7 @@ namespace FlatFiles.TypeMapping
                 }
                 else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
                 {
-                    MethodInfo setter = propertyInfo.GetSetMethod();
+                    MethodInfo setter = propertyInfo.GetSetMethod(true);
                     if (setter == null)
                     {
                         string message = String.Format(null, SharedResources.ReadOnlyProperty, propertyInfo.Name);
@@ -150,7 +154,7 @@ namespace FlatFiles.TypeMapping
                 }
                 else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
                 {
-                    MethodInfo getter = propertyInfo.GetGetMethod();
+                    MethodInfo getter = propertyInfo.GetGetMethod(true);
                     if (getter == null)
                     {
                         string message = String.Format(null, SharedResources.WriteOnlyProperty, propertyInfo.Name);

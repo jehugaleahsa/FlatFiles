@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.10.10" />
-    <PackageReference Include="CsvHelper" Version="5.0.0.1" />
+    <PackageReference Include="CsvHelper" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

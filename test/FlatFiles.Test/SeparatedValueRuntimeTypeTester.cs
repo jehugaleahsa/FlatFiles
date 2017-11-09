@@ -43,7 +43,7 @@ namespace FlatFiles.Test
             };
 
             StringWriter writer = new StringWriter();
-           mapper.Write(writer, people);
+            mapper.Write(writer, people);
             string result = writer.ToString();
 
             StringReader reader = new StringReader(result);
@@ -100,6 +100,49 @@ namespace FlatFiles.Test
             Assert.Equal(person1.TopSpeed, person2.TopSpeed);
         }
 
+        [Fact]
+        public void TestPrivateType()
+        {
+            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivatePerson));
+            mapper.StringProperty("Name").ColumnName("Name");
+
+            string expected = $"John{Environment.NewLine}Susan{Environment.NewLine}";
+
+            StringReader reader = new StringReader(expected);
+            var people = mapper.Read(reader).ToArray();
+            Assert.Equal(2, people.Length);
+            Assert.IsType<PrivatePerson>(people[0]);
+            Assert.IsType<PrivatePerson>(people[1]);
+
+            StringWriter writer = new StringWriter();
+            mapper.Write(writer, people);
+
+            string actual = writer.ToString();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void TestPrivateType_Unoptimized()
+        {
+            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivatePerson));
+            mapper.StringProperty("Name").ColumnName("Name");
+            mapper.OptimizeMapping(false);
+
+            string expected = $"John{Environment.NewLine}Susan{Environment.NewLine}";
+
+            StringReader reader = new StringReader(expected);
+            var people = mapper.Read(reader).ToArray();
+            Assert.Equal(2, people.Length);
+            Assert.IsType<PrivatePerson>(people[0]);
+            Assert.IsType<PrivatePerson>(people[1]);
+
+            StringWriter writer = new StringWriter();
+            mapper.Write(writer, people);
+
+            string actual = writer.ToString();
+            Assert.Equal(expected, actual);
+        }
+
         public class Person
         {
             public string Name { get; set; }
@@ -109,6 +152,15 @@ namespace FlatFiles.Test
             public DateTime BirthDate { get; set; }
 
             public decimal TopSpeed { get; set; }
+        }
+
+        private class PrivatePerson
+        {
+            private PrivatePerson()
+            {
+            }
+
+            private string Name { get; set; }
         }
     }
 }

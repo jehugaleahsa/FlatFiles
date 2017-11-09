@@ -30,19 +30,31 @@ namespace FlatFiles.TypeMapping
                 return parent;
             }
             string memberName = memberNames[nameIndex];
-            var propertyInfo = entityType.GetTypeInfo().GetProperty(memberName);
+            var propertyInfo = getProperty(entityType, memberName);
             if (propertyInfo != null)
             {
                 var accessor = new PropertyAccessor(propertyInfo, parent);
                 return getMember(propertyInfo.PropertyType, memberNames, nameIndex + 1, accessor);
             }
-            var fieldInfo = entityType.GetTypeInfo().GetField(memberName);
+            var fieldInfo = getField(entityType, memberName);
             if (fieldInfo != null)
             {
                 var accessor = new FieldAccessor(fieldInfo, parent);
                 return getMember(fieldInfo.FieldType, memberNames, nameIndex + 1, accessor);
             }
             throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
+        }
+
+        private static PropertyInfo getProperty(Type type, string propertyName)
+        {
+            var bindingFlags = BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            return type.GetTypeInfo().GetProperty(propertyName, bindingFlags);
+        }
+
+        private static FieldInfo getField(Type type, string fieldName)
+        {
+            var bindingFlags = BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            return type.GetTypeInfo().GetField(fieldName, bindingFlags);
         }
 
         public static IMemberAccessor GetMember<TEntity, TProp>(Expression<Func<TEntity, TProp>> accessor)
