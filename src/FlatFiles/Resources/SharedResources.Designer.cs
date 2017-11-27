@@ -62,6 +62,15 @@ namespace FlatFiles.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable property &apos;{0}&apos;..
+        /// </summary>
+        internal static string AssignNullToNonNull {
+            get {
+                return ResourceManager.GetString("AssignNullToStruct", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The property selector did not select a property..
         /// </summary>
         internal static string BadPropertySelector {

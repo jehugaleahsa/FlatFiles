@@ -192,4 +192,7 @@
   <data name="WriteOnlyProperty" xml:space="preserve">
     <value>Cannot write values from the {0} property because it is write-only.</value>
   </data>
+  <data name="AssignNullToStruct" xml:space="preserve">
+    <value>Encountered a null when assigning to the non-nullable property '{0}'.</value>
+  </data>
 </root>

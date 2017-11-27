@@ -696,5 +696,31 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             Assert.Equal(1, errorRecords.Count);
             Assert.Equal(2, errorRecords[0]);
         }
+
+        [Fact]
+        public void TestReader_NullToDateTime_ProvidesUsefulErrorMessage()
+        {
+            const string rawData = "Hello,,Goodbye";
+            StringReader reader = new StringReader(rawData);
+
+            var mapper = SeparatedValueTypeMapper.Define<ClassWithDate>();
+            mapper.Ignored();
+            mapper.Property(x => x.DateTime);
+            mapper.Ignored();
+
+            try
+            {
+                var records = mapper.Read(reader).ToArray();
+                Assert.True(false); // The line above should always fail.
+            }
+            catch (FlatFileException)
+            {                
+            }
+        }
+
+        private class ClassWithDate
+        {
+            public DateTime DateTime { get; set; }
+        }
     }
 }

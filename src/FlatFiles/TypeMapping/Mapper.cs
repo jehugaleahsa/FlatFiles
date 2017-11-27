@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
+using FlatFiles.Resources;
 
 namespace FlatFiles.TypeMapping
 {
@@ -65,12 +67,14 @@ namespace FlatFiles.TypeMapping
             var mappings = lookup.GetMappings();
             var memberMappings = getMemberMappings(mappings);
             var setter = codeGenerator.GetReader<TEntity>(memberMappings);
+            var nullChecker = getNullChecker(memberMappings);
             var nestedMappers = getNestedMappers(mappings);
             if (nestedMappers.Any())
             {
                 cachedReader = (values) =>
                 {
                     var entity = factory();
+                    nullChecker(values);
                     setter(entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
@@ -86,11 +90,35 @@ namespace FlatFiles.TypeMapping
                 cachedReader = (values) =>
                 {
                     var entity = factory();
+                    nullChecker(values);
                     setter(entity, values);
                     return entity;
                 };
             }
             return cachedReader;
+        }
+
+        private Action<object[]> getNullChecker(IMemberMapping[] memberMappings)
+        {
+            var nonNullLookup = memberMappings
+                .Where(m => !m.Member.Type.GetTypeInfo().IsClass)
+                .Where(m => Nullable.GetUnderlyingType(m.Member.Type) == null)
+                .ToDictionary(m => m.WorkIndex);
+            if (nonNullLookup.Count == 0)
+            {
+                return (values) => { };
+            }
+            return (values) =>
+            {
+                for (int index = 0; index != values.Length; ++index)
+                {
+                    if (values[index] == null && nonNullLookup.TryGetValue(index, out var mapping))
+                    {
+                        string message = String.Format(null, SharedResources.AssignNullToNonNull, mapping.Member.Name);
+                        throw new FlatFileException(message);
+                    }
+                }
+            };
         }
 
         Func<object[], object> IMapper.GetReader()

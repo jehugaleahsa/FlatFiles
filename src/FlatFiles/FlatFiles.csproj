@@ -23,11 +23,11 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
-    <AssemblyVersion>1.6.1.0</AssemblyVersion>
-    <FileVersion>1.6.1.0</FileVersion>
-    <Version>1.6.1.0</Version>
+    <AssemblyVersion>1.6.2.0</AssemblyVersion>
+    <FileVersion>1.6.2.0</FileVersion>
+    <Version>1.6.2.0</Version>
     <PackageLicenseUrl>https://github.com/jehugaleahsa/FlatFiles/blob/master/UNLICENSE.txt</PackageLicenseUrl>
-    <PackageReleaseNotes>Read/write non-public members and use non-public constructors when working with dynamic/runtime types.</PackageReleaseNotes>
+    <PackageReleaseNotes>Provide a better error message when mapping nulls to non-nullable types.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
