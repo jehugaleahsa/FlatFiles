@@ -10,7 +10,7 @@ namespace FlatFiles
     public sealed class SeparatedValueWriter : IWriter
     {
         private readonly SeparatedValueRecordWriter recordWriter;
-        private bool isFirstLine;
+        private bool isSchemaWritten;
 
         /// <summary>
         /// Initializes a new SeparatedValueWriter without a schema.
@@ -51,7 +51,6 @@ namespace FlatFiles
                 options = new SeparatedValueOptions();
             }
             this.recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
-            this.isFirstLine = true;
         }
 
         /// <summary>
@@ -69,6 +68,42 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Write the textual representation of the record schema to the writer.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        public void WriteSchema()
+        {
+            if (isSchemaWritten)
+            {
+                return;
+            }
+            if (recordWriter.Schema != null)
+            {
+                recordWriter.WriteSchema();
+                recordWriter.WriteRecordSeparator();
+            }
+            isSchemaWritten = true;
+        }
+
+        /// <summary>
+        /// Write the textual representation of the record schema to the writer.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        public async Task WriteSchemaAsync()
+        {
+            if (isSchemaWritten)
+            {
+                return;
+            }
+            if (recordWriter.Schema != null)
+            {
+                await recordWriter.WriteSchemaAsync();
+                await recordWriter.WriteRecordSeparatorAsync();
+            }
+            isSchemaWritten = true;
+        }
+
+        /// <summary>
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
@@ -79,14 +114,14 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("values");
             }
-            if (isFirstLine)
+            if (!isSchemaWritten)
             {
                 if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
                 }
-                isFirstLine = false;
+                isSchemaWritten = true;
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();
@@ -103,14 +138,14 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("values");
             }
-            if (isFirstLine)
+            if (!isSchemaWritten)
             {
                 if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync();
                     await recordWriter.WriteRecordSeparatorAsync();
                 }
-                isFirstLine = false;
+                isSchemaWritten = true;
             }
             await recordWriter.WriteRecordAsync(values);
             await recordWriter.WriteRecordSeparatorAsync();

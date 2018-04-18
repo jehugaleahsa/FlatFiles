@@ -114,5 +114,26 @@ namespace FlatFiles.Test
             string expected = "     " + Environment.NewLine;
             Assert.Equal(expected, output);
         }
+
+        [Fact]
+        public void ShouldWriteSchemaIfExplicit()
+        {
+            StringWriter stringWriter = new StringWriter();
+            // Explicitly indicate that the first record is NOT the schema
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new StringColumn("Col1"), 10);
+            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, new FixedLengthOptions()
+            {
+                IsFirstRecordHeader = false
+            });
+            writer.WriteSchema();  // Explicitly write the schema
+            writer.Write(new string[] { "a" });
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var reader = new FixedLengthReader(stringReader, schema, new FixedLengthOptions() { IsFirstRecordHeader = true });
+
+            Assert.True(reader.Read(), "The record was not retrieved after the schema.");
+            Assert.False(reader.Read(), "Encountered more than the expected number of records.");
+        }
     }
 }

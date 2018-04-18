@@ -10,7 +10,7 @@ namespace FlatFiles
     public sealed class FixedLengthWriter : IWriter
     {
         private readonly FixedLengthRecordWriter recordWriter;
-        private bool isFirstLine;
+        private bool isSchemaWritten;
 
         /// <summary>
         /// Initializes a new FixedLengthBuilder with the given schema.
@@ -35,7 +35,6 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             this.recordWriter = new FixedLengthRecordWriter(writer, schema, options);
-            this.isFirstLine = true;
         }
 
         /// <summary>
@@ -53,6 +52,36 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Write the textual representation of the record schema to the writer.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        public void WriteSchema()
+        {
+            if (isSchemaWritten)
+            {
+                return;
+            }
+            recordWriter.WriteSchema();
+            recordWriter.WriteRecordSeparator();
+            isSchemaWritten = true;
+        }
+
+        /// <summary>
+        /// Write the textual representation of the record schema to the writer.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        public async Task WriteSchemaAsync()
+        {
+            if (isSchemaWritten)
+            {
+                return;
+            }
+            await recordWriter.WriteSchemaAsync();
+            await recordWriter.WriteRecordSeparatorAsync();
+            isSchemaWritten = true;
+        }
+
+        /// <summary>
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
@@ -63,14 +92,14 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException("values");
             }
-            if (isFirstLine)
+            if (!isSchemaWritten)
             {
                 if (recordWriter.Options.IsFirstRecordHeader)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
                 }
-                isFirstLine = false;
+                isSchemaWritten = true;
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();
@@ -87,14 +116,14 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(values));
             }
-            if (isFirstLine)
+            if (!isSchemaWritten)
             {
                 if (recordWriter.Options.IsFirstRecordHeader)
                 {
                     await recordWriter.WriteSchemaAsync();
                     await recordWriter.WriteRecordSeparatorAsync();
                 }
-                isFirstLine = false;
+                isSchemaWritten = true;
             }
             await recordWriter.WriteRecordAsync(values);
             await recordWriter.WriteRecordSeparatorAsync();
