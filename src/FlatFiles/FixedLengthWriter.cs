@@ -43,7 +43,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return recordWriter.Schema;
+            return recordWriter.Metadata.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -63,6 +63,7 @@ namespace FlatFiles
             }
             recordWriter.WriteSchema();
             recordWriter.WriteRecordSeparator();
+            ++recordWriter.Metadata.RecordCount;
             isSchemaWritten = true;
         }
 
@@ -78,6 +79,7 @@ namespace FlatFiles
             }
             await recordWriter.WriteSchemaAsync();
             await recordWriter.WriteRecordSeparatorAsync();
+            ++recordWriter.Metadata.RecordCount;
             isSchemaWritten = true;
         }
 
@@ -94,15 +96,18 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.Options.IsFirstRecordHeader)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
+                    ++recordWriter.Metadata.RecordCount;
                 }
                 isSchemaWritten = true;
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();
+            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.LogicalRecordCount;
         }
 
         /// <summary>
@@ -118,15 +123,18 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.Options.IsFirstRecordHeader)
                 {
                     await recordWriter.WriteSchemaAsync();
                     await recordWriter.WriteRecordSeparatorAsync();
+                    ++recordWriter.Metadata.RecordCount;
                 }
                 isSchemaWritten = true;
             }
             await recordWriter.WriteRecordAsync(values);
             await recordWriter.WriteRecordSeparatorAsync();
+            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.LogicalRecordCount;
         }
     }
 }

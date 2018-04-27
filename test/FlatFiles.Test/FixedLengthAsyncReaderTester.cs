@@ -43,7 +43,7 @@ namespace FlatFiles.Test
             {
                 people.Add(reader.Current);
             }
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);

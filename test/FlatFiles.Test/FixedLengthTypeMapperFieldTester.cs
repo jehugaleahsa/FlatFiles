@@ -28,7 +28,7 @@ namespace FlatFiles.Test
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);

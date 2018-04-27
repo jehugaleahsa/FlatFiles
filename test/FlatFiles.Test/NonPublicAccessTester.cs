@@ -29,13 +29,13 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Equal(1, data.Length);
+            Assert.Single(data);
             var result = data[0];
             Assert.Equal("ABC123", result.Identifier);
             Assert.Equal("Doing Fine", result.Status);
             Assert.Equal(new DateTime(2018, 1, 15), result.EffectiveDate);
             Assert.Equal(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
-            Assert.Equal(true, result.IsInternal);
+            Assert.True(result.IsInternal);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Equal(1, data.Length);
+            Assert.Single(data);
             dynamic result = data[0];
             Assert.Equal("ABC123", result.Identifier);
             Assert.Equal("Doing Fine", result.Status);
@@ -88,7 +88,7 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Equal(1, data.Length);
+            Assert.Single(data);
             var result = data[0];
             Assert.Equal("ABC123", result.Identifier);
             Assert.Equal("Doing Fine", result.Status);
@@ -116,7 +116,7 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Equal(1, data.Length);
+            Assert.Single(data);
             dynamic result = data[0];
             Assert.Equal("ABC123", result.Identifier);
             Assert.Equal("Doing Fine", result.Status);
@@ -141,7 +141,7 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Equal(1, data.Length);
+            Assert.Single(data);
             dynamic result = data[0];
             Assert.Equal(123, result.Id);
         }

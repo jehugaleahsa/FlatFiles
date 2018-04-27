@@ -25,7 +25,7 @@ namespace FlatFiles.Test
             var record = String.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
 
             var expected = new Person()
@@ -63,7 +63,7 @@ namespace FlatFiles.Test
             var record = String.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
             Assert.IsType<Person>(result);
 
@@ -119,7 +119,7 @@ namespace FlatFiles.Test
             
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
 
             assertEqual(expected, result);
@@ -160,7 +160,7 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
             Assert.IsType<Person>(result);
 
@@ -212,7 +212,7 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
 
             assertEqual(expected, result);
@@ -306,7 +306,7 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
 
             Assert.NotNull(result);
@@ -370,7 +370,7 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Equal(1, results.Length);
+            Assert.Single(results);
             var result = results[0];
 
             Assert.NotNull(result);

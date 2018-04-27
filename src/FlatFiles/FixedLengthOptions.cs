@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration settings for the FixedLengthParser class.
     /// </summary>
-    public sealed class FixedLengthOptions
+    public sealed class FixedLengthOptions : IOptions
     {
         private FixedAlignment alignment;
         private OverflowTruncationPolicy truncationPolicy;
@@ -47,6 +47,14 @@ namespace FlatFiles
         /// Gets or sets whether the first record in the source holds header information and should be skipped.
         /// </summary>
         public bool IsFirstRecordHeader { get; set; }
+
+        /// <summary>
+        /// Gets whether the first record in the source holds header information and should be skipped.
+        /// </summary>
+        bool IOptions.IsFirstRecordSchema
+        {
+            get { return IsFirstRecordHeader; }
+        }
 
         /// <summary>
         /// Gets or sets a filter to use to skip records prior to record being partitioned.

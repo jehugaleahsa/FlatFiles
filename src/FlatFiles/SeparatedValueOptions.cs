@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration options for the SeparatedValueParser.
     /// </summary>
-    public sealed class SeparatedValueOptions
+    public sealed class SeparatedValueOptions : IOptions
     {
         private string separator;
 

@@ -23,7 +23,7 @@ namespace FlatFiles.Test
             StringReader reader = new StringReader(input);
             var results = mapper.Read(reader).ToArray();
 
-            Assert.Equal(1, results.Count());
+            Assert.Single(results);
             var result = results.Single();
             Assert.Equal(12345.67m, result.Value);
             Assert.Equal(123m, result.Money);

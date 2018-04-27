@@ -59,7 +59,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public SeparatedValueSchema GetSchema()
         {
-            return recordWriter.Schema;
+            return recordWriter.Metadata.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -77,10 +77,11 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Schema != null)
+            if (recordWriter.Metadata.Schema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
+                ++recordWriter.Metadata.RecordCount;
             }
             isSchemaWritten = true;
         }
@@ -95,10 +96,11 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Schema != null)
+            if (recordWriter.Metadata.Schema != null)
             {
                 await recordWriter.WriteSchemaAsync();
                 await recordWriter.WriteRecordSeparatorAsync();
+                ++recordWriter.Metadata.RecordCount;
             }
             isSchemaWritten = true;
         }
@@ -116,15 +118,18 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
+                if (recordWriter.Metadata.Options.IsFirstRecordSchema && recordWriter.Metadata.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
+                    ++recordWriter.Metadata.RecordCount;
                 }
                 isSchemaWritten = true;
             }
             recordWriter.WriteRecord(values);
             recordWriter.WriteRecordSeparator();
+            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.LogicalRecordCount;
         }
 
         /// <summary>
@@ -140,15 +145,18 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
+                if (recordWriter.Metadata.Options.IsFirstRecordSchema && recordWriter.Metadata.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync();
                     await recordWriter.WriteRecordSeparatorAsync();
+                    ++recordWriter.Metadata.RecordCount;
                 }
                 isSchemaWritten = true;
             }
             await recordWriter.WriteRecordAsync(values);
             await recordWriter.WriteRecordSeparatorAsync();
+            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.LogicalRecordCount;
         }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using FlatFiles.Resources;
 
 namespace FlatFiles
 {
@@ -69,20 +66,32 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given values assuming that they are in the same order as the column definitions.
         /// </summary>
+        /// <param name="metadata">The current metadata for the process.</param>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        protected object[] ParseValuesBase(string[] values)
+        protected object[] ParseValuesBase(IProcessMetadata metadata, string[] values)
         {
-            object[] parsedValues = new object[definitions.HandledCount];
-            for (int columnIndex = 0, valueIndex = 0; columnIndex != definitions.Count; ++columnIndex)
+            object[] parsedValues = new object[definitions.PhysicalCount];
+            for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0; columnIndex != definitions.Count; ++columnIndex)
             {
                 IColumnDefinition definition = definitions[columnIndex];
-                if (!definition.IsIgnored)
+                if (definition is IMetadataColumn metaColumn)
                 {
-                    string rawValue = values[columnIndex];
+                    object value = metaColumn.GetValue(metadata);
+                    parsedValues[destinationIndex] = value;
+                    ++destinationIndex;
+                }
+                else if (!definition.IsIgnored)
+                {
+                    string rawValue = values[sourceIndex];
+                    ++sourceIndex;
                     object parsedValue = parse(definition, rawValue);
-                    parsedValues[valueIndex] = parsedValue;
-                    ++valueIndex;
+                    parsedValues[destinationIndex] = parsedValue;
+                    ++destinationIndex;
+                }
+                else
+                {
+                    ++sourceIndex;
                 }
             }
             return parsedValues;
@@ -104,15 +113,23 @@ namespace FlatFiles
         /// <summary>
         /// Formats the given values assuming that they are in the same order as the column definitions.
         /// </summary>
+        /// <param name="metadata">The current metadata for the process.</param>
         /// <param name="values">The values to format.</param>
         /// <returns>The formatted values.</returns>
-        protected string[] FormatValuesBase(object[] values)
+        protected string[] FormatValuesBase(IProcessMetadata metadata, object[] values)
         {
             string[] formattedValues = new string[definitions.Count];
             for (int columnIndex = 0, valueIndex = 0; columnIndex != definitions.Count; ++columnIndex)
             {
                 IColumnDefinition definition = definitions[columnIndex];
-                if (!definition.IsIgnored)
+                if (definition is IMetadataColumn metaColumn)
+                {
+                    object value = metaColumn.GetValue(metadata);
+                    string formattedValue = definition.Format(value);
+                    formattedValues[columnIndex] = formattedValue;
+                    ++valueIndex;
+                }
+                else if (!definition.IsIgnored)
                 {
                     object value = values[valueIndex];
                     string formattedValue = definition.Format(value);

@@ -13,6 +13,7 @@ namespace FlatFiles
         private readonly List<IColumnDefinition> definitions;
         private readonly Dictionary<string, int> ordinals;
         private int ignoredCount;
+        private int metadataCount;
 
         /// <summary>
         /// Initializes a new ColumnCollection.
@@ -64,9 +65,17 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the number of columns that are metadata.
+        /// </summary>
+        public int MetadataCount
+        {
+            get { return metadataCount; }
+        }
+
+        /// <summary>
         /// Gets the number of columns that are not ignored.
         /// </summary>
-        public int HandledCount
+        internal int PhysicalCount
         {
             get { return definitions.Count - ignoredCount; }
         }
@@ -87,7 +96,11 @@ namespace FlatFiles
         private void addColumn(IColumnDefinition definition)
         {
             definitions.Add(definition);
-            if (definition.IsIgnored)
+            if (definition is IMetadataColumn)
+            {
+                ++metadataCount;
+            }
+            else if (definition.IsIgnored)
             {
                 ++ignoredCount;
             }

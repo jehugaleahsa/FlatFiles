@@ -12,6 +12,7 @@ namespace FlatFiles.Benchmark
         static void Main(string[] args)
         {
             var configuration = new ManualConfig();
+            configuration.KeepBenchmarkFiles = false;
             configuration.Add(StatisticColumn.Min);
             configuration.Add(StatisticColumn.Max);
             configuration.Add(DefaultConfig.Instance.GetColumnProviders().ToArray());
@@ -22,7 +23,7 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
             BenchmarkRunner.Run<SimpleCsvTester>(configuration);
-    
+
             //var tester = new AsyncVsSyncTest();
             //for (int i = 0; i != 10; ++i)
             //{

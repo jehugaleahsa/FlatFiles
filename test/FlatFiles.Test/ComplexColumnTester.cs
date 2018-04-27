@@ -64,7 +64,7 @@ namespace FlatFiles.Test
             mapper.Property(p => p.NickName);
 
             var players = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, players.Count());
+            Assert.Single(players);
             var player = players.Single();
                 
             Assert.Equal("Tom", player.FirstName);

@@ -343,7 +343,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -369,7 +369,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -395,7 +395,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -423,7 +423,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -441,6 +441,7 @@ a weird row that should be skipped
             public bool? IsActive { get; set; }
         }
 
+        [Fact]
         public void TestTypeMapper_NullableBoolean_RoundTripsNull()
         {
             var mapper = FixedLengthTypeMapper.Define<Person>();
@@ -453,7 +454,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.Null(first.IsActive);
         }
@@ -471,7 +472,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.False(first.IsActive);
         }
@@ -489,7 +490,7 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.True(first.IsActive);
         }
@@ -528,7 +529,7 @@ a weird row that should be skipped
             };
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.Equal(2, people.Count());
-            Assert.Equal(1, errorRecords.Count);
+            Assert.Single(errorRecords);
             Assert.Equal(2, errorRecords[0]);
         }
 

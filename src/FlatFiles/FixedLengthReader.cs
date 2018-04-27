@@ -11,9 +11,7 @@ namespace FlatFiles
     public sealed class FixedLengthReader : IReader
     {
         private readonly FixedLengthRecordParser parser;
-        private readonly FixedLengthSchema schema;
-        private readonly FixedLengthOptions options;
-        private int recordCount;
+        private readonly Metadata metadata;
         private object[] values;
         private bool endOfFile;
         private bool hasError;
@@ -41,8 +39,11 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
-            this.schema = schema;
-            this.options = options.Clone();
+            this.metadata = new Metadata()
+            {
+                Schema = schema,
+                Options = options.Clone()
+            };
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return schema;
+            return metadata.Schema;
         } 
 
         ISchema IReader.GetSchema()
@@ -65,12 +66,12 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public Task<FixedLengthSchema> GetSchemaAsync()
         {
-            return Task.FromResult(schema);
+            return Task.FromResult(metadata.Schema);
         }
 
         Task<ISchema> IReader.GetSchemaAsync()
         {
-            return Task.FromResult<ISchema>(schema);
+            return Task.FromResult<ISchema>(metadata.Schema);
         }
 
         /// <summary>
@@ -87,7 +88,15 @@ namespace FlatFiles
             try
             {
                 values = parsePartitions();
-                return values != null;
+                if (values == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    ++metadata.LogicalRecordCount;
+                    return true;
+                }
             }
             catch (FlatFileException)
             {
@@ -98,7 +107,7 @@ namespace FlatFiles
 
         private void handleHeader()
         {
-            if (recordCount == 0 && options.IsFirstRecordHeader)
+            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
             {
                 skip();
             }
@@ -123,7 +132,7 @@ namespace FlatFiles
         {
             string record = readWithFilter();
             string[] rawValues = partitionRecord(record);
-            while (rawValues != null && options.PartitionedRecordFilter != null && options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && metadata.Options.PartitionedRecordFilter != null && metadata.Options.PartitionedRecordFilter(rawValues))
             {
                 record = readWithFilter();
                 rawValues = partitionRecord(record);
@@ -134,7 +143,7 @@ namespace FlatFiles
         private string readWithFilter()
         {
             string record = readNextRecord();
-            while (record != null && options.UnpartitionedRecordFilter != null && options.UnpartitionedRecordFilter(record))
+            while (record != null && metadata.Options.UnpartitionedRecordFilter != null && metadata.Options.UnpartitionedRecordFilter(record))
             {
                 record = readNextRecord();
             }
@@ -155,7 +164,15 @@ namespace FlatFiles
             try
             {
                 values = await parsePartitionsAsync();
-                return values != null;
+                if (values == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    ++metadata.LogicalRecordCount;
+                    return true;
+                }
             }
             catch (FlatFileException)
             {
@@ -166,7 +183,7 @@ namespace FlatFiles
 
         private async Task handleHeaderAsync()
         {
-            if (recordCount == 0 && options.IsFirstRecordHeader)
+            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
             {
                 await skipAsync();
             }
@@ -191,7 +208,7 @@ namespace FlatFiles
         {
             string record = await readWithFilterAsync();
             string[] rawValues = partitionRecord(record);
-            while (rawValues != null && options.PartitionedRecordFilter != null && options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && metadata.Options.PartitionedRecordFilter != null && metadata.Options.PartitionedRecordFilter(rawValues))
             {
                 record = await readWithFilterAsync();
                 rawValues = partitionRecord(record);
@@ -202,7 +219,7 @@ namespace FlatFiles
         private async Task<string> readWithFilterAsync()
         {
             string record = await readNextRecordAsync();
-            while (record != null && options.UnpartitionedRecordFilter != null && options.UnpartitionedRecordFilter(record))
+            while (record != null && metadata.Options.UnpartitionedRecordFilter != null && metadata.Options.UnpartitionedRecordFilter(record))
             {
                 record = await readNextRecordAsync();
             }
@@ -213,11 +230,11 @@ namespace FlatFiles
         {
             try
             {
-                return schema.ParseValues(rawValues);
+                return metadata.Schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
-                processError(new RecordProcessingException(recordCount, SharedResources.InvalidRecordConversion, exception));
+                processError(new RecordProcessingException(metadata.RecordCount, SharedResources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -270,29 +287,34 @@ namespace FlatFiles
             {
                 return null;
             }
-            if (record.Length < schema.TotalWidth)
+            if (record.Length < metadata.Schema.TotalWidth)
             {
-                processError(new RecordProcessingException(recordCount, SharedResources.FixedLengthRecordTooShort));
+                processError(new RecordProcessingException(metadata.RecordCount, SharedResources.FixedLengthRecordTooShort));
                 return null;
             }
-            WindowCollection windows = schema.Windows;
-            string[] values = new string[windows.Count];
+            WindowCollection windows = metadata.Schema.Windows;
+            string[] values = new string[windows.Count - metadata.Schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
-            for (int index = 0; index != values.Length; ++index)
+            for (int index = 0; index != values.Length;)
             {
-                Window window = windows[index];
-                string value = record.Substring(offset, window.Width);
-                var alignment = window.Alignment ?? options.Alignment;
-                if (alignment == FixedAlignment.LeftAligned)
+                var definition = metadata.Schema.ColumnDefinitions[index];
+                if (!(definition is IMetadataColumn metaColumn))
                 {
-                    value = value.TrimEnd(window.FillCharacter ?? options.FillCharacter);
+                    Window window = windows[index];
+                    string value = record.Substring(offset, window.Width);
+                    var alignment = window.Alignment ?? metadata.Options.Alignment;
+                    if (alignment == FixedAlignment.LeftAligned)
+                    {
+                        value = value.TrimEnd(window.FillCharacter ?? metadata.Options.FillCharacter);
+                    }
+                    else
+                    {
+                        value = value.TrimStart(window.FillCharacter ?? metadata.Options.FillCharacter);
+                    }
+                    values[index] = value;
+                    ++index;
+                    offset += window.Width;
                 }
-                else
-                {
-                    value = value.TrimStart(window.FillCharacter ?? options.FillCharacter);
-                }
-                values[index] = value;
-                offset += window.Width;
             }
             return values;
         }
@@ -305,7 +327,7 @@ namespace FlatFiles
                 return null;
             }
             string record = parser.ReadRecord();
-            ++recordCount;
+            ++metadata.RecordCount;
             return record;
         }
 
@@ -317,16 +339,16 @@ namespace FlatFiles
                 return null;
             }
             string record = await parser.ReadRecordAsync();
-            ++recordCount;
+            ++metadata.RecordCount;
             return record;
         }
 
         private void processError(RecordProcessingException exception)
         {
-            if (options.ErrorHandler != null)
+            if (metadata.Options.ErrorHandler != null)
             {
                 var args = new ProcessingErrorEventArgs(exception);
-                options.ErrorHandler(this, args);
+                metadata.Options.ErrorHandler(this, args);
                 if (args.IsHandled)
                 {
                     return;
@@ -345,7 +367,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(SharedResources.ReadingWithErrors);
             }
-            if (recordCount == 0)
+            if (metadata.RecordCount == 0)
             {
                 throw new InvalidOperationException(SharedResources.ReadNotCalled);
             }
@@ -356,6 +378,27 @@ namespace FlatFiles
             object[] copy = new object[values.Length];
             Array.Copy(values, copy, values.Length);
             return copy;
+        }
+
+        private class Metadata : IProcessMetadata
+        {
+            public FixedLengthSchema Schema { get; internal set; }
+
+            ISchema IProcessMetadata.Schema
+            {
+                get { return Schema; }
+            }
+
+            public FixedLengthOptions Options { get; internal set; }
+
+            IOptions IProcessMetadata.Options
+            {
+                get { return Options; }
+            }
+
+            public int RecordCount { get; internal set; }
+
+            public int LogicalRecordCount { get; internal set; }
         }
     }
 }

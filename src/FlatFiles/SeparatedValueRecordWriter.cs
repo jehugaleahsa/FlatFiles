@@ -10,64 +10,61 @@ namespace FlatFiles
     internal sealed class SeparatedValueRecordWriter
     {
         private readonly TextWriter writer;
-        private readonly SeparatedValueSchema schema;
-        private readonly SeparatedValueOptions options;
+        private readonly SeparatedValueMetadata metadata;
         private readonly string quoteString;
         private readonly string doubleQuoteString;
 
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
-            this.schema = schema;
-            this.options = options.Clone();
+            this.metadata = new SeparatedValueMetadata()
+            {
+                Schema = schema,
+                Options = options.Clone()
+            };
             this.quoteString = String.Empty + options.Quote;
             this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
         }
 
-        public SeparatedValueSchema Schema
+        public SeparatedValueMetadata Metadata
         {
-            get { return schema; }
-        }
-
-        public SeparatedValueOptions Options
-        {
-            get { return options; }
+            get { return metadata; }
         }
 
         public void WriteRecord(object[] values)
         {
-            if (schema != null && values.Length != schema.ColumnDefinitions.HandledCount)
+            if (metadata.Schema != null && values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(SharedResources.WrongNumberOfValues, "values");
             }
             var formattedValues = formatValues(values);
             var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(options.Separator, escapedValues);
+            string joined = String.Join(metadata.Options.Separator, escapedValues);
             writer.Write(joined);
         }
 
         public async Task WriteRecordAsync(object[] values)
         {
-            if (schema != null && values.Length != schema.ColumnDefinitions.HandledCount)
+            if (metadata.Schema != null && values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = formatValues(values);
             var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(options.Separator, escapedValues);
+            string joined = String.Join(metadata.Options.Separator, escapedValues);
             await writer.WriteAsync(joined);
         }
 
         private IEnumerable<string> formatValues(object[] values)
         {
-            if (schema == null)
+            if (metadata.Schema == null)
             {
                 StringColumn column = new StringColumn("a");
                 return values.Select(v => column.Format(v));
             }
             else
             {
-                return schema.FormatValues(values);
+                return metadata.Schema.FormatValues(metadata, values);
             }
         }
 
@@ -90,7 +87,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            if (options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
+            if (metadata.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
             {
                 return true;
             }
@@ -105,12 +102,12 @@ namespace FlatFiles
                 return true;
             }
             // Escape strings containing the separator.
-            if (value.Contains(options.Separator))
+            if (value.Contains(metadata.Options.Separator))
             {
                 return true;
             }
             // Escape strings containing the record separator.
-            if (options.RecordSeparator != null && value.Contains(options.RecordSeparator))
+            if (metadata.Options.RecordSeparator != null && value.Contains(metadata.Options.RecordSeparator))
             {
                 return true;
             }
@@ -124,34 +121,55 @@ namespace FlatFiles
 
         public void WriteSchema()
         {
-            if (schema == null)
+            if (metadata.Schema == null)
             {
                 return;
             }
-            var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(options.Separator, names);
+            var names = metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
+            string joined = String.Join(metadata.Options.Separator, names);
             writer.Write(joined);
         }
 
         public async Task WriteSchemaAsync()
         {
-            if (schema == null)
+            if (metadata.Schema == null)
             {
                 return;
             }
-            var names = schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(options.Separator, names);
+            var names = metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
+            string joined = String.Join(metadata.Options.Separator, names);
             await writer.WriteAsync(joined);
         }
 
         public void WriteRecordSeparator()
         {
-            writer.Write(options.RecordSeparator ?? Environment.NewLine);
+            writer.Write(metadata.Options.RecordSeparator ?? Environment.NewLine);
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            await writer.WriteAsync(options.RecordSeparator ?? Environment.NewLine);
+            await writer.WriteAsync(metadata.Options.RecordSeparator ?? Environment.NewLine);
+        }
+
+        internal class SeparatedValueMetadata : IProcessMetadata
+        {
+            public SeparatedValueSchema Schema { get; internal set; }
+
+            ISchema IProcessMetadata.Schema
+            {
+                get { return Schema; }
+            }
+
+            public SeparatedValueOptions Options { get; internal set; }
+
+            IOptions IProcessMetadata.Options
+            {
+                get { return Options; }
+            }
+
+            public int RecordCount { get; internal set; }
+
+            public int LogicalRecordCount { get; internal set; }
         }
     }
 }

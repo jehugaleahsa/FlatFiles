@@ -388,7 +388,7 @@ This is not a real record
             Assert.Equal(sources[0], values[0]);
             Assert.Equal(sources[1], values[1]);
             Assert.Equal(sources[2], values[2]);
-            Assert.Equal(null, values[3]);
+            Assert.Null(values[3]);
             Assert.False(parser.Read(), "Too many records were found.");
         }
 
@@ -420,7 +420,7 @@ This is not a real record
                 Assert.Equal(schema.ColumnDefinitions.Count, values.Length);
                 Assert.Equal(sources[0], values[0]);
                 Assert.Equal(sources[1], values[1]);
-                Assert.Equal(null, values[2]);
+                Assert.Null(values[2]);
                 Assert.Equal(sources[3], values[3]);
                 Assert.False(parser.Read(), "Too many records were found.");
             }
@@ -452,7 +452,7 @@ This is not a real record
                 Assert.True(parser.Read(), "No records were found.");
                 object[] values = parser.GetValues();
                 Assert.Equal(schema.ColumnDefinitions.Count, values.Length);
-                Assert.Equal(null, values[0]);
+                Assert.Null(values[0]);
                 Assert.Equal(sources[1], values[1]);
                 Assert.Equal(sources[2], values[2]);
                 Assert.Equal(sources[3], values[3]);
@@ -512,7 +512,7 @@ This is not a real record
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -539,7 +539,7 @@ This is not a real record
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader, options).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -567,7 +567,7 @@ This is not a real record
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var person = people.SingleOrDefault();
             Assert.Equal(bob.Id, person.Id);
             Assert.Equal(bob.Name, person.Name);
@@ -629,7 +629,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.Null(first.IsActive);
         }
@@ -647,7 +647,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.False(first.IsActive);
         }
@@ -665,7 +665,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, people.Count());
+            Assert.Single(people);
             var first = people.SingleOrDefault();
             Assert.True(first.IsActive);
         }
@@ -693,7 +693,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             };
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.Equal(2, people.Count());
-            Assert.Equal(1, errorRecords.Count);
+            Assert.Single(errorRecords);
             Assert.Equal(2, errorRecords[0]);
         }
 

@@ -57,7 +57,7 @@ namespace FlatFiles.Test
                 using (StringReader reader = new StringReader(output))
                 {
                     var things = mapper.Read(reader).ToArray();
-                    Assert.Equal(1, things.Count());
+                    Assert.Single(things);
                     var deserialized = things.Single();
                     return deserialized;
                 }

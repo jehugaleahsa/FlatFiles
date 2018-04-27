@@ -74,7 +74,7 @@ namespace FlatFiles.Test
             string content = "----,5.12,----,apple" + Environment.NewLine;
             StringReader stringReader = new StringReader(content);
             var products = mapper.Read(stringReader).ToArray();
-            Assert.Equal(1, products.Count());
+            Assert.Single(products);
 
             Product product = products.Single();
             Assert.Null(product.Name);

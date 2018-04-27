@@ -33,7 +33,10 @@ namespace FlatFiles
             }
             AddColumnBase(definition);
             windows.Add(window);
-            totalWidth += window.Width;
+            if (!(definition is IMetadataColumn))
+            {
+                totalWidth += window.Width;
+            }
             return this;
         }
 
@@ -56,21 +59,23 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given values assuming that they are in the same order as the column definitions.
         /// </summary>
+        /// <param name="metadata">The current metadata for the process.</param>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(string[] values)
+        internal object[] ParseValues(IProcessMetadata metadata, string[] values)
         {
-            return ParseValuesBase(values);
+            return ParseValuesBase(metadata, values);
         }
 
         /// <summary>
         /// Formats the given values assuming that they are in the same order as the column definitions.
         /// </summary>
+        /// <param name="metadata">The current metadata for the process.</param>
         /// <param name="values">The values to format.</param>
         /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(object[] values)
+        internal string[] FormatValues(IProcessMetadata metadata, object[] values)
         {
-            return FormatValuesBase(values);
+            return FormatValuesBase(metadata, values);
         }
     }
 }
