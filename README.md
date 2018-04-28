@@ -170,7 +170,7 @@ outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 The `"RecordNumber"` string is an arbitrary identifier to uniquely identify the column.
 
 ### Creating your own metadata columns
-FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you most implement the method:
+FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you must implement the method:
 
 ```csharp
 object GetValue(IProcessMetadata metadata)
