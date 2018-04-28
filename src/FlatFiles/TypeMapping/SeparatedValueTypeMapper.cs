@@ -1139,6 +1139,19 @@ namespace FlatFiles.TypeMapping
             });
         }
 
+        public IWriteOnlyPropertyMapping WriteOnlyProperty(string name, IColumnDefinition column)
+        {
+            return getWriteOnlyMapping(name, column);
+        }
+
+        private IWriteOnlyPropertyMapping getWriteOnlyMapping(string name, IColumnDefinition column)
+        {
+            return lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) =>
+            {
+                return new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex);
+            });
+        }
+
         private static IMemberAccessor getMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
             return MemberAccessorBuilder.GetMember(accessor);

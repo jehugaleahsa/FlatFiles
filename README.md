@@ -98,7 +98,7 @@ If you have a file with fixed length columns, you will want to use the `FixedLen
 
 Since each column has a fixed length, FlatFiles provides configuration options to specify how to handle values that are too short or too long: `FillCharacter`, `Alignment` and `TruncationPolicy`. `FillCharacter` specifies what character is used to pad values on the left or the right, using space (` `) by default. You can configure whether the padding should go to the left or the right using the `Alignment` property, putting padding to the right by default (`LeftAligned`). `TruncationPolicy` tells FlatFiles how to crop values that exceed the width of their column when writing out to a file, removing leading characters by default. These options can be specified globally in the `FixedLengthOptions` object or overridden at the column level using the `Window` object.
 
-The `RecordSeparator` property specifies what string/character is used to separate records. By default, FlatFiles will look for `\r`, `\n` or `\r\n`, which are the default line separators for Mac, Linux and Windows, respectively. When writing files, `Environment.NewLine` is used by default; this means by default you'll get different output if you run the same code on different platforms. If you need to target a specific platform, be sure to set the `RecordSeparator` property explicitly. 
+The `RecordSeparator` property specifies what string/character is used to separate records. By default, FlatFiles will look for `\r`, `\n` or `\r\n`, which are the default line separators for Mac, Linux and Windows, respectively. When writing files, `Environment.NewLine` is used by default; this means by default you'll get different output if you run the same code on different platforms. If you need to target a specific platform, be sure to set the `RecordSeparator` property explicitly.
 
 By default, FlatFiles assumes there is a separator string/character between each record.  If you set the `HasRecordSeparator` to `false`, FlatFiles will read the next record immediately following the last character of the previous record. When writing, it will not insert a separator, writing immediately after the last character of the previous record.
 
@@ -127,6 +127,63 @@ Types mappers support the `Ignored` method that will tell FlatFiles to simply ig
 When working with the `IFixedLengthTypeMapper`, `Ignored` takes a `Window`. This is a great way to skip unused sections within the document. You can even set the `FillCharacter` property to insert pipes (`|`), or another character, between fields.
 
 Under the hood, type mappers is adding an `IgnoredColumn` to the underlying schema. `IgnoredColumn` has a constructor to optionally specify a column name. `IgnoredColumn` affects the way you work with readers and writers. The readers will initially retrieve all columns from the document and then throw away any ignored values. You'll only see values for the columns that aren't ignored. Also, you do not need to provide values to the writers for ignored columns; the schema will automatically take care of writing out blanks for them. From a development perspective, it's as if those columns didn't exist in the underlying document.
+
+## Metadata
+It is often useful to incorporate metadata with the records you are reading from a file. The most common example is tracking a record's line number, so users can be informed where to look in their files when something goes wrong.
+
+Currently, the only out-of-the-box metadata column is `RecordNumberColumn`; however, it's really easy to create your own custom metadata columns (more on that below).
+
+The `RecordNumberColumn` class provides options for controlling how the record number is generated. The `IncludeSchema` property indicates whether the schema or header row should be included in the count. The `IncludeFilteredRecords` property specifies whether to count records that are [filtered out](#Skipping_Records).
+
+By default, `RecordNumberColumn` will only count records that are actually returned, starting from `1`, then `2`, `3`, `4`, `5` and so on. If you count the schema, records will always start at `2`. Including the schema and filtered records is what you probably want if you're trying to simulate line number. The only time the record # wouldn't be the same as the line # is if a record spanned multiple lines. Here's an example showing how to capture this *pseudo* line number:
+
+```csharp
+var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+mapper.Property(x => x.Name);
+mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
+{
+    IncludeSchema = true,
+    IncludeFilteredRecords = true
+});
+
+var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+var results = mapper.Read(reader, options).ToArray();
+```
+
+Note the use of `CustomProperty` here.
+
+### Write-Only
+I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!). Using type mappers to write metadata is a bit weird since there isn't a property being mapped. To overcome this problem, I've provided a new `WriteOnlyProperty` method.
+
+```csharp
+var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+outputMapper.Property(x => x.Name, 10);
+outputMapper.Ignored(1);
+outputMapper.WriteOnlyProperty("RecordNumber", new RecordNumberColumn("RecordNumber")
+{
+    IncludeSchema = true
+}, 10);
+outputMapper.Ignored(1);
+outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
+```
+
+The `"RecordNumber"` string is an arbitrary identifier to uniquely identify the column.
+
+### Creating your own metadata columns
+FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you most implement the method:
+
+```csharp
+object GetValue(IProcessMetadata metadata)
+```
+
+Within `IProcessMetadata`, the following information is currently provided:
+
+* `Schema` - The schema being used to parse the file.
+* `Options` - The options passed to the reader/writer.
+* `RecordCount` - The number of records read from the file.
+* `LogicalRecordCount` - The number of records that were not filtered out. *This count does not yet include the current record.*
+
+Additional information can be provided later on if the need arises.
 
 ## Skipping Records
 If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. However, what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides options to inspect records during the parsing process. These options work the same whether you use type mappers or directly with readers.

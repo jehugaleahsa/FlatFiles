@@ -24,16 +24,28 @@ namespace FlatFiles.TypeMapping
         public TMemberMapping GetOrAddMember<TMemberMapping>(IMemberAccessor member, Func<int, int, TMemberMapping> factory)
             where TMemberMapping : IMemberMapping
         {
-            if (lookup.TryGetValue(member.Name, out var mapping))
+            return getOrAddMember(member.Name, factory);
+        }
+
+        public WriteOnlyPropertyMapping GetOrAddWriteOnlyMember(string name, Func<int, int, WriteOnlyPropertyMapping> factory)
+        {
+            string key = $"@WriteOnly_{name}";
+            return getOrAddMember(key, factory);
+        }
+
+        private TMapping getOrAddMember<TMapping>(string key, Func<int, int, TMapping> factory)
+            where TMapping : IMemberMapping
+        {
+            if (lookup.TryGetValue(key, out var mapping))
             {
-                return (TMemberMapping)mapping;
+                return (TMapping)mapping;
             }
             else
             {
                 int fileIndex = lookup.Count;
-                int workIndex = lookup.Count - ignoredCount;
+                int workIndex = fileIndex - ignoredCount;
                 var newMapping = factory(fileIndex, workIndex);
-                lookup.Add(member.Name, newMapping);
+                lookup.Add(key, newMapping);
                 return newMapping;
             }
         }
