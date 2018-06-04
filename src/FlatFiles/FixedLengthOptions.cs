@@ -57,16 +57,6 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets or sets a filter to use to skip records prior to record being partitioned.
-        /// </summary>
-        public Func<string, bool> UnpartitionedRecordFilter { get; set; }
-
-        /// <summary>
-        /// Gets or sets a filter to use to skip records after the record is partitioned.
-        /// </summary>
-        public Func<string[], bool> PartitionedRecordFilter { get; set; }
-
-        /// <summary>
         /// Gets or sets the default alignment for the values in the fixed length file.
         /// </summary>
         /// <remarks>The alignment can be controlled at the columnm level using the Window class.</remarks>
@@ -105,11 +95,6 @@ namespace FlatFiles
                 truncationPolicy = value;
             }
         }
-
-        /// <summary>
-        /// Raised when an error occurs while processing a record.
-        /// </summary>
-        public EventHandler<ProcessingErrorEventArgs> ErrorHandler;
 
         /// <summary>
         /// Duplicates the options.

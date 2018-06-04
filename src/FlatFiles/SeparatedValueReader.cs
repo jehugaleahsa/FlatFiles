@@ -58,18 +58,6 @@ namespace FlatFiles
             {
                 throw new ArgumentException(SharedResources.SameSeparator, nameof(options));
             }
-            if (options.PartitionedRecordFilter != null)
-            {
-                var filter = options.PartitionedRecordFilter;
-                RecordRead += (sender, e) =>
-                {
-                    e.IsSkipped = filter(e.Values);
-                };
-            }
-            if (options.ErrorHandler != null)
-            {
-                Error += options.ErrorHandler;
-            }
             RetryReader retryReader = new RetryReader(reader);
             this.parser = new SeparatedValueRecordParser(retryReader, options);
             this.metadata = new Metadata()
@@ -80,7 +68,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Raised when a record is read, before it is parsed.
+        /// Raised when a record is read but before its columns are parsed.
         /// </summary>
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
 

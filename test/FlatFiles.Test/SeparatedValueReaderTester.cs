@@ -238,16 +238,16 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"))
                   .AddColumn(new StringColumn("name"))
                   .AddColumn(new DateTimeColumn("created"));
-            SeparatedValueOptions options = new SeparatedValueOptions()
-            {
-                PartitionedRecordFilter = (record) => record.Length < 3
-            };
 
             const string text = @"123,Bob Smith,4/21/2017
 This is not a real record
 234,Jay Smith,5/21/2017";
             StringReader stringReader = new StringReader(text);
-            IReader parser = new SeparatedValueReader(stringReader, schema, options);
+            var parser = new SeparatedValueReader(stringReader, schema);
+            parser.RecordRead += (sender, e) =>
+            {
+                e.IsSkipped = e.Values.Length < 3;
+            };
 
             Assert.True(parser.Read(), "Could not read the first record.");
             object[] actual1 = parser.GetValues();
@@ -683,15 +683,13 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
 
             StringReader stringReader = new StringReader(data);
             List<int> errorRecords = new List<int>();
-            var options = new SeparatedValueOptions()
+            var reader = mapper.GetReader(stringReader);
+            reader.Error += (sender, e) =>
             {
-                ErrorHandler = (sender, e) =>
-                {
-                    errorRecords.Add(e.RecordNumber);
-                    e.IsHandled = true;
-                }
+                errorRecords.Add(e.RecordNumber);
+                e.IsHandled = true;
             };
-            var people = mapper.Read(stringReader, options).ToArray();
+            var people = reader.ReadAll().ToArray();
             Assert.Equal(2, people.Count());
             Assert.Single(errorRecords);
             Assert.Equal(2, errorRecords[0]);

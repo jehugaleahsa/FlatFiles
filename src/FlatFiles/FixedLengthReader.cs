@@ -39,26 +39,6 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
-            if (options.UnpartitionedRecordFilter != null)
-            {
-                var filter = options.UnpartitionedRecordFilter;
-                RecordRead += (sender, e) =>
-                {
-                    e.IsSkipped = filter(e.Record);
-                };
-            }
-            if (options.PartitionedRecordFilter != null)
-            {
-                var filter = options.PartitionedRecordFilter;
-                RecordPartitioned += (sender, e) =>
-                {
-                    e.IsSkipped = filter(e.Values);
-                };
-            }
-            if (options.ErrorHandler != null)
-            {
-                Error += options.ErrorHandler;
-            }
             this.metadata = new Metadata()
             {
                 Schema = schema,

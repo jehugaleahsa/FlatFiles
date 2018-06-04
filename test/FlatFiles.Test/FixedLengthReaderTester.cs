@@ -268,17 +268,17 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
                   .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
                   .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
-            FixedLengthOptions options = new FixedLengthOptions()
-            {
-                UnpartitionedRecordFilter = (record) => record.StartsWith("a")
-            };
 
             const string lines = @"       123                Bob Smith 4/21/2017
 a weird row that should be skipped
        234                Jay Smith 5/21/2017";
 
             StringReader stringReader = new StringReader(lines);
-            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
+            parser.RecordRead += (sender, e) =>
+            {
+                e.IsSkipped = e.Record.StartsWith("a");
+            };
 
             Assert.True(parser.Read(), "Could not read the first record.");
             object[] actual1 = parser.GetValues();
@@ -301,17 +301,17 @@ a weird row that should be skipped
             schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
                   .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
                   .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
-            FixedLengthOptions options = new FixedLengthOptions()
-            {
-                PartitionedRecordFilter = (parts) => parts.Length == 3 && parts[0].StartsWith("-")
-            };
 
             const string lines = @"       123                Bob Smith 4/21/2017
         -1                Jay Smith 8/14/2017
        234                Jay Smith 5/21/2017";
 
             StringReader stringReader = new StringReader(lines);
-            FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
+            parser.RecordPartitioned += (sender, e) =>
+            {
+                e.IsSkipped = e.Values.Length == 3 && e.Values[0].StartsWith("-");
+            };
 
             Assert.True(parser.Read(), "Could not read the first record.");
             object[] actual1 = parser.GetValues();
@@ -519,15 +519,13 @@ a weird row that should be skipped
 
             StringReader stringReader = new StringReader(data);
             List<int> errorRecords = new List<int>();
-            var options = new FixedLengthOptions()
+            var reader = mapper.GetReader(stringReader);
+            reader.Error += (sender, e) =>
             {
-                ErrorHandler = (sender, e) => 
-                {
-                    errorRecords.Add(e.RecordNumber);
-                    e.IsHandled = true;
-                }
+                errorRecords.Add(e.RecordNumber);
+                e.IsHandled = true;
             };
-            var people = mapper.Read(stringReader, options).ToArray();
+            var people = reader.ReadAll().ToArray();
             Assert.Equal(2, people.Count());
             Assert.Single(errorRecords);
             Assert.Equal(2, errorRecords[0]);

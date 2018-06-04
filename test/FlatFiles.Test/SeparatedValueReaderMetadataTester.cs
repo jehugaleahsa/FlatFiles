@@ -54,13 +54,14 @@ namespace FlatFiles.Test
             string output = writer.ToString();
 
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"));
-            StringReader reader = new StringReader(output);
-            var options = new SeparatedValueOptions()
+            StringReader stringReader = new StringReader(output);
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var reader = mapper.GetReader(stringReader, options);
+            reader.RecordRead += (sender, e) =>
             {
-                IsFirstRecordSchema = true,
-                PartitionedRecordFilter = (values) => values.Length == 1 && values[0] == "Tom"
+                e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
-            var results = mapper.Read(reader, options).ToArray();
+            var results = reader.ReadAll().ToArray();
             Assert.Equal(2, results.Length);
             Assert.Equal("Bob", results[0].Name);
             Assert.Equal(1, results[0].RecordNumber);
@@ -90,13 +91,14 @@ namespace FlatFiles.Test
                 IncludeSchema = true,
                 IncludeFilteredRecords = true
             });
-            StringReader reader = new StringReader(output);
-            var options = new SeparatedValueOptions()
+            StringReader stringReader = new StringReader(output);
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var reader = mapper.GetReader(stringReader, options);
+            reader.RecordRead += (sender, e) =>
             {
-                IsFirstRecordSchema = true,
-                PartitionedRecordFilter = (values) => values.Length == 1 && values[0] == "Tom"
+                e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
-            var results = mapper.Read(reader, options).ToArray();
+            var results = reader.ReadAll().ToArray();
             Assert.Equal(2, results.Length);
             Assert.Equal("Bob", results[0].Name);
             Assert.Equal(2, results[0].RecordNumber);
@@ -159,13 +161,14 @@ namespace FlatFiles.Test
                 IncludeSchema = false,
                 IncludeFilteredRecords = true
             });
-            StringReader reader = new StringReader(output);
-            var options = new SeparatedValueOptions()
+            StringReader stringReader = new StringReader(output);
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var reader = mapper.GetReader(stringReader, options);
+            reader.RecordRead += (sender, e) =>
             {
-                IsFirstRecordSchema = true,
-                PartitionedRecordFilter = (values) => values.Length == 1 && values[0] == "Tom"
+                e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
-            var results = mapper.Read(reader, options).ToArray();
+            var results = reader.ReadAll().ToArray();
             Assert.Equal(2, results.Length);
             Assert.Equal("Bob", results[0].Name);
             Assert.Equal(1, results[0].RecordNumber);
@@ -255,13 +258,14 @@ namespace FlatFiles.Test
             string output = writer.ToString();
 
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"));
-            StringReader reader = new StringReader(output);
-            var options = new SeparatedValueOptions()
+            StringReader stringReader = new StringReader(output);
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var reader = mapper.GetReader(stringReader, options);
+            reader.RecordRead += (sender, e) =>
             {
-                IsFirstRecordSchema = true,
-                PartitionedRecordFilter = (values) => values.Length >= 1 && values[0] == "Tom"
+                e.IsSkipped = e.Values.Length >= 1 && e.Values[0] == "Tom";
             };
-            var results = mapper.Read(reader, options).ToArray();
+            var results = reader.ReadAll().ToArray();
             Assert.Equal(2, results.Length);
             Assert.Equal("Bob", results[0].Name);
             Assert.Equal(1, results[0].RecordNumber);

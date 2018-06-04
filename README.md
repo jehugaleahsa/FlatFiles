@@ -186,43 +186,43 @@ Within `IProcessMetadata`, the following information is currently provided:
 Additional information can be provided later on if the need arises.
 
 ## Skipping Records
-If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. However, what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides options to inspect records during the parsing process. These options work the same whether you use type mappers or directly with readers.
+If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
 
 Parsing a record goes through the following life-cycle:
 1) Read text until a record terminator (usually a newline) is found.
 2) For fixed-length records, partition the text into string columns based on the configured windows.
-3) Converting the string columns to the designated column types, as defined in the schema.
+3) Convert the string columns to the designated column types, as defined in the schema.
 
 For CSV files, breaking a record into columns is automatically performed while searching for the record terminator. Prior to trying to convert the text to ints, date/times, etc., FlatFiles provides you the opportunity to inspect the raw string values and skip records.
 
-Within the `SeparatedValueOptions` class, there is a `Func<string[], bool> PartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
+The `SeparatedValueReader` class provides a `RecordRead` event, which allows you to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
 
 ```csharp
-var options = new SeparatedValueOptions()
+reader.RecordRead += (sender, e) =>
 {
-    PartitionedRecordFilter = (values) => values.Length < 10
+    e.IsSkipped = e.Values.Length < 10;
 };
 ```
 
 Fixed-length files come in two flavors: those with and without record terminators. If there is no record terminator, the assumption is *all records are the same length*. Otherwise, each record can be a different length. For that reason, FlatFiles provides an extra opportunity to filter out records prior to splitting the text into columns. This is useful for filtering out records not meeting a minimum length requirement or those using a character to indicate something like comments.
 
-Within the `FixedLengthOptions` class, you can use the `Func<string, bool> UnpartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip records starting with a `#` symbol:
+The `FixedLengthReader` class provides the `RecordRead` event, which allows you to skip unwanted records. For example, you could use the code below to find and skip records starting with a `#` symbol:
 
 ```csharp
-var options = new FixedLengthOptions()
+reader.RecordRead += (sender, e) => 
 {
-    UnpartitionedRecordFilter = (record) => record.StartsWith("#")
+    e.IsSkipped = e.Record.StartsWith("#");
 };
 ```
 
-Similar to CSV files, you can also filter out fixed-length records *after* they are broken into columns. However, it is important to note that the record is expected to fit the configured windows.  You could use this filter to skip records whose values cannot be parsed.
+Similar to CSV files, you can also filter out fixed-length records *after* they are broken into columns. However, it is important to note that the record is expected to fit the configured windows.
 
-Within the `FixedLengthOptions` class, you can use the `Func<string[], bool> PartitionedRecordFilter` property, allowing you to provide a custom filter to skip unwanted records. For example, you could use the code below to find and skip records whose third column has a flag:
+Again, the `FixedLengthReader` class provides the `RecordPartitioned` event, which allows you to skip unwanted records. For example, you could use the code below to find and skip records whose third column has a flag:
 
 ```csharp
-var options = new FixedLengthOptions()
+reader.RecordPartitioned += (sender, e) => 
 {
-    PartitionedRecordFilter = (values) => values[2] == "ERROR"
+    e.IsSkipped = e.Values[2] == "ERROR";
 };
 ```
 
