@@ -448,7 +448,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">A reader over the fixed-length document.</param>
         /// <param name="options">The options controlling how the fixed-length document is read.</param>
         /// <returns>A typed reader.</returns>
-        ITypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null);
+        IFixedLengthTypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null);
 
         /// <summary>
         /// Writes the given entities to the given writer.
@@ -713,7 +713,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">A reader over the separated value document.</param>
         /// <param name="options">The options controlling how the separated value document is read.</param>
         /// <returns>A typed reader.</returns>
-        ITypedReader<object> GetReader(TextReader reader, FixedLengthOptions options = null);
+        IFixedLengthTypedReader<object> GetReader(TextReader reader, FixedLengthOptions options = null);
 
         /// <summary>
         /// Writes the given entities to the given stream.
@@ -1269,31 +1269,31 @@ namespace FlatFiles.TypeMapping
 
         public IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null)
         {
-            FixedLengthSchema schema = getSchema();
-            IReader fixedLengthReader = new FixedLengthReader(reader, schema, options);
+            var schema = getSchema();
+            var fixedLengthReader = new FixedLengthReader(reader, schema, options);
             return read(fixedLengthReader);
         }
 
-        private IEnumerable<TEntity> read(IReader reader)
+        private IEnumerable<TEntity> read(FixedLengthReader reader)
         {
-            TypedReader<TEntity> typedReader = getTypedReader(reader);
+            var typedReader = getTypedReader(reader);
             while (typedReader.Read())
             {
                 yield return typedReader.Current;
             }
         }
 
-        public ITypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null)
+        public IFixedLengthTypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null)
         {
-            FixedLengthSchema schema = getSchema();
-            IReader fixedLengthReader = new FixedLengthReader(reader, schema, options);
+            var schema = getSchema();
+            var fixedLengthReader = new FixedLengthReader(reader, schema, options);
             return getTypedReader(fixedLengthReader);
         }
 
-        private TypedReader<TEntity> getTypedReader(IReader reader)
+        private FixedLengthTypedReader<TEntity> getTypedReader(FixedLengthReader reader)
         {
             var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
-            return new TypedReader<TEntity>(reader, mapper);
+            return new FixedLengthTypedReader<TEntity>(reader, mapper);
         }
 
         public void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
@@ -1519,9 +1519,9 @@ namespace FlatFiles.TypeMapping
             return (IEnumerable<object>)Read(reader, options);
         }
 
-        ITypedReader<object> IDynamicFixedLengthTypeMapper.GetReader(TextReader reader, FixedLengthOptions options)
+        IFixedLengthTypedReader<object> IDynamicFixedLengthTypeMapper.GetReader(TextReader reader, FixedLengthOptions options)
         {
-            return (ITypedReader<object>)GetReader(reader, options);
+            return (IFixedLengthTypedReader<object>)GetReader(reader, options);
         }
 
         void IDynamicFixedLengthTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)

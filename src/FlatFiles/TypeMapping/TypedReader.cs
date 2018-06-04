@@ -45,11 +45,49 @@ namespace FlatFiles.TypeMapping
         TEntity Current { get; }
     }
 
-    internal sealed class TypedReader<TEntity> : ITypedReader<TEntity>
+    /// <summary>
+    ///  Represents a separated value reader that will generate entities.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
+    public interface ISeparatedValueTypedReader<out TEntity> : ITypedReader<TEntity>
+    {
+        /// <summary>
+        /// Raised when a record is read, before it is parsed.
+        /// </summary>
+        event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        event EventHandler<ProcessingErrorEventArgs> Error;
+    }
+
+    /// <summary>
+    ///  Represents a fixed length reader that will generate entities.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
+    public interface IFixedLengthTypedReader<out TEntity> : ITypedReader<TEntity>
+    {
+        /// <summary>
+        /// Raised when a record is read from the source file, before it is partitioned.
+        /// </summary>
+        event EventHandler<FixedLengthRecordReadEventArgs> RecordRead;
+
+        /// <summary>
+        /// Raised after a record is partitioned, before it is parsed.
+        /// </summary>
+        event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        event EventHandler<ProcessingErrorEventArgs> Error;
+    }
+
+    internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
         private readonly IReader reader;
         private readonly Func<object[], TEntity> deserializer;
-        private TEntity current;
 
         public TypedReader(IReader reader, IMapper<TEntity> mapper)
         {
@@ -69,7 +107,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            current = deserializer(values);
+            Current = deserializer(values);
             return true;
         }
 
@@ -80,7 +118,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            current = deserializer(values);
+            Current = deserializer(values);
             return true;
         }
 
@@ -94,9 +132,58 @@ namespace FlatFiles.TypeMapping
             return await reader.SkipAsync();
         }
 
-        public TEntity Current
+        public TEntity Current { get; private set; }
+    }
+
+    internal sealed class SeparatedValueTypedReader<TEntity> : TypedReader<TEntity>, ISeparatedValueTypedReader<TEntity>
+    {
+        private readonly SeparatedValueReader reader;
+
+        public SeparatedValueTypedReader(SeparatedValueReader reader, IMapper<TEntity> mapper)
+            : base(reader, mapper)
         {
-            get { return current; }
+            this.reader = reader;
+        }
+
+        public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
+        {
+            add { reader.RecordRead += value; }
+            remove { reader.RecordRead -= value; }
+        }
+
+        public event EventHandler<ProcessingErrorEventArgs> Error
+        {
+            add { reader.Error += value; }
+            remove { reader.Error -= value; }
+        }
+    }
+
+    internal sealed class FixedLengthTypedReader<TEntity> : TypedReader<TEntity>, IFixedLengthTypedReader<TEntity>
+    {
+        private readonly FixedLengthReader reader;
+
+        public FixedLengthTypedReader(FixedLengthReader reader, IMapper<TEntity> mapper)
+            : base(reader, mapper)
+        {
+            this.reader = reader;
+        }
+
+        public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
+        {
+            add { reader.RecordRead += value; }
+            remove { reader.RecordRead -= value; }
+        }
+
+        public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
+        {
+            add { reader.RecordPartitioned += value; }
+            remove { reader.RecordPartitioned -= value; }
+        }
+
+        public event EventHandler<ProcessingErrorEventArgs> Error
+        {
+            add { reader.Error += value; }
+            remove { reader.Error -= value; }
         }
     }
 }

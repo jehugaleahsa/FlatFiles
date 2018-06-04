@@ -409,7 +409,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">A reader over the separated value document.</param>
         /// <param name="options">The options controlling how the separated value document is read.</param>
         /// <returns>A typed reader.</returns>
-        ITypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null);
+        ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null);
 
         /// <summary>
         /// Writes the given entities to the given stream.
@@ -651,7 +651,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">A reader over the separated value document.</param>
         /// <param name="options">The options controlling how the separated value document is read.</param>
         /// <returns>A typed reader.</returns>
-        ITypedReader<object> GetReader(TextReader reader, SeparatedValueOptions options = null);
+        ISeparatedValueTypedReader<object> GetReader(TextReader reader, SeparatedValueOptions options = null);
 
         /// <summary>
         /// Writes the given entities to the given stream.
@@ -1160,30 +1160,30 @@ namespace FlatFiles.TypeMapping
         public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null)
         {
             SeparatedValueSchema schema = getSchema();
-            IReader separatedValueReader = new SeparatedValueReader(reader, schema, options);
+            var separatedValueReader = new SeparatedValueReader(reader, schema, options);
             return read(separatedValueReader);
         }
 
-        private IEnumerable<TEntity> read(IReader reader)
+        private IEnumerable<TEntity> read(SeparatedValueReader reader)
         {
-            TypedReader<TEntity> typedReader = getTypedReader(reader);
+            var typedReader = getTypedReader(reader);
             while (typedReader.Read())
             {
                 yield return typedReader.Current;
             }
         }
 
-        public ITypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
+        public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
         {
             SeparatedValueSchema schema = getSchema();
-            IReader separatedValueReader = new SeparatedValueReader(reader, schema, options);
+            var separatedValueReader = new SeparatedValueReader(reader, schema, options);
             return getTypedReader(separatedValueReader);
         }
 
-        private TypedReader<TEntity> getTypedReader(IReader reader)
+        private SeparatedValueTypedReader<TEntity> getTypedReader(SeparatedValueReader reader)
         {
             var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
-            TypedReader<TEntity> typedReader = new TypedReader<TEntity>(reader, mapper);
+            SeparatedValueTypedReader<TEntity> typedReader = new SeparatedValueTypedReader<TEntity>(reader, mapper);
             return typedReader;
         }
 
@@ -1409,9 +1409,9 @@ namespace FlatFiles.TypeMapping
             return (IEnumerable<object>)Read(reader, options);
         }
 
-        ITypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions options)
+        ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions options)
         {
-            return (ITypedReader<object>)GetReader(reader, options);
+            return (ISeparatedValueTypedReader<object>)GetReader(reader, options);
         }
 
         void IDynamicSeparatedValueTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)

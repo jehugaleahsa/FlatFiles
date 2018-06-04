@@ -58,6 +58,18 @@ namespace FlatFiles
             {
                 throw new ArgumentException(SharedResources.SameSeparator, nameof(options));
             }
+            if (options.PartitionedRecordFilter != null)
+            {
+                var filter = options.PartitionedRecordFilter;
+                RecordRead += (sender, e) =>
+                {
+                    e.IsSkipped = filter(e.Values);
+                };
+            }
+            if (options.ErrorHandler != null)
+            {
+                Error += options.ErrorHandler;
+            }
             RetryReader retryReader = new RetryReader(reader);
             this.parser = new SeparatedValueRecordParser(retryReader, options);
             this.metadata = new Metadata()
@@ -66,6 +78,16 @@ namespace FlatFiles
                 Options = this.parser.Options
             };
         }
+
+        /// <summary>
+        /// Raised when a record is read, before it is parsed.
+        /// </summary>
+        public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<ProcessingErrorEventArgs> Error;
 
         /// <summary>
         /// Gets the names of the columns found in the file.
@@ -186,7 +208,7 @@ namespace FlatFiles
         private string[] readWithFilter()
         {
             string[] rawValues = readNextRecord();
-            while (rawValues != null && parser.Options.PartitionedRecordFilter != null && parser.Options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && isSkipped(rawValues))
             {
                 rawValues = readNextRecord();
             }
@@ -273,11 +295,22 @@ namespace FlatFiles
         private async Task<string[]> readWithFilterAsync()
         {
             string[] rawValues = await readNextRecordAsync();
-            while (rawValues != null && parser.Options.PartitionedRecordFilter != null && parser.Options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && isSkipped(rawValues))
             {
                 rawValues = await readNextRecordAsync();
             }
             return rawValues;
+        }
+
+        private bool isSkipped(string[] values)
+        {
+            if (RecordRead == null)
+            {
+                return false;
+            }
+            var e = new SeparatedValueRecordReadEventArgs(values);
+            RecordRead(this, e);
+            return e.IsSkipped;
         }
 
         private object[] parseValues(string[] rawValues)
@@ -343,10 +376,10 @@ namespace FlatFiles
 
         private void processError(RecordProcessingException exception)
         {
-            if (parser.Options.ErrorHandler != null)
+            if (Error != null)
             {
                 var args = new ProcessingErrorEventArgs(exception);
-                parser.Options.ErrorHandler(this, args);
+                Error(this, args);
                 if (args.IsHandled)
                 {
                     return;

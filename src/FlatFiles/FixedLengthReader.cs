@@ -39,12 +39,47 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
+            if (options.UnpartitionedRecordFilter != null)
+            {
+                var filter = options.UnpartitionedRecordFilter;
+                RecordRead += (sender, e) =>
+                {
+                    e.IsSkipped = filter(e.Record);
+                };
+            }
+            if (options.PartitionedRecordFilter != null)
+            {
+                var filter = options.PartitionedRecordFilter;
+                RecordPartitioned += (sender, e) =>
+                {
+                    e.IsSkipped = filter(e.Values);
+                };
+            }
+            if (options.ErrorHandler != null)
+            {
+                Error += options.ErrorHandler;
+            }
             this.metadata = new Metadata()
             {
                 Schema = schema,
                 Options = options.Clone()
             };
         }
+
+        /// <summary>
+        /// Raised when a record is read from the source file, before it is partitioned.
+        /// </summary>
+        public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead;
+
+        /// <summary>
+        /// Raised after a record is partitioned, before it is parsed.
+        /// </summary>
+        public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<ProcessingErrorEventArgs> Error;
 
         /// <summary>
         /// Gets the schema being used by the parser.
@@ -132,7 +167,7 @@ namespace FlatFiles
         {
             string record = readWithFilter();
             string[] rawValues = partitionRecord(record);
-            while (rawValues != null && metadata.Options.PartitionedRecordFilter != null && metadata.Options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && isSkipped(rawValues))
             {
                 record = readWithFilter();
                 rawValues = partitionRecord(record);
@@ -143,7 +178,7 @@ namespace FlatFiles
         private string readWithFilter()
         {
             string record = readNextRecord();
-            while (record != null && metadata.Options.UnpartitionedRecordFilter != null && metadata.Options.UnpartitionedRecordFilter(record))
+            while (record != null && isSkipped(record))
             {
                 record = readNextRecord();
             }
@@ -208,7 +243,7 @@ namespace FlatFiles
         {
             string record = await readWithFilterAsync();
             string[] rawValues = partitionRecord(record);
-            while (rawValues != null && metadata.Options.PartitionedRecordFilter != null && metadata.Options.PartitionedRecordFilter(rawValues))
+            while (rawValues != null && isSkipped(rawValues))
             {
                 record = await readWithFilterAsync();
                 rawValues = partitionRecord(record);
@@ -216,14 +251,36 @@ namespace FlatFiles
             return rawValues;
         }
 
+        private bool isSkipped(string[] values)
+        {
+            if (RecordPartitioned == null)
+            {
+                return false;
+            }
+            var e = new FixedLengthRecordPartitionedEventArgs(values);
+            RecordPartitioned(this, e);
+            return e.IsSkipped;
+        }
+
         private async Task<string> readWithFilterAsync()
         {
             string record = await readNextRecordAsync();
-            while (record != null && metadata.Options.UnpartitionedRecordFilter != null && metadata.Options.UnpartitionedRecordFilter(record))
+            while (record != null && isSkipped(record))
             {
                 record = await readNextRecordAsync();
             }
             return record;
+        }
+
+        private bool isSkipped(string record)
+        {
+            if (RecordRead == null)
+            {
+                return false;
+            }
+            var e = new FixedLengthRecordReadEventArgs(record);
+            RecordRead(this, e);
+            return e.IsSkipped;
         }
 
         private object[] parseValues(string[] rawValues)
@@ -345,10 +402,10 @@ namespace FlatFiles
 
         private void processError(RecordProcessingException exception)
         {
-            if (metadata.Options.ErrorHandler != null)
+            if (Error != null)
             {
                 var args = new ProcessingErrorEventArgs(exception);
-                metadata.Options.ErrorHandler(this, args);
+                Error(this, args);
                 if (args.IsHandled)
                 {
                     return;
