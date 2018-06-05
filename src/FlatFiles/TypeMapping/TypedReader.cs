@@ -162,13 +162,13 @@ namespace FlatFiles.TypeMapping
     internal sealed class MultiplexingSeparatedValueTypedReader : ISeparatedValueTypedReader<object>
     {
         private readonly SeparatedValueReader reader;
+        private readonly SeparatedValueTypeMapperSelector selector;
 
-        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader)
+        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader, SeparatedValueTypeMapperSelector selector)
         {
             this.reader = reader;
+            this.selector = selector;
         }
-
-        internal Func<object[], object> Reader { get; set; }
 
         public object Current { get; private set; }
 
@@ -196,7 +196,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = Reader(values);
+            Current = selector.Reader(values);
             return true;
         }
 
@@ -207,7 +207,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = Reader(values);
+            Current = selector.Reader(values);
             return true;
         }
 
@@ -254,13 +254,13 @@ namespace FlatFiles.TypeMapping
     internal sealed class MultiplexingFixedLengthTypedReader : IFixedLengthTypedReader<object>
     {
         private readonly FixedLengthReader reader;
+        private readonly FixedLengthTypeMapperSelector selector;
 
-        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader)
+        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader, FixedLengthTypeMapperSelector selector)
         {
             this.reader = reader;
+            this.selector = selector;
         }
-
-        internal Func<object[], object> Reader { get; set; }
 
         public object Current { get; private set; }
 
@@ -294,7 +294,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = Reader(values);
+            Current = selector.Reader(values);
             return true;
         }
 
@@ -305,7 +305,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = Reader(values);
+            Current = selector.Reader(values);
             return true;
         }
 

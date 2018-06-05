@@ -9,6 +9,8 @@ namespace FlatFiles.TypeMapping
     {
         IMemberAccessor Member { get; }
 
+        int WorkCount { get; }
+
         Func<object[], object> GetReader();
 
         Action<object, object[]> GetWriter();
@@ -16,8 +18,6 @@ namespace FlatFiles.TypeMapping
 
     internal interface IMapper<TEntity>: IMapper
     {
-        int WorkCount { get; }
-
         new Func<object[], TEntity> GetReader();
 
         new Action<TEntity, object[]> GetWriter();

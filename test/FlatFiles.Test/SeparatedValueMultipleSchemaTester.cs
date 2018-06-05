@@ -106,11 +106,22 @@ namespace FlatFiles.Test
         [Fact]
         public void TestTypeMapper_ReadThreeTypes()
         {
-            var selector = getTypeMapperSelector();
-            var stringReader = new StringReader(@"First Batch,2
+            StringWriter stringWriter = new StringWriter();
+            var injector = getTypeMapperInjector();
+            var writer = injector.GetWriter(stringWriter);
+            writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
+            writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
+            writer.Write(new DataRecord { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
+            writer.Write(new FooterRecord { TotalAmount = 46.9m, AverageAmount = 23.45m, IsCriteriaMet = true });
+            string output = stringWriter.ToString();
+            Assert.Equal(@"First Batch,2
 1,Bob Smith,20180604,12.34
 2,Jane Doe,20180605,34.56
-46.9,23.45,true");
+46.9,23.45,True
+", output);
+
+            var selector = getTypeMapperSelector();
+            var stringReader = new StringReader(output);
             var reader = selector.GetReader(stringReader);
 
             Assert.True(reader.Read(), "The header record could not be read.");
@@ -147,6 +158,15 @@ namespace FlatFiles.Test
             selector.WithDefault(getRecordTypeMapper());
             selector.When(x => x.Length == 2).Use(getHeaderTypeMapper());
             selector.When(x => x.Length == 3).Use(getFooterTypeMapper());
+            return selector;
+        }
+
+        private SeparatedValueTypeMapperInjector getTypeMapperInjector()
+        {
+            var selector = new SeparatedValueTypeMapperInjector();
+            selector.WithDefault(getRecordTypeMapper());
+            selector.When<HeaderRecord>().Use(getHeaderTypeMapper());
+            selector.When<FooterRecord>().Use(getFooterTypeMapper());
             return selector;
         }
 

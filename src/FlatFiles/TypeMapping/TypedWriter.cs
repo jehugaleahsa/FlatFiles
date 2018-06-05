@@ -60,4 +60,42 @@ namespace FlatFiles.TypeMapping
             await writer.WriteAsync(values);
         }
     }
+
+    internal interface ITypeMapperInjector
+    {
+        ValueTuple<int, Action<object, object[]>> SetMatcher(object entity);
+    }
+
+    internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
+    {
+        private readonly IWriter writer;
+        private readonly ITypeMapperInjector injector;
+
+        public MultiplexingTypedWriter(IWriter writer, ITypeMapperInjector injector)
+        {
+            this.writer = writer;
+            this.injector = injector;
+        }
+
+        public ISchema GetSchema()
+        {
+            return null;
+        }
+
+        public void Write(object entity)
+        {
+            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
+            object[] values = new object[workCount];
+            serializer(entity, values);
+            writer.Write(values);
+        }
+
+        public async Task WriteAsync(object entity)
+        {
+            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
+            object[] values = new object[workCount];
+            serializer(entity, values);
+            await writer.WriteAsync(values);
+        }
+    }
 }

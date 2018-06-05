@@ -41,6 +41,8 @@ namespace FlatFiles.TypeMapping
             this.matchers = new List<TypeMapperMatcher>();
         }
 
+        internal Func<object[], object> Reader { get; set; }
+
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
         /// </summary>
@@ -60,7 +62,6 @@ namespace FlatFiles.TypeMapping
         /// Provides the schema to use by default when no other matches are found.
         /// </summary>
         /// <param name="typeMapper">The default type mapper to use.</param>
-        /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
         {
             this.defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
@@ -70,7 +71,6 @@ namespace FlatFiles.TypeMapping
         /// Provides the schema to use by default when no other matches are found.
         /// </summary>
         /// <param name="typeMapper">The default schema to use.</param>
-        /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
         {
             this.defaultMapper = typeMapper;
@@ -86,16 +86,16 @@ namespace FlatFiles.TypeMapping
         {
             var selector = new SeparatedValueSchemaSelector();
             var valueReader = new SeparatedValueReader(reader, selector, options);
-            var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader);
+            var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader, this);
             foreach (var matcher in matchers)
             {
                 var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
-                selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Reader = typedReader.Value);
+                selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
             }
             if (defaultMapper != null)
             {
                 var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
-                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Reader = typeReader.Value);
+                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
             }
             return multiReader;
         }
