@@ -10,14 +10,25 @@ namespace FlatFiles
     internal sealed class SeparatedValueRecordWriter
     {
         private readonly TextWriter writer;
-        private readonly SeparatedValueMetadata metadata;
+        private readonly SeparatedValueSchemaInjector injector;
         private readonly string quoteString;
         private readonly string doubleQuoteString;
 
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
+            : this(writer, schema, options, false)
+        {            
+        }
+
+        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
+            : this(writer, null, options, false)
+        {
+            this.injector = injector;
+        }
+
+        private SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options, bool ignored)
         {
             this.writer = writer;
-            this.metadata = new SeparatedValueMetadata()
+            this.Metadata = new SeparatedValueMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -26,46 +37,61 @@ namespace FlatFiles
             this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
         }
 
-        public SeparatedValueMetadata Metadata
-        {
-            get { return metadata; }
-        }
+        public SeparatedValueMetadata Metadata { get; private set; }
 
         public void WriteRecord(object[] values)
         {
-            if (metadata.Schema != null && values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = getSchema(values);
+            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(SharedResources.WrongNumberOfValues, "values");
+                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
-            var formattedValues = formatValues(values);
+            var formattedValues = formatValues(schema, values);
             var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(metadata.Options.Separator, escapedValues);
+            string joined = String.Join(Metadata.Options.Separator, escapedValues);
             writer.Write(joined);
         }
 
         public async Task WriteRecordAsync(object[] values)
         {
-            if (metadata.Schema != null && values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = getSchema(values);
+            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
-            var formattedValues = formatValues(values);
+            var formattedValues = formatValues(schema, values);
             var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(metadata.Options.Separator, escapedValues);
+            string joined = String.Join(Metadata.Options.Separator, escapedValues);
             await writer.WriteAsync(joined);
         }
 
-        private IEnumerable<string> formatValues(object[] values)
+        private SeparatedValueSchema getSchema(object[] values)
         {
-            if (metadata.Schema == null)
+            return injector == null ? Metadata.Schema : injector.GetSchema(values);
+        }
+
+        private IEnumerable<string> formatValues(SeparatedValueSchema schema, object[] values)
+        {
+            if (schema == null)
             {
-                StringColumn column = new StringColumn("a");
-                return values.Select(v => column.Format(v));
+                return values.Select(v => toString(v));
             }
             else
             {
-                return metadata.Schema.FormatValues(metadata, values);
+                var metadata = injector == null ? Metadata : new SeparatedValueMetadata()
+                {
+                    Schema = schema,
+                    Options = Metadata.Options,
+                    RecordCount = Metadata.RecordCount,
+                    LogicalRecordCount = Metadata.LogicalRecordCount
+                };
+                return schema.FormatValues(Metadata, values);
             }
+        }
+
+        private static string toString(object value)
+        {
+            return value == null ? String.Empty : value.ToString();
         }
 
         private string escape(string value)
@@ -87,7 +113,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            if (metadata.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
+            if (Metadata.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
             {
                 return true;
             }
@@ -102,12 +128,12 @@ namespace FlatFiles
                 return true;
             }
             // Escape strings containing the separator.
-            if (value.Contains(metadata.Options.Separator))
+            if (value.Contains(Metadata.Options.Separator))
             {
                 return true;
             }
             // Escape strings containing the record separator.
-            if (metadata.Options.RecordSeparator != null && value.Contains(metadata.Options.RecordSeparator))
+            if (Metadata.Options.RecordSeparator != null && value.Contains(Metadata.Options.RecordSeparator))
             {
                 return true;
             }
@@ -121,34 +147,42 @@ namespace FlatFiles
 
         public void WriteSchema()
         {
-            if (metadata.Schema == null)
+            if (injector != null)
             {
                 return;
             }
-            var names = metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(metadata.Options.Separator, names);
+            if (Metadata.Schema == null)
+            {
+                return;
+            }
+            var names = Metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
+            string joined = String.Join(Metadata.Options.Separator, names);
             writer.Write(joined);
         }
 
         public async Task WriteSchemaAsync()
         {
-            if (metadata.Schema == null)
+            if (injector != null)
             {
                 return;
             }
-            var names = metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
-            string joined = String.Join(metadata.Options.Separator, names);
+            if (Metadata.Schema == null)
+            {
+                return;
+            }
+            var names = Metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
+            string joined = String.Join(Metadata.Options.Separator, names);
             await writer.WriteAsync(joined);
         }
 
         public void WriteRecordSeparator()
         {
-            writer.Write(metadata.Options.RecordSeparator ?? Environment.NewLine);
+            writer.Write(Metadata.Options.RecordSeparator ?? Environment.NewLine);
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            await writer.WriteAsync(metadata.Options.RecordSeparator ?? Environment.NewLine);
+            await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine);
         }
 
         internal class SeparatedValueMetadata : IProcessMetadata

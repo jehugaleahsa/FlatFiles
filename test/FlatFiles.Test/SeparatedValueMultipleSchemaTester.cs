@@ -6,9 +6,9 @@ using Xunit;
 
 namespace FlatFiles.Test
 {
-    public class SeparatedValueSchemaSelectorTester
+    public class SeparatedValueMultipleSchemaTester
     {
-        public SeparatedValueSchemaSelectorTester()
+        public SeparatedValueMultipleSchemaTester()
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
         }
@@ -16,11 +16,22 @@ namespace FlatFiles.Test
         [Fact]
         public void TestReader_ReadThreeTypes()
         {
-            var selector = getSchemaSelector();
-            var stringReader = new StringReader(@"First Batch,2
+            StringWriter stringWriter = new StringWriter();
+            var injector = getSchemaInjector();
+            var writer = new SeparatedValueWriter(stringWriter, injector);
+            writer.Write(new object[] { "First Batch", 2 });
+            writer.Write(new object[] { 1, "Bob Smith", new DateTime(2018, 06, 04), 12.34m });
+            writer.Write(new object[] { 2, "Jane Doe", new DateTime(2018, 06, 05), 34.56m });
+            writer.Write(new object[] { 46.9m, 23.45m, true });
+            string output = stringWriter.ToString();
+            Assert.Equal(@"First Batch,2
 1,Bob Smith,20180604,12.34
 2,Jane Doe,20180605,34.56
-46.9,23.45,true");
+46.9,23.45,True
+", output);
+
+            var stringReader = new StringReader(output);
+            var selector = getSchemaSelector();
             var reader = new SeparatedValueReader(stringReader, selector);
 
             Assert.True(reader.Read(), "The header record could not be read.");            
@@ -54,6 +65,15 @@ namespace FlatFiles.Test
             Assert.True((bool)footerValues[2]);
 
             Assert.False(reader.Read());
+        }
+
+        private SeparatedValueSchemaInjector getSchemaInjector()
+        {
+            var injector = new SeparatedValueSchemaInjector();
+            injector.When(values => values.Length == 2).Use(getHeaderSchema());
+            injector.When(values => values.Length == 3).Use(getFooterSchema());
+            injector.WithDefault(getRecordSchema());
+            return injector;
         }
 
         private SeparatedValueSchemaSelector getSchemaSelector()
@@ -143,7 +163,7 @@ namespace FlatFiles.Test
             var mapper = SeparatedValueTypeMapper.Define(() => new DataRecord());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
-            mapper.Property(x => x.CreatedOn).InputFormat("yyyyMMdd");
+            mapper.Property(x => x.CreatedOn).InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(x => x.TotalAmount);
             return mapper;
         }

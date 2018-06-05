@@ -40,17 +40,42 @@ namespace FlatFiles
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
             if (hasSchema && schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
             if (options == null)
             {
                 options = new SeparatedValueOptions();
             }
             this.recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
+        }
+
+        /// <summary>
+        /// Initializes a new SeparatedValueWriter with the given schema.
+        /// </summary>
+        /// <param name="writer">A writer over the separated value document.</param>
+        /// <param name="injector">The schema injector to use to determine the schema.</param>
+        /// <param name="options">The options used to format the output.</param>
+        /// <exception cref="ArgumentNullException">The writer is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema injector is null.</exception>
+        public SeparatedValueWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options = null)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (injector == null)
+            {
+                throw new ArgumentNullException(nameof(injector));
+            }
+            if (options == null)
+            {
+                options = new SeparatedValueOptions();
+            }
+            this.recordWriter = new SeparatedValueRecordWriter(writer, injector, options);
         }
 
         /// <summary>

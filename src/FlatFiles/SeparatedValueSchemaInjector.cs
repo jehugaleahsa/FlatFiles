@@ -7,42 +7,29 @@ namespace FlatFiles
     /// <summary>
     /// Allows specifying which schema to use when a predicate is matched.
     /// </summary>
-    public interface ISeparatedValueSchemaSelectorWhenBuilder
+    public interface ISeparatedValueSchemaInjectorWhenBuilder
     {
         /// <summary>
         /// Specifies which schema to use when the predicate is matched.
         /// </summary>
         /// <param name="schema">The schema to use.</param>
-        /// <returns>The builder for further configuration.</returns>
         /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        ISeparatedValueSchemaSelectorUseBuilder Use(SeparatedValueSchema schema);
+        void Use(SeparatedValueSchema schema);
     }
 
     /// <summary>
-    /// Allows specifying additional actions to take when a predicate is matched.
+    /// Represents a class that can dynamically provide the schema based on the shape of the data being written.
     /// </summary>
-    public interface ISeparatedValueSchemaSelectorUseBuilder
-    {
-        /// <summary>
-        /// Register a method to fire whenever a match is made.
-        /// </summary>
-        /// <param name="action">The action to take.</param>
-        void OnMatch(Action action);
-    }
-
-    /// <summary>
-    /// Represents a class that can dynamically provide the schema based on the shape of a read record.
-    /// </summary>
-    public class SeparatedValueSchemaSelector
+    public class SeparatedValueSchemaInjector
     {
         private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
         private readonly List<SchemaMatcher> matchers;
         private SchemaMatcher defaultMatcher;
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueSchemaSelector.
+        /// Initializes a new instance of a SeparatedValueSchemaInjector.
         /// </summary>
-        public SeparatedValueSchemaSelector()
+        public SeparatedValueSchemaInjector()
         {
             this.matchers = new List<SchemaMatcher>();
             this.defaultMatcher = nonMatcher;
@@ -55,13 +42,13 @@ namespace FlatFiles
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
-        public ISeparatedValueSchemaSelectorWhenBuilder When(Func<string[], bool> predicate)
+        public ISeparatedValueSchemaInjectorWhenBuilder When(Func<object[], bool> predicate)
         {
             if (predicate == null)
             {
                 throw new ArgumentNullException(nameof(predicate));
             }
-            return new SeparatedValueSchemaSelectorWhenBuilder(this, predicate);
+            return new SeparatedValueSchemaInjectorWhenBuilder(this, predicate);
         }
 
         /// <summary>
@@ -69,13 +56,12 @@ namespace FlatFiles
         /// </summary>
         /// <param name="schema">The default schema to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public ISeparatedValueSchemaSelectorUseBuilder WithDefault(SeparatedValueSchema schema)
+        public void WithDefault(SeparatedValueSchema schema)
         {
             defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = schema };
-            return new SeparatedValueSchemaSelectorUseBuilder(defaultMatcher);
         }
 
-        private SchemaMatcher Add(SeparatedValueSchema schema, Func<string[], bool> predicate)
+        private SchemaMatcher Add(SeparatedValueSchema schema, Func<object[], bool> predicate)
         {
             var matcher = new SchemaMatcher()
             {
@@ -86,19 +72,17 @@ namespace FlatFiles
             return matcher;
         }
 
-        internal SeparatedValueSchema GetSchema(string[] values)
+        internal SeparatedValueSchema GetSchema(object[] values)
         {
             foreach (var matcher in matchers)
             {
                 if (matcher.Predicate(values))
                 {
-                    matcher.Action?.Invoke();
                     return matcher.Schema;
                 }
             }
             if (defaultMatcher.Predicate(values))
             {
-                defaultMatcher.Action?.Invoke();
                 return defaultMatcher.Schema;
             }
             throw new FlatFileException(SharedResources.MissingMatcher);
@@ -108,45 +92,27 @@ namespace FlatFiles
         {
             public SeparatedValueSchema Schema { get; set; }
 
-            public Func<string[], bool> Predicate { get; set; }
-
-            public Action Action { get; set; }
+            public Func<object[], bool> Predicate { get; set; }
         }
 
-        private class SeparatedValueSchemaSelectorWhenBuilder : ISeparatedValueSchemaSelectorWhenBuilder
+        private class SeparatedValueSchemaInjectorWhenBuilder : ISeparatedValueSchemaInjectorWhenBuilder
         {
-            private readonly SeparatedValueSchemaSelector selector;
-            private readonly Func<string[], bool> predicate;
+            private readonly SeparatedValueSchemaInjector selector;
+            private readonly Func<object[], bool> predicate;
 
-            public SeparatedValueSchemaSelectorWhenBuilder(SeparatedValueSchemaSelector selector, Func<string[], bool> predicate)
+            public SeparatedValueSchemaInjectorWhenBuilder(SeparatedValueSchemaInjector selector, Func<object[], bool> predicate)
             {
                 this.selector = selector;
                 this.predicate = predicate;
             }
 
-            public ISeparatedValueSchemaSelectorUseBuilder Use(SeparatedValueSchema schema)
+            public void Use(SeparatedValueSchema schema)
             {
                 if (schema == null)
                 {
                     throw new ArgumentNullException(nameof(schema));
                 }
-                var matcher = selector.Add(schema, predicate);
-                return new SeparatedValueSchemaSelectorUseBuilder(matcher);
-            }
-        }
-
-        private class SeparatedValueSchemaSelectorUseBuilder : ISeparatedValueSchemaSelectorUseBuilder
-        {
-            private readonly SchemaMatcher matcher;
-
-            public SeparatedValueSchemaSelectorUseBuilder(SchemaMatcher matcher)
-            {
-                this.matcher = matcher;
-            }
-
-            public void OnMatch(Action action)
-            {
-                matcher.Action = action;
+                selector.Add(schema, predicate);
             }
         }
     }
