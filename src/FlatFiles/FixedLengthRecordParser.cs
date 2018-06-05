@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using FlatFiles.Resources;
 
 namespace FlatFiles
 {
@@ -14,6 +15,10 @@ namespace FlatFiles
             if (options.HasRecordSeparator)
             {
                 this.recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
+            }
+            else if (schema == null)
+            {
+                throw new FlatFileException(SharedResources.RecordSeparatorRequired);
             }
             else
             {

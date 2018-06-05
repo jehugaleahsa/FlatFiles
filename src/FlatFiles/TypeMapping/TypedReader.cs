@@ -159,11 +159,11 @@ namespace FlatFiles.TypeMapping
         }
     }
 
-    internal sealed class MultiplexingSeparatedValueTypeReader : ISeparatedValueTypedReader<object>
+    internal sealed class MultiplexingSeparatedValueTypedReader : ISeparatedValueTypedReader<object>
     {
         private readonly SeparatedValueReader reader;
 
-        public MultiplexingSeparatedValueTypeReader(SeparatedValueReader reader)
+        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader)
         {
             this.reader = reader;
         }
@@ -248,6 +248,75 @@ namespace FlatFiles.TypeMapping
         {
             add { reader.Error += value; }
             remove { reader.Error -= value; }
+        }
+    }
+
+    internal sealed class MultiplexingFixedLengthTypedReader : IFixedLengthTypedReader<object>
+    {
+        private readonly FixedLengthReader reader;
+
+        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader)
+        {
+            this.reader = reader;
+        }
+
+        internal Func<object[], object> Reader { get; set; }
+
+        public object Current { get; private set; }
+
+        public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
+        {
+            add { reader.RecordRead += value; }
+            remove { reader.RecordRead -= value; }
+        }
+
+        public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
+        {
+            add { reader.RecordPartitioned += value; }
+            remove { reader.RecordPartitioned -= value; }
+        }
+
+        public event EventHandler<ProcessingErrorEventArgs> Error
+        {
+            add { reader.Error += value; }
+            remove { reader.Error -= value; }
+        }
+
+        public ISchema GetSchema()
+        {
+            return null;
+        }
+
+        public bool Read()
+        {
+            if (!reader.Read())
+            {
+                return false;
+            }
+            object[] values = reader.GetValues();
+            Current = Reader(values);
+            return true;
+        }
+
+        public async ValueTask<bool> ReadAsync()
+        {
+            if (!await reader.ReadAsync())
+            {
+                return false;
+            }
+            object[] values = reader.GetValues();
+            Current = Reader(values);
+            return true;
+        }
+
+        public bool Skip()
+        {
+            return reader.Skip();
+        }
+
+        public ValueTask<bool> SkipAsync()
+        {
+            return reader.SkipAsync();
         }
     }
 

@@ -242,6 +242,15 @@ namespace FlatFiles.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A record specifier must be used when selecting the schema dynamically..
+        /// </summary>
+        internal static string RecordSeparatorRequired {
+            get {
+                return ResourceManager.GetString("RecordSeparatorRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The column and record separator are the same string..
         /// </summary>
         internal static string SameSeparator {

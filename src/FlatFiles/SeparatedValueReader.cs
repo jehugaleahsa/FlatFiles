@@ -48,7 +48,7 @@ namespace FlatFiles
         /// <param name="schemaSelector">The schema selector configured to determine the schema dynamically.</param>
         /// <param name="options">The options controlling how the separated value document is read.</param>
         /// <exception cref="ArgumentNullException">The reader is null.</exception>
-        /// <exception cref="ArgumentNullException">The schema is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema selector is null.</exception>
         public SeparatedValueReader(TextReader reader, SeparatedValueSchemaSelector schemaSelector, SeparatedValueOptions options = null)
             : this(reader, null, options, false)
         {
@@ -199,7 +199,7 @@ namespace FlatFiles
             string[] rawValues = readWithFilter();
             while (rawValues != null)
             {
-                var schema = schemaSelector == null ? metadata.Schema : schemaSelector.GetSchema(rawValues);
+                var schema = getSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
                     processError(new RecordProcessingException(metadata.RecordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
@@ -287,7 +287,7 @@ namespace FlatFiles
             string[] rawValues = await readWithFilterAsync();
             while (rawValues != null)
             {
-                var schema = schemaSelector == null ? metadata.Schema : schemaSelector.GetSchema(rawValues);
+                var schema = getSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
                     processError(new RecordProcessingException(metadata.RecordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
@@ -303,6 +303,11 @@ namespace FlatFiles
                 rawValues = await readWithFilterAsync();
             }
             return null;
+        }
+
+        private SeparatedValueSchema getSchema(string[] rawValues)
+        {
+            return schemaSelector == null ? metadata.Schema : schemaSelector.GetSchema(rawValues);
         }
 
         private bool hasWrongNumberOfColumns(SeparatedValueSchema schema, string[] values)

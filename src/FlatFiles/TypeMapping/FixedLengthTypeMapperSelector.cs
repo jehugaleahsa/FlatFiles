@@ -7,36 +7,38 @@ namespace FlatFiles.TypeMapping
     /// <summary>
     /// Allows specifying which schema to use when a predicate is matched.
     /// </summary>
-    public interface ISeparatedValueTypeMapperSelectorWhenBuilder
+    public interface IFixedLengthTypeMapperSelectorWhenBuilder
     {
         /// <summary>
         /// Specifies which type mapper to use when the predicate is matched.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity mapped by the mapper.</typeparam>
         /// <param name="mapper">The type mapper to use.</param>
+        /// <exception cref="System.ArgumentNullException">The mapper is null.</exception>
         /// <returns>The type mapper selector.</returns>
-        void Use<TEntity>(ISeparatedValueTypeMapper<TEntity> mapper);
+        void Use<TEntity>(IFixedLengthTypeMapper<TEntity> mapper);
 
         /// <summary>
         /// Specifies which type mapper to use when the predicate is matched.
         /// </summary>
         /// <param name="mapper">The type mapper to use.</param>
+        /// <exception cref="System.ArgumentNullException">The mapper is null.</exception>
         /// <returns>The type mapper selector.</returns>
-        void Use(IDynamicSeparatedValueTypeMapper mapper);
+        void Use(IDynamicFixedLengthTypeMapper mapper);
     }
 
     /// <summary>
     /// Represents a class that can dynamically map types based on the shap of the record.
     /// </summary>
-    public class SeparatedValueTypeMapperSelector
+    public class FixedLengthTypeMapperSelector
     {
         private readonly List<TypeMapperMatcher> matchers;
-        private IDynamicSeparatedValueTypeMapper defaultMapper;
+        private IDynamicFixedLengthTypeMapper defaultMapper;
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueTypeMapperSelector.
+        /// Initializes a new instance of a FixedLengthTypeMapperSelector.
         /// </summary>
-        public SeparatedValueTypeMapperSelector()
+        public FixedLengthTypeMapperSelector()
         {
             this.matchers = new List<TypeMapperMatcher>();
         }
@@ -46,14 +48,15 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="predicate">Indicates whether the schema should be used for a record.</param>
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
+        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
-        public ISeparatedValueTypeMapperSelectorWhenBuilder When(Func<string[], bool> predicate)
+        public IFixedLengthTypeMapperSelectorWhenBuilder When(Func<string, bool> predicate)
         {
             if (predicate == null)
             {
                 throw new ArgumentNullException(nameof(predicate));
             }
-            return new SeparatedValueTypeMapperSelectorWhenBuilder(this, predicate);
+            return new FixedLengthTypeMapperSelectorWhenBuilder(this, predicate);
         }
 
         /// <summary>
@@ -61,9 +64,9 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="typeMapper">The default type mapper to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
+        public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
         {
-            this.defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+            this.defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -71,7 +74,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="typeMapper">The default schema to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
+        public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
         {
             this.defaultMapper = typeMapper;
         }
@@ -82,11 +85,11 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">The reader to use.</param>
         /// <param name="options">The separate value options to use.</param>
         /// <returns>The typed reader.</returns>
-        public ISeparatedValueTypedReader<object> GetReader(TextReader reader, SeparatedValueOptions options = null)
+        public IFixedLengthTypedReader<object> GetReader(TextReader reader, FixedLengthOptions options = null)
         {
-            var selector = new SeparatedValueSchemaSelector();
-            var valueReader = new SeparatedValueReader(reader, selector, options);
-            var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader);
+            var selector = new FixedLengthSchemaSelector();
+            var valueReader = new FixedLengthReader(reader, selector, options);
+            var multiReader = new MultiplexingFixedLengthTypedReader(valueReader);
             if (defaultMapper != null)
             {
                 var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
@@ -100,14 +103,14 @@ namespace FlatFiles.TypeMapping
             return multiReader;
         }
 
-        private Func<Func<object[], object>> getReader(IDynamicSeparatedValueTypeMapper defaultMapper)
+        private Func<Func<object[], object>> getReader(IDynamicFixedLengthTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
             return () => reader.GetReader();
         }
 
-        internal void Add(IDynamicSeparatedValueTypeMapper typeMapper, Func<string[], bool> predicate)
+        internal void Add(IDynamicFixedLengthTypeMapper typeMapper, Func<string, bool> predicate)
         {
             matchers.Add(new TypeMapperMatcher()
             {
@@ -118,29 +121,29 @@ namespace FlatFiles.TypeMapping
 
         private class TypeMapperMatcher
         {
-            public IDynamicSeparatedValueTypeMapper TypeMapper { get; set; }
+            public IDynamicFixedLengthTypeMapper TypeMapper { get; set; }
 
-            public Func<string[], bool> Predicate { get; set; }
+            public Func<string, bool> Predicate { get; set; }
         }
 
-        private class SeparatedValueTypeMapperSelectorWhenBuilder : ISeparatedValueTypeMapperSelectorWhenBuilder
+        private class FixedLengthTypeMapperSelectorWhenBuilder : IFixedLengthTypeMapperSelectorWhenBuilder
         {
-            private readonly SeparatedValueTypeMapperSelector selector;
-            private readonly Func<string[], bool> predicate;
+            private readonly FixedLengthTypeMapperSelector selector;
+            private readonly Func<string, bool> predicate;
 
-            public SeparatedValueTypeMapperSelectorWhenBuilder(SeparatedValueTypeMapperSelector selector, Func<string[], bool> predicate)
+            public FixedLengthTypeMapperSelectorWhenBuilder(FixedLengthTypeMapperSelector selector, Func<string, bool> predicate)
             {
                 this.selector = selector;
                 this.predicate = predicate;
             }
 
-            public void Use<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
+            public void Use<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
             {
-                var dynamicMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+                var dynamicMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
                 Use(dynamicMapper);
             }
 
-            public void Use(IDynamicSeparatedValueTypeMapper typeMapper)
+            public void Use(IDynamicFixedLengthTypeMapper typeMapper)
             {
                 if (typeMapper == null)
                 {

@@ -7,21 +7,21 @@ namespace FlatFiles
     /// <summary>
     /// Allows specifying which schema to use when a predicate is matched.
     /// </summary>
-    public interface ISeparatedValueSchemaSelectorWhenBuilder
+    public interface IFixedLengthSchemaSelectorWhenBuilder
     {
         /// <summary>
         /// Specifies which schema to use when the predicate is matched.
         /// </summary>
         /// <param name="schema">The schema to use.</param>
         /// <returns>The builder for further configuration.</returns>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        ISeparatedValueSchemaSelectorUseBuilder Use(SeparatedValueSchema schema);
+        /// <exception cref="System.ArgumentNullException">Schema is null.</exception>
+        IFixedLengthSchemaSelectorUseBuilder Use(FixedLengthSchema schema);
     }
 
     /// <summary>
     /// Allows specifying additional actions to take when a predicate is matched.
     /// </summary>
-    public interface ISeparatedValueSchemaSelectorUseBuilder
+    public interface IFixedLengthSchemaSelectorUseBuilder
     {
         /// <summary>
         /// Register a method to fire whenever a match is made.
@@ -33,16 +33,16 @@ namespace FlatFiles
     /// <summary>
     /// Represents a class that can dynamically provide the schema based on the shape of the record.
     /// </summary>
-    public class SeparatedValueSchemaSelector
+    public class FixedLengthSchemaSelector
     {
         private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
         private readonly List<SchemaMatcher> matchers;
         private SchemaMatcher defaultMatcher;
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueSchemaSelector.
+        /// Initializes a new instance of a FixedLengthSchemaSelector.
         /// </summary>
-        public SeparatedValueSchemaSelector(SeparatedValueSchema defaultSchema = null)
+        public FixedLengthSchemaSelector(FixedLengthSchema defaultSchema = null)
         {
             this.matchers = new List<SchemaMatcher>();
             this.defaultMatcher = defaultSchema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = defaultSchema };
@@ -55,13 +55,13 @@ namespace FlatFiles
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
-        public ISeparatedValueSchemaSelectorWhenBuilder When(Func<string[], bool> predicate)
+        public IFixedLengthSchemaSelectorWhenBuilder When(Func<string, bool> predicate)
         {
             if (predicate == null)
             {
                 throw new ArgumentNullException(nameof(predicate));
             }
-            return new SeparatedValueSchemaSelectorWhenBuilder(this, predicate);
+            return new FixedLengthSchemaSelectorWhenBuilder(this, predicate);
         }
 
         /// <summary>
@@ -69,13 +69,13 @@ namespace FlatFiles
         /// </summary>
         /// <param name="schema">The default schema to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public ISeparatedValueSchemaSelectorUseBuilder WithDefault(SeparatedValueSchema schema)
+        public IFixedLengthSchemaSelectorUseBuilder WithDefault(FixedLengthSchema schema)
         {
             defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = schema };
-            return new SeparatedValueSchemaSelectorUseBuilder(defaultMatcher);
+            return new FixedLengthSchemaSelectorUseBuilder(defaultMatcher);
         }
 
-        private SchemaMatcher Add(SeparatedValueSchema schema, Func<string[], bool> predicate)
+        private SchemaMatcher Add(FixedLengthSchema schema, Func<string, bool> predicate)
         {
             var matcher = new SchemaMatcher()
             {
@@ -86,56 +86,60 @@ namespace FlatFiles
             return matcher;
         }
 
-        internal SeparatedValueSchema GetSchema(string[] values)
+        internal FixedLengthSchema GetSchema(string record)
         {
-            var allMatchers = new List<SchemaMatcher>(matchers) { defaultMatcher };
-            foreach (var matcher in allMatchers)
+            foreach (var matcher in matchers)
             {
-                if (matcher.Predicate(values))
+                if (matcher.Predicate(record))
                 {
                     matcher.Action?.Invoke();
                     return matcher.Schema;
                 }
+            }
+            if (defaultMatcher.Predicate(record))
+            {
+                defaultMatcher.Action?.Invoke();
+                return defaultMatcher.Schema;
             }
             throw new FlatFileException(SharedResources.MissingMatcher);
         }
 
         private class SchemaMatcher
         {
-            public SeparatedValueSchema Schema { get; set; }
+            public FixedLengthSchema Schema { get; set; }
 
-            public Func<string[], bool> Predicate { get; set; }
+            public Func<string, bool> Predicate { get; set; }
 
             public Action Action { get; set; }
         }
 
-        private class SeparatedValueSchemaSelectorWhenBuilder : ISeparatedValueSchemaSelectorWhenBuilder
+        private class FixedLengthSchemaSelectorWhenBuilder : IFixedLengthSchemaSelectorWhenBuilder
         {
-            private readonly SeparatedValueSchemaSelector selector;
-            private readonly Func<string[], bool> predicate;
+            private readonly FixedLengthSchemaSelector selector;
+            private readonly Func<string, bool> predicate;
 
-            public SeparatedValueSchemaSelectorWhenBuilder(SeparatedValueSchemaSelector selector, Func<string[], bool> predicate)
+            public FixedLengthSchemaSelectorWhenBuilder(FixedLengthSchemaSelector selector, Func<string, bool> predicate)
             {
                 this.selector = selector;
                 this.predicate = predicate;
             }
 
-            public ISeparatedValueSchemaSelectorUseBuilder Use(SeparatedValueSchema schema)
+            public IFixedLengthSchemaSelectorUseBuilder Use(FixedLengthSchema schema)
             {
                 if (schema == null)
                 {
                     throw new ArgumentNullException(nameof(schema));
                 }
                 var matcher = selector.Add(schema, predicate);
-                return new SeparatedValueSchemaSelectorUseBuilder(matcher);
+                return new FixedLengthSchemaSelectorUseBuilder(matcher);
             }
         }
 
-        private class SeparatedValueSchemaSelectorUseBuilder : ISeparatedValueSchemaSelectorUseBuilder
+        private class FixedLengthSchemaSelectorUseBuilder : IFixedLengthSchemaSelectorUseBuilder
         {
             private readonly SchemaMatcher matcher;
 
-            public SeparatedValueSchemaSelectorUseBuilder(SchemaMatcher matcher)
+            public FixedLengthSchemaSelectorUseBuilder(SchemaMatcher matcher)
             {
                 this.matcher = matcher;
             }

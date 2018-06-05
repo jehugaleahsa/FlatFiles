@@ -7,8 +7,8 @@ namespace FlatFiles.TypeMapping
         IMapper GetMapper();
     }
 
-    internal interface IMapperSource<TEntity>
+    internal interface IMapperSource<TEntity> : IMapperSource
     {
-        IMapper<TEntity> GetMapper();
+        new IMapper<TEntity> GetMapper();
     }
 }

@@ -11,6 +11,7 @@ namespace FlatFiles
     public sealed class FixedLengthReader : IReader
     {
         private readonly FixedLengthRecordParser parser;
+        private readonly FixedLengthSchemaSelector schemaSelector;
         private readonly Metadata metadata;
         private object[] values;
         private bool endOfFile;
@@ -25,12 +26,31 @@ namespace FlatFiles
         /// <exception cref="ArgumentNullException">The reader is null.</exception>
         /// <exception cref="ArgumentNullException">The schema is null.</exception>
         public FixedLengthReader(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options = null)
+            : this(reader, schema, options, true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new FixedLengthReader with the given schema.
+        /// </summary>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="schemaSelector">The schema selector configured to determine the schema dynamically.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
+        /// <exception cref="ArgumentNullException">The reader is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema selector is null.</exception>
+        public FixedLengthReader(TextReader reader, FixedLengthSchemaSelector schemaSelector, FixedLengthOptions options = null)
+            : this(reader, null, options, false)
+        {
+            this.schemaSelector = schemaSelector ?? throw new ArgumentNullException(nameof(schemaSelector));
+        }
+
+        private FixedLengthReader(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options = null, bool hasSchema = true)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException("reader");
             }
-            if (schema == null)
+            if (hasSchema && schema == null)
             {
                 throw new ArgumentNullException("schema");
             }
@@ -130,29 +150,35 @@ namespace FlatFiles
 
         private object[] parsePartitions()
         {
-            string[] rawValues = partitionWithFilter();
+            (FixedLengthSchema schema, string[] rawValues) = partitionWithFilter();
             while (rawValues != null)
             {
-                object[] values = parseValues(rawValues);
+                object[] values = parseValues(schema, rawValues);
                 if (values != null)
                 {
                     return values;
                 }
-                rawValues = partitionWithFilter();
+                (schema, rawValues) = partitionWithFilter();
             }
             return null;
         }
 
-        private string[] partitionWithFilter()
+        private ValueTuple<FixedLengthSchema, string[]> partitionWithFilter()
         {
             string record = readWithFilter();
-            string[] rawValues = partitionRecord(record);
+            if (record == null)
+            {
+                return ValueTuple.Create<FixedLengthSchema, string[]>(null, null);
+            }
+            var schema = getSchema(record);
+            string[] rawValues = partitionRecord(schema, record);
             while (rawValues != null && isSkipped(rawValues))
             {
                 record = readWithFilter();
-                rawValues = partitionRecord(record);
+                schema = getSchema(record);
+                rawValues = partitionRecord(schema, record);
             }
-            return rawValues;
+            return ValueTuple.Create(schema, rawValues);
         }
 
         private string readWithFilter()
@@ -206,29 +232,40 @@ namespace FlatFiles
 
         private async Task<object[]> parsePartitionsAsync()
         {
-            string[] rawValues = await partitionWithFilterAsync();
+            (FixedLengthSchema schema, string[] rawValues) = await partitionWithFilterAsync();
             while (rawValues != null)
             {
-                object[] values = parseValues(rawValues);
+                object[] values = parseValues(schema, rawValues);
                 if (values != null)
                 {
                     return values;
                 }
-                rawValues = await partitionWithFilterAsync();
+                (schema, rawValues) = await partitionWithFilterAsync();
             }
             return null;
         }
 
-        private async Task<string[]> partitionWithFilterAsync()
+        private async ValueTask<ValueTuple<FixedLengthSchema, string[]>> partitionWithFilterAsync()
         {
             string record = await readWithFilterAsync();
-            string[] rawValues = partitionRecord(record);
+            if (record == null)
+            {
+                return ValueTuple.Create<FixedLengthSchema, string[]>(null, null);
+            }
+            var schema = getSchema(record);
+            string[] rawValues = partitionRecord(schema, record);
             while (rawValues != null && isSkipped(rawValues))
             {
                 record = await readWithFilterAsync();
-                rawValues = partitionRecord(record);
+                schema = getSchema(record);
+                rawValues = partitionRecord(schema, record);
             }
-            return rawValues;
+            return ValueTuple.Create(schema, rawValues);
+        }
+
+        private FixedLengthSchema getSchema(string record)
+        {
+            return schemaSelector == null ? metadata.Schema : schemaSelector.GetSchema(record);
         }
 
         private bool isSkipped(string[] values)
@@ -263,11 +300,18 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private object[] parseValues(string[] rawValues)
+        private object[] parseValues(FixedLengthSchema schema, string[] rawValues)
         {
             try
             {
-                return metadata.Schema.ParseValues(metadata, rawValues);
+                var metadata = schemaSelector == null ? this.metadata : new Metadata()
+                {
+                    Schema = schema,
+                    Options = this.metadata.Options,
+                    RecordCount = this.metadata.RecordCount,
+                    LogicalRecordCount = this.metadata.LogicalRecordCount
+                };
+                return schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
@@ -318,23 +362,19 @@ namespace FlatFiles
             return record != null;
         }
 
-        private string[] partitionRecord(string record)
+        private string[] partitionRecord(FixedLengthSchema schema, string record)
         {
-            if (record == null)
-            {
-                return null;
-            }
-            if (record.Length < metadata.Schema.TotalWidth)
+            if (record.Length < schema.TotalWidth)
             {
                 processError(new RecordProcessingException(metadata.RecordCount, SharedResources.FixedLengthRecordTooShort));
                 return null;
             }
-            WindowCollection windows = metadata.Schema.Windows;
-            string[] values = new string[windows.Count - metadata.Schema.ColumnDefinitions.MetadataCount];
+            WindowCollection windows = schema.Windows;
+            string[] values = new string[windows.Count - schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
             for (int index = 0; index != values.Length;)
             {
-                var definition = metadata.Schema.ColumnDefinitions[index];
+                var definition = schema.ColumnDefinitions[index];
                 if (!(definition is IMetadataColumn metaColumn))
                 {
                     Window window = windows[index];

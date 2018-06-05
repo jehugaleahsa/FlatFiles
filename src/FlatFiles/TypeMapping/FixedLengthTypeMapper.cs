@@ -1566,6 +1566,11 @@ namespace FlatFiles.TypeMapping
             return new Mapper<TEntity>(lookup, getCodeGenerator());
         }
 
+        IMapper IMapperSource.GetMapper()
+        {
+            return GetMapper();
+        }
+
         private ICodeGenerator getCodeGenerator()
         {
             return isOptimized 

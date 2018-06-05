@@ -681,8 +681,7 @@ namespace FlatFiles.TypeMapping
     internal sealed class SeparatedValueTypeMapper<TEntity>
         : ISeparatedValueTypeMapper<TEntity>,
         IDynamicSeparatedValueTypeMapper,
-        IMapperSource<TEntity>,
-        IMapperSource
+        IMapperSource<TEntity>
     {
         private readonly Dictionary<Type, Func<TEntity>> factories;
         private readonly MemberLookup lookup;

@@ -198,4 +198,7 @@
   <data name="MissingMatcher" xml:space="preserve">
     <value>No schema was found for the given record.</value>
   </data>
+  <data name="RecordSeparatorRequired" xml:space="preserve">
+    <value>A record specifier must be used when selecting the schema dynamically.</value>
+  </data>
 </root>
