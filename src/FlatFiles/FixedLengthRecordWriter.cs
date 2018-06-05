@@ -9,32 +9,36 @@ namespace FlatFiles
     internal sealed class FixedLengthRecordWriter
     {
         private readonly TextWriter writer;
-        private readonly FixedLengthWriterMetadata metadata;
+        private readonly FixedLengthSchemaInjector injector;
 
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
-            this.metadata = new FixedLengthWriterMetadata()
+            this.Metadata = new FixedLengthWriterMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
             };
         }
 
-        public FixedLengthWriterMetadata Metadata
+        public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchemaInjector injector, FixedLengthOptions options)
+            : this(writer, (FixedLengthSchema)null, options)
         {
-            get { return metadata; }
+            this.injector = injector;
         }
+
+        public FixedLengthWriterMetadata Metadata { get; private set; }
 
         public void WriteRecord(object[] values)
         {
-            if (values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = getSchema(values);
+            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(SharedResources.WrongNumberOfValues, "values");
+                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
-            var formattedColumns = metadata.Schema.FormatValues(metadata, values);
-            var fittedColumns = formattedColumns.Select((v, i) => fitWidth(metadata.Schema.Windows[i], v));
-            foreach (string column in fittedColumns)
+            string[] formattedColumns = formatValues(values, schema);
+            fitWindows(schema, formattedColumns);
+            foreach (string column in formattedColumns)
             {
                 writer.Write(column);
             }
@@ -42,22 +46,53 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            if (values.Length != metadata.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = getSchema(values);
+            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(SharedResources.WrongNumberOfValues, "values");
+                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
-            var formattedColumns = metadata.Schema.FormatValues(metadata, values);
-            var fittedColumns = formattedColumns.Select((v, i) => fitWidth(metadata.Schema.Windows[i], v));
-            foreach (string column in fittedColumns)
+            var formattedColumns = formatValues(values, schema);
+            fitWindows(schema, formattedColumns);
+            foreach (string column in formattedColumns)
             {
                 await writer.WriteAsync(column);
             }
         }
 
+        private FixedLengthSchema getSchema(object[] values)
+        {
+            return injector == null ? Metadata.Schema : injector.GetSchema(values);
+        }
+
+        private string[] formatValues(object[] values, FixedLengthSchema schema)
+        {
+            var metadata = injector == null ? Metadata : new FixedLengthWriterMetadata()
+            {
+                Schema = schema,
+                Options = Metadata.Options,
+                RecordCount = Metadata.RecordCount,
+                LogicalRecordCount = Metadata.LogicalRecordCount
+            };
+            return schema.FormatValues(metadata, values);
+        }
+
+        private void fitWindows(FixedLengthSchema schema, string[] values)
+        {
+            for (int index = 0; index != values.Length; ++index)
+            {
+                var window = schema.Windows[index];
+                values[index] = fitWidth(window, values[index]);
+            }
+        }
+
         public void WriteSchema()
         {
-            var names = metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => fitWidth(metadata.Schema.Windows[i], v));
+            if (injector != null)
+            {
+                return;
+            }
+            var names = Metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => fitWidth(Metadata.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 writer.Write(column);
@@ -66,8 +101,12 @@ namespace FlatFiles
 
         public async Task WriteSchemaAsync()
         {
-            var names = metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => fitWidth(metadata.Schema.Windows[i], v));
+            if (injector != null)
+            {
+                return;
+            }
+            var names = Metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => fitWidth(Metadata.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 await writer.WriteAsync(column);
@@ -96,7 +135,7 @@ namespace FlatFiles
 
         private string getTruncatedValue(string value, Window window)
         {
-            OverflowTruncationPolicy policy = window.TruncationPolicy ?? metadata.Options.TruncationPolicy;
+            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.Options.TruncationPolicy;
             if (policy == OverflowTruncationPolicy.TruncateLeading)
             {
                 int start = value.Length - window.Width;  // take characters on the end
@@ -110,30 +149,30 @@ namespace FlatFiles
 
         private string getPaddedValue(string value, Window window)
         {
-            var alignment = window.Alignment ?? metadata.Options.Alignment;
+            var alignment = window.Alignment ?? Metadata.Options.Alignment;
             if (alignment == FixedAlignment.LeftAligned)
             {
-                return value.PadRight(window.Width, window.FillCharacter ?? metadata.Options.FillCharacter);
+                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
             }
             else
             {
-                return value.PadLeft(window.Width, window.FillCharacter ?? metadata.Options.FillCharacter);
+                return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
             }
         }
 
         public void WriteRecordSeparator()
         {
-            if (metadata.Options.HasRecordSeparator)
+            if (Metadata.Options.HasRecordSeparator)
             {
-                writer.Write(metadata.Options.RecordSeparator ?? Environment.NewLine);
+                writer.Write(Metadata.Options.RecordSeparator ?? Environment.NewLine);
             }
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            if (metadata.Options.HasRecordSeparator)
+            if (Metadata.Options.HasRecordSeparator)
             {
-                await writer.WriteAsync(metadata.Options.RecordSeparator ?? Environment.NewLine);
+                await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine);
             }
         }
 

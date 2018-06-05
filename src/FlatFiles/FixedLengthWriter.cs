@@ -24,17 +24,42 @@ namespace FlatFiles
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
             if (schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
             if (options == null)
             {
                 options = new FixedLengthOptions();
             }
             this.recordWriter = new FixedLengthRecordWriter(writer, schema, options);
+        }
+
+        /// <summary>
+        /// Initializes a new FixedLengthBuilder with the given schema.
+        /// </summary>
+        /// <param name="writer">A writer over the fixed-length document.</param>
+        /// <param name="injector">The schema injector to use to determine the schema.</param>
+        /// <param name="options">The options used to format the output.</param>
+        /// <exception cref="ArgumentNullException">The writer is null.</exception>
+        /// <exception cref="ArgumentNullException">The schema injector is null.</exception>
+        public FixedLengthWriter(TextWriter writer, FixedLengthSchemaInjector injector, FixedLengthOptions options = null)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (injector == null)
+            {
+                throw new ArgumentNullException(nameof(injector));
+            }
+            if (options == null)
+            {
+                options = new FixedLengthOptions();
+            }
+            this.recordWriter = new FixedLengthRecordWriter(writer, injector, options);
         }
 
         /// <summary>

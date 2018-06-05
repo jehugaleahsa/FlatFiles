@@ -15,17 +15,6 @@ namespace FlatFiles
         private readonly string doubleQuoteString;
 
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
-            : this(writer, schema, options, false)
-        {            
-        }
-
-        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
-            : this(writer, null, options, false)
-        {
-            this.injector = injector;
-        }
-
-        private SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options, bool ignored)
         {
             this.writer = writer;
             this.Metadata = new SeparatedValueMetadata()
@@ -35,6 +24,12 @@ namespace FlatFiles
             };
             this.quoteString = String.Empty + options.Quote;
             this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
+        }
+
+        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
+            : this(writer, (SeparatedValueSchema)null, options)
+        {
+            this.injector = injector;
         }
 
         public SeparatedValueMetadata Metadata { get; private set; }
@@ -47,8 +42,8 @@ namespace FlatFiles
                 throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = formatValues(schema, values);
-            var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(Metadata.Options.Separator, escapedValues);
+            escapeValues(formattedValues);
+            string joined = String.Join(Metadata.Options.Separator, formattedValues);
             writer.Write(joined);
         }
 
@@ -60,8 +55,8 @@ namespace FlatFiles
                 throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = formatValues(schema, values);
-            var escapedValues = formattedValues.Select(v => escape(v));
-            string joined = String.Join(Metadata.Options.Separator, escapedValues);
+            escapeValues(formattedValues);
+            string joined = String.Join(Metadata.Options.Separator, formattedValues);
             await writer.WriteAsync(joined);
         }
 
@@ -70,11 +65,16 @@ namespace FlatFiles
             return injector == null ? Metadata.Schema : injector.GetSchema(values);
         }
 
-        private IEnumerable<string> formatValues(SeparatedValueSchema schema, object[] values)
+        private string[] formatValues(SeparatedValueSchema schema, object[] values)
         {
             if (schema == null)
             {
-                return values.Select(v => toString(v));
+                string[] results = new string[values.Length];
+                for (int index = 0; index != results.Length; ++index)
+                {
+                    results[index] = toString(values[index]);
+                }
+                return results;
             }
             else
             {
@@ -92,6 +92,14 @@ namespace FlatFiles
         private static string toString(object value)
         {
             return value == null ? String.Empty : value.ToString();
+        }
+
+        private void escapeValues(string[] values)
+        {
+            for (int index = 0; index != values.Length; ++index)
+            {
+                values[index] = escape(values[index]);
+            }
         }
 
         private string escape(string value)

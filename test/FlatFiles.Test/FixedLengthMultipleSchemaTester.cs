@@ -6,9 +6,9 @@ using Xunit;
 
 namespace FlatFiles.Test
 {
-    public class FixedLengthSchemaSelectorTester
+    public class FixedLengthMultipleSchemaTester
     {
-        public FixedLengthSchemaSelectorTester()
+        public FixedLengthMultipleSchemaTester()
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
         }
@@ -16,12 +16,25 @@ namespace FlatFiles.Test
         [Fact]
         public void TestReader_ReadThreeTypes()
         {
-            var selector = getSchemaSelector();
-            var stringReader = new StringReader(@"              First Batch  2
+            StringWriter stringWriter = new StringWriter();
+            var injector = getSchemaInjector();
+            var options = new FixedLengthOptions() { Alignment = FixedAlignment.RightAligned };
+            var writer = new FixedLengthWriter(stringWriter, injector, options);
+            writer.Write(new object[] { "First Batch", 2 });
+            writer.Write(new object[] { 1, "Bob Smith", new DateTime(2018, 06, 04), 12.34m });
+            writer.Write(new object[] { 2, "Jane Doe", new DateTime(2018, 06, 05), 34.56m });
+            writer.Write(new object[] { 46.9m, 23.45m, true });
+            string output = stringWriter.ToString();
+            Assert.Equal(@"              First Batch  2
          1                Bob Smith  20180604     12.34
          2                 Jane Doe  20180605     34.56
-      46.9     23.45 true");
-            var reader = new FixedLengthReader(stringReader, selector);
+      46.9     23.45 True
+", output);
+
+
+            var stringReader = new StringReader(output);
+            var selector = getSchemaSelector();
+            var reader = new FixedLengthReader(stringReader, selector, options);
 
             Assert.True(reader.Read(), "The header record could not be read.");            
             var headerValues = reader.GetValues();
@@ -56,6 +69,15 @@ namespace FlatFiles.Test
             Assert.False(reader.Read());
         }
 
+        private FixedLengthSchemaInjector getSchemaInjector()
+        {
+            var injector = new FixedLengthSchemaInjector();
+            injector.When(values => values.Length == 2).Use(getHeaderSchema());
+            injector.When(values => values.Length == 3).Use(getFooterSchema());
+            injector.WithDefault(getRecordSchema());
+            return injector;
+        }
+
         private FixedLengthSchemaSelector getSchemaSelector()
         {
             var selector = new FixedLengthSchemaSelector();
@@ -86,12 +108,13 @@ namespace FlatFiles.Test
         [Fact]
         public void TestTypeMapper_ReadThreeTypes()
         {
+            var options = new FixedLengthOptions() { Alignment = FixedAlignment.RightAligned };
             var selector = getTypeMapperSelector();
             var stringReader = new StringReader(@"              First Batch  2
          1                Bob Smith  20180604     12.34
          2                 Jane Doe  20180605     34.56
       46.9     23.45 true");
-            var reader = selector.GetReader(stringReader);
+            var reader = selector.GetReader(stringReader, options);
 
             Assert.True(reader.Read(), "The header record could not be read.");
             Assert.IsType<HeaderRecord>(reader.Current);
@@ -141,9 +164,9 @@ namespace FlatFiles.Test
         private static IFixedLengthTypeMapper<DataRecord> getRecordTypeMapper()
         {
             var mapper = FixedLengthTypeMapper.Define(() => new DataRecord());
-            mapper.Property(x => x.Id, 10);
+            mapper.Property(x => x.Id, new Window(10) { Alignment = FixedAlignment.RightAligned });
             mapper.Property(x => x.Name, 25);
-            mapper.Property(x => x.CreatedOn, new Window(10) { Alignment = FixedAlignment.RightAligned }).InputFormat("yyyyMMdd");
+            mapper.Property(x => x.CreatedOn, 10).InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(x => x.TotalAmount, 10);
             return mapper;
         }
