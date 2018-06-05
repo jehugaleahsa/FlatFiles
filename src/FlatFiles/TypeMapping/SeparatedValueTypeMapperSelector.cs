@@ -87,15 +87,15 @@ namespace FlatFiles.TypeMapping
             var selector = new SeparatedValueSchemaSelector();
             var valueReader = new SeparatedValueReader(reader, selector, options);
             var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader);
-            if (defaultMapper != null)
-            {
-                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
-                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Reader = typeReader.Value);
-            }
             foreach (var matcher in matchers)
             {
                 var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Reader = typedReader.Value);
+            }
+            if (defaultMapper != null)
+            {
+                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
+                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Reader = typeReader.Value);
             }
             return multiReader;
         }

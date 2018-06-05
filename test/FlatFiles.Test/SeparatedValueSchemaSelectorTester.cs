@@ -58,9 +58,10 @@ namespace FlatFiles.Test
 
         private SeparatedValueSchemaSelector getSchemaSelector()
         {
-            var selector = new SeparatedValueSchemaSelector(getRecordSchema());
+            var selector = new SeparatedValueSchemaSelector();
             selector.When(values => values.Length == 2).Use(getHeaderSchema());
             selector.When(values => values.Length == 3).Use(getFooterSchema());
+            selector.WithDefault(getRecordSchema());
             return selector;
         }
 

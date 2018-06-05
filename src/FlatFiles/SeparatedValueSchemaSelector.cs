@@ -42,10 +42,10 @@ namespace FlatFiles
         /// <summary>
         /// Initializes a new instance of a SeparatedValueSchemaSelector.
         /// </summary>
-        public SeparatedValueSchemaSelector(SeparatedValueSchema defaultSchema = null)
+        public SeparatedValueSchemaSelector()
         {
             this.matchers = new List<SchemaMatcher>();
-            this.defaultMatcher = defaultSchema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = defaultSchema };
+            this.defaultMatcher = nonMatcher;
         }
 
         /// <summary>
@@ -88,14 +88,18 @@ namespace FlatFiles
 
         internal SeparatedValueSchema GetSchema(string[] values)
         {
-            var allMatchers = new List<SchemaMatcher>(matchers) { defaultMatcher };
-            foreach (var matcher in allMatchers)
+            foreach (var matcher in matchers)
             {
                 if (matcher.Predicate(values))
                 {
                     matcher.Action?.Invoke();
                     return matcher.Schema;
                 }
+            }
+            if (defaultMatcher.Predicate(values))
+            {
+                defaultMatcher.Action?.Invoke();
+                return defaultMatcher.Schema;
             }
             throw new FlatFileException(SharedResources.MissingMatcher);
         }

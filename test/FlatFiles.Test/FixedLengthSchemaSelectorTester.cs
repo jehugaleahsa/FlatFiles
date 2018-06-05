@@ -58,9 +58,10 @@ namespace FlatFiles.Test
 
         private FixedLengthSchemaSelector getSchemaSelector()
         {
-            var selector = new FixedLengthSchemaSelector(getRecordSchema());
+            var selector = new FixedLengthSchemaSelector();
             selector.When(values => values.Length == 28).Use(getHeaderSchema());
             selector.When(values => values.Length == 25).Use(getFooterSchema());
+            selector.WithDefault(getRecordSchema());
             return selector;
         }
 

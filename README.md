@@ -226,6 +226,44 @@ reader.RecordPartitioned += (sender, e) =>
 };
 ```
 
+## Files containing multiple schemas
+Some flat file formats will contain multiple schemas. Often, data appears within "blocks" with a header and perhaps a footer. It can be extremely useful to parse each type of record using a different schema and return them in the same order they appear in the file.
+
+FlatFiles provides support for these file formats using the `SchemaSelector` and `TypeMapperSelector` classes. Once you define the schemas or type mappers, you can register them with the selector.
+
+```csharp
+var selector = new SeparatedValueTypeMapperSelector();
+var dataMapper = getDataTypeMapper();
+selector.When(x => x.Length == 10).Use(dataMapper);
+selector.When(x => x.Length == 2).Use(getHeaderTypeMapper());
+selector.When(x => x.Length == 3).Use(getFooterTypeMapper());
+selector.WithDefault(dataMapper);
+```
+
+Each type mapper is associated with a predicate, which accepts the preprocessed record. If the predicate succeeds, that type mapper will be used to parse the record. Each predicate is tested in the order it is registered, so be sure to make your predicates smart enough to correctly identify the record type.
+
+*Note: You'll might have noticed `dataMapper` is registered twice, once up-front with a specific condition and then as the default. This isn't necessary; however, making sure the most common schema is tried first may help performance in some cases.*
+
+Once your selector is configured, you can call `GetReader`, passing in the `TextReader` and the options object. From there you can register events and read the objects from the file. Since different types can be returned, the reader will return instances of `object`.
+
+If you want to work directly with schemas and readers, you can build a `SchemaSelector` by registering schemas with predicates in a similar fashion. The `SeparatedValueReader` and `FixedLengthReader` classes provide a constructor accepting a `SchemaSelector`. *Note that whenever you work with selectors, calls to `GetSchema` will return `null`.*
+
+```csharp
+var selector = new SeparatedValueSchemaSelector();
+var recordSchema = getDataSchema();
+selector.When(values => values.Length == 10).Use(recordSchema);
+selector.When(values => values.Length == 2).Use(getHeaderSchema());
+selector.When(values => values.Length == 3).Use(getFooterSchema());
+selector.WithDefault(recordSchema);
+
+var reader = new SeparatedValueReader(fileStream, selector);
+while (reader.Read())
+{
+    object[] values = reader.GetValues();
+    processRecord(values);
+}
+```
+
 ## Runtime Types and Support for Other Programming Languages
 Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
 

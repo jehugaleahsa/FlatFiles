@@ -42,10 +42,10 @@ namespace FlatFiles
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchemaSelector.
         /// </summary>
-        public FixedLengthSchemaSelector(FixedLengthSchema defaultSchema = null)
+        public FixedLengthSchemaSelector()
         {
             this.matchers = new List<SchemaMatcher>();
-            this.defaultMatcher = defaultSchema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = defaultSchema };
+            this.defaultMatcher = nonMatcher;
         }
 
         /// <summary>
