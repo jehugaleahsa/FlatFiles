@@ -264,6 +264,24 @@ while (reader.Read())
 }
 ```
 
+If you want to *create* multi-schema files, there are "injector" equivalents for each "selector" class. For example:
+
+```csharp
+var selector = new FixedLengthTypeMapperInjector();
+selector.WithDefault(getRecordTypeMapper());
+selector.When<HeaderRecord>().Use(getHeaderTypeMapper());
+selector.When<FooterRecord>().Use(getFooterTypeMapper());
+
+var stringWriter = new StringWriter();
+var writer = injector.GetWriter(stringWriter);
+writer.Write(new HeaderRecord() { BatchName = "First Batch", RecordCount = 2 });
+writer.Write(new DataRecord() { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
+writer.Write(new DataRecord() { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
+writer.Write(new FooterRecord() { TotalAmount = 46.9m, AverageAmount = 23.45m, IsCriteriaMet = true });
+```
+
+The `When` method accepts a predicate if you need more than just the record type to decide what type mapper/schema to use.
+
 ## Runtime Types and Support for Other Programming Languages
 Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
 

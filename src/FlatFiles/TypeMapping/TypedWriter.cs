@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
@@ -96,6 +97,42 @@ namespace FlatFiles.TypeMapping
             object[] values = new object[workCount];
             serializer(entity, values);
             await writer.WriteAsync(values);
+        }
+    }
+
+    /// <summary>
+    /// Provides extension methods for working with typed writers.
+    /// </summary>
+    public static class TypedWriterExtensions
+    {
+        /// <summary>
+        /// Writes all of the entities to the typed writer.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity the writer is configured to write.</typeparam>
+        /// <param name="writer">The reader to read the entities from.</param>
+        /// <param name="entities">The entities to write to the file.</param>
+        /// <returns>The entities written by the writer.</returns>
+        public static void WriteAll<TEntity>(this ITypedWriter<TEntity> writer, IEnumerable<TEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                writer.Write(entity);
+            }
+        }
+
+        /// <summary>
+        /// Writes all of the entities to the typed writer.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity the writer is configured to write.</typeparam>
+        /// <param name="writer">The reader to read the entities from.</param>
+        /// <param name="entities">The entities to write to the file.</param>
+        /// <returns>The entities written by the writer.</returns>
+        public static async Task WriteAllAsync<TEntity>(this ITypedWriter<TEntity> writer, IEnumerable<TEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                await writer.WriteAsync(entity);
+            }
         }
     }
 }

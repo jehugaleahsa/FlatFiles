@@ -1,3 +1,12 @@
+## 2.1.0 (2018-06-05)
+**Summary** - Write files with multiple schemas.
+
+### New Features
+I wanted to make sure flat files consisting of multiple schemas could be generated similar to the way they are read. Parallel to the "selectors" used to read files, there are now injectors for writing files. This release introduces the `SeparatedValueSchemaInjector`, `FixedLengthSchemaInjector`, `SeparatedValueTypeMapperInjector` and the `FixedLengthTypeMapperInjector` classes.
+
+### Enhancements
+* Several minor performance enhancements for the `SeparatedValueWriter`  and `FixedLengthWriter` classes.
+
 ## 2.0.0 (2018-06-05)
 **Summary** - Read files with multiple schemas.
 
