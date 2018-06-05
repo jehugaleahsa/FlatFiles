@@ -195,4 +195,7 @@
   <data name="AssignNullToStruct" xml:space="preserve">
     <value>Encountered a null when assigning to the non-nullable property '{0}'.</value>
   </data>
+  <data name="MissingMatcher" xml:space="preserve">
+    <value>No schema was found for the given record.</value>
+  </data>
 </root>

@@ -159,6 +159,69 @@ namespace FlatFiles.TypeMapping
         }
     }
 
+    internal sealed class MultiplexingSeparatedValueTypeReader : ISeparatedValueTypedReader<object>
+    {
+        private readonly SeparatedValueReader reader;
+
+        public MultiplexingSeparatedValueTypeReader(SeparatedValueReader reader)
+        {
+            this.reader = reader;
+        }
+
+        internal Func<object[], object> Reader { get; set; }
+
+        public object Current { get; private set; }
+
+        public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
+        {
+            add { reader.RecordRead += value; }
+            remove { reader.RecordRead -= value; }
+        }
+
+        public event EventHandler<ProcessingErrorEventArgs> Error
+        {
+            add { reader.Error += value; }
+            remove { reader.Error -= value; }
+        }
+
+        public ISchema GetSchema()
+        {
+            return null;
+        }
+
+        public bool Read()
+        {
+            if (!reader.Read())
+            {
+                return false;
+            }
+            object[] values = reader.GetValues();
+            Current = Reader(values);
+            return true;
+        }
+
+        public async ValueTask<bool> ReadAsync()
+        {
+            if (!await reader.ReadAsync())
+            {
+                return false;
+            }
+            object[] values = reader.GetValues();
+            Current = Reader(values);
+            return true;
+        }
+
+        public bool Skip()
+        {
+            return reader.Skip();
+        }
+
+        public ValueTask<bool> SkipAsync()
+        {
+            return reader.SkipAsync();
+        }
+    }
+
     internal sealed class FixedLengthTypedReader<TEntity> : TypedReader<TEntity>, IFixedLengthTypedReader<TEntity>
     {
         private readonly FixedLengthReader reader;

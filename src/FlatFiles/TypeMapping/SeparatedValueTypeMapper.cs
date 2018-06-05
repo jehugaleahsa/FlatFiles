@@ -681,7 +681,8 @@ namespace FlatFiles.TypeMapping
     internal sealed class SeparatedValueTypeMapper<TEntity>
         : ISeparatedValueTypeMapper<TEntity>,
         IDynamicSeparatedValueTypeMapper,
-        IMapperSource<TEntity>
+        IMapperSource<TEntity>,
+        IMapperSource
     {
         private readonly Dictionary<Type, Func<TEntity>> factories;
         private readonly MemberLookup lookup;
@@ -1454,6 +1455,11 @@ namespace FlatFiles.TypeMapping
         public IMapper<TEntity> GetMapper()
         {
             return new Mapper<TEntity>(lookup, getCodeGenerator());
+        }
+
+        IMapper IMapperSource.GetMapper()
+        {
+            return GetMapper();
         }
 
         private ICodeGenerator getCodeGenerator()

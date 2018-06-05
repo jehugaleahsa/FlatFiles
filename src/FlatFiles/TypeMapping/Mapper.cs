@@ -114,7 +114,7 @@ namespace FlatFiles.TypeMapping
                 {
                     if (values[index] == null && nonNullLookup.TryGetValue(index, out var mapping))
                     {
-                        string message = String.Format(null, SharedResources.AssignNullToNonNull, mapping.Member.Name);
+                        string message = String.Format(null, SharedResources.AssignNullToStruct, mapping.Member.Name);
                         throw new FlatFileException(message);
                     }
                 }

@@ -64,7 +64,7 @@ namespace FlatFiles.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable property &apos;{0}&apos;..
         /// </summary>
-        internal static string AssignNullToNonNull {
+        internal static string AssignNullToStruct {
             get {
                 return ResourceManager.GetString("AssignNullToStruct", resourceCulture);
             }
@@ -175,6 +175,15 @@ namespace FlatFiles.Resources {
         internal static string InvalidTruncationPolicy {
             get {
                 return ResourceManager.GetString("InvalidTruncationPolicy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No schema was found for the given record..
+        /// </summary>
+        internal static string MissingMatcher {
+            get {
+                return ResourceManager.GetString("MissingMatcher", resourceCulture);
             }
         }
         
