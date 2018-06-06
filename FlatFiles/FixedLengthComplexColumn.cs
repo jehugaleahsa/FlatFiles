@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -10,17 +9,6 @@ namespace FlatFiles
     public class FixedLengthComplexColumn : ColumnDefinition
     {
         private readonly FixedLengthSchema schema;
-        private FixedLengthOptions options;
-
-        /// <summary>
-        /// Initializes a new FixedLengthComplexColumn with the given schema and default options.
-        /// </summary>
-        /// <param name="columnName">The name of the column.</param>
-        /// <param name="schema">The schema of the data embedded in the column.</param>
-        public FixedLengthComplexColumn(string columnName, FixedLengthSchema schema)
-            : this(columnName, schema, new FixedLengthOptions())
-        {
-        }
 
         /// <summary>
         /// Initializes a new FixedLengthComplexColumn with the given schema and options.
@@ -28,19 +16,11 @@ namespace FlatFiles
         /// <param name="columnName">The name of the column.</param>
         /// <param name="schema">The schema of the data embedded in the column.</param>
         /// <param name="options">The options to use when parsing the embedded data.</param>
-        public FixedLengthComplexColumn(string columnName, FixedLengthSchema schema, FixedLengthOptions options)
+        public FixedLengthComplexColumn(string columnName, FixedLengthSchema schema, FixedLengthOptions options = null)
             : base(columnName)
         {
-            if (schema == null)
-            {
-                throw new ArgumentNullException(nameof(schema));
-            }
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-            this.schema = schema;
-            this.options = options.Clone();
+            this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            this.Options = options;
         }
 
         /// <summary>
@@ -54,11 +34,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the options used to read/write the records.
         /// </summary>
-        public FixedLengthOptions Options
-        {
-            get { return options; }
-            set { options = value ?? new FixedLengthOptions(); }
-        }
+        public FixedLengthOptions Options { get; set; }
 
         /// <summary>
         /// Extracts a single record from the embedded data.
@@ -78,8 +54,8 @@ namespace FlatFiles
                 return null;
             }
 
-            StringReader stringReader = new StringReader(value);
-            FixedLengthReader reader = new FixedLengthReader(stringReader, schema, options);
+            var stringReader = new StringReader(value);
+            var reader = new FixedLengthReader(stringReader, schema, Options);
             if (reader.Read())
             {
                 return reader.GetValues();
@@ -94,13 +70,13 @@ namespace FlatFiles
         /// <returns>A formatted string containing the embedded data.</returns>
         public override string Format(object value)
         {
-            object[] values = value as object[];
+            var values = value as object[];
             if (values == null)
             {
                 return NullHandler.GetNullRepresentation();
             }
-            StringWriter writer = new StringWriter();
-            FixedLengthRecordWriter recordWriter = new FixedLengthRecordWriter(writer, schema, options);
+            var writer = new StringWriter();
+            var recordWriter = new FixedLengthRecordWriter(writer, schema, Options ?? new FixedLengthOptions());
             recordWriter.WriteRecord(values);
             return writer.ToString();
         }

@@ -9,33 +9,13 @@ namespace FlatFiles
     public class SeparatedValueComplexColumn : ColumnDefinition
     {
         private readonly SeparatedValueSchema schema;
-        private SeparatedValueOptions options;
 
         /// <summary>
-        /// Initializes a new SeparatedValueComplexColumn with no schema or options.
-        /// </summary>
-        /// <param name="columnName">The name of the column.</param>
-        public SeparatedValueComplexColumn(string columnName) 
-            : this(columnName, null, new SeparatedValueOptions(), false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new SeparatedValueComplexColumn with the given schema and default options.
-        /// </summary>
-        /// <param name="columnName">The name of the column.</param>
-        /// <param name="schema">The schema of the data embedded in the column.</param>
-        public SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema)
-            : this(columnName, schema, new SeparatedValueOptions(), true)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new SeparatedValueComplexColumn with the given options.
+        /// Initializes a new SeparatedValueComplexColumn with no schema.
         /// </summary>
         /// <param name="columnName">The name of the column.</param>
         /// <param name="options">The options to use when parsing the embedded data.</param>
-        public SeparatedValueComplexColumn(string columnName, SeparatedValueOptions options)
+        public SeparatedValueComplexColumn(string columnName, SeparatedValueOptions options = null) 
             : this(columnName, null, options, false)
         {
         }
@@ -46,7 +26,7 @@ namespace FlatFiles
         /// <param name="columnName">The name of the column.</param>
         /// <param name="schema">The schema of the data embedded in the column.</param>
         /// <param name="options">The options to use when parsing the embedded data.</param>
-        public SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema, SeparatedValueOptions options)
+        public SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema, SeparatedValueOptions options = null)
             : this(columnName, schema, options, true)
         {
         }
@@ -58,12 +38,8 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(schema));
             }
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
             this.schema = schema;
-            this.options = options;
+            this.Options = options;
         }
 
         /// <summary>
@@ -77,11 +53,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the separated value options.
         /// </summary>
-        public SeparatedValueOptions Options
-        {
-            get { return options; }
-            set { options = value ?? new SeparatedValueOptions(); }
-        }
+        public SeparatedValueOptions Options { get; set; }
 
         /// <summary>
         /// Extracts a single record from the embedded data.
@@ -101,8 +73,8 @@ namespace FlatFiles
                 return null;
             }
 
-            StringReader stringReader = new StringReader(value);
-            SeparatedValueReader reader = getReader(stringReader);
+            var stringReader = new StringReader(value);
+            var reader = getReader(stringReader);
             if (reader.Read())
             {
                 return reader.GetValues();
@@ -114,11 +86,11 @@ namespace FlatFiles
         {
             if (schema == null)
             {
-                return new SeparatedValueReader(stringReader, options);
+                return new SeparatedValueReader(stringReader, Options);
             }
             else
             {
-                return new SeparatedValueReader(stringReader, schema, options);
+                return new SeparatedValueReader(stringReader, schema, Options);
             }
         }
 
@@ -129,15 +101,20 @@ namespace FlatFiles
         /// <returns>A formatted string containing the embedded data.</returns>
         public override string Format(object value)
         {
-            object[] values = value as object[];
+            var values = value as object[];
             if (values == null)
             {
                 return NullHandler.GetNullRepresentation();
             }
-            StringWriter writer = new StringWriter();
-            SeparatedValueRecordWriter recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
+            var writer = new StringWriter();
+            var recordWriter = getWriter(writer);
             recordWriter.WriteRecord(values);
             return writer.ToString();
+        }
+
+        private SeparatedValueRecordWriter getWriter(StringWriter writer)
+        {
+            return new SeparatedValueRecordWriter(writer, schema, Options ?? new SeparatedValueOptions());
         }
     }
 }
