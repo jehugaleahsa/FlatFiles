@@ -48,11 +48,11 @@ namespace FlatFiles
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             if (hasSchema && schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
             if (options == null)
             {

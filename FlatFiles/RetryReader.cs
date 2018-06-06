@@ -8,7 +8,6 @@ namespace FlatFiles
     {
         private readonly TextReader reader;
         private readonly CircularQueue<char> queue;
-        private char current;
         private bool isEndOfStreamFound;
 
         public RetryReader(TextReader reader)
@@ -22,10 +21,7 @@ namespace FlatFiles
             return isEndOfStreamFound && queue.Count == 0;
         }
 
-        public char Current
-        {
-            get { return current; }
-        }
+        public char Current { get; private set; }
 
         public bool Read()
         {
@@ -33,7 +29,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            current = queue.Peek();
+            Current = queue.Peek();
             queue.Dequeue(1);
             return true;
         }

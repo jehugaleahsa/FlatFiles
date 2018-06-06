@@ -12,8 +12,6 @@ namespace FlatFiles
     {
         private readonly List<IColumnDefinition> definitions;
         private readonly Dictionary<string, int> ordinals;
-        private int ignoredCount;
-        private int metadataCount;
 
         /// <summary>
         /// Initializes a new ColumnCollection.
@@ -59,36 +57,30 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of columns that are ignored.
         /// </summary>
-        public int IgnoredCount
-        {
-            get { return ignoredCount; }
-        }
+        public int IgnoredCount { get; private set; }
 
         /// <summary>
         /// Gets the number of columns that are metadata.
         /// </summary>
-        public int MetadataCount
-        {
-            get { return metadataCount; }
-        }
+        public int MetadataCount { get; private set; }
 
         /// <summary>
         /// Gets the number of columns that are not ignored.
         /// </summary>
         internal int PhysicalCount
         {
-            get { return definitions.Count - ignoredCount; }
+            get { return definitions.Count - IgnoredCount; }
         }
 
         internal void AddColumn(IColumnDefinition definition)
         {
             if (definition == null)
             {
-                throw new ArgumentNullException("definition");
+                throw new ArgumentNullException(nameof(definition));
             }
             if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName))
             {
-                throw new ArgumentException(SharedResources.DuplicateColumnName, "definition");
+                throw new ArgumentException(SharedResources.DuplicateColumnName, nameof(definition));
             }
             addColumn(definition);
         }
@@ -98,11 +90,11 @@ namespace FlatFiles
             definitions.Add(definition);
             if (definition is IMetadataColumn)
             {
-                ++metadataCount;
+                ++MetadataCount;
             }
             else if (definition.IsIgnored)
             {
-                ++ignoredCount;
+                ++IgnoredCount;
             }
             if (!String.IsNullOrEmpty(definition.ColumnName))
             {

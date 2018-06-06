@@ -13,13 +13,10 @@ namespace FlatFiles
         /// Initiates a new instance of a ConstantNullHandler.
         /// </summary>
         /// <param name="value">The constant value to use.</param>
+        /// <exception cref="System.ArgumentNullException">The value is null.</exception>
         public ConstantNullHandler(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            this.value = value;
+            this.value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

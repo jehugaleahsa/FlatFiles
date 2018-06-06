@@ -9,7 +9,6 @@ namespace FlatFiles
     public sealed class FixedLengthSchema : Schema
     {
         private readonly List<Window> windows;
-        private int totalWidth;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchema.
@@ -29,13 +28,13 @@ namespace FlatFiles
         {
             if (window == null)
             {
-                throw new ArgumentNullException("window");
+                throw new ArgumentNullException(nameof(window));
             }
             AddColumnBase(definition);
             windows.Add(window);
             if (!(definition is IMetadataColumn))
             {
-                totalWidth += window.Width;
+                TotalWidth += window.Width;
             }
             return this;
         }
@@ -51,10 +50,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the total width of all columns.
         /// </summary>
-        internal int TotalWidth
-        {
-            get { return totalWidth; }
-        }
+        internal int TotalWidth { get; private set; }
 
         /// <summary>
         /// Parses the given values assuming that they are in the same order as the column definitions.

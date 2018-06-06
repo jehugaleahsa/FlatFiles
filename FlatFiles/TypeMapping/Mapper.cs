@@ -27,7 +27,6 @@ namespace FlatFiles.TypeMapping
     {
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
-        private readonly IMemberAccessor accessor;
         private Func<object[], TEntity> cachedReader;
         private Action<TEntity, object[]> cachedWriter;
 
@@ -36,17 +35,14 @@ namespace FlatFiles.TypeMapping
         {
         }
 
-        public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator, IMemberAccessor accessor)
+        public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator, IMemberAccessor member)
         {
             this.lookup = lookup;
             this.codeGenerator = codeGenerator;
-            this.accessor = accessor;
+            this.Member = member;
         }
 
-        public IMemberAccessor Member
-        {
-            get { return accessor; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
         public int WorkCount
         {
@@ -167,7 +163,7 @@ namespace FlatFiles.TypeMapping
         {
             var memberMappings = mappings
                 .Where(m => m.Member != null)
-                .Where(m => accessor?.Name == m.Member.ParentAccessor?.Name)
+                .Where(m => Member?.Name == m.Member.ParentAccessor?.Name)
                 .ToArray();
             return memberMappings;
         }
@@ -176,8 +172,8 @@ namespace FlatFiles.TypeMapping
         {
             var mappers = mappings
                 .Where(m => m.Member != null)
-                .Where(m => accessor?.Name != m.Member.ParentAccessor?.Name)
-                .Where(m => m.Member.Name.StartsWith(accessor?.Name ?? String.Empty))
+                .Where(m => Member?.Name != m.Member.ParentAccessor?.Name)
+                .Where(m => m.Member.Name.StartsWith(Member?.Name ?? String.Empty))
                 .Select(m => getParentAccessor(m))
                 .GroupBy(p => p.Name)
                 .Select(g => g.First())
@@ -188,7 +184,7 @@ namespace FlatFiles.TypeMapping
 
         private IMemberAccessor getParentAccessor(IMemberMapping mapping)
         {
-            string accessorName = accessor?.Name ?? String.Empty;
+            string accessorName = Member?.Name ?? String.Empty;
             var childAccessor = mapping.Member;
             var parentAccessor = childAccessor.ParentAccessor;
             while (parentAccessor != null && accessorName != parentAccessor.Name)

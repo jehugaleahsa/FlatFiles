@@ -24,7 +24,7 @@ namespace FlatFiles.TypeMapping
 
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
         {
-            Action<TEntity, object[]> reader = (entity, values) =>
+            void reader(TEntity entity, object[] values)
             {
                 for (int index = 0; index != mappings.Length; ++index)
                 {
@@ -41,7 +41,7 @@ namespace FlatFiles.TypeMapping
 
         public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
-            Action<TEntity, object[]> writer = (entity, values) =>
+            void writer(TEntity entity, object[] values)
             {
                 for (int index = 0; index != mappings.Length; ++index)
                 {

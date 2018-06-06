@@ -49,7 +49,6 @@ namespace FlatFiles.TypeMapping
     internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IMemberMapping
     {
         private readonly ISeparatedValueTypeMapper<TEntity> mapper;
-        private readonly IMemberAccessor member;
         private string columnName;
         private SeparatedValueOptions options;
         private INullHandler nullHandler;
@@ -58,7 +57,7 @@ namespace FlatFiles.TypeMapping
         public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.mapper = mapper;
-            this.member = member;
+            this.Member = member;
             this.columnName = member.Name;
             this.FileIndex = fileIndex;
             this.WorkIndex = workIndex;
@@ -80,10 +79,7 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        public IMemberAccessor Member
-        {
-            get { return member; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
         public int FileIndex { get; private set; }
 

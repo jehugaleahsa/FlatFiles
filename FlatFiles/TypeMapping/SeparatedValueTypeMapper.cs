@@ -1191,7 +1191,7 @@ namespace FlatFiles.TypeMapping
         {
             if (entities == null)
             {
-                throw new ArgumentNullException("entities");
+                throw new ArgumentNullException(nameof(entities));
             }
             SeparatedValueSchema schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);

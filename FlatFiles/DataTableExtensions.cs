@@ -20,11 +20,11 @@ namespace FlatFiles
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             table.Reset();
             FlatFileReader fileReader = new FlatFileReader(reader);
@@ -42,11 +42,11 @@ namespace FlatFiles
         {
             if (table == null)
             {
-                throw new ArgumentNullException("table");
+                throw new ArgumentNullException(nameof(table));
             }
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
             ISchema schema = writer.GetSchema();
             foreach (DataRow row in table.Rows)

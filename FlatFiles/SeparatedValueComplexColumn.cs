@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -57,11 +56,11 @@ namespace FlatFiles
         {
             if (hasSchema && schema == null)
             {
-                throw new ArgumentNullException("schema");
+                throw new ArgumentNullException(nameof(schema));
             }
             if (options == null)
             {
-                throw new ArgumentNullException("options");
+                throw new ArgumentNullException(nameof(options));
             }
             this.schema = schema;
             this.options = options;

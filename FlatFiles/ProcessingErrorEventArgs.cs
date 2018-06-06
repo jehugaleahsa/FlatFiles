@@ -11,8 +11,7 @@ namespace FlatFiles
         {
             this.Exception = exception;
             this.RecordNumber = exception.RecordNumber;
-            ColumnProcessingException columnException = exception.InnerException as ColumnProcessingException;
-            if (columnException != null)
+            if (exception.InnerException != null && exception.InnerException is ColumnProcessingException columnException)
             {
                 this.Schema = columnException.Schema;
                 this.ColumnDefinition = columnException.ColumnDefinition;

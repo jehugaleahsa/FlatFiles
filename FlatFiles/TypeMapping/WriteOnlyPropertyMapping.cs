@@ -15,31 +15,22 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class WriteOnlyPropertyMapping : IWriteOnlyPropertyMapping, IMemberMapping
     {
-        private readonly IColumnDefinition column;
-        private readonly string name;
-
         public WriteOnlyPropertyMapping(IColumnDefinition column, string name, int fileIndex, int workIndex)
         {
-            this.column = column;
-            this.name = name;
+            this.ColumnDefinition = column;
+            this.Name = name;
             this.FileIndex = fileIndex;
             this.WorkIndex = workIndex;
         }
 
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name { get; private set; }
 
         IMemberAccessor IMemberMapping.Member
         {
             get { return null; }
         }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition { get; private set; }
 
         public int FileIndex { get; private set; }
 

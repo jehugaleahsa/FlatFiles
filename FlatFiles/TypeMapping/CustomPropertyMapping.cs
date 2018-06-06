@@ -33,44 +33,35 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class CustomPropertyMapping : ICustomPropertyMapping, IMemberMapping
     {
-        private readonly IColumnDefinition column;
-        private readonly IMemberAccessor member;
-
         public CustomPropertyMapping(IColumnDefinition column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
-            this.member = member;
+            this.ColumnDefinition = column;
+            this.Member = member;
             this.FileIndex = fileIndex;
             this.WorkIndex = workIndex;
         }
 
         public ICustomPropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            ColumnDefinition.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public ICustomPropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            ColumnDefinition.NullHandler = handler;
             return this;
         }
 
         public ICustomPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            ColumnDefinition.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member
-        {
-            get { return member; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition { get; private set; }
 
         public int FileIndex { get; private set; }
 

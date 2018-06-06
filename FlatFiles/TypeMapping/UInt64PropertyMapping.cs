@@ -63,12 +63,11 @@ namespace FlatFiles.TypeMapping
     internal sealed class UInt64PropertyMapping : IUInt64PropertyMapping, IMemberMapping
     {
         private readonly UInt64Column column;
-        private readonly IMemberAccessor member;
 
         public UInt64PropertyMapping(UInt64Column column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.member = member;
+            this.Member = member;
             this.FileIndex = fileIndex;
             this.WorkIndex = workIndex;
         }
@@ -115,10 +114,7 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public IMemberAccessor Member
-        {
-            get { return member; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
         public IColumnDefinition ColumnDefinition
         {

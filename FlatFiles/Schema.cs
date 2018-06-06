@@ -25,23 +25,18 @@ namespace FlatFiles
     /// </summary>
     public abstract class Schema : ISchema
     {
-        private readonly ColumnCollection definitions;
-
         /// <summary>
         /// Initializes a new instance of a Schema.
         /// </summary>
         protected Schema()
         {
-            this.definitions = new ColumnCollection();
+            this.ColumnDefinitions = new ColumnCollection();
         }
 
         /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
-        public ColumnCollection ColumnDefinitions
-        {
-            get { return definitions; }
-        }
+        public ColumnCollection ColumnDefinitions { get; private set; }
 
         /// <summary>
         /// Gets the index of the column with the given name.
@@ -50,7 +45,7 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name -or- -1 if the name is not found.</returns>
         public int GetOrdinal(string columnName)
         {
-            return definitions.GetOrdinal(columnName);
+            return ColumnDefinitions.GetOrdinal(columnName);
         }
 
         /// <summary>
@@ -60,7 +55,7 @@ namespace FlatFiles
         /// <returns>The current schema.</returns>
         protected void AddColumnBase(IColumnDefinition definition)
         {
-            definitions.AddColumn(definition);
+            ColumnDefinitions.AddColumn(definition);
         }
 
         /// <summary>
@@ -71,10 +66,10 @@ namespace FlatFiles
         /// <returns>The parsed objects.</returns>
         protected object[] ParseValuesBase(IProcessMetadata metadata, string[] values)
         {
-            object[] parsedValues = new object[definitions.PhysicalCount];
-            for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0; columnIndex != definitions.Count; ++columnIndex)
+            object[] parsedValues = new object[ColumnDefinitions.PhysicalCount];
+            for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
-                IColumnDefinition definition = definitions[columnIndex];
+                IColumnDefinition definition = ColumnDefinitions[columnIndex];
                 if (definition is IMetadataColumn metaColumn)
                 {
                     object value = metaColumn.GetValue(metadata);
@@ -118,10 +113,10 @@ namespace FlatFiles
         /// <returns>The formatted values.</returns>
         protected string[] FormatValuesBase(IProcessMetadata metadata, object[] values)
         {
-            string[] formattedValues = new string[definitions.Count];
-            for (int columnIndex = 0, valueIndex = 0; columnIndex != definitions.Count; ++columnIndex)
+            string[] formattedValues = new string[ColumnDefinitions.Count];
+            for (int columnIndex = 0, valueIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
-                IColumnDefinition definition = definitions[columnIndex];
+                IColumnDefinition definition = ColumnDefinitions[columnIndex];
                 if (definition is IMetadataColumn metaColumn)
                 {
                     object value = metaColumn.GetValue(metadata);

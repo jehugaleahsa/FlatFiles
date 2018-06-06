@@ -10,7 +10,6 @@ namespace FlatFiles
     public sealed class FlatFileReader : IDataReader
     {
         private readonly IReader parser;
-        private bool isClosed;
 
         /// <summary>
         /// Initializes a new instance of a FlatFileParser.
@@ -19,11 +18,7 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
         public FlatFileReader(IReader reader)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException("parser");
-            }
-            this.parser = reader;
+            this.parser = reader ?? throw new ArgumentNullException(nameof(parser));
         }
 
         /// <summary>
@@ -45,7 +40,7 @@ namespace FlatFiles
 
         private void dispose(bool disposing)
         {
-            isClosed = true;
+            IsClosed = true;
         }
 
         /// <summary>
@@ -143,10 +138,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets whether the underlying data source is closed.
         /// </summary>
-        public bool IsClosed
-        {
-            get { return isClosed; }
-        }
+        public bool IsClosed { get; private set; }
 
         bool IDataReader.NextResult()
         {

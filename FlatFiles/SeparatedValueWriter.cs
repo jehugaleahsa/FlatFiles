@@ -139,7 +139,7 @@ namespace FlatFiles
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
             if (!isSchemaWritten)
             {
@@ -166,7 +166,7 @@ namespace FlatFiles
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
             if (!isSchemaWritten)
             {

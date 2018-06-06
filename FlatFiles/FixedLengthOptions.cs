@@ -90,7 +90,7 @@ namespace FlatFiles
             {
                 if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))
                 {
-                    throw new ArgumentException(SharedResources.InvalidTruncationPolicy, "value");
+                    throw new ArgumentException(SharedResources.InvalidTruncationPolicy, nameof(value));
                 }
                 truncationPolicy = value;
             }

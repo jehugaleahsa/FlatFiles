@@ -9,7 +9,6 @@ namespace FlatFiles
     internal sealed class SeparatedValueRecordParser
     {
         private readonly RetryReader reader;
-        private readonly SeparatedValueOptions options;
         private readonly ISeparatorMatcher separatorMatcher;
         private readonly ISeparatorMatcher recordSeparatorMatcher;
         private readonly ISeparatorMatcher postfixMatcher;
@@ -20,7 +19,7 @@ namespace FlatFiles
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
             this.reader = reader;
-            this.options = options.Clone();
+            this.Options = options.Clone();
             this.separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
             this.recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
             if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
@@ -28,15 +27,12 @@ namespace FlatFiles
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
                 this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
-            this.separatorLength = Math.Max(this.options.RecordSeparator?.Length ?? 2, this.options.Separator.Length);
+            this.separatorLength = Math.Max(this.Options.RecordSeparator?.Length ?? 2, this.Options.Separator.Length);
             this.tokens = new List<string>();
             this.token = new StringBuilder();
         }
 
-        internal SeparatedValueOptions Options
-        {
-            get { return options; }
-        }
+        internal SeparatedValueOptions Options { get; private set; }
 
         public bool IsEndOfStream()
         {
@@ -88,7 +84,7 @@ namespace FlatFiles
 
         private TokenType getNextToken()
         {
-            if (!options.PreserveWhiteSpace)
+            if (!Options.PreserveWhiteSpace)
             {
                 TokenType tokenType = skipWhiteSpace();
                 if (tokenType != TokenType.Normal)
@@ -101,7 +97,7 @@ namespace FlatFiles
             {
                 reader.LoadBuffer();
             }
-            if (reader.IsMatch1(options.Quote))
+            if (reader.IsMatch1(Options.Quote))
             {
                 return getQuotedToken();
             }
@@ -113,7 +109,7 @@ namespace FlatFiles
 
         private async ValueTask<TokenType> getNextTokenAsync()
         {
-            if (!options.PreserveWhiteSpace)
+            if (!Options.PreserveWhiteSpace)
             {
                 TokenType tokenType = await skipWhiteSpaceAsync();
                 if (tokenType != TokenType.Normal)
@@ -126,7 +122,7 @@ namespace FlatFiles
             {
                 await reader.LoadBufferAsync();
             }
-            if (reader.IsMatch1(options.Quote))
+            if (reader.IsMatch1(Options.Quote))
             {
                 return await getQuotedTokenAsync();
             }
@@ -182,7 +178,7 @@ namespace FlatFiles
 
         private void trimTokenEnd()
         {
-            if (options.PreserveWhiteSpace)
+            if (Options.PreserveWhiteSpace)
             {
                 return;
             }
@@ -206,7 +202,7 @@ namespace FlatFiles
             TokenType tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
             {
-                if (reader.Current != options.Quote)
+                if (reader.Current != Options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
@@ -217,14 +213,14 @@ namespace FlatFiles
                     {
                         reader.LoadBuffer();
                     }
-                    if (reader.IsMatch1(options.Quote))
+                    if (reader.IsMatch1(Options.Quote))
                     {
                         // Escaped quote (two quotes in a row)
                         token.Append(reader.Current);
                     }
                     else
                     {
-                        if (options.PreserveWhiteSpace)
+                        if (Options.PreserveWhiteSpace)
                         {
                             // We've encountered a stand-alone quote.
                             // We go looking for a separator, keeping any leading whitespace.
@@ -265,7 +261,7 @@ namespace FlatFiles
             TokenType tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
             {
-                if (reader.Current != options.Quote)
+                if (reader.Current != Options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
                     token.Append(reader.Current);
@@ -276,14 +272,14 @@ namespace FlatFiles
                     {
                         await reader.LoadBufferAsync();
                     }
-                    if (reader.IsMatch1(options.Quote))
+                    if (reader.IsMatch1(Options.Quote))
                     {
                         // Escaped quote (two quotes in a row)
                         token.Append(reader.Current);
                     }
                     else
                     {
-                        if (options.PreserveWhiteSpace)
+                        if (Options.PreserveWhiteSpace)
                         {
                             // We've encountered a stand-alone quote.
                             // We go looking for a separator, keeping any leading whitespace.

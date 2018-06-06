@@ -35,7 +35,7 @@ namespace FlatFiles.TypeMapping
         {
             if (factory == null)
             {
-                throw new ArgumentNullException("factory");
+                throw new ArgumentNullException(nameof(factory));
             }
             return new FixedLengthTypeMapper<TEntity>(factory);
         }
@@ -764,7 +764,7 @@ namespace FlatFiles.TypeMapping
             this.lookup = new MemberLookup();
             if (factory != null)
             {
-                lookup.SetFactory<TEntity>(factory);
+                lookup.SetFactory(factory);
             }
             this.windowLookup = new Dictionary<IMemberMapping, Window>();
             this.isOptimized = true;
@@ -1300,7 +1300,7 @@ namespace FlatFiles.TypeMapping
         {
             if (entities == null)
             {
-                throw new ArgumentNullException("entities");
+                throw new ArgumentNullException(nameof(entities));
             }
             FixedLengthSchema schema = getSchema();
             IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);

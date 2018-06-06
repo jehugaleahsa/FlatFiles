@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using FlatFiles.Resources;
 
 namespace FlatFiles.TypeMapping
@@ -49,7 +48,6 @@ namespace FlatFiles.TypeMapping
     internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IMemberMapping
     {
         private readonly IFixedLengthTypeMapper<TEntity> mapper;
-        private readonly IMemberAccessor member;
         private string columnName;
         private FixedLengthOptions options;
         private INullHandler nullHandler;
@@ -58,7 +56,7 @@ namespace FlatFiles.TypeMapping
         public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.mapper = mapper;
-            this.member = member;
+            this.Member = member;
             this.columnName = member.Name;
             this.FileIndex = fileIndex;
             this.WorkIndex = workIndex;
@@ -79,10 +77,7 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        public IMemberAccessor Member
-        {
-            get { return member; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
         public int FileIndex { get; private set; }
 

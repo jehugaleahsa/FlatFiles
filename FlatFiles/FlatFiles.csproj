@@ -24,6 +24,14 @@
     <DocumentationFile>bin\Debug\netstandard2.0\FlatFiles.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard1.6\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.6|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Update="Resources\SharedResources.Designer.cs">
       <DesignTime>True</DesignTime>

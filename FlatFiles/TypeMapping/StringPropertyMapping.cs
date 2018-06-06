@@ -48,12 +48,11 @@ namespace FlatFiles.TypeMapping
     internal sealed class StringPropertyMapping : IStringPropertyMapping, IMemberMapping
     {
         private readonly StringColumn column;
-        private readonly IMemberAccessor member;
 
         public StringPropertyMapping(StringColumn column, IMemberAccessor member, int fileIndex, int workFile)
         {
             this.column = column;
-            this.member = member;
+            this.Member = member;
             this.FileIndex = fileIndex;
             this.WorkIndex = workFile;
         }
@@ -88,10 +87,7 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public IMemberAccessor Member
-        {
-            get { return member; }
-        }
+        public IMemberAccessor Member { get; private set; }
 
         public IColumnDefinition ColumnDefinition
         {
