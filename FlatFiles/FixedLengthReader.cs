@@ -163,12 +163,12 @@ namespace FlatFiles
             return null;
         }
 
-        private ValueTuple<FixedLengthSchema, string[]> partitionWithFilter()
+        private (FixedLengthSchema, string[]) partitionWithFilter()
         {
             string record = readWithFilter();
             if (record == null)
             {
-                return ValueTuple.Create<FixedLengthSchema, string[]>(null, null);
+                return (null, null);
             }
             var schema = getSchema(record);
             string[] rawValues = partitionRecord(schema, record);
@@ -178,7 +178,7 @@ namespace FlatFiles
                 schema = getSchema(record);
                 rawValues = partitionRecord(schema, record);
             }
-            return ValueTuple.Create(schema, rawValues);
+            return (schema, rawValues);
         }
 
         private string readWithFilter()
@@ -245,12 +245,12 @@ namespace FlatFiles
             return null;
         }
 
-        private async ValueTask<ValueTuple<FixedLengthSchema, string[]>> partitionWithFilterAsync()
+        private async ValueTask<(FixedLengthSchema, string[])> partitionWithFilterAsync()
         {
             string record = await readWithFilterAsync();
             if (record == null)
             {
-                return ValueTuple.Create<FixedLengthSchema, string[]>(null, null);
+                return (null, null);
             }
             var schema = getSchema(record);
             string[] rawValues = partitionRecord(schema, record);
@@ -260,7 +260,7 @@ namespace FlatFiles
                 schema = getSchema(record);
                 rawValues = partitionRecord(schema, record);
             }
-            return ValueTuple.Create(schema, rawValues);
+            return (schema, rawValues);
         }
 
         private FixedLengthSchema getSchema(string record)

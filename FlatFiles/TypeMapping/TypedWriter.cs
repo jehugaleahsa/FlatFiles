@@ -64,7 +64,7 @@ namespace FlatFiles.TypeMapping
 
     internal interface ITypeMapperInjector
     {
-        ValueTuple<int, Action<object, object[]>> SetMatcher(object entity);
+        (int, Action<object, object[]>) SetMatcher(object entity);
     }
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>

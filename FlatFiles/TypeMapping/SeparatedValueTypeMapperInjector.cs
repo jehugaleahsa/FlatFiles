@@ -130,7 +130,7 @@ namespace FlatFiles.TypeMapping
             });
         }
 
-        ValueTuple<int, Action<object, object[]>> ITypeMapperInjector.SetMatcher(object entity)
+        (int, Action<object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
         {
             int workCount = 0;
             Action<object, object[]> serializer = null;
@@ -164,7 +164,7 @@ namespace FlatFiles.TypeMapping
                 workCount = defaultMatcher.WorkCount;
                 serializer = defaultMatcher.Serializer;
             }
-            return ValueTuple.Create(workCount, serializer);
+            return (workCount, serializer);
         }
 
         private static void initializeMatcher(TypeMapperMatcher matcher)
