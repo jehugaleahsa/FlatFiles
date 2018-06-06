@@ -11,11 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\FlatFiles\FlatFiles.csproj" />
+    <Folder Include="BenchmarkDotNet.Artifacts\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="BenchmarkDotNet.Artifacts\" />
+    <ProjectReference Include="..\FlatFiles\FlatFiles.csproj" />
   </ItemGroup>
 
   <ItemGroup>

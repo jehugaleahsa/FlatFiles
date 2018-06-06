@@ -70,7 +70,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new FlatFileException(SharedResources.NoDefaultConstructor);
             }
-            DynamicMethod method = new DynamicMethod("", entityType, Type.EmptyTypes);
+            var method = new DynamicMethod("", entityType, Type.EmptyTypes, true);
             var generator = method.GetILGenerator();
             generator.Emit(OpCodes.Newobj, constructorInfo);
             generator.Emit(OpCodes.Ret);
@@ -80,7 +80,7 @@ namespace FlatFiles.TypeMapping
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
         {
             Type entityType = typeof(TEntity);
-            DynamicMethod method = new DynamicMethod(
+            var method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_read",
                 typeof(void),
                 new Type[] { entityType, typeof(object[]) },
@@ -124,7 +124,7 @@ namespace FlatFiles.TypeMapping
         public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
             Type entityType = typeof(TEntity);
-            DynamicMethod method = new DynamicMethod(
+            var method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_write",
                 null,
                 new Type[] { entityType, typeof(object[]) },

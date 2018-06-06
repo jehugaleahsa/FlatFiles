@@ -1,26 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>FlatFiles.Test</AssemblyName>
-    <AssemblyOriginatorKeyFile>FlatFiles.Test.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>FlatFiles.Test</PackageId>
+    <TargetFramework>net451</TargetFramework>
+    <AssemblyName>FlatFiles.Test.DotNet45</AssemblyName>
+    <PackageId>FlatFiles.Test.DotNet45</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <ApplicationIcon />
     <OutputType>Library</OutputType>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="TestFiles\**" />
-    <EmbeddedResource Remove="TestFiles\**" />
-    <None Remove="TestFiles\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
@@ -28,8 +18,13 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FlatFiles\FlatFiles.csproj" />
+    <ProjectReference Include="..\FlatFiles\FlatFiles.csproj" />
   </ItemGroup>
 
 </Project>
