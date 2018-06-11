@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -249,7 +249,7 @@ namespace FlatFiles
                     reader.LoadBuffer();
                 }
             }
-            throw new SeparatedValueSyntaxException(SharedResources.UnmatchedQuote);
+            throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
         }
 
         private async ValueTask<TokenType> getQuotedTokenAsync()
@@ -308,7 +308,7 @@ namespace FlatFiles
                     await reader.LoadBufferAsync();
                 }
             }
-            throw new SeparatedValueSyntaxException(SharedResources.UnmatchedQuote);
+            throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
         }
 
         private TokenType skipWhiteSpace()

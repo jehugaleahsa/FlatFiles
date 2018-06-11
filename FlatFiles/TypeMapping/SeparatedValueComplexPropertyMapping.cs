@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -89,7 +89,7 @@ namespace FlatFiles.TypeMapping
         {
             if (String.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException(SharedResources.BlankColumnName);
+                throw new ArgumentException(Resources.BlankColumnName);
             }
             this.columnName = name;
             return this;

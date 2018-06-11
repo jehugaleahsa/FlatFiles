@@ -1,3 +1,6 @@
+## 2.1.1 (2018-06-11)
+**Summary** - Remove unneeded references to .NET Standard projects when targeting .NET 4.5.1. Updated resource file to be recognized by project.
+
 ## 2.1.0 (2018-06-05)
 **Summary** - Write files with multiple schemas.
 

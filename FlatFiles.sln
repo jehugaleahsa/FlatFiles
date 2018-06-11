@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{461DF6BA-DC34-4CCE-A2CB-2D8567546471}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles", "FlatFiles\FlatFiles.csproj", "{E54B77A6-0E0D-4C42-A2EF-4C3A86B3F645}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Test", "FlatFiles.Test\FlatFiles.Test.csproj", "{17584620-5396-46CD-94C6-7C97A9BBCAA2}"

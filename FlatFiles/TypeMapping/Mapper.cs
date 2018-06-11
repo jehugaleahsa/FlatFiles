@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -110,7 +110,7 @@ namespace FlatFiles.TypeMapping
                 {
                     if (values[index] == null && nonNullLookup.TryGetValue(index, out var mapping))
                     {
-                        string message = String.Format(null, SharedResources.AssignNullToStruct, mapping.Member.Name);
+                        string message = String.Format(null, Resources.AssignNullToStruct, mapping.Member.Name);
                         throw new FlatFileException(message);
                     }
                 }

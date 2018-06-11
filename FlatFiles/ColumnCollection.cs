@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -80,7 +80,7 @@ namespace FlatFiles
             }
             if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName))
             {
-                throw new ArgumentException(SharedResources.DuplicateColumnName, nameof(definition));
+                throw new ArgumentException(Resources.DuplicateColumnName, nameof(definition));
             }
             addColumn(definition);
         }

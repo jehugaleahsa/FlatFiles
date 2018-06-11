@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -71,7 +71,7 @@ namespace FlatFiles
             }
             if (options.RecordSeparator == options.Separator)
             {
-                throw new ArgumentException(SharedResources.SameSeparator, nameof(options));
+                throw new ArgumentException(Resources.SameSeparator, nameof(options));
             }
             RetryReader retryReader = new RetryReader(reader);
             this.parser = new SeparatedValueRecordParser(retryReader, options);
@@ -105,7 +105,7 @@ namespace FlatFiles
             handleSchema();
             if (metadata.Schema == null)
             {
-                throw new InvalidOperationException(SharedResources.SchemaNotDefined);
+                throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
             return metadata.Schema;
         }
@@ -128,7 +128,7 @@ namespace FlatFiles
             await handleSchemaAsync();
             if (metadata.Schema == null)
             {
-                throw new InvalidOperationException(SharedResources.SchemaNotDefined);
+                throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
             return metadata.Schema;
         }
@@ -147,7 +147,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             handleSchema();
             try
@@ -202,7 +202,7 @@ namespace FlatFiles
                 var schema = getSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
-                    processError(new RecordProcessingException(metadata.RecordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
+                    processError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
@@ -235,7 +235,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await handleSchemaAsync();
             try
@@ -290,7 +290,7 @@ namespace FlatFiles
                 var schema = getSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
-                    processError(new RecordProcessingException(metadata.RecordCount, SharedResources.SeparatedValueRecordWrongNumberOfColumns));
+                    processError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
@@ -355,7 +355,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, SharedResources.InvalidRecordConversion, exception));
+                processError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -369,7 +369,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             handleSchema();
             bool result = skip();
@@ -391,7 +391,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await handleSchemaAsync();
             bool result = await skipAsync();
@@ -434,7 +434,7 @@ namespace FlatFiles
             }
             catch (SeparatedValueSyntaxException exception)
             {
-                throw new RecordProcessingException(metadata.RecordCount, SharedResources.InvalidRecordFormatNumber, exception);
+                throw new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordFormatNumber, exception);
             }
         }
 
@@ -454,7 +454,7 @@ namespace FlatFiles
             }
             catch (SeparatedValueSyntaxException exception)
             {
-                throw new RecordProcessingException(metadata.RecordCount, SharedResources.InvalidRecordFormatNumber, exception);
+                throw new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordFormatNumber, exception);
             }
         }
 
@@ -466,15 +466,15 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             if (metadata.RecordCount == 0)
             {
-                throw new InvalidOperationException(SharedResources.ReadNotCalled);
+                throw new InvalidOperationException(Resources.ReadNotCalled);
             }
             if (endOfFile)
             {
-                throw new InvalidOperationException(SharedResources.NoMoreRecords);
+                throw new InvalidOperationException(Resources.NoMoreRecords);
             }
             object[] copy = new object[values.Length];
             Array.Copy(values, copy, values.Length);

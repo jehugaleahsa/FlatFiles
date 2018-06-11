@@ -1,5 +1,5 @@
 ﻿using System;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -44,7 +44,7 @@ namespace FlatFiles
         private static string getErrorMessage(ISchema schema, IColumnDefinition definition, string value)
         {
             int position = schema.GetOrdinal(definition.ColumnName);
-            string message = String.Format(null, SharedResources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
+            string message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
             return message;
         }
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {

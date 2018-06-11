@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -18,7 +18,7 @@ namespace FlatFiles
             }
             else if (schema == null)
             {
-                throw new FlatFileException(SharedResources.RecordSeparatorRequired);
+                throw new FlatFileException(Resources.RecordSeparatorRequired);
             }
             else
             {

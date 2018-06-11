@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -18,7 +18,7 @@ namespace FlatFiles.TypeMapping
             var member = getMember(typeof(TEntity), memberNames, 0, null);
             if (propertyType != null && member.Type != propertyType && member.Type != Nullable.GetUnderlyingType(propertyType))
             {
-                throw new ArgumentException(SharedResources.WrongPropertyType);
+                throw new ArgumentException(Resources.WrongPropertyType);
             }
             return member;
         }
@@ -42,7 +42,7 @@ namespace FlatFiles.TypeMapping
                 var accessor = new FieldAccessor(fieldInfo, parent);
                 return getMember(fieldInfo.FieldType, memberNames, nameIndex + 1, accessor);
             }
-            throw new ArgumentException(SharedResources.BadPropertySelector, nameof(memberName));
+            throw new ArgumentException(Resources.BadPropertySelector, nameof(memberName));
         }
 
         private static PropertyInfo getProperty(Type type, string propertyName)
@@ -71,7 +71,7 @@ namespace FlatFiles.TypeMapping
             MemberExpression member = expression as MemberExpression;
             if (member == null)
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(expression));
+                throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
             }
             if (member.Member is PropertyInfo propertyInfo)
             {
@@ -99,7 +99,7 @@ namespace FlatFiles.TypeMapping
             }
             else
             {
-                throw new ArgumentException(SharedResources.BadPropertySelector, nameof(expression));
+                throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
             }
         }
     }

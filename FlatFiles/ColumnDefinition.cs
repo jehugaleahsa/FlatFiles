@@ -1,5 +1,5 @@
 ﻿using System;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -94,7 +94,7 @@ namespace FlatFiles
                 }
                 if (!IsIgnored && String.IsNullOrEmpty(value))
                 {
-                    throw new ArgumentException(SharedResources.BlankColumnName);
+                    throw new ArgumentException(Resources.BlankColumnName);
                 }
                 columnName = value;
             }

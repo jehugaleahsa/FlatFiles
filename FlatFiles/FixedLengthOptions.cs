@@ -1,5 +1,5 @@
 ﻿using System;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -70,7 +70,7 @@ namespace FlatFiles
             {
                 if (!Enum.IsDefined(typeof(FixedAlignment), value))
                 {
-                    throw new ArgumentException(SharedResources.InvalidAlignment, nameof(value));
+                    throw new ArgumentException(Resources.InvalidAlignment, nameof(value));
                 }
                 alignment = value;
             }
@@ -90,7 +90,7 @@ namespace FlatFiles
             {
                 if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))
                 {
-                    throw new ArgumentException(SharedResources.InvalidTruncationPolicy, nameof(value));
+                    throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
                 truncationPolicy = value;
             }

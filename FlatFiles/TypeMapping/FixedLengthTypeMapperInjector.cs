@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -155,7 +155,7 @@ namespace FlatFiles.TypeMapping
             {
                 if (defaultMatcher == nonMatcher)
                 {
-                    throw new FlatFileException(SharedResources.MissingMatcher);
+                    throw new FlatFileException(Resources.MissingMatcher);
                 }
                 if (defaultMatcher.Serializer == null)
                 {

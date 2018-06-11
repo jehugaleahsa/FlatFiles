@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -85,7 +85,7 @@ namespace FlatFiles
             {
                 return defaultMatcher.Schema;
             }
-            throw new FlatFileException(SharedResources.MissingMatcher);
+            throw new FlatFileException(Resources.MissingMatcher);
         }
 
         private class SchemaMatcher

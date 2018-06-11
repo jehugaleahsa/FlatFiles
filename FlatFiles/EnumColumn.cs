@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -23,7 +23,7 @@ namespace FlatFiles
         {
             if (!typeof(TEnum).GetTypeInfo().IsEnum)
             {
-                throw new InvalidOperationException(SharedResources.NotEnumType);
+                throw new InvalidOperationException(Resources.NotEnumType);
             }
             this.parser = defaultParser;
             this.formatter = defaultFormatter;

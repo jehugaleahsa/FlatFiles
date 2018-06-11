@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -117,7 +117,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             handleHeader();
             try
@@ -199,7 +199,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await handleHeaderAsync();
             try
@@ -315,7 +315,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, SharedResources.InvalidRecordConversion, exception));
+                processError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -329,7 +329,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             handleHeader();
             return skip();
@@ -350,7 +350,7 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await handleHeaderAsync();
             return await skipAsync();
@@ -366,7 +366,7 @@ namespace FlatFiles
         {
             if (record.Length < schema.TotalWidth)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, SharedResources.FixedLengthRecordTooShort));
+                processError(new RecordProcessingException(metadata.RecordCount, Resources.FixedLengthRecordTooShort));
                 return null;
             }
             WindowCollection windows = schema.Windows;
@@ -442,15 +442,15 @@ namespace FlatFiles
         {
             if (hasError)
             {
-                throw new InvalidOperationException(SharedResources.ReadingWithErrors);
+                throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             if (metadata.RecordCount == 0)
             {
-                throw new InvalidOperationException(SharedResources.ReadNotCalled);
+                throw new InvalidOperationException(Resources.ReadNotCalled);
             }
             if (endOfFile)
             {
-                throw new InvalidOperationException(SharedResources.NoMoreRecords);
+                throw new InvalidOperationException(Resources.NoMoreRecords);
             }
             object[] copy = new object[values.Length];
             Array.Copy(values, copy, values.Length);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -39,7 +39,7 @@ namespace FlatFiles
             var schema = getSchema(values);
             if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
+                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = formatValues(schema, values);
             escapeValues(formattedValues);
@@ -52,7 +52,7 @@ namespace FlatFiles
             var schema = getSchema(values);
             if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(SharedResources.WrongNumberOfValues, nameof(values));
+                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = formatValues(schema, values);
             escapeValues(formattedValues);

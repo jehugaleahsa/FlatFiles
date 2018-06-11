@@ -1,5 +1,5 @@
 ﻿using System;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -33,7 +33,7 @@ namespace FlatFiles
             {
                 if (String.IsNullOrEmpty(value))
                 {
-                    throw new ArgumentException(SharedResources.EmptySeparator);
+                    throw new ArgumentException(Resources.EmptySeparator);
                 }
                 this.separator = value;
             }

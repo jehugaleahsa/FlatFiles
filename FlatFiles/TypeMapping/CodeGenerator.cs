@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using FlatFiles.Resources;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -68,7 +68,7 @@ namespace FlatFiles.TypeMapping
                 .SingleOrDefault();
             if (constructorInfo == null)
             {
-                throw new FlatFileException(SharedResources.NoDefaultConstructor);
+                throw new FlatFileException(Resources.NoDefaultConstructor);
             }
             var method = new DynamicMethod("", entityType, Type.EmptyTypes, true);
             var generator = method.GetILGenerator();
@@ -108,7 +108,7 @@ namespace FlatFiles.TypeMapping
                     MethodInfo setter = propertyInfo.GetSetMethod(true);
                     if (setter == null)
                     {
-                        string message = String.Format(null, SharedResources.ReadOnlyProperty, propertyInfo.Name);
+                        string message = String.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
                         throw new FlatFileException(message);
                     }
                     generator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -157,7 +157,7 @@ namespace FlatFiles.TypeMapping
                     MethodInfo getter = propertyInfo.GetGetMethod(true);
                     if (getter == null)
                     {
-                        string message = String.Format(null, SharedResources.WriteOnlyProperty, propertyInfo.Name);
+                        string message = String.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
                         throw new FlatFileException(message);
                     }
                     generator.Emit(OpCodes.Callvirt, getter);
