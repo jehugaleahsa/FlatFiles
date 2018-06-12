@@ -3,28 +3,29 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class ConstantNullHandlerTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldTreatConstantAsNull()
         {
             string content = "----,5.12,----,apple" + Environment.NewLine;            
 
             object[] values = parseValues(content);
 
-            Assert.Equal(4, values.Length);
-            Assert.Null(values[0]);
-            Assert.Equal(5.12m, values[1]);
-            Assert.Null(values[2]);
-            Assert.Equal("apple", values[3]);
+            Assert.AreEqual(4, values.Length);
+            Assert.IsNull(values[0]);
+            Assert.AreEqual(5.12m, values[1]);
+            Assert.IsNull(values[2]);
+            Assert.AreEqual("apple", values[3]);
 
             string output = writeValues(values);
 
-            Assert.Equal(content, output);
+            Assert.AreEqual(content, output);
         }
 
         private static object[] parseValues(string content)
@@ -32,9 +33,9 @@ namespace FlatFiles.Test
             StringReader stringReader = new StringReader(content);
             var schema = getSchema();
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema);
-            Assert.True(reader.Read(), "The record could not be read.");
+            Assert.IsTrue(reader.Read(), "The record could not be read.");
             object[] values = reader.GetValues();
-            Assert.False(reader.Read(), "Too many records were read.");
+            Assert.IsFalse(reader.Read(), "Too many records were read.");
             return values;
         }
 
@@ -61,7 +62,7 @@ namespace FlatFiles.Test
             return schema;
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldTreatConstantAsNull_TypeMapper()
         {
             var nullHandler = ConstantNullHandler.For("----");
@@ -74,19 +75,19 @@ namespace FlatFiles.Test
             string content = "----,5.12,----,apple" + Environment.NewLine;
             StringReader stringReader = new StringReader(content);
             var products = mapper.Read(stringReader).ToArray();
-            Assert.Single(products);
+            Assert.AreEqual(1, products.Length);
 
             Product product = products.Single();
-            Assert.Null(product.Name);
-            Assert.Equal(5.12m, product.Cost);
-            Assert.Null(product.Available);
-            Assert.Equal("apple", product.Vendor);
+            Assert.IsNull(product.Name);
+            Assert.AreEqual(5.12m, product.Cost);
+            Assert.IsNull(product.Available);
+            Assert.AreEqual("apple", product.Vendor);
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, products);
             string output = stringWriter.ToString();
 
-            Assert.Equal(content, output);
+            Assert.AreEqual(content, output);
         }
 
         public class Product

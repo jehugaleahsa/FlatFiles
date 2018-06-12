@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class UnusualTypesTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldRoundTripMaxValues()
         {
             var mapper = getWeirdMapper();
@@ -23,7 +24,7 @@ namespace FlatFiles.Test
             assertEqual(thing, deserialized);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldRoundTripMinValues()
         {
             var mapper = getWeirdMapper();
@@ -57,7 +58,7 @@ namespace FlatFiles.Test
                 using (StringReader reader = new StringReader(output))
                 {
                     var things = mapper.Read(reader).ToArray();
-                    Assert.Single(things);
+                    Assert.AreEqual(1, things.Length);
                     var deserialized = things.Single();
                     return deserialized;
                 }
@@ -66,10 +67,10 @@ namespace FlatFiles.Test
 
         private static void assertEqual(WeirdThing thing1, WeirdThing thing2)
         {
-            Assert.Equal(thing1.Small, thing2.Small);
-            Assert.Equal(thing1.Big, thing2.Big);
-            Assert.Equal(thing1.Bigger, thing2.Bigger);
-            Assert.Equal(thing1.Huge, thing2.Huge);
+            Assert.AreEqual(thing1.Small, thing2.Small);
+            Assert.AreEqual(thing1.Big, thing2.Big);
+            Assert.AreEqual(thing1.Bigger, thing2.Bigger);
+            Assert.AreEqual(thing1.Huge, thing2.Huge);
         }
 
         public class WeirdThing

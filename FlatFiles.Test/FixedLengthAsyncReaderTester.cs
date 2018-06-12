@@ -5,13 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
     /// <summary>
     /// Tests the FixedLengthParserTester class.
     /// </summary>
+    [TestClass]
     public class FixedLengthAsyncReaderTester
     {
         public FixedLengthAsyncReaderTester()
@@ -22,7 +23,7 @@ namespace FlatFiles.Test
         /// <summary>
         /// We should be able to write and read values using a type mappers.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public async Task TestTypeMapper_Roundtrip()
         {
             var mapper = FixedLengthTypeMapper.Define<Person>();
@@ -43,15 +44,15 @@ namespace FlatFiles.Test
             {
                 people.Add(reader.Current);
             }
-            Assert.Single(people);
+            Assert.AreEqual(1, people.Count);
             var person = people.SingleOrDefault();
-            Assert.Equal(bob.Id, person.Id);
-            Assert.Equal(bob.Name, person.Name);
-            Assert.Equal(bob.Created, person.Created);
-            Assert.True(person.IsActive);
+            Assert.AreEqual(bob.Id, person.Id);
+            Assert.AreEqual(bob.Name, person.Name);
+            Assert.AreEqual(bob.Created, person.Created);
+            Assert.AreEqual(true, person.IsActive);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestTypeMapper_Roundtrip_NoSeparator()
         {
             var mapper = FixedLengthTypeMapper.Define<Person>();
@@ -73,12 +74,12 @@ namespace FlatFiles.Test
             {
                 people.Add(reader.Current);
             }
-            Assert.Equal(2, people.Count());
+            Assert.AreEqual(2, people.Count());
             var person1 = people.First();
-            Assert.Equal(bob.Id, person1.Id);
-            Assert.Equal(bob.Name, person1.Name);
-            Assert.Equal(bob.Created, person1.Created);
-            Assert.True(person1.IsActive);
+            Assert.AreEqual(bob.Id, person1.Id);
+            Assert.AreEqual(bob.Name, person1.Name);
+            Assert.AreEqual(bob.Created, person1.Created);
+            Assert.AreEqual(true, person1.IsActive);
         }
 
         private class Person

@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class FixedLengthWriterMetadataTester
     {
-        [Fact]
+        [TestMethod]
         public void TestWriter_WithSchema_SchemaNotCounted()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -34,19 +35,19 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(output);
             var results = inputMapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWriter_WithSchema_SchemaCounted()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -75,19 +76,19 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(output);
             var results = inputMapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWriter_NoSchema_SchemaNotCounted()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -116,19 +117,19 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(output);
             var results = inputMapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
         
-        [Fact]
+        [TestMethod]
         public void TestWriter_WithSchema_WithIgnoredColumns()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -161,19 +162,19 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(output);
             var results = inputMapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWriter_NoRecordSeparator_ValidRecordCounts()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -214,19 +215,19 @@ namespace FlatFiles.Test
                 IsFirstRecordHeader = true,
                 HasRecordSeparator = false
             }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestWriter_WriteOnlyColumn_WithIgnoredColumn()
         {
             var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -259,16 +260,16 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(output);
             var results = inputMapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 26), results[1].CreatedOn);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
-            Assert.Equal(new DateTime(2018, 04, 27), results[2].CreatedOn);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 26), results[1].CreatedOn);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[2].CreatedOn);
         }
 
         public class Person

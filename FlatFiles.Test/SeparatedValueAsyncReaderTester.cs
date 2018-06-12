@@ -5,10 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class SeparatedValueAsyncReaderTester
     {
         public SeparatedValueAsyncReaderTester()
@@ -16,7 +17,7 @@ namespace FlatFiles.Test
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestTypeMapper_Roundtrip()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>();
@@ -37,12 +38,12 @@ namespace FlatFiles.Test
             {
                 people.Add(reader.Current);
             }
-            Assert.Single(people);
+            Assert.AreEqual(1, people.Count);
             var person = people.SingleOrDefault();
-            Assert.Equal(bob.Id, person.Id);
-            Assert.Equal(bob.Name, person.Name);
-            Assert.Equal(bob.Created, person.Created);
-            Assert.True(person.IsActive);
+            Assert.AreEqual(bob.Id, person.Id);
+            Assert.AreEqual(bob.Name, person.Name);
+            Assert.AreEqual(bob.Created, person.Created);
+            Assert.AreEqual(true, person.IsActive);
         }
 
         private class Person

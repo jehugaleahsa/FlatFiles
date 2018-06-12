@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class ComplexColumnTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldRoundTrip()
         {
             const string message = @"Tom,Hanselman,2016-06-0426         Walking Ice,Ace
@@ -26,26 +27,26 @@ namespace FlatFiles.Test
             outerSchema.AddColumn(new StringColumn("Nickname"));
 
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, outerSchema);
-            Assert.True(reader.Read(), "A record should have been read.");
+            Assert.IsTrue(reader.Read(), "A record should have been read.");
             object[] values = reader.GetValues();
-            Assert.Equal("Tom", values[0]);
-            Assert.Equal("Hanselman", values[1]);
-            Assert.IsType<object[]>(values[2]);
+            Assert.AreEqual("Tom", values[0]);
+            Assert.AreEqual("Hanselman", values[1]);
+            Assert.IsInstanceOfType(values[2], typeof(object[]));
             object[] playerValues = (object[])values[2];
-            Assert.Equal(new DateTime(2016, 06, 04), playerValues[0]);
-            Assert.Equal(26, playerValues[1]);
-            Assert.Equal("Walking Ice", playerValues[2]);
-            Assert.Equal("Ace", values[3]);
+            Assert.AreEqual(new DateTime(2016, 06, 04), playerValues[0]);
+            Assert.AreEqual(26, playerValues[1]);
+            Assert.AreEqual("Walking Ice", playerValues[2]);
+            Assert.AreEqual("Ace", values[3]);
 
             StringWriter stringWriter = new StringWriter();
             SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, outerSchema);
             writer.Write(values);
 
             string output = stringWriter.GetStringBuilder().ToString();
-            Assert.Equal(message, output);
+            Assert.AreEqual(message, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldRoundTrip_TypeMappers()
         {
             const string message = @"Tom,Hanselman,2016-06-0426         Walking Ice,Ace
@@ -64,23 +65,23 @@ namespace FlatFiles.Test
             mapper.Property(p => p.NickName);
 
             var players = mapper.Read(stringReader).ToArray();
-            Assert.Single(players);
+            Assert.AreEqual(1, players.Length);
             var player = players.Single();
                 
-            Assert.Equal("Tom", player.FirstName);
-            Assert.Equal("Hanselman", player.LastName);
+            Assert.AreEqual("Tom", player.FirstName);
+            Assert.AreEqual("Hanselman", player.LastName);
             Stats statistics = player.Statistics;
-            Assert.NotNull(statistics);
-            Assert.Equal(new DateTime(2016, 06, 04), statistics.StartDate);
-            Assert.Equal(26, statistics.Age);
-            Assert.Equal("Walking Ice", statistics.StageName);
-            Assert.Equal("Ace", player.NickName);
+            Assert.IsNotNull(statistics);
+            Assert.AreEqual(new DateTime(2016, 06, 04), statistics.StartDate);
+            Assert.AreEqual(26, statistics.Age);
+            Assert.AreEqual("Walking Ice", statistics.StageName);
+            Assert.AreEqual("Ace", player.NickName);
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Player[] { player });
             
             string output = stringWriter.ToString();
-            Assert.Equal(message, output);
+            Assert.AreEqual(message, output);
         }
 
         public class Player

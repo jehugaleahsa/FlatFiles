@@ -1,19 +1,20 @@
 ﻿using System;
 using System.IO;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class FixedLengthWriterTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldUseLeadingTruncationByDefault()
         {
             FixedLengthOptions options = new FixedLengthOptions();
-            Assert.Equal(OverflowTruncationPolicy.TruncateLeading, options.TruncationPolicy);
+            Assert.AreEqual(OverflowTruncationPolicy.TruncateLeading, options.TruncationPolicy);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldTruncateOverflow()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
@@ -30,10 +31,10 @@ namespace FlatFiles.Test
             string output = stringWriter.ToString();
             
             string expected = "appleapplePinea" + Environment.NewLine;
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldWriteHeader()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
@@ -52,10 +53,10 @@ namespace FlatFiles.Test
                 + Environment.NewLine 
                 + "Apple@@@@@Grape!!!!!Pear$$$$$$"
                 + Environment.NewLine;
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldWriteHeader_IgnoredColumns()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
@@ -76,10 +77,10 @@ namespace FlatFiles.Test
                 + Environment.NewLine
                 + "Apple@@@@@|Grape!!!!!|Pear$$$$$$"
                 + Environment.NewLine;
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldWriteHeader_NoRecordSeparator()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
@@ -95,10 +96,10 @@ namespace FlatFiles.Test
             string output = stringWriter.ToString();
 
             string expected = "First@@@@@Second!!!!Third$$$$$Apple@@@@@Grape!!!!!Pear$$$$$$";
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleNullValues()
         {
             MemoryStream stream = new MemoryStream();
@@ -112,10 +113,10 @@ namespace FlatFiles.Test
 
             string output = stringWriter.ToString();
             string expected = "     " + Environment.NewLine;
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldWriteSchemaIfExplicit()
         {
             StringWriter stringWriter = new StringWriter();
@@ -132,8 +133,8 @@ namespace FlatFiles.Test
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var reader = new FixedLengthReader(stringReader, schema, new FixedLengthOptions() { IsFirstRecordHeader = true });
 
-            Assert.True(reader.Read(), "The record was not retrieved after the schema.");
-            Assert.False(reader.Read(), "Encountered more than the expected number of records.");
+            Assert.IsTrue(reader.Read(), "The record was not retrieved after the schema.");
+            Assert.IsFalse(reader.Read(), "Encountered more than the expected number of records.");
         }
     }
 }

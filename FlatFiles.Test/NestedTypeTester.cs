@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class NestedTypeTester
     {
-        [Fact]
+        [TestMethod]
         public void TestMappingNestedMember()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>();
@@ -25,7 +26,7 @@ namespace FlatFiles.Test
             var record = String.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
 
             var expected = new Person()
@@ -46,7 +47,7 @@ namespace FlatFiles.Test
             assertEqual(expected.Address1, result.Address1);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMappingNestedMemberDynamically()
         {
             var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(Person));
@@ -63,9 +64,9 @@ namespace FlatFiles.Test
             var record = String.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
-            Assert.IsType<Person>(result);
+            Assert.IsInstanceOfType(result, typeof(Person));
 
             var expected = new Person()
             {
@@ -85,7 +86,7 @@ namespace FlatFiles.Test
             assertEqual(expected.Address1, ((Person)result).Address1);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoundTrip_FixedLength()
         {
             var mapper = FixedLengthTypeMapper.Define(() => new Person());
@@ -119,14 +120,14 @@ namespace FlatFiles.Test
             
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
 
             assertEqual(expected, result);
             assertEqual(expected.Address1, result.Address1);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRoundTrip_FixedLength_Dynamic()
         {
             var mapper = FixedLengthTypeMapper.DefineDynamic(typeof(Person), () => new Person());
@@ -160,15 +161,15 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
-            Assert.IsType<Person>(result);
+            Assert.IsInstanceOfType(result, typeof(Person));
 
             assertEqual(expected, (Person)result);
             assertEqual(expected.Address1, ((Person)result).Address1);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMappingNestedMembers_MultipleSameType()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>();
@@ -212,7 +213,7 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
 
             assertEqual(expected, result);
@@ -222,20 +223,20 @@ namespace FlatFiles.Test
 
         private static void assertEqual(Person expected, Person actual)
         {
-            Assert.NotNull(actual);
-            Assert.NotNull(actual.Address1);
-            Assert.Equal(expected.Id, actual.Id);
-            Assert.Equal(expected.Name, actual.Name);
-            Assert.Equal(expected.IsActive, actual.IsActive);
-            Assert.Equal(expected.CreatedOn, actual.CreatedOn);
+            Assert.IsNotNull(actual);
+            Assert.IsNotNull(actual.Address1);
+            Assert.AreEqual(expected.Id, actual.Id);
+            Assert.AreEqual(expected.Name, actual.Name);
+            Assert.AreEqual(expected.IsActive, actual.IsActive);
+            Assert.AreEqual(expected.CreatedOn, actual.CreatedOn);
         }
 
         private static void assertEqual(Address expected, Address actual)
         {
-            Assert.Equal(expected.Street, actual.Street);
-            Assert.Equal(expected.City, actual.City);
-            Assert.Equal(expected.State, actual.State);
-            Assert.Equal(expected.Zip, actual.Zip);
+            Assert.AreEqual(expected.Street, actual.Street);
+            Assert.AreEqual(expected.City, actual.City);
+            Assert.AreEqual(expected.State, actual.State);
+            Assert.AreEqual(expected.Zip, actual.Zip);
         }
 
         public class Address
@@ -264,7 +265,7 @@ namespace FlatFiles.Test
             public DateTime CreatedOn { get; set; }
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMappingNestedMembers_DeepNesting()
         {
             var mapper = SeparatedValueTypeMapper.Define<Level1>();
@@ -306,18 +307,18 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
 
-            Assert.NotNull(result);
-            Assert.Equal(expected.Id, result.Id);
-            Assert.Equal(expected.Level2.Name, result.Level2.Name);
-            Assert.Equal(expected.Level2.Level3.Level4.IsActive, result.Level2.Level3.Level4.IsActive);
-            Assert.Equal(expected.Level2.Level3.CreatedOn, result.Level2.Level3.CreatedOn);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected.Id, result.Id);
+            Assert.AreEqual(expected.Level2.Name, result.Level2.Name);
+            Assert.AreEqual(expected.Level2.Level3.Level4.IsActive, result.Level2.Level3.Level4.IsActive);
+            Assert.AreEqual(expected.Level2.Level3.CreatedOn, result.Level2.Level3.CreatedOn);
             assertEqual(expected.Level2.Level3.Level4.Address, result.Level2.Level3.Level4.Address);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestMappingNestedMembers_DeepNesting_RecurringMemberNames()
         {
             var mapper = SeparatedValueTypeMapper.Define<Level1>();
@@ -370,14 +371,14 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(writer.ToString());
             var results = mapper.Read(reader).ToArray();
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results[0];
 
-            Assert.NotNull(result);
-            Assert.Equal(expected.Id, result.Id);
-            Assert.Equal(expected.Level2.Name, result.Level2.Name);
-            Assert.Equal(expected.Level2.Level3.Level4.IsActive, result.Level2.Level3.Level4.IsActive);
-            Assert.Equal(expected.Level2.Level3.CreatedOn, result.Level2.Level3.CreatedOn);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected.Id, result.Id);
+            Assert.AreEqual(expected.Level2.Name, result.Level2.Name);
+            Assert.AreEqual(expected.Level2.Level3.Level4.IsActive, result.Level2.Level3.Level4.IsActive);
+            Assert.AreEqual(expected.Level2.Level3.CreatedOn, result.Level2.Level3.CreatedOn);
             assertEqual(expected.Address, result.Address);
             assertEqual(expected.Level2.Level3.Level4.Address, result.Level2.Level3.Level4.Address);
         }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class FixedLengthRuntimeTypeTester
     {
-        [Fact]
+        [TestMethod]
         public void TestAnonymousTypeDefinition()
         {
             var mapper = FixedLengthTypeMapper.Define(() => new
@@ -24,10 +25,10 @@ namespace FlatFiles.Test
             });
             string result = writer.ToString();
             string expected = $"John      {Environment.NewLine}Sam       {Environment.NewLine}";
-            Assert.Equal(expected, result);
+            Assert.AreEqual(expected, result);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRuntimeTypeDefinition()
         {
             var mapper = FixedLengthTypeMapper.DefineDynamic(typeof(Person));
@@ -48,14 +49,14 @@ namespace FlatFiles.Test
 
             StringReader reader = new StringReader(result);
             var parsed = mapper.Read(reader).ToArray();
-            Assert.Equal(2, parsed.Length);
-            Assert.IsType<Person>(parsed[0]);
-            Assert.IsType<Person>(parsed[1]);
+            Assert.AreEqual(2, parsed.Length);
+            Assert.IsInstanceOfType(parsed[0], typeof(Person));
+            Assert.IsInstanceOfType(parsed[1], typeof(Person));
             assertEqual(people[0], (Person)parsed[0]);
             assertEqual(people[1], (Person)parsed[1]);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestRuntimeTypeDefinition_ReaderWriter()
         {
             var mapper = FixedLengthTypeMapper.DefineDynamic(typeof(Person));
@@ -85,19 +86,19 @@ namespace FlatFiles.Test
             {
                 parsed.Add(entityReader.Current);
             }
-            Assert.Equal(2, parsed.Count);
-            Assert.IsType<Person>(parsed[0]);
-            Assert.IsType<Person>(parsed[1]);
+            Assert.AreEqual(2, parsed.Count);
+            Assert.IsInstanceOfType(parsed[0], typeof(Person));
+            Assert.IsInstanceOfType(parsed[1], typeof(Person));
             assertEqual(people[0], (Person)parsed[0]);
             assertEqual(people[1], (Person)parsed[1]);
         }
 
         private void assertEqual(Person person1, Person person2)
         {
-            Assert.Equal(person1.Name, person2.Name);
-            Assert.Equal(person1.IQ, person2.IQ);
-            Assert.Equal(person1.BirthDate, person2.BirthDate);
-            Assert.Equal(person1.TopSpeed, person2.TopSpeed);
+            Assert.AreEqual(person1.Name, person2.Name);
+            Assert.AreEqual(person1.IQ, person2.IQ);
+            Assert.AreEqual(person1.BirthDate, person2.BirthDate);
+            Assert.AreEqual(person1.TopSpeed, person2.TopSpeed);
         }
 
         public class Person

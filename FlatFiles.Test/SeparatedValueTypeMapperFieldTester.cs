@@ -2,16 +2,17 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class SeparatedValueTypeMapperFieldTester
     {
         /// <summary>
         /// We should be able to write and read values using a type mappers.
         /// </summary>
-        [Fact]
+        [TestMethod]
         public void TestTypeMapper_Roundtrip()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>();
@@ -27,11 +28,11 @@ namespace FlatFiles.Test
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var people = mapper.Read(stringReader).ToArray();
-            Assert.Single(people);
+            Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
-            Assert.Equal(bob.Id, person.Id);
-            Assert.Equal(bob.Name, person.Name);
-            Assert.Equal(bob.Created, person.Created);
+            Assert.AreEqual(bob.Id, person.Id);
+            Assert.AreEqual(bob.Name, person.Name);
+            Assert.AreEqual(bob.Created, person.Created);
         }
 
         private class Person

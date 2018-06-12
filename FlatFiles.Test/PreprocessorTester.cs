@@ -1,15 +1,15 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class PreprocessorTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldStripNonNumericCharacters()
         {
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -23,10 +23,10 @@ namespace FlatFiles.Test
             StringReader reader = new StringReader(input);
             var results = mapper.Read(reader).ToArray();
 
-            Assert.Single(results);
+            Assert.AreEqual(1, results.Length);
             var result = results.Single();
-            Assert.Equal(12345.67m, result.Value);
-            Assert.Equal(123m, result.Money);
+            Assert.AreEqual(12345.67m, result.Value);
+            Assert.AreEqual(123m, result.Money);
         }
 
         public class Numbers

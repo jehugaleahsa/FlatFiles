@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class FixedLengthReaderMetadataTester
     {
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_LogicalRecordsOnly()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -28,16 +29,16 @@ namespace FlatFiles.Test
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"), 10);
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithFilter_LogicalRecordsOnly()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -63,14 +64,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithFilter_LineCount()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -100,14 +101,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(4, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(4, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_LineCount()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -131,16 +132,16 @@ namespace FlatFiles.Test
             }, 10);
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_SchemaNotCounted_WithFilter_LineCount()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -170,14 +171,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_SchemaNotCounted_NoFilter_LineCountMinusOne()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -201,16 +202,16 @@ namespace FlatFiles.Test
             }, 10);
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_WithIgnoredColumn_LogicalRecordsOnly()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -231,16 +232,16 @@ namespace FlatFiles.Test
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"), 10);
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithIgnoredColumn_WithFilter_LogicalRecordsOnly()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -267,15 +268,15 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length >= 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithIgnoredColumn_NoRecordSeparator_WithFilter_LogicalRecordsOnly()
         {
             var mapper = new FixedLengthTypeMapper<Person>(() => new Person());
@@ -310,15 +311,15 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length >= 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WrappedWithIgnoredColumns()
         {
             var mapper = new FixedLengthTypeMapper<ComplicatedPerson>(() => new ComplicatedPerson());
@@ -348,15 +349,15 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length >= 2 && e.Values[2] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal(1, results[0].PersonId);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(new DateTime(2018, 04, 25), results[0].CreatedOn);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal(3, results[1].PersonId);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(new DateTime(2018, 04, 27), results[1].CreatedOn);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual(1, results[0].PersonId);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(new DateTime(2018, 04, 25), results[0].CreatedOn);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual(3, results[1].PersonId);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(new DateTime(2018, 04, 27), results[1].CreatedOn);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
         public class Person

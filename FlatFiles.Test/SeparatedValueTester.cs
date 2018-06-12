@@ -1,22 +1,23 @@
 ﻿using System;
 using System.IO;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class SeparatedValueTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldNotFindRecordsInEmptyFile()
         {
             string source = String.Empty;
             StringReader stringReader = new StringReader(source);
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
-            Assert.False(reader.Read(), "No records should be read from an empty file.");
+            Assert.IsFalse(reader.Read(), "No records should be read from an empty file.");
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindOneRecordOneColumn_CharactersFollowedByEndOfStream()
         {
             string source = "Hello";
@@ -30,7 +31,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindOneRecordTwoColumn_CharactersFollowedByEndOfStream()
         {
             string source = "Hello,World";
@@ -44,7 +45,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindTwoRecordsOneColumn()
         {
             string source = "Hello\r\nWorld\r\n";
@@ -59,7 +60,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindTwoRecordsOneColumn_MissingClosingRecordSeparator()
         {
             string source = "Hello\r\nWorld";
@@ -74,7 +75,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindOneRecordTwoColumn_EOROverlapsEOT()
         {
             string source = "a\rb\r\n";
@@ -88,7 +89,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindTwoRecordsOneColumn_EOROverlapsEOT()
         {
             string source = "a\r\nb";
@@ -103,7 +104,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindOneRecordTwoColumn_EOTOverlapsEOR()
         {
             string source = "a\r\nb\r";
@@ -117,7 +118,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindTwoRecordsOneColumn_EOTOverlapsEOR()
         {
             string source = "a\rb";
@@ -132,7 +133,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldSeparateBlanks()
         {
             string source = ",";
@@ -146,7 +147,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldSeparateBlanksAcrossRecords()
         {
             string source = ",,\r\n,,";
@@ -161,7 +162,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleSingleEmptyRecord()
         {
             string source = "\r\n";
@@ -175,7 +176,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleMultipleEmptyRecords()
         {
             string source = "\r\n\r\n";
@@ -190,7 +191,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripLeadingWhitespace()
         {
             string source = " a";
@@ -204,7 +205,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveLeadingWhitespaceIfConfigured()
         {
             string source = " a";
@@ -218,7 +219,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripLeadingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "  a, \t\n  b";
@@ -232,7 +233,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveLeadingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
         {
             string source = "  a, \t\n  b";
@@ -246,7 +247,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripTrailingWhitespace()
         {
             string source = "a ";
@@ -260,7 +261,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveTrailingWhitespaceIfConfigured()
         {
             string source = "a ";
@@ -274,7 +275,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripTrailingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "a  ,b \t\n  ";
@@ -288,7 +289,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveTrailingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
         {
             string source = "a  ,b \t\n  ";
@@ -302,7 +303,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripLeadingAndTrailingWhitespace()
         {
             string source = " a ";
@@ -316,7 +317,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveLeadingAndTrailingWhitespaceIfConfigured()
         {
             string source = " a ";
@@ -330,7 +331,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldStripLeadingAndTrailingWhitespace_MultipleSpaces_TwoColumn()
         {
             string source = "  a  , \t\n  b \t\n  ";
@@ -344,7 +345,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveLeadingAndTrailingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
         {
             string source = "  a  , \t\n  b \t\n  ";
@@ -358,7 +359,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldFindOneColumnOneRecordIfAllWhitespace()
         {
             string source = " \t\n\r ";
@@ -372,7 +373,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldPreserveWhiteSpaceIfConfigured_AllWhitespace()
         {
             string source = " \t\n\r ";
@@ -386,7 +387,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldNotStripEmbeddedWhitespace()
         {
             string source = " a b ";
@@ -400,7 +401,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldNotStripEmbeddedWhitespace_PreservingWhiteSpace()
         {
             string source = " a b ";
@@ -414,7 +415,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleDoubleWhitespaceAsSeparator()
         {
             string source = " a  b ";
@@ -428,7 +429,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIgnoreInvalidSeparatorSharingSharedPrefix()
         {
             string source = "axxcb";
@@ -442,7 +443,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleLongUndoOperation()
         {
             string source = "axxxb";
@@ -456,7 +457,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldExtractQuotedValue()
         {
             string source = "'a'";
@@ -474,7 +475,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIncludeSpacesBetweenQuotes()
         {
             string source = "' a  '";
@@ -492,7 +493,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIgnoreSeparatorsBetweenQuotes()
         {
             string source = "'a,b'";
@@ -510,7 +511,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleEscapedQuotesWithinQuotes()
         {
             string source = "'a''b'";
@@ -528,7 +529,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIgnoreLeadingWhiteSpaceBeforeQuote()
         {
             string source = "   'a'";
@@ -546,7 +547,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIgnoreTrailingWhiteSpaceAfterQuote()
         {
             string source = "'a' ";
@@ -564,7 +565,7 @@ namespace FlatFiles.Test
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldThrowSyntaxExceptionIfQuoteFollowedByEOS()
         {
             string source = "'";
@@ -575,10 +576,10 @@ namespace FlatFiles.Test
                 Quote = '\''
             };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
-            Assert.Throws<RecordProcessingException>(() => reader.Read());
+            Assert.ThrowsException<RecordProcessingException>(() => reader.Read());
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldThrowSyntaxExceptionIfQuoteFollowedByNonSeparator()
         {
             string source = "'a'b";
@@ -589,10 +590,10 @@ namespace FlatFiles.Test
                 Quote = '\''
             };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
-            Assert.Throws<RecordProcessingException>(() => reader.Read());
+            Assert.ThrowsException<RecordProcessingException>(() => reader.Read());
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldIgnoreRecordSeparatorsWithinQuotes()
         {
             string source = @"'John','Smith','123 Playtown Place', 'Grangewood','CA' ,12345,'John likes to travel to far away places.
@@ -618,7 +619,7 @@ When he's not traveling, he's at home with his lovely wife, children and leather
             assertRecords(expected, reader);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldHandleSeparatorAfterQuoteIfPreservingWhiteSpace()
         {
             string source = "26087,C Country C,,1,3,7,Randy E,(555) 555-5500,,\"P.O.Box 60,\",,,Woodsland,CA,56281,,,,0292315c-0daa-df11-9397-0019b9e7d4cd,,0,8713cbdd-fb50-dc11-a545-000423c05bf1,40,79527,,False";
@@ -640,17 +641,17 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         {
             for (int recordIndex = 0; recordIndex != expected.Length; ++recordIndex)
             {
-                Assert.True(reader.Read(), String.Format("The record could not be read (Record {0}).", recordIndex));
+                Assert.IsTrue(reader.Read(), String.Format("The record could not be read (Record {0}).", recordIndex));
                 object[] actualValues = reader.GetValues();
                 object[] expectedValues = expected[recordIndex];
                 assertRecord(expectedValues, actualValues, recordIndex);
             }
-            Assert.False(reader.Read(), "There were more records read than expected.");
+            Assert.IsFalse(reader.Read(), "There were more records read than expected.");
         }
 
         private static void assertRecord(object[] expected, object[] actual, int record)
         {
-            Assert.Equal(expected.Length, actual.Length);
+            Assert.AreEqual(expected.Length, actual.Length);
             for (int index = 0; index != expected.Length; ++index)
             {
                 assertToken(expected[index], actual[index], index);
@@ -660,8 +661,8 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         private static void assertToken(object expected, object actual, int column)
         {
             Type expectedType = expected.GetType();
-            Assert.IsType(expectedType, actual);
-            Assert.Equal(expected, actual);
+            Assert.IsInstanceOfType(actual, expectedType);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

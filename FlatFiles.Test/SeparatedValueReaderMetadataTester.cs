@@ -1,13 +1,14 @@
 ﻿using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class SeparatedValueReaderMetadataTester
     {
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_LogicalRecordsOnly()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -27,16 +28,16 @@ namespace FlatFiles.Test
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"));
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithFilter_LogicalRecordsOnly()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -62,14 +63,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithFilter_LineCount()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -99,14 +100,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(4, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(4, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_LineCount()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -130,16 +131,16 @@ namespace FlatFiles.Test
             });
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(2, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(4, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(2, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(4, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_SchemaNotCounted_WithFilter_LineCount()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -169,14 +170,14 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length == 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(3, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(3, results[1].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_SchemaNotCounted_NoFilter_LineCountMinusOne()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -200,16 +201,16 @@ namespace FlatFiles.Test
             });
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_NoFilter_WithIgnoredColumn_LogicalRecordsOnly()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -230,16 +231,16 @@ namespace FlatFiles.Test
             mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"));
             StringReader reader = new StringReader(output);
             var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
-            Assert.Equal(3, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Tom", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
-            Assert.Equal("Jane", results[2].Name);
-            Assert.Equal(3, results[2].RecordNumber);
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Tom", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
+            Assert.AreEqual("Jane", results[2].Name);
+            Assert.AreEqual(3, results[2].RecordNumber);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestReader_WithSchema_WithIgnoredColumn_WithFilter_LogicalRecordsOnly()
         {
             var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
@@ -266,11 +267,11 @@ namespace FlatFiles.Test
                 e.IsSkipped = e.Values.Length >= 1 && e.Values[0] == "Tom";
             };
             var results = reader.ReadAll().ToArray();
-            Assert.Equal(2, results.Length);
-            Assert.Equal("Bob", results[0].Name);
-            Assert.Equal(1, results[0].RecordNumber);
-            Assert.Equal("Jane", results[1].Name);
-            Assert.Equal(2, results[1].RecordNumber);
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual("Bob", results[0].Name);
+            Assert.AreEqual(1, results[0].RecordNumber);
+            Assert.AreEqual("Jane", results[1].Name);
+            Assert.AreEqual(2, results[1].RecordNumber);
         }
 
         public class Person

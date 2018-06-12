@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class SeparatedValueWriterTester
     {
-        [Fact]
+        [TestMethod]
         public void ShouldNotWriteSchemaIfNoSchemaProvided()
         {
             StringWriter stringWriter = new StringWriter();
@@ -15,10 +16,10 @@ namespace FlatFiles.Test
 
             string output = stringWriter.ToString();
             string expected = "a" + Environment.NewLine;
-            Assert.Equal(expected, output);
+            Assert.AreEqual(expected, output);
         }
 
-        [Fact]
+        [TestMethod]
         public void ShouldWriteSchemaIfExplicit()
         {
             StringWriter stringWriter = new StringWriter();
@@ -35,11 +36,11 @@ namespace FlatFiles.Test
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var reader = new SeparatedValueReader(stringReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             var parsedSchema = reader.GetSchema();
-            Assert.Equal(schema.ColumnDefinitions.Count, parsedSchema.ColumnDefinitions.Count);
-            Assert.Equal(schema.ColumnDefinitions[0].ColumnName, parsedSchema.ColumnDefinitions[0].ColumnName);
+            Assert.AreEqual(schema.ColumnDefinitions.Count, parsedSchema.ColumnDefinitions.Count);
+            Assert.AreEqual(schema.ColumnDefinitions[0].ColumnName, parsedSchema.ColumnDefinitions[0].ColumnName);
 
-            Assert.True(reader.Read(), "The record was not retrieved after the schema.");
-            Assert.False(reader.Read(), "Encountered more than the expected number of records.");
+            Assert.IsTrue(reader.Read(), "The record was not retrieved after the schema.");
+            Assert.IsFalse(reader.Read(), "Encountered more than the expected number of records.");
         }
     }
 }

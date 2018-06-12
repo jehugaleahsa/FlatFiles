@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlatFiles.Test
 {
+    [TestClass]
     public class NonPublicAccessTester
     {
-        [Fact]
+        [TestMethod]
         public void MapInternalClass()
         {
             var mapper = SeparatedValueTypeMapper.Define<InternalClass>();
@@ -29,16 +30,16 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Single(data);
+            Assert.AreEqual(1, data.Length);
             var result = data[0];
-            Assert.Equal("ABC123", result.Identifier);
-            Assert.Equal("Doing Fine", result.Status);
-            Assert.Equal(new DateTime(2018, 1, 15), result.EffectiveDate);
-            Assert.Equal(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
-            Assert.True(result.IsInternal);
+            Assert.AreEqual("ABC123", result.Identifier);
+            Assert.AreEqual("Doing Fine", result.Status);
+            Assert.AreEqual(new DateTime(2018, 1, 15), result.EffectiveDate);
+            Assert.AreEqual(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
+            Assert.IsTrue(result.IsInternal);
         }
 
-        [Fact]
+        [TestMethod]
         public void MapInternalClass_Dynamic()
         {
             var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(InternalClass));
@@ -59,16 +60,16 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Single(data);
+            Assert.AreEqual(1, data.Length);
             dynamic result = data[0];
-            Assert.Equal("ABC123", result.Identifier);
-            Assert.Equal("Doing Fine", result.Status);
-            Assert.Equal(new DateTime(2018, 1, 15), result.EffectiveDate);
-            Assert.Equal(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
-            Assert.Equal(true, result.IsInternal);
+            Assert.AreEqual("ABC123", result.Identifier);
+            Assert.AreEqual("Doing Fine", result.Status);
+            Assert.AreEqual(new DateTime(2018, 1, 15), result.EffectiveDate);
+            Assert.AreEqual(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
+            Assert.AreEqual(true, result.IsInternal);
         }
 
-        [Fact]
+        [TestMethod]
         public void MapPrivateClass()
         {
             var mapper = SeparatedValueTypeMapper.Define<PrivateClass>();
@@ -88,15 +89,15 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Single(data);
+            Assert.AreEqual(1, data.Length);
             var result = data[0];
-            Assert.Equal("ABC123", result.Identifier);
-            Assert.Equal("Doing Fine", result.Status);
-            Assert.Equal(new DateTime(2018, 1, 15), result.EffectiveDate);
-            Assert.Equal(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
+            Assert.AreEqual("ABC123", result.Identifier);
+            Assert.AreEqual("Doing Fine", result.Status);
+            Assert.AreEqual(new DateTime(2018, 1, 15), result.EffectiveDate);
+            Assert.AreEqual(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
         }
 
-        [Fact]
+        [TestMethod]
         public void MapPrivateClass_Dynamic()
         {
             var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivateClass));
@@ -116,15 +117,15 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Single(data);
+            Assert.AreEqual(1, data.Length);
             dynamic result = data[0];
-            Assert.Equal("ABC123", result.Identifier);
-            Assert.Equal("Doing Fine", result.Status);
-            Assert.Equal(new DateTime(2018, 1, 15), result.EffectiveDate);
-            Assert.Equal(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
+            Assert.AreEqual("ABC123", result.Identifier);
+            Assert.AreEqual("Doing Fine", result.Status);
+            Assert.AreEqual(new DateTime(2018, 1, 15), result.EffectiveDate);
+            Assert.AreEqual(new DateTime(2018, 1, 15, 14, 51, 00), result.ModificationDate);
         }
 
-        [Fact]
+        [TestMethod]
         public void MapPrivateClass_PrivateCtor_Dynamic()
         {
             var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivateCtorClass));
@@ -141,9 +142,9 @@ namespace FlatFiles.Test
                 Quote = '"'
             }).ToArray();
 
-            Assert.Single(data);
+            Assert.AreEqual(1, data.Length);
             dynamic result = data[0];
-            Assert.Equal(123, result.Id);
+            Assert.AreEqual(123, result.Id);
         }
 
         internal class InternalClass
