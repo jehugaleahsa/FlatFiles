@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using CsvHelper.Configuration;
 using FlatFiles.TypeMapping;
@@ -36,6 +37,20 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public async Task RunCsvHelperAsync()
+        {
+            StringReader reader = new StringReader(data);
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
+            List<Person> people = new List<Person>();
+            await csvReader.ReadAsync();
+            csvReader.ReadHeader();
+            while (await csvReader.ReadAsync())
+            {
+                people.Add(csvReader.GetRecord<Person>());
+            }
+        }
+
+        [Benchmark]
         public void RunFlatFiles()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
@@ -55,6 +70,33 @@ namespace FlatFiles.Benchmark
 
             StringReader reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public async Task RunFlatFilesAsync()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            mapper.Property(x => x.FirstName);
+            mapper.Property(x => x.LastName);
+            mapper.Property(x => x.Age);
+            mapper.Property(x => x.Street1);
+            mapper.Property(x => x.Street2);
+            mapper.Property(x => x.City);
+            mapper.Property(x => x.State);
+            mapper.Property(x => x.Zip);
+            mapper.Property(x => x.FavoriteColor);
+            mapper.Property(x => x.FavoriteFood);
+            mapper.Property(x => x.FavoriteSport);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+
+            StringReader textReader = new StringReader(data);
+            var people = new List<Person>();
+            var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            while (await reader.ReadAsync())
+            {
+                people.Add(reader.Current);
+            }
         }
 
         [Benchmark]
