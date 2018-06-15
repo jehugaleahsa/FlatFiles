@@ -68,8 +68,7 @@ namespace FlatFiles.TypeMapping
 
         private static IMemberAccessor getMember<TEntity>(Expression expression)
         {
-            MemberExpression member = expression as MemberExpression;
-            if (member == null)
+            if (!(expression is MemberExpression member))
             {
                 throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
             }

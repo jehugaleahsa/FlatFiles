@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -15,8 +14,6 @@ namespace FlatFiles
         public BooleanColumn(string columnName)
             : base(columnName)
         {
-            TrueString = Boolean.TrueString;
-            FalseString = Boolean.FalseString;
         }
 
         /// <summary>
@@ -30,12 +27,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the value representing true.
         /// </summary>
-        public string TrueString { get; set; }
+        public string TrueString { get; set; } = Boolean.TrueString;
 
         /// <summary>
         /// Gets or sets the value representing false.
         /// </summary>
-        public string FalseString { get; set; }
+        public string FalseString { get; set; } = Boolean.FalseString;
 
         /// <summary>
         /// Parses the given value into its equivilent boolean value.

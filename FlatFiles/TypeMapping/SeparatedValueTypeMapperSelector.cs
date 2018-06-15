@@ -30,7 +30,7 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class SeparatedValueTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers;
+        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
         private IDynamicSeparatedValueTypeMapper defaultMapper;
 
         /// <summary>
@@ -38,7 +38,6 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         public SeparatedValueTypeMapperSelector()
         {
-            this.matchers = new List<TypeMapperMatcher>();
         }
 
         internal Func<object[], object> Reader { get; set; }

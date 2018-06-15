@@ -6,14 +6,13 @@ namespace FlatFiles
 {
     internal sealed class RetryReader
     {
+        private readonly CircularQueue<char> queue = new CircularQueue<char>(4096);
         private readonly TextReader reader;
-        private readonly CircularQueue<char> queue;
         private bool isEndOfStreamFound;
 
         public RetryReader(TextReader reader)
         {
             this.reader = reader;
-            this.queue = new CircularQueue<char>(4096);
         }
 
         public bool IsEndOfStream()

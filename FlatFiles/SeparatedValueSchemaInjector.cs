@@ -23,16 +23,14 @@ namespace FlatFiles
     public class SeparatedValueSchemaInjector
     {
         private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
-        private readonly List<SchemaMatcher> matchers;
-        private SchemaMatcher defaultMatcher;
+        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
+        private SchemaMatcher defaultMatcher = nonMatcher;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueSchemaInjector.
         /// </summary>
         public SeparatedValueSchemaInjector()
         {
-            this.matchers = new List<SchemaMatcher>();
-            this.defaultMatcher = nonMatcher;
         }
 
         /// <summary>

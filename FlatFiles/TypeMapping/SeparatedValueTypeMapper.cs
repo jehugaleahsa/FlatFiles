@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
-using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -683,9 +681,9 @@ namespace FlatFiles.TypeMapping
         IDynamicSeparatedValueTypeMapper,
         IMapperSource<TEntity>
     {
-        private readonly Dictionary<Type, Func<TEntity>> factories;
-        private readonly MemberLookup lookup;
-        private bool isOptimized;
+        private readonly Dictionary<Type, Func<TEntity>> factories = new Dictionary<Type, Func<TEntity>>();
+        private readonly MemberLookup lookup = new MemberLookup();
+        private bool isOptimized = true;
 
         public SeparatedValueTypeMapper()
             : this(null)
@@ -699,13 +697,10 @@ namespace FlatFiles.TypeMapping
 
         public SeparatedValueTypeMapper(Func<TEntity> factory)
         {
-            this.factories = new Dictionary<Type, Func<TEntity>>();
             if (factory != null)
             {
                 this.factories.Add(typeof(TEntity), factory);
             }
-            this.lookup = new MemberLookup();
-            this.isOptimized = true;
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor)

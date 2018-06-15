@@ -8,25 +8,21 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthOptions : IOptions
     {
-        private FixedAlignment alignment;
-        private OverflowTruncationPolicy truncationPolicy;
+        private FixedAlignment alignment = FixedAlignment.LeftAligned;
+        private OverflowTruncationPolicy truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthParserOptions.
         /// </summary>
         public FixedLengthOptions()
         {
-            FillCharacter = ' ';
-            alignment = FixedAlignment.LeftAligned;
-            HasRecordSeparator = true;
-            truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
         }
 
         /// <summary>
         /// Gets or sets the character used to buffer values in a column.
         /// </summary>
         /// <remarks>The fill character can be controlled at the column level using the Window class.</remarks>
-        public char FillCharacter { get; set; }
+        public char FillCharacter { get; set; } = ' ';
 
         /// <summary>
         /// Gets or sets whether a separator is present between records.
@@ -36,7 +32,7 @@ namespace FlatFiles
         /// FlatFiles will attempt to start reading the next record immediately after the end of
         /// the previous record.
         /// </remarks>
-        public bool HasRecordSeparator { get; set; }
+        public bool HasRecordSeparator { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the string that indicates the end of a record.

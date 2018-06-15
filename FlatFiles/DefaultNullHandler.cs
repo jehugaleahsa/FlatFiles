@@ -7,6 +7,8 @@ namespace FlatFiles
     /// </summary>
     public class DefaultNullHandler : INullHandler
     {
+        internal static readonly INullHandler Instance = new DefaultNullHandler();
+
         /// <summary>
         /// Gets whether the given string should be interpreted as null.
         /// </summary>

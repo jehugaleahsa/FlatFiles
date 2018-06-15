@@ -74,7 +74,7 @@ namespace FlatFiles
         {
             IsIgnored = isIgnored;
             ColumnName = columnName;
-            nullHandler = new DefaultNullHandler();
+            nullHandler = DefaultNullHandler.Instance;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace FlatFiles
         public INullHandler NullHandler
         {
             get { return nullHandler; }
-            set { nullHandler = value ?? new DefaultNullHandler(); }
+            set { nullHandler = value ?? DefaultNullHandler.Instance; }
         }
 
         /// <summary>

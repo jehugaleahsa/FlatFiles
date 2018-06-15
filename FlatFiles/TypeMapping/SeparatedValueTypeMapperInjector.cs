@@ -38,16 +38,14 @@ namespace FlatFiles.TypeMapping
     public class SeparatedValueTypeMapperInjector : ITypeMapperInjector
     {
         private static readonly TypeMapperMatcher nonMatcher = new TypeMapperMatcher() { Predicate = (o) => false };
-        private readonly List<TypeMapperMatcher> matchers;
-        private TypeMapperMatcher defaultMatcher;
+        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
+        private TypeMapperMatcher defaultMatcher = nonMatcher;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueTypeMapperInjector.
         /// </summary>
         public SeparatedValueTypeMapperInjector()
         {
-            this.matchers = new List<TypeMapperMatcher>();
-            this.defaultMatcher = nonMatcher;
         }
 
         /// <summary>

@@ -15,7 +15,6 @@ namespace FlatFiles
         public DecimalColumn(string columnName)
             : base(columnName)
         {
-            NumberStyles = NumberStyles.Number;
         }
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the number styles to use when parsing.
         /// </summary>
-        public NumberStyles NumberStyles { get; set; }
+        public NumberStyles NumberStyles { get; set; } = NumberStyles.Number;
 
         /// <summary>
         /// Gets or sets the format string to use when converting the value to a string.

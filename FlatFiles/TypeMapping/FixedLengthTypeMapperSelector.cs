@@ -32,7 +32,7 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class FixedLengthTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers;
+        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
         private IDynamicFixedLengthTypeMapper defaultMapper;
 
         /// <summary>
@@ -40,7 +40,6 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         public FixedLengthTypeMapperSelector()
         {
-            this.matchers = new List<TypeMapperMatcher>();
         }
 
         internal Func<object[], object> Reader { get; set; }

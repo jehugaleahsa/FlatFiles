@@ -8,16 +8,13 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueOptions : IOptions
     {
-        private string separator;
+        private string separator = ",";
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParserOptions.
         /// </summary>
         public SeparatedValueOptions()
         {
-            Separator = ",";
-            Quote = '"';
-            QuoteBehavior = QuoteBehavior.Default;
         }
 
         /// <summary>
@@ -52,12 +49,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the character used to quote records containing special characters.
         /// </summary>
-        public char Quote { get; set; }
+        public char Quote { get; set; } = '"';
 
         /// <summary>
         /// Gets or sets how FlatFiles will handle quoting values.
         /// </summary>
-        public QuoteBehavior QuoteBehavior { get; set; }
+        public QuoteBehavior QuoteBehavior { get; set; } = QuoteBehavior.Default;
 
         /// <summary>
         /// Gets or sets whether the first record is the schema.

@@ -5,6 +5,7 @@ namespace FlatFiles
     internal interface ISeparatorMatcher
     {
         int Size { get; }
+
         bool IsMatch();
     }
 

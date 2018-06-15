@@ -30,13 +30,12 @@ namespace FlatFiles
         /// </summary>
         protected Schema()
         {
-            this.ColumnDefinitions = new ColumnCollection();
         }
 
         /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
-        public ColumnCollection ColumnDefinitions { get; private set; }
+        public ColumnCollection ColumnDefinitions { get; private set; } = new ColumnCollection();
 
         /// <summary>
         /// Gets the index of the column with the given name.

@@ -8,14 +8,13 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthSchema : Schema
     {
-        private readonly List<Window> windows;
+        private readonly List<Window> windows = new List<Window>();
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchema.
         /// </summary>
         public FixedLengthSchema()
         {
-            windows = new List<Window>();
         }
 
         /// <summary>

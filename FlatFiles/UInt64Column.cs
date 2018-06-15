@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -16,7 +15,6 @@ namespace FlatFiles
         public UInt64Column(string columnName)
             : base(columnName)
         {
-            NumberStyles = NumberStyles.Integer;
         }
 
         /// <summary>
@@ -35,7 +33,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the number styles to use when parsing.
         /// </summary>
-        public NumberStyles NumberStyles { get; set; }
+        public NumberStyles NumberStyles { get; set; } = NumberStyles.Integer;
 
         /// <summary>
         /// Gets or sets the format string to use when converting the value to a string.

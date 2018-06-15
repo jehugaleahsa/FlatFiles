@@ -6,14 +6,12 @@ namespace FlatFiles.TypeMapping
 {
     internal class MemberLookup
     {
-        private readonly Dictionary<string, IMemberMapping> lookup;
-        private readonly Dictionary<Type, object> factories;
+        private readonly Dictionary<string, IMemberMapping> lookup = new Dictionary<string, IMemberMapping>();
+        private readonly Dictionary<Type, object> factories = new Dictionary<Type, object>();
         private int ignoredCount;
 
         public MemberLookup()
         {
-            this.lookup = new Dictionary<string, IMemberMapping>();
-            this.factories = new Dictionary<Type, object>();
         }
 
         public int WorkCount

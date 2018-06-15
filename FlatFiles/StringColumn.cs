@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -15,7 +14,6 @@ namespace FlatFiles
         public StringColumn(string columnName)
             : base(columnName)
         {
-            Trim = true;
         }
 
         /// <summary>
@@ -29,7 +27,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets whether the value should be trimmed.
         /// </summary>
-        public bool Trim { get; set; }
+        public bool Trim { get; set; } = true;
 
         /// <summary>
         /// Returns the given value trimmed.

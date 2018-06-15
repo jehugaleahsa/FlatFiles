@@ -102,8 +102,9 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunStringSplit()
         {
-            var records = data.Split(Environment.NewLine).Skip(1).Select(l => l.Split(",").ToArray());
-            List<Person> people = new List<Person>();
+            var lines = data.Split(Environment.NewLine);
+            var records = lines.Skip(1).Select(l => l.Split(",").ToArray());
+            var people = new List<Person>();
             foreach (var record in records)
             {
                 Person person = new Person();

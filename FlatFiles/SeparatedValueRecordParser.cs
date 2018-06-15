@@ -8,13 +8,13 @@ namespace FlatFiles
 {
     internal sealed class SeparatedValueRecordParser
     {
+        private readonly List<string> tokens = new List<string>();
+        private readonly StringBuilder token = new StringBuilder();
         private readonly RetryReader reader;
         private readonly ISeparatorMatcher separatorMatcher;
         private readonly ISeparatorMatcher recordSeparatorMatcher;
         private readonly ISeparatorMatcher postfixMatcher;
         private readonly int separatorLength;
-        private readonly List<string> tokens;
-        private readonly StringBuilder token;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
@@ -28,8 +28,6 @@ namespace FlatFiles
                 this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
             this.separatorLength = Math.Max(this.Options.RecordSeparator?.Length ?? 2, this.Options.Separator.Length);
-            this.tokens = new List<string>();
-            this.token = new StringBuilder();
         }
 
         internal SeparatedValueOptions Options { get; private set; }
