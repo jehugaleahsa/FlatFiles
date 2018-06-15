@@ -15,14 +15,15 @@ namespace FlatFiles.Test
             Second = 2
         }
 
-        /// <summary>
-        /// An exception should be thrown if TEnum is not an enumeration.
-        /// </summary>
-        [TestMethod]
-        public void TestCtor_NonEnum_Throws()
-        {
-            Assert.ThrowsException<ArgumentException>(() => new EnumColumn<DateTime>("    "));
-        }
+        // This test became obsolete with C# 7.3, which introduced the enum generic constraint
+        ///// <summary>
+        ///// An exception should be thrown if TEnum is not an enumeration.
+        ///// </summary>
+        //[TestMethod]
+        //public void TestCtor_NonEnum_Throws()
+        //{
+        //    Assert.ThrowsException<ArgumentException>(() => new EnumColumn<DateTime>("    "));
+        //}
 
         /// <summary>
         /// An exception should be thrown if name is blank.

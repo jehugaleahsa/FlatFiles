@@ -8,7 +8,7 @@ namespace FlatFiles.TypeMapping
     /// Represents the mapping from a type property to an enum column.
     /// </summary>
     public interface IEnumPropertyMapping<TEnum>
-        where TEnum : struct
+        where TEnum : Enum
     {
         /// <summary>
         /// Sets the name of the column in the input or output file.
@@ -55,7 +55,7 @@ namespace FlatFiles.TypeMapping
     }
 
     internal sealed class EnumPropertyMapping<TEnum> : IEnumPropertyMapping<TEnum>, IMemberMapping
-        where TEnum : struct
+        where TEnum : Enum
     {
         private readonly EnumColumn<TEnum> column;
 

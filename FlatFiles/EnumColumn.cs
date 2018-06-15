@@ -9,7 +9,7 @@ namespace FlatFiles
     /// </summary>
     /// <typeparam name="TEnum">The type of the enumeration.</typeparam>
     public class EnumColumn<TEnum> : ColumnDefinition
-        where TEnum : struct
+        where TEnum : Enum
     {
         private Func<string, TEnum> parser;
         private Func<TEnum, string> formatter;
@@ -21,10 +21,6 @@ namespace FlatFiles
         public EnumColumn(string columnName) 
             : base(columnName)
         {
-            if (!typeof(TEnum).GetTypeInfo().IsEnum)
-            {
-                throw new InvalidOperationException(Resources.NotEnumType);
-            }
             this.parser = defaultParser;
             this.formatter = defaultFormatter;
         }

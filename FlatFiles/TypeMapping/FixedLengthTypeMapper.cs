@@ -383,7 +383,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) where TEnum : Enum;
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -392,7 +392,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor, Window window) where TEnum : struct, Enum;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -657,7 +657,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="memberName">The name of the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName, Window window) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName, Window window) where TEnum : struct, Enum;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -1199,21 +1199,21 @@ namespace FlatFiles.TypeMapping
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor, Window window) 
-            where TEnum : struct
+            where TEnum : Enum
         {
             var member = getMember(accessor);
             return getEnumMapping<TEnum>(member, window);
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor, Window window)
-            where TEnum : struct
+            where TEnum : struct, Enum
         {
             var member = getMember(accessor);
             return getEnumMapping<TEnum>(member, window);
         }
 
         private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(IMemberAccessor member, Window window)
-            where TEnum : struct
+            where TEnum : Enum
         {
             var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {

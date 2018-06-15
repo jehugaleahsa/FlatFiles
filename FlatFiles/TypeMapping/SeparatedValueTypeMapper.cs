@@ -347,7 +347,7 @@ namespace FlatFiles.TypeMapping
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor) where TEnum : Enum;
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -355,7 +355,7 @@ namespace FlatFiles.TypeMapping
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor) where TEnum : struct, Enum;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -597,7 +597,7 @@ namespace FlatFiles.TypeMapping
         /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
         /// <param name="memberName">The name of the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName) where TEnum : struct;
+        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName) where TEnum : struct, Enum;
 
         /// <summary>
         /// Specifies that the next column is ignored and returns an object for configuration.
@@ -1097,21 +1097,21 @@ namespace FlatFiles.TypeMapping
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor)
-            where TEnum : struct
+            where TEnum : Enum
         {
             var member = getMember(accessor);
             return getEnumMapping<TEnum>(member);
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor)
-            where TEnum : struct
+            where TEnum : struct, Enum
         {
             var member = getMember(accessor);
             return getEnumMapping<TEnum>(member);
         }
 
         private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(IMemberAccessor member)
-            where TEnum : struct
+            where TEnum : Enum
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {

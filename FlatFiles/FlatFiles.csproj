@@ -20,8 +20,8 @@
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.0\FlatFiles.xml</DocumentationFile>
+  <PropertyGroup>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
