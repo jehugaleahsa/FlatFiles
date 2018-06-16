@@ -175,6 +175,10 @@ namespace FlatFiles
             while (rawValues != null && isSkipped(rawValues))
             {
                 record = readWithFilter();
+                if (record == null)
+                {
+                    return (null, null);
+                }
                 schema = getSchema(record);
                 rawValues = partitionRecord(schema, record);
             }
@@ -257,6 +261,10 @@ namespace FlatFiles
             while (rawValues != null && isSkipped(rawValues))
             {
                 record = await readWithFilterAsync();
+                if (record == null)
+                {
+                    return (null, null);
+                }
                 schema = getSchema(record);
                 rawValues = partitionRecord(schema, record);
             }
