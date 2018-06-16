@@ -33,7 +33,7 @@ namespace FlatFiles
 
         public async ValueTask<bool> IsEndOfStreamAsync()
         {
-            return await recordReader.IsEndOfStreamAsync();
+            return await recordReader.IsEndOfStreamAsync().ConfigureAwait(false);
         }
 
         public string ReadRecord()
@@ -43,7 +43,7 @@ namespace FlatFiles
 
         public async Task<string> ReadRecordAsync()
         {
-            return await recordReader.ReadRecordAsync();
+            return await recordReader.ReadRecordAsync().ConfigureAwait(false);
         }
 
         private interface IRecordReader
@@ -83,7 +83,7 @@ namespace FlatFiles
             {
                 if (reader.ShouldLoadBuffer(1))
                 {
-                    await reader.LoadBufferAsync();
+                    await reader.LoadBufferAsync().ConfigureAwait(false);
                 }
                 return reader.IsEndOfStream();
             }
@@ -111,14 +111,14 @@ namespace FlatFiles
             {
                 if (reader.ShouldLoadBuffer(matcher.Size))
                 {
-                    await reader.LoadBufferAsync();
+                    await reader.LoadBufferAsync().ConfigureAwait(false);
                 }
                 while (!matcher.IsMatch() && reader.Read())
                 {
                     builder.Append(reader.Current);
                     if (reader.ShouldLoadBuffer(matcher.Size))
                     {
-                        await reader.LoadBufferAsync();
+                        await reader.LoadBufferAsync().ConfigureAwait(false);
                     }
                 }
                 string record = builder.ToString();
@@ -161,7 +161,7 @@ namespace FlatFiles
                 {
                     return true;
                 }
-                length = await reader.ReadBlockAsync(buffer, 0, buffer.Length);
+                length = await reader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
                 if (length == 0)
                 {
                     isEndOfStream = true;

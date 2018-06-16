@@ -196,10 +196,10 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleHeaderAsync();
+            await handleHeaderAsync().ConfigureAwait(false);
             try
             {
-                values = await parsePartitionsAsync();
+                values = await parsePartitionsAsync().ConfigureAwait(false);
                 if (values == null)
                 {
                     return false;
@@ -221,13 +221,13 @@ namespace FlatFiles
         {
             if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
             {
-                await skipAsync();
+                await skipAsync().ConfigureAwait(false);
             }
         }
 
         private async Task<object[]> parsePartitionsAsync()
         {
-            var (schema, rawValues) = await partitionWithFilterAsync();
+            var (schema, rawValues) = await partitionWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
                 var values = parseValues(schema, rawValues);
@@ -235,18 +235,18 @@ namespace FlatFiles
                 {
                     return values;
                 }
-                (schema, rawValues) = await partitionWithFilterAsync();
+                (schema, rawValues) = await partitionWithFilterAsync().ConfigureAwait(false);
             }
             return null;
         }
 
         private async ValueTask<(FixedLengthSchema, string[])> partitionWithFilterAsync()
         {
-            var record = await readWithFilterAsync();
+            var record = await readWithFilterAsync().ConfigureAwait(false);
             var (schema, rawValues) = partitionRecord(record);
             while (rawValues != null && isSkipped(rawValues))
             {
-                record = await readWithFilterAsync();
+                record = await readWithFilterAsync().ConfigureAwait(false);
                 (schema, rawValues) = partitionRecord(record);
             }
             return (schema, rawValues);
@@ -278,10 +278,10 @@ namespace FlatFiles
 
         private async Task<string> readWithFilterAsync()
         {
-            var record = await readNextRecordAsync();
+            var record = await readNextRecordAsync().ConfigureAwait(false);
             while (record != null && isSkipped(record))
             {
-                record = await readNextRecordAsync();
+                record = await readNextRecordAsync().ConfigureAwait(false);
             }
             return record;
         }
@@ -349,13 +349,13 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleHeaderAsync();
-            return await skipAsync();
+            await handleHeaderAsync().ConfigureAwait(false);
+            return await skipAsync().ConfigureAwait(false);
         }
 
         private async ValueTask<bool> skipAsync()
         {
-            var record = await readNextRecordAsync();
+            var record = await readNextRecordAsync().ConfigureAwait(false);
             return record != null;
         }
 
@@ -412,12 +412,12 @@ namespace FlatFiles
 
         private async Task<string> readNextRecordAsync()
         {
-            if (await parser.IsEndOfStreamAsync())
+            if (await parser.IsEndOfStreamAsync().ConfigureAwait(false))
             {
                 endOfFile = true;
                 return null;
             }
-            var record = await parser.ReadRecordAsync();
+            var record = await parser.ReadRecordAsync().ConfigureAwait(false);
             ++metadata.RecordCount;
             return record;
         }

@@ -125,7 +125,7 @@ namespace FlatFiles
             {
                 return null;
             }
-            await handleSchemaAsync();
+            await handleSchemaAsync().ConfigureAwait(false);
             if (metadata.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
@@ -135,7 +135,7 @@ namespace FlatFiles
 
         async Task<ISchema> IReader.GetSchemaAsync()
         {
-            var schema = await GetSchemaAsync();
+            var schema = await GetSchemaAsync().ConfigureAwait(false);
             return schema;
         }
 
@@ -237,10 +237,10 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleSchemaAsync();
+            await handleSchemaAsync().ConfigureAwait(false);
             try
             {
-                values = await parsePartitionsAsync();
+                values = await parsePartitionsAsync().ConfigureAwait(false);
                 if (values == null)
                 {
                     return false;
@@ -270,10 +270,10 @@ namespace FlatFiles
             }
             if (metadata.Schema != null)
             {
-                await skipAsync();
+                await skipAsync().ConfigureAwait(false);
                 return;
             }
-            string[] columnNames = await readNextRecordAsync();
+            string[] columnNames = await readNextRecordAsync().ConfigureAwait(false);
             metadata.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
@@ -284,7 +284,7 @@ namespace FlatFiles
 
         private async Task<object[]> parsePartitionsAsync()
         {
-            string[] rawValues = await readWithFilterAsync();
+            string[] rawValues = await readWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
                 var schema = getSchema(rawValues);
@@ -300,7 +300,7 @@ namespace FlatFiles
                         return values;
                     }
                 }
-                rawValues = await readWithFilterAsync();
+                rawValues = await readWithFilterAsync().ConfigureAwait(false);
             }
             return null;
         }
@@ -317,10 +317,10 @@ namespace FlatFiles
 
         private async Task<string[]> readWithFilterAsync()
         {
-            string[] rawValues = await readNextRecordAsync();
+            string[] rawValues = await readNextRecordAsync().ConfigureAwait(false);
             while (rawValues != null && isSkipped(rawValues))
             {
-                rawValues = await readNextRecordAsync();
+                rawValues = await readNextRecordAsync().ConfigureAwait(false);
             }
             return rawValues;
         }
@@ -393,14 +393,14 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleSchemaAsync();
-            bool result = await skipAsync();
+            await handleSchemaAsync().ConfigureAwait(false);
+            bool result = await skipAsync().ConfigureAwait(false);
             return result;
         }
 
         private async ValueTask<bool> skipAsync()
         {
-            string[] rawValues = await readNextRecordAsync();
+            string[] rawValues = await readNextRecordAsync().ConfigureAwait(false);
             return rawValues != null;
         }
 
@@ -440,7 +440,7 @@ namespace FlatFiles
 
         private async Task<string[]> readNextRecordAsync()
         {
-            if (await parser.IsEndOfStreamAsync())
+            if (await parser.IsEndOfStreamAsync().ConfigureAwait(false))
             {
                 endOfFile = true;
                 values = null;
@@ -448,7 +448,7 @@ namespace FlatFiles
             }
             try
             {
-                string[] results = await parser.ReadRecordAsync();
+                string[] results = await parser.ReadRecordAsync().ConfigureAwait(false);
                 ++metadata.RecordCount;
                 return results;
             }

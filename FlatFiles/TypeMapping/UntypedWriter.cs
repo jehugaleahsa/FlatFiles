@@ -23,7 +23,7 @@ namespace FlatFiles.TypeMapping
 
         public async Task WriteAsync(object entity)
         {
-            await writer.WriteAsync((TEntity)entity);
+            await writer.WriteAsync((TEntity)entity).ConfigureAwait(false);
         }
     }
 }

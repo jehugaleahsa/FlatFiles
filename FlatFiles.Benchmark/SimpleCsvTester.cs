@@ -42,9 +42,9 @@ namespace FlatFiles.Benchmark
             StringReader reader = new StringReader(data);
             var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
             List<Person> people = new List<Person>();
-            await csvReader.ReadAsync();
+            await csvReader.ReadAsync().ConfigureAwait(false);
             csvReader.ReadHeader();
-            while (await csvReader.ReadAsync())
+            while (await csvReader.ReadAsync().ConfigureAwait(false))
             {
                 people.Add(csvReader.GetRecord<Person>());
             }
@@ -93,7 +93,7 @@ namespace FlatFiles.Benchmark
             StringReader textReader = new StringReader(data);
             var people = new List<Person>();
             var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 people.Add(reader.Current);
             }

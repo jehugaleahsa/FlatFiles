@@ -1319,7 +1319,7 @@ namespace FlatFiles.TypeMapping
             }
             FixedLengthSchema schema = getSchema();
             IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
-            await writeAsync(fixedLengthWriter, entities);
+            await writeAsync(fixedLengthWriter, entities).ConfigureAwait(false);
         }
 
         private async Task writeAsync(IWriter writer, IEnumerable<TEntity> entities)
@@ -1327,7 +1327,7 @@ namespace FlatFiles.TypeMapping
             TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
-                await typedWriter.WriteAsync(entity);
+                await typedWriter.WriteAsync(entity).ConfigureAwait(false);
             }
         }
 
@@ -1528,7 +1528,7 @@ namespace FlatFiles.TypeMapping
         async Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)
         {
             var converted = entities.Cast<TEntity>();
-            await WriteAsync(writer, converted, options);
+            await WriteAsync(writer, converted, options).ConfigureAwait(false);
         }
 
         ITypedWriter<object> IDynamicFixedLengthTypeMapper.GetWriter(TextWriter writer, FixedLengthOptions options)

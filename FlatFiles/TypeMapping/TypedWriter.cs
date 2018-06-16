@@ -58,7 +58,7 @@ namespace FlatFiles.TypeMapping
         {
             object[] values = new object[workCount];
             serializer(entity, values);
-            await writer.WriteAsync(values);
+            await writer.WriteAsync(values).ConfigureAwait(false);
         }
     }
 
@@ -96,7 +96,7 @@ namespace FlatFiles.TypeMapping
             (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
             object[] values = new object[workCount];
             serializer(entity, values);
-            await writer.WriteAsync(values);
+            await writer.WriteAsync(values).ConfigureAwait(false);
         }
     }
 
@@ -131,7 +131,7 @@ namespace FlatFiles.TypeMapping
         {
             foreach (var entity in entities)
             {
-                await writer.WriteAsync(entity);
+                await writer.WriteAsync(entity).ConfigureAwait(false);
             }
         }
     }

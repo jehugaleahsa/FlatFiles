@@ -55,7 +55,7 @@ namespace FlatFiles
             fitWindows(schema, formattedColumns);
             foreach (string column in formattedColumns)
             {
-                await writer.WriteAsync(column);
+                await writer.WriteAsync(column).ConfigureAwait(false);
             }
         }
 
@@ -109,7 +109,7 @@ namespace FlatFiles
             var fitted = names.Select((v, i) => fitWidth(Metadata.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
-                await writer.WriteAsync(column);
+                await writer.WriteAsync(column).ConfigureAwait(false);
             }
         }
 
@@ -172,7 +172,7 @@ namespace FlatFiles
         {
             if (Metadata.Options.HasRecordSeparator)
             {
-                await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine);
+                await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
             }
         }
 

@@ -35,12 +35,12 @@ namespace FlatFiles.Test
             var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
 
             StringWriter stringWriter = new StringWriter();
-            await mapper.WriteAsync(stringWriter, new Person[] { bob });
+            await mapper.WriteAsync(stringWriter, new Person[] { bob }).ConfigureAwait(false);
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var reader = mapper.GetReader(stringReader);
             var people = new List<Person>();
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 people.Add(reader.Current);
             }
@@ -65,12 +65,12 @@ namespace FlatFiles.Test
             var options = new FixedLengthOptions() { HasRecordSeparator = false };
 
             StringWriter stringWriter = new StringWriter();
-            await mapper.WriteAsync(stringWriter, new Person[] { bob, bob }, options);
+            await mapper.WriteAsync(stringWriter, new Person[] { bob, bob }, options).ConfigureAwait(false);
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             var reader = mapper.GetReader(stringReader, options);
             var people = new List<Person>();
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 people.Add(reader.Current);
             }

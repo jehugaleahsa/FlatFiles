@@ -104,14 +104,14 @@ namespace FlatFiles.Benchmark
 
             StringWriter textWriter = new StringWriter();
             var http = WebRequest.CreateHttp("https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/FlatFiles.Benchmark/TestFiles/SampleData.csv");
-            using (var response = await http.GetResponseAsync())
+            using (var response = await http.GetResponseAsync().ConfigureAwait(false))
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
                 var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
                 var writer = mapper.GetWriter(textWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                while (await reader.ReadAsync())
+                while (await reader.ReadAsync().ConfigureAwait(false))
                 {
-                    await writer.WriteAsync(reader.Current);
+                    await writer.WriteAsync(reader.Current).ConfigureAwait(false);
                 }
             }
             return textWriter.ToString();
@@ -125,9 +125,9 @@ namespace FlatFiles.Benchmark
             //    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             //    var reader = mapper.GetReader(textReader, options);
             //    var writer = mapper.GetWriter(textWriter, options);
-            //    while (await reader.ReadAsync())
+            //    while (await reader.ReadAsync().ConfigureAwait(false))
             //    {
-            //        await writer.WriteAsync(reader.Current);
+            //        await writer.WriteAsync(reader.Current).ConfigureAwait(false);
             //    }
             //}
             //return textWriter.ToString();

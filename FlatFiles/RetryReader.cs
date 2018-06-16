@@ -60,7 +60,7 @@ namespace FlatFiles
                 return;
             }
             var segment = queue.PrepareBlock();
-            int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count);
+            int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count).ConfigureAwait(false);
             if (length < segment.Count)
             {
                 isEndOfStreamFound = true;

@@ -114,7 +114,7 @@ namespace FlatFiles.TypeMapping
 
         public async ValueTask<bool> ReadAsync()
         {
-            if (!await reader.ReadAsync())
+            if (!await reader.ReadAsync().ConfigureAwait(false))
             {
                 return false;
             }
@@ -130,7 +130,7 @@ namespace FlatFiles.TypeMapping
 
         public async ValueTask<bool> SkipAsync()
         {
-            return await reader.SkipAsync();
+            return await reader.SkipAsync().ConfigureAwait(false);
         }
 
         public TEntity Current { get; private set; }
@@ -202,7 +202,7 @@ namespace FlatFiles.TypeMapping
 
         public async ValueTask<bool> ReadAsync()
         {
-            if (!await reader.ReadAsync())
+            if (!await reader.ReadAsync().ConfigureAwait(false))
             {
                 return false;
             }
@@ -300,7 +300,7 @@ namespace FlatFiles.TypeMapping
 
         public async ValueTask<bool> ReadAsync()
         {
-            if (!await reader.ReadAsync())
+            if (!await reader.ReadAsync().ConfigureAwait(false))
             {
                 return false;
             }

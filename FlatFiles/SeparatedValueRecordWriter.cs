@@ -56,7 +56,7 @@ namespace FlatFiles
             var formattedValues = formatValues(schema, values);
             escapeValues(formattedValues);
             string joined = String.Join(Metadata.Options.Separator, formattedValues);
-            await writer.WriteAsync(joined);
+            await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 
         private SeparatedValueSchema getSchema(object[] values)
@@ -179,7 +179,7 @@ namespace FlatFiles
             }
             var names = Metadata.Schema.ColumnDefinitions.Select(d => escape(d.ColumnName));
             string joined = String.Join(Metadata.Options.Separator, names);
-            await writer.WriteAsync(joined);
+            await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 
         public void WriteRecordSeparator()
@@ -189,7 +189,7 @@ namespace FlatFiles
 
         public async Task WriteRecordSeparatorAsync()
         {
-            await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine);
+            await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
         }
 
         internal class SeparatedValueMetadata : IProcessMetadata

@@ -1210,7 +1210,7 @@ namespace FlatFiles.TypeMapping
             }
             SeparatedValueSchema schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            await writeAsync(separatedValueWriter, entities);
+            await writeAsync(separatedValueWriter, entities).ConfigureAwait(false);
         }
 
         private async Task writeAsync(IWriter writer, IEnumerable<TEntity> entities)
@@ -1218,7 +1218,7 @@ namespace FlatFiles.TypeMapping
             TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
-                await typedWriter.WriteAsync(entity);
+                await typedWriter.WriteAsync(entity).ConfigureAwait(false);
             }
         }
 
@@ -1418,7 +1418,7 @@ namespace FlatFiles.TypeMapping
         async Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
         {
             var converted = entities.Cast<TEntity>();
-            await WriteAsync(writer, converted, options);
+            await WriteAsync(writer, converted, options).ConfigureAwait(false);
         }
 
         ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions options)
