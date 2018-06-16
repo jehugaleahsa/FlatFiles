@@ -431,6 +431,56 @@ a weird row that should be skipped
             Assert.AreEqual(bob.Created, person.Created);
         }
 
+        /// <summary>
+        /// If we specify a record filter, those records should be automatically skipped while reading the document.
+        /// </summary>
+        [TestMethod]
+        public void TestGetValues_WithRecordFilter_SkipAllRecords()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
+
+            const string lines = @"       123                Bob Smith 4/21/2017
+        -1                Jay Smith 8/14/2017
+       234                Jay Smith 5/21/2017";
+
+            StringReader stringReader = new StringReader(lines);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
+            parser.RecordRead += (sender, e) =>
+            {
+                e.IsSkipped = true;
+            };
+
+            Assert.IsFalse(parser.Read(), "All records should have been skipped.");
+        }
+
+        /// <summary>
+        /// If we specify a record filter, those records should be automatically skipped while reading the document.
+        /// </summary>
+        [TestMethod]
+        public void TestGetValues_WithPartitionedRecordFilter_SkipAllRecords()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned });
+
+            const string lines = @"       123                Bob Smith 4/21/2017
+        -1                Jay Smith 8/14/2017
+       234                Jay Smith 5/21/2017";
+
+            StringReader stringReader = new StringReader(lines);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
+            parser.RecordPartitioned += (sender, e) =>
+            {
+                e.IsSkipped = true;
+            };
+
+            Assert.IsFalse(parser.Read(), "All records should have been skipped.");
+        }
+
         private class Person
         {
             public int Id { get; set; }

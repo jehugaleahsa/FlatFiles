@@ -1,3 +1,13 @@
+## 2.1.2 (2018-06-16)
+**Summary** - Code modernization and bug fixes.
+
+### Bug Fixes
+* Skipping the last record in a fixed-length file causes an error.
+
+### Enhancements
+* Cleaned up the code to use latest C# 7.3 features
+* Added enum generic-constraint for EnumColumn and type mapping methods.
+
 ## 2.1.1 (2018-06-11)
 **Summary** - Remove unneeded references to .NET Standard projects when targeting .NET 4.5.1. Updated resource file to be recognized by project.
 
