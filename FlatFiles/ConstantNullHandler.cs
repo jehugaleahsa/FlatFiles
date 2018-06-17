@@ -7,7 +7,7 @@ namespace FlatFiles
     /// </summary>
     public class ConstantNullHandler : INullHandler
     {
-        private readonly string value;
+        private readonly string _value;
 
         /// <summary>
         /// Initiates a new instance of a ConstantNullHandler.
@@ -16,7 +16,7 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The value is null.</exception>
         public ConstantNullHandler(string value)
         {
-            this.value = value ?? throw new ArgumentNullException(nameof(value));
+            _value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace FlatFiles
         /// <returns>True if the value represents null; otherwise, false.</returns>
         public bool IsNullRepresentation(string value)
         {
-            return value == null || value == this.value;
+            return value == null || value == _value;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace FlatFiles
         /// <returns>The string used to represent null in the flat file.</returns>
         public string GetNullRepresentation()
         {
-            return value;
+            return _value;
         }
     }
 }

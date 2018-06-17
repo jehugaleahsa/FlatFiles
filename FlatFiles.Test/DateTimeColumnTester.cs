@@ -54,8 +54,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_FormatProvider_NoFormatString_ParsesGenerically()
         {
-            DateTimeColumn column = new DateTimeColumn("created");
-            column.FormatProvider = CultureInfo.CurrentCulture;
+            DateTimeColumn column = new DateTimeColumn("created")
+            {
+                FormatProvider = CultureInfo.CurrentCulture
+            };
             DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual);
@@ -67,8 +69,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_FormatString_ParsesExactly()
         {
-            DateTimeColumn column = new DateTimeColumn("created");
-            column.InputFormat = "d";
+            DateTimeColumn column = new DateTimeColumn("created")
+            {
+                InputFormat = "d"
+            };
             DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual);
@@ -80,9 +84,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_FormatProvider_FormatString_ParsesExactly()
         {
-            DateTimeColumn column = new DateTimeColumn("created");
-            column.InputFormat = "d";
-            column.FormatProvider = CultureInfo.CurrentCulture;
+            DateTimeColumn column = new DateTimeColumn("created")
+            {
+                InputFormat = "d",
+                FormatProvider = CultureInfo.CurrentCulture
+            };
             DateTime actual = (DateTime)column.Parse("1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual);

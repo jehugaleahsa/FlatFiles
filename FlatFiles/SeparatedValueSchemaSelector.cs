@@ -35,9 +35,9 @@ namespace FlatFiles
     /// </summary>
     public class SeparatedValueSchemaSelector
     {
-        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
-        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
-        private SchemaMatcher defaultMatcher = nonMatcher;
+        private static readonly SchemaMatcher NonMatcher = new SchemaMatcher { Predicate = values => false };
+        private readonly List<SchemaMatcher> _matchers = new List<SchemaMatcher>();
+        private SchemaMatcher _defaultMatcher = NonMatcher;
 
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
@@ -62,8 +62,8 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public ISeparatedValueSchemaSelectorUseBuilder WithDefault(SeparatedValueSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
-            return new SeparatedValueSchemaSelectorUseBuilder(defaultMatcher);
+            _defaultMatcher = schema == null ? NonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
+            return new SeparatedValueSchemaSelectorUseBuilder(_defaultMatcher);
         }
 
         private SchemaMatcher Add(SeparatedValueSchema schema, Func<string[], bool> predicate)
@@ -73,13 +73,13 @@ namespace FlatFiles
                 Schema = schema,
                 Predicate = predicate
             };
-            matchers.Add(matcher);
+            _matchers.Add(matcher);
             return matcher;
         }
 
         internal SeparatedValueSchema GetSchema(string[] values)
         {
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
                 if (matcher.Predicate(values))
                 {
@@ -87,10 +87,10 @@ namespace FlatFiles
                     return matcher.Schema;
                 }
             }
-            if (defaultMatcher.Predicate(values))
+            if (_defaultMatcher.Predicate(values))
             {
-                defaultMatcher.Action?.Invoke();
-                return defaultMatcher.Schema;
+                _defaultMatcher.Action?.Invoke();
+                return _defaultMatcher.Schema;
             }
             throw new FlatFileException(Resources.MissingMatcher);
         }
@@ -106,13 +106,13 @@ namespace FlatFiles
 
         private class SeparatedValueSchemaSelectorWhenBuilder : ISeparatedValueSchemaSelectorWhenBuilder
         {
-            private readonly SeparatedValueSchemaSelector selector;
-            private readonly Func<string[], bool> predicate;
+            private readonly SeparatedValueSchemaSelector _selector;
+            private readonly Func<string[], bool> _predicate;
 
             public SeparatedValueSchemaSelectorWhenBuilder(SeparatedValueSchemaSelector selector, Func<string[], bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate;
+                _selector = selector;
+                _predicate = predicate;
             }
 
             public ISeparatedValueSchemaSelectorUseBuilder Use(SeparatedValueSchema schema)
@@ -121,23 +121,23 @@ namespace FlatFiles
                 {
                     throw new ArgumentNullException(nameof(schema));
                 }
-                var matcher = selector.Add(schema, predicate);
+                var matcher = _selector.Add(schema, _predicate);
                 return new SeparatedValueSchemaSelectorUseBuilder(matcher);
             }
         }
 
         private class SeparatedValueSchemaSelectorUseBuilder : ISeparatedValueSchemaSelectorUseBuilder
         {
-            private readonly SchemaMatcher matcher;
+            private readonly SchemaMatcher _matcher;
 
             public SeparatedValueSchemaSelectorUseBuilder(SchemaMatcher matcher)
             {
-                this.matcher = matcher;
+                _matcher = matcher;
             }
 
             public void OnMatch(Action action)
             {
-                matcher.Action = action;
+                _matcher.Action = action;
             }
         }
     }

@@ -7,10 +7,9 @@ namespace FlatFiles
     /// </summary>
     /// <typeparam name="TEnum">The type of the enumeration.</typeparam>
     public class EnumColumn<TEnum> : ColumnDefinition
-        where TEnum : Enum
     {
-        private Func<string, TEnum> parser;
-        private Func<TEnum, string> formatter;
+        private Func<string, TEnum> _parser;
+        private Func<TEnum, string> _formatter;
 
         /// <summary>
         /// Initializes a new EnumColumn with the given name.
@@ -19,16 +18,16 @@ namespace FlatFiles
         public EnumColumn(string columnName) 
             : base(columnName)
         {
-            parser = defaultParser;
-            formatter = defaultFormatter;
+            _parser = DefaultParser;
+            _formatter = DefaultFormatter;
         }
 
-        private static TEnum defaultParser(string value)
+        private static TEnum DefaultParser(string value)
         {
             return (TEnum)Enum.Parse(typeof(TEnum), value, true);
         }
 
-        private static string defaultFormatter(TEnum value)
+        private static string DefaultFormatter(TEnum value)
         {
             return Convert.ToInt32(value).ToString();
         }
@@ -43,8 +42,8 @@ namespace FlatFiles
         /// </summary>
         public Func<string, TEnum> Parser
         {
-            get => parser;
-            set => parser = value ?? defaultParser;
+            get => _parser;
+            set => _parser = value ?? DefaultParser;
         }
 
         /// <summary>
@@ -52,8 +51,8 @@ namespace FlatFiles
         /// </summary>
         public Func<TEnum, string> Formatter
         {
-            get => formatter;
-            set => formatter = value ?? defaultFormatter;
+            get => _formatter;
+            set => _formatter = value ?? DefaultFormatter;
         }
 
         /// <summary>
@@ -71,7 +70,7 @@ namespace FlatFiles
             {
                 return null;
             }
-            return parser(value);
+            return _parser(value);
         }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             TEnum actual = (TEnum)value;
-            return formatter(actual);
+            return _formatter(actual);
         }
     }
 }

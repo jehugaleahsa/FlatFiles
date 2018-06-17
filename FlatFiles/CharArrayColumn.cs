@@ -52,7 +52,7 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             char[] actual = (char[])value;
-            return new String(actual);
+            return new string(actual);
         }
     }
 }

@@ -46,11 +46,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class StringPropertyMapping : IStringPropertyMapping, IMemberMapping
     {
-        private readonly StringColumn column;
+        private readonly StringColumn _column;
 
         public StringPropertyMapping(StringColumn column, IMemberAccessor member, int fileIndex, int workFile)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workFile;
@@ -58,40 +58,40 @@ namespace FlatFiles.TypeMapping
 
         public IStringPropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IStringPropertyMapping Trim(bool trim)
         {
-            column.Trim = trim;
+            _column.Trim = trim;
             return this;
         }
 
         public IStringPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IStringPropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public IStringPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

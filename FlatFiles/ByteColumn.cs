@@ -20,7 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType => typeof(Byte);
+        public override Type ColumnType => typeof(byte);
 
         /// <summary>
         /// Gets or sets the format provider to use to parse the value.
@@ -53,7 +53,7 @@ namespace FlatFiles
                 return null;
             }
             IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            return Byte.Parse(value, NumberStyles, provider);
+            return byte.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

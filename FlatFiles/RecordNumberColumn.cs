@@ -88,7 +88,7 @@ namespace FlatFiles
         protected override int OnParse(string value)
         {
             IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            return Int32.Parse(value, NumberStyles, provider);
+            return int.Parse(value, NumberStyles, provider);
         }
     }
 }

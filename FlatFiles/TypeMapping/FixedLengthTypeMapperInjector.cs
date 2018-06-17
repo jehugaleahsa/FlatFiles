@@ -37,9 +37,9 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class FixedLengthTypeMapperInjector : ITypeMapperInjector
     {
-        private static readonly TypeMapperMatcher nonMatcher = new TypeMapperMatcher { Predicate = o => false };
-        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
-        private TypeMapperMatcher defaultMatcher = nonMatcher;
+        private static readonly TypeMapperMatcher NonMatcher = new TypeMapperMatcher { Predicate = o => false };
+        private readonly List<TypeMapperMatcher> _matchers = new List<TypeMapperMatcher>();
+        private TypeMapperMatcher _defaultMatcher = NonMatcher;
 
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
@@ -83,7 +83,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default schema to use.</param>
         public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
         {
-            defaultMatcher = typeMapper == null ? nonMatcher : new TypeMapperMatcher
+            _defaultMatcher = typeMapper == null ? NonMatcher : new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = o => true
@@ -101,20 +101,20 @@ namespace FlatFiles.TypeMapping
             var injector = new FixedLengthSchemaInjector();
             var valueWriter = new FixedLengthWriter(writer, injector, options);
             var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
                 injector.When(values => matcher.IsMatch).Use(matcher.TypeMapper.GetSchema());
             }
-            if (defaultMatcher != nonMatcher)
+            if (_defaultMatcher != NonMatcher)
             {
-                injector.WithDefault(defaultMatcher.TypeMapper.GetSchema());
+                injector.WithDefault(_defaultMatcher.TypeMapper.GetSchema());
             }
             return multiWriter;
         }
 
         internal void Add(IDynamicFixedLengthTypeMapper typeMapper, Func<object, bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher
+            _matchers.Add(new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = predicate
@@ -125,14 +125,14 @@ namespace FlatFiles.TypeMapping
         {
             int workCount = 0;
             Action<object, object[]> serializer = null;
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
                 if (serializer == null && matcher.Predicate(entity))
                 {
                     matcher.IsMatch = true;
                     if (matcher.Serializer == null)
                     {
-                        initializeMatcher(matcher);
+                        InitializeMatcher(matcher);
                     }
                     workCount = matcher.WorkCount;
                     serializer = matcher.Serializer;
@@ -144,21 +144,21 @@ namespace FlatFiles.TypeMapping
             }
             if (serializer == null)
             {
-                if (defaultMatcher == nonMatcher)
+                if (_defaultMatcher == NonMatcher)
                 {
                     throw new FlatFileException(Resources.MissingMatcher);
                 }
-                if (defaultMatcher.Serializer == null)
+                if (_defaultMatcher.Serializer == null)
                 {
-                    initializeMatcher(defaultMatcher);
+                    InitializeMatcher(_defaultMatcher);
                 }
-                workCount = defaultMatcher.WorkCount;
-                serializer = defaultMatcher.Serializer;
+                workCount = _defaultMatcher.WorkCount;
+                serializer = _defaultMatcher.Serializer;
             }
             return (workCount, serializer);
         }
 
-        private static void initializeMatcher(TypeMapperMatcher matcher)
+        private static void InitializeMatcher(TypeMapperMatcher matcher)
         {
             var source = (IMapperSource)matcher.TypeMapper;
             var mapper = source.GetMapper();
@@ -181,13 +181,13 @@ namespace FlatFiles.TypeMapping
 
         private class FixedLengthTypeMapperInjectorWhenBuilder : IFixedLengthTypeMapperInjectorWhenBuilder
         {
-            private readonly FixedLengthTypeMapperInjector selector;
-            private readonly Func<object, bool> predicate;
+            private readonly FixedLengthTypeMapperInjector _selector;
+            private readonly Func<object, bool> _predicate;
 
             public FixedLengthTypeMapperInjectorWhenBuilder(FixedLengthTypeMapperInjector selector, Func<object, bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate;
+                _selector = selector;
+                _predicate = predicate;
             }
 
             public void Use(IDynamicFixedLengthTypeMapper typeMapper)
@@ -196,20 +196,20 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new ArgumentNullException(nameof(typeMapper));
                 }
-                selector.Add(typeMapper, predicate);
+                _selector.Add(typeMapper, _predicate);
             }
         }
 
         private class FixedLengthTypeMapperInjectorWhenBuilder<TEntity> : IFixedLengthTypeMapperInjectorWhenBuilder<TEntity>
         {
-            private static readonly Func<object, bool> typeCheck = o => o is TEntity;
-            private readonly FixedLengthTypeMapperInjector selector;
-            private readonly Func<object, bool> predicate;
+            private static readonly Func<object, bool> TypeCheck = o => o is TEntity;
+            private readonly FixedLengthTypeMapperInjector _selector;
+            private readonly Func<object, bool> _predicate;
 
             public FixedLengthTypeMapperInjectorWhenBuilder(FixedLengthTypeMapperInjector selector, Func<TEntity, bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate == null ? typeCheck : o => o is TEntity entity && predicate(entity);
+                _selector = selector;
+                _predicate = predicate == null ? TypeCheck : o => o is TEntity entity && predicate(entity);
             }
 
             public void Use(IFixedLengthTypeMapper<TEntity> typeMapper)
@@ -219,7 +219,7 @@ namespace FlatFiles.TypeMapping
                     throw new ArgumentNullException(nameof(typeMapper));
                 }
                 var dynamicMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
-                selector.Add(dynamicMapper, predicate);
+                _selector.Add(dynamicMapper, _predicate);
             }
         }
     }

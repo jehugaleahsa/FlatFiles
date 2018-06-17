@@ -8,8 +8,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthOptions : IOptions
     {
-        private FixedAlignment alignment = FixedAlignment.LeftAligned;
-        private OverflowTruncationPolicy truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
+        private FixedAlignment _alignment = FixedAlignment.LeftAligned;
+        private OverflowTruncationPolicy _truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
 
         /// <summary>
         /// Gets or sets the character used to buffer values in a column.
@@ -48,14 +48,14 @@ namespace FlatFiles
         /// <remarks>The alignment can be controlled at the columnm level using the Window class.</remarks>
         public FixedAlignment Alignment
         {
-            get => alignment;
+            get => _alignment;
             set
             {
                 if (!Enum.IsDefined(typeof(FixedAlignment), value))
                 {
                     throw new ArgumentException(Resources.InvalidAlignment, nameof(value));
                 }
-                alignment = value;
+                _alignment = value;
             }
         }
 
@@ -65,14 +65,14 @@ namespace FlatFiles
         /// <remarks>The trunaction policy can be controlled at the column level using the Window class.</remarks>
         public OverflowTruncationPolicy TruncationPolicy
         {
-            get => truncationPolicy;
+            get => _truncationPolicy;
             set
             {
                 if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))
                 {
                     throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
-                truncationPolicy = value;
+                _truncationPolicy = value;
             }
         }
 

@@ -44,11 +44,11 @@
 
     internal sealed class GuidPropertyMapping : IGuidPropertyMapping, IMemberMapping
     {
-        private readonly GuidColumn column;
+        private readonly GuidColumn _column;
 
         public GuidPropertyMapping(GuidColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -56,40 +56,40 @@
 
         public IGuidPropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IGuidPropertyMapping InputFormat(string format)
         {
-            column.InputFormat = format;
+            _column.InputFormat = format;
             return this;
         }
 
         public IGuidPropertyMapping OutputFormat(string format)
         {
-            column.OutputFormat = format;
+            _column.OutputFormat = format;
             return this;
         }
 
         public IGuidPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IGuidPropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

@@ -16,14 +16,12 @@
                 return new DefaultSeparatorMatcher(reader);
             }
 
-            if (separator.Length == 1)
+            switch (separator.Length)
             {
-                return new OneCharacterSeparatorMatcher(reader, separator[0]);
-            }
-
-            if (separator.Length == 2)
-            {
-                return new TwoCharacterSeparatorMatcher(reader, separator[0], separator[1]);
+                case 1:
+                    return new OneCharacterSeparatorMatcher(reader, separator[0]);
+                case 2:
+                    return new TwoCharacterSeparatorMatcher(reader, separator[0], separator[1]);
             }
 
             return new StringSeparatorMatcher(reader, separator);
@@ -32,86 +30,82 @@
 
     internal sealed class DefaultSeparatorMatcher : ISeparatorMatcher
     {
-        private readonly RetryReader reader;
+        private readonly RetryReader _reader;
 
         public DefaultSeparatorMatcher(RetryReader reader)
         {
-            this.reader = reader;
+            _reader = reader;
         }
 
         public int Size => 2;
 
         public bool IsMatch()
         {
-            if (reader.IsMatch1('\r'))
+            if (_reader.IsMatch1('\r'))
             {
-                reader.IsMatch1('\n');
+                _reader.IsMatch1('\n');
                 return true;
             }
 
-            if (reader.IsMatch1('\n'))
-            {
-                return true;
-            }
-            return false;
+            return _reader.IsMatch1('\n');
         }
     }
 
     internal sealed class OneCharacterSeparatorMatcher : ISeparatorMatcher
     {
-        private readonly RetryReader reader;
-        private readonly char first;
+        private readonly RetryReader _reader;
+        private readonly char _first;
 
         public OneCharacterSeparatorMatcher(RetryReader reader, char first)
         {
-            this.reader = reader;
-            this.first = first;
+            _reader = reader;
+            _first = first;
         }
 
         public int Size => 1;
 
         public bool IsMatch()
         {
-            return reader.IsMatch1(first);
+            return _reader.IsMatch1(_first);
         }
     }
 
     internal sealed class TwoCharacterSeparatorMatcher : ISeparatorMatcher
     {
-        private readonly RetryReader reader;
-        private readonly char first;
-        private readonly char second;
+        private readonly RetryReader _reader;
+        private readonly char _first;
+        private readonly char _second;
 
         public TwoCharacterSeparatorMatcher(RetryReader reader, char first, char second)
         {
-            this.reader = reader;
-            this.first = first;
-            this.second = second;
+            _reader = reader;
+            _first = first;
+            _second = second;
         }
 
         public int Size => 2;
 
         public bool IsMatch()
         {
-            return reader.IsMatch2(first, second);
+            return _reader.IsMatch2(_first, _second);
         }
     }
 
     internal sealed class StringSeparatorMatcher : ISeparatorMatcher
     {
-        private readonly RetryReader reader;
-        private readonly string separator;
+        private readonly RetryReader _reader;
+        private readonly string _separator;
 
         public StringSeparatorMatcher(RetryReader reader, string separator)
         {
-            this.reader = reader;
-            this.separator = separator;
+            _reader = reader;
+            _separator = separator;
         }
-        public int Size => separator.Length;
+        public int Size => _separator.Length;
 
         public bool IsMatch()
         {
-            return reader.IsMatch(separator);
+            return _reader.IsMatch(_separator);
         }
     }
 }

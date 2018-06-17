@@ -32,8 +32,8 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class FixedLengthTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
-        private IDynamicFixedLengthTypeMapper defaultMapper;
+        private readonly List<TypeMapperMatcher> _matchers = new List<TypeMapperMatcher>();
+        private IDynamicFixedLengthTypeMapper _defaultMapper;
 
         internal Func<object[], object> Reader { get; set; }
 
@@ -60,7 +60,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
         {
-            defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
+            _defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
         {
-            defaultMapper = typeMapper;
+            _defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -84,20 +84,20 @@ namespace FlatFiles.TypeMapping
             var selector = new FixedLengthSchemaSelector();
             var valueReader = new FixedLengthReader(reader, selector, options);
             var multiReader = new MultiplexingFixedLengthTypedReader(valueReader, this);
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
-                var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<object[], object>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
             }
-            if (defaultMapper != null)
+            if (_defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
-                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
+                var typeReader = new Lazy<Func<object[], object>>(GetReader(_defaultMapper));
+                selector.WithDefault(_defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<object[], object>> getReader(IDynamicFixedLengthTypeMapper defaultMapper)
+        private Func<Func<object[], object>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
@@ -106,7 +106,7 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicFixedLengthTypeMapper typeMapper, Func<string, bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher
+            _matchers.Add(new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = predicate
@@ -122,13 +122,13 @@ namespace FlatFiles.TypeMapping
 
         private class FixedLengthTypeMapperSelectorWhenBuilder : IFixedLengthTypeMapperSelectorWhenBuilder
         {
-            private readonly FixedLengthTypeMapperSelector selector;
-            private readonly Func<string, bool> predicate;
+            private readonly FixedLengthTypeMapperSelector _selector;
+            private readonly Func<string, bool> _predicate;
 
             public FixedLengthTypeMapperSelectorWhenBuilder(FixedLengthTypeMapperSelector selector, Func<string, bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate;
+                _selector = selector;
+                _predicate = predicate;
             }
 
             public void Use<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
@@ -143,7 +143,7 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new ArgumentNullException(nameof(typeMapper));
                 }
-                selector.Add(typeMapper, predicate);
+                _selector.Add(typeMapper, _predicate);
             }
         }
     }

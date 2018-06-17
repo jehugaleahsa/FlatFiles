@@ -8,210 +8,256 @@ namespace FlatFiles
 {
     internal sealed class SeparatedValueRecordParser
     {
-        private readonly List<string> tokens = new List<string>();
-        private readonly StringBuilder token = new StringBuilder();
-        private readonly RetryReader reader;
-        private readonly ISeparatorMatcher separatorMatcher;
-        private readonly ISeparatorMatcher recordSeparatorMatcher;
-        private readonly ISeparatorMatcher postfixMatcher;
-        private readonly int separatorLength;
+        private readonly List<string> _tokens = new List<string>();
+        private readonly StringBuilder _token = new StringBuilder();
+        private readonly RetryReader _reader;
+        private readonly ISeparatorMatcher _separatorMatcher;
+        private readonly ISeparatorMatcher _recordSeparatorMatcher;
+        private readonly ISeparatorMatcher _postfixMatcher;
+        private readonly int _separatorLength;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
-            this.reader = reader;
+            _reader = reader;
             Options = options.Clone();
-            separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
-            recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
+            _separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
+            _recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
             if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
             {
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
-                postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
+                _postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
-            separatorLength = Math.Max(Options.RecordSeparator?.Length ?? 2, Options.Separator.Length);
+            _separatorLength = Math.Max(Options.RecordSeparator?.Length ?? 2, Options.Separator.Length);
         }
 
-        internal SeparatedValueOptions Options { get; private set; }
+        internal SeparatedValueOptions Options { get; }
 
         public bool IsEndOfStream()
         {
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(1))
             {
-                reader.LoadBuffer();
+                _reader.LoadBuffer();
             }
-            return reader.IsEndOfStream();
+            return _reader.IsEndOfStream();
         }
 
         public async ValueTask<bool> IsEndOfStreamAsync()
         {
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(1))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            return reader.IsEndOfStream();
+            return _reader.IsEndOfStream();
         }
 
-        private void addToken()
+        private void AddToken()
         {
-            string value = token.ToString();
-            tokens.Add(value);
-            token.Clear();
+            string value = _token.ToString();
+            _tokens.Add(value);
+            _token.Clear();
         }
 
         public string[] ReadRecord()
         {
-            TokenType tokenType = getNextToken();
+            TokenType tokenType = GetNextToken();
             while (tokenType == TokenType.EndOfToken)
             {
-                tokenType = getNextToken();
+                tokenType = GetNextToken();
             }
-            string[] results = tokens.ToArray();
-            tokens.Clear();
+            string[] results = _tokens.ToArray();
+            _tokens.Clear();
             return results;
         }
 
         public async Task<string[]> ReadRecordAsync()
         {
-            TokenType tokenType = await getNextTokenAsync().ConfigureAwait(false);
+            TokenType tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             while (tokenType == TokenType.EndOfToken)
             {
-                tokenType = await getNextTokenAsync().ConfigureAwait(false);
+                tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             }
-            string[] results = tokens.ToArray();
-            tokens.Clear();
+            string[] results = _tokens.ToArray();
+            _tokens.Clear();
             return results;
         }
 
-        private TokenType getNextToken()
+        private TokenType GetNextToken()
         {
             if (!Options.PreserveWhiteSpace)
             {
-                TokenType tokenType = skipWhiteSpace();
+                TokenType tokenType = SkipWhiteSpace();
                 if (tokenType != TokenType.Normal)
                 {
-                    addToken();
+                    AddToken();
                     return tokenType;
                 }
             }
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(1))
             {
-                reader.LoadBuffer();
+                _reader.LoadBuffer();
             }
-            if (reader.IsMatch1(Options.Quote))
+            if (_reader.IsMatch1(Options.Quote))
             {
-                return getQuotedToken();
+                return GetQuotedToken();
             }
 
-            return getUnquotedToken();
+            return GetUnquotedToken();
         }
 
-        private async ValueTask<TokenType> getNextTokenAsync()
+        private async ValueTask<TokenType> GetNextTokenAsync()
         {
             if (!Options.PreserveWhiteSpace)
             {
-                TokenType tokenType = await skipWhiteSpaceAsync().ConfigureAwait(false);
+                TokenType tokenType = await SkipWhiteSpaceAsync().ConfigureAwait(false);
                 if (tokenType != TokenType.Normal)
                 {
-                    addToken();
+                    AddToken();
                     return tokenType;
                 }
             }
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(1))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            if (reader.IsMatch1(Options.Quote))
+            if (_reader.IsMatch1(Options.Quote))
             {
-                return await getQuotedTokenAsync().ConfigureAwait(false);
+                return await GetQuotedTokenAsync().ConfigureAwait(false);
             }
 
-            return await getUnquotedTokenAsync().ConfigureAwait(false);
+            return await GetUnquotedTokenAsync().ConfigureAwait(false);
         }
 
-        private TokenType getUnquotedToken()
+        private TokenType GetUnquotedToken()
         {
-            if (reader.ShouldLoadBuffer(separatorLength))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                reader.LoadBuffer();
+                _reader.LoadBuffer();
             }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                reader.Read();
-                token.Append(reader.Current);
-                if (reader.ShouldLoadBuffer(separatorLength))
+                _reader.Read();
+                _token.Append(_reader.Current);
+                if (_reader.ShouldLoadBuffer(_separatorLength))
                 {
-                    reader.LoadBuffer();
+                    _reader.LoadBuffer();
                 }
-                tokenType = getSeparator();
+                tokenType = GetSeparator();
             }
-            trimTokenEnd();
-            addToken();
+            TrimTokenEnd();
+            AddToken();
             return tokenType;
         }
 
-        private async ValueTask<TokenType> getUnquotedTokenAsync()
+        private async ValueTask<TokenType> GetUnquotedTokenAsync()
         {
-            if (reader.ShouldLoadBuffer(separatorLength))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                reader.Read();
-                token.Append(reader.Current);
-                if (reader.ShouldLoadBuffer(separatorLength))
+                _reader.Read();
+                _token.Append(_reader.Current);
+                if (_reader.ShouldLoadBuffer(_separatorLength))
                 {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
-                tokenType = getSeparator();
+                tokenType = GetSeparator();
             }
-            trimTokenEnd();
-            addToken();
+            TrimTokenEnd();
+            AddToken();
             return tokenType;
         }
 
-        private void trimTokenEnd()
+        private void TrimTokenEnd()
         {
             if (Options.PreserveWhiteSpace)
             {
                 return;
             }
-            if (Char.IsWhiteSpace(token[token.Length - 1]))
+            if (char.IsWhiteSpace(_token[_token.Length - 1]))
             {
                 int trailingSize = 1;
-                while (Char.IsWhiteSpace(token[token.Length - trailingSize - 1]))
+                while (char.IsWhiteSpace(_token[_token.Length - trailingSize - 1]))
                 {
                     ++trailingSize;
                 }
-                token.Length -= trailingSize;
+                _token.Length -= trailingSize;
             }
         }
 
-        private TokenType getQuotedToken()
+        private TokenType GetQuotedToken()
         {
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(1))
             {
-                reader.LoadBuffer();
+                _reader.LoadBuffer();
             }
             TokenType tokenType = TokenType.Normal;
-            while (tokenType == TokenType.Normal && reader.Read())
+            while (tokenType == TokenType.Normal && _reader.Read())
             {
-                if (reader.Current != Options.Quote)
+                if (_reader.Current != Options.Quote)
                 {
                     // Keep adding characters until we find a closing quote
-                    token.Append(reader.Current);
+                    _token.Append(_reader.Current);
                 }
                 else
                 {
-                    if (reader.ShouldLoadBuffer(1))
+                    if (_reader.ShouldLoadBuffer(1))
                     {
-                        reader.LoadBuffer();
+                        _reader.LoadBuffer();
                     }
-                    if (reader.IsMatch1(Options.Quote))
+                    if (_reader.IsMatch1(Options.Quote))
                     {
                         // Escaped quote (two quotes in a row)
-                        token.Append(reader.Current);
+                        _token.Append(_reader.Current);
+                    }
+                    else
+                    {
+                        tokenType = Options.PreserveWhiteSpace ? AppendWhiteSpace() : SkipWhiteSpace();
+                        // If we find anything other than a separator, it's a syntax error.
+                        if (tokenType == TokenType.Normal)
+                        {
+                            break;
+                        }
+
+                        AddToken();
+                        return tokenType;
+                    }
+                }
+                if (_reader.ShouldLoadBuffer(1))
+                {
+                    _reader.LoadBuffer();
+                }
+            }
+            throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
+        }
+
+        private async ValueTask<TokenType> GetQuotedTokenAsync()
+        {
+            if (_reader.ShouldLoadBuffer(1))
+            {
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
+            }
+            TokenType tokenType = TokenType.Normal;
+            while (tokenType == TokenType.Normal && _reader.Read())
+            {
+                if (_reader.Current != Options.Quote)
+                {
+                    // Keep adding characters until we find a closing quote
+                    _token.Append(_reader.Current);
+                }
+                else
+                {
+                    if (_reader.ShouldLoadBuffer(1))
+                    {
+                        await _reader.LoadBufferAsync().ConfigureAwait(false);
+                    }
+                    if (_reader.IsMatch1(Options.Quote))
+                    {
+                        // Escaped quote (two quotes in a row)
+                        _token.Append(_reader.Current);
                     }
                     else
                     {
@@ -219,13 +265,13 @@ namespace FlatFiles
                         {
                             // We've encountered a stand-alone quote.
                             // We go looking for a separator, keeping any leading whitespace.
-                            tokenType = appendWhiteSpace();
+                            tokenType = await AppendWhiteSpaceAsync().ConfigureAwait(false);
                         }
                         else
                         {
                             // We've encountered a stand-alone quote.
                             // We go looking for a separator, skipping any leading whitespace.
-                            tokenType = skipWhiteSpace();
+                            tokenType = await SkipWhiteSpaceAsync().ConfigureAwait(false);
                         }
                         // If we find anything other than a separator, it's a syntax error.
                         if (tokenType == TokenType.Normal)
@@ -233,177 +279,120 @@ namespace FlatFiles
                             break;
                         }
 
-                        addToken();
+                        AddToken();
                         return tokenType;
                     }
                 }
-                if (reader.ShouldLoadBuffer(1))
+                if (_reader.ShouldLoadBuffer(1))
                 {
-                    reader.LoadBuffer();
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
             }
             throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
         }
 
-        private async ValueTask<TokenType> getQuotedTokenAsync()
+        private TokenType SkipWhiteSpace()
         {
-            if (reader.ShouldLoadBuffer(1))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                _reader.LoadBuffer();
             }
-            TokenType tokenType = TokenType.Normal;
-            while (tokenType == TokenType.Normal && reader.Read())
-            {
-                if (reader.Current != Options.Quote)
-                {
-                    // Keep adding characters until we find a closing quote
-                    token.Append(reader.Current);
-                }
-                else
-                {
-                    if (reader.ShouldLoadBuffer(1))
-                    {
-                        await reader.LoadBufferAsync().ConfigureAwait(false);
-                    }
-                    if (reader.IsMatch1(Options.Quote))
-                    {
-                        // Escaped quote (two quotes in a row)
-                        token.Append(reader.Current);
-                    }
-                    else
-                    {
-                        if (Options.PreserveWhiteSpace)
-                        {
-                            // We've encountered a stand-alone quote.
-                            // We go looking for a separator, keeping any leading whitespace.
-                            tokenType = await appendWhiteSpaceAsync().ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            // We've encountered a stand-alone quote.
-                            // We go looking for a separator, skipping any leading whitespace.
-                            tokenType = await skipWhiteSpaceAsync().ConfigureAwait(false);
-                        }
-                        // If we find anything other than a separator, it's a syntax error.
-                        if (tokenType == TokenType.Normal)
-                        {
-                            break;
-                        }
-
-                        addToken();
-                        return tokenType;
-                    }
-                }
-                if (reader.ShouldLoadBuffer(1))
-                {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
-                }
-            }
-            throw new SeparatedValueSyntaxException(Resources.UnmatchedQuote);
-        }
-
-        private TokenType skipWhiteSpace()
-        {
-            if (reader.ShouldLoadBuffer(separatorLength))
-            {
-                reader.LoadBuffer();
-            }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                if (_reader.ShouldLoadBuffer(_separatorLength + 1))
                 {
-                    reader.LoadBuffer();
+                    _reader.LoadBuffer();
                 }
-                if (!reader.IsWhitespace())
+                if (!_reader.IsWhitespace())
                 {
                     break;
                 }
-                tokenType = getSeparator();
+                tokenType = GetSeparator();
             }
             return tokenType;
         }
 
-        private async ValueTask<TokenType> skipWhiteSpaceAsync()
+        private async ValueTask<TokenType> SkipWhiteSpaceAsync()
         {
-            if (reader.ShouldLoadBuffer(separatorLength))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                if (_reader.ShouldLoadBuffer(_separatorLength + 1))
                 {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
-                if (!reader.IsWhitespace())
+                if (!_reader.IsWhitespace())
                 {
                     break;
                 }
-                tokenType = getSeparator();
+                tokenType = GetSeparator();
             }
             return tokenType;
         }
 
-        private TokenType appendWhiteSpace()
+        private TokenType AppendWhiteSpace()
         {
-            if (reader.ShouldLoadBuffer(separatorLength))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                reader.LoadBuffer();
+                _reader.LoadBuffer();
             }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                if (_reader.ShouldLoadBuffer(_separatorLength + 1))
                 {
-                    reader.LoadBuffer();
+                    _reader.LoadBuffer();
                 }
-                if (!reader.IsWhitespace())
+                if (!_reader.IsWhitespace())
                 {
                     break;
                 }
-                token.Append(reader.Current);
-                tokenType = getSeparator();
+                _token.Append(_reader.Current);
+                tokenType = GetSeparator();
             }
             return tokenType;
         }
 
-        private async ValueTask<TokenType> appendWhiteSpaceAsync()
+        private async ValueTask<TokenType> AppendWhiteSpaceAsync()
         {
-            if (reader.ShouldLoadBuffer(separatorLength))
+            if (_reader.ShouldLoadBuffer(_separatorLength))
             {
-                await reader.LoadBufferAsync().ConfigureAwait(false);
+                await _reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = getSeparator();
+            TokenType tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
-                if (reader.ShouldLoadBuffer(separatorLength + 1))
+                if (_reader.ShouldLoadBuffer(_separatorLength + 1))
                 {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
-                if (!reader.IsWhitespace())
+                if (!_reader.IsWhitespace())
                 {
                     break;
                 }
-                token.Append(reader.Current);
-                tokenType = getSeparator();
+                _token.Append(_reader.Current);
+                tokenType = GetSeparator();
             }
             return tokenType;
         }
 
-        private TokenType getSeparator()
+        private TokenType GetSeparator()
         {
-            if (reader.IsEndOfStream())
+            if (_reader.IsEndOfStream())
             {
                 return TokenType.EndOfStream;
             }
 
-            if (separatorMatcher.IsMatch())
+            if (_separatorMatcher.IsMatch())
             {
                 // This code handles the case where the separator is a substring of the record separator.
                 // We check to see if the remaining characters make up the record separator.
-                if (postfixMatcher != null && postfixMatcher.IsMatch())
+                if (_postfixMatcher != null && _postfixMatcher.IsMatch())
                 {
                     return TokenType.EndOfRecord;
                 }
@@ -411,7 +400,7 @@ namespace FlatFiles
                 return TokenType.EndOfToken;
             }
 
-            if (postfixMatcher == null && recordSeparatorMatcher.IsMatch())
+            if (_postfixMatcher == null && _recordSeparatorMatcher.IsMatch())
             {
                 // If the separator is a substring of the record separator and we didn't find it,
                 // we won't find the record separator either.

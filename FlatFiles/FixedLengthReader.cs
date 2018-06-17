@@ -10,12 +10,12 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthReader : IReader
     {
-        private readonly FixedLengthRecordParser parser;
-        private readonly FixedLengthSchemaSelector schemaSelector;
-        private readonly Metadata metadata;
-        private object[] values;
-        private bool endOfFile;
-        private bool hasError;
+        private readonly FixedLengthRecordParser _parser;
+        private readonly FixedLengthSchemaSelector _schemaSelector;
+        private readonly Metadata _metadata;
+        private object[] _values;
+        private bool _endOfFile;
+        private bool _hasError;
 
         /// <summary>
         /// Initializes a new FixedLengthReader with the given schema.
@@ -41,7 +41,7 @@ namespace FlatFiles
         public FixedLengthReader(TextReader reader, FixedLengthSchemaSelector schemaSelector, FixedLengthOptions options = null)
             : this(reader, null, options, false)
         {
-            this.schemaSelector = schemaSelector ?? throw new ArgumentNullException(nameof(schemaSelector));
+            _schemaSelector = schemaSelector ?? throw new ArgumentNullException(nameof(schemaSelector));
         }
 
         private FixedLengthReader(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options = null, bool hasSchema = true)
@@ -58,8 +58,8 @@ namespace FlatFiles
             {
                 options = new FixedLengthOptions();
             }
-            parser = new FixedLengthRecordParser(reader, schema, options);
-            metadata = new Metadata
+            _parser = new FixedLengthRecordParser(reader, schema, options);
+            _metadata = new Metadata
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -87,7 +87,7 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return metadata.Schema;
+            return _metadata.Schema;
         } 
 
         ISchema IReader.GetSchema()
@@ -101,12 +101,12 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public Task<FixedLengthSchema> GetSchemaAsync()
         {
-            return Task.FromResult(metadata.Schema);
+            return Task.FromResult(_metadata.Schema);
         }
 
         Task<ISchema> IReader.GetSchemaAsync()
         {
-            return Task.FromResult<ISchema>(metadata.Schema);
+            return Task.FromResult<ISchema>(_metadata.Schema);
         }
 
         /// <summary>
@@ -115,71 +115,71 @@ namespace FlatFiles
         /// <returns>True if the next record was parsed; otherwise, false if all files are read.</returns>
         public bool Read()
         {
-            if (hasError)
+            if (_hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            handleHeader();
+            HandleHeader();
             try
             {
-                values = parsePartitions();
-                if (values == null)
+                _values = ParsePartitions();
+                if (_values == null)
                 {
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++_metadata.LogicalRecordCount;
                 return true;
             }
             catch (FlatFileException)
             {
-                hasError = true;
+                _hasError = true;
                 throw;
             }
         }
 
-        private void handleHeader()
+        private void HandleHeader()
         {
-            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
+            if (_metadata.RecordCount == 0 && _metadata.Options.IsFirstRecordHeader)
             {
                 skip();
             }
         }
 
-        private object[] parsePartitions()
+        private object[] ParsePartitions()
         {
-            var (schema, rawValues) = partitionWithFilter();
+            var (schema, rawValues) = PartitionWithFilter();
             while (rawValues != null)
             {
-                var values = parseValues(schema, rawValues);
+                var values = ParseValues(schema, rawValues);
                 if (values != null)
                 {
                     return values;
                 }
-                (schema, rawValues) = partitionWithFilter();
+                (schema, rawValues) = PartitionWithFilter();
             }
             return null;
         }
 
-        private (FixedLengthSchema, string[]) partitionWithFilter()
+        private (FixedLengthSchema, string[]) PartitionWithFilter()
         {
-            var record = readWithFilter();
-            var (schema, rawValues) = partitionRecord(record);
-            while (rawValues != null && isSkipped(rawValues))
+            var record = ReadWithFilter();
+            var (schema, rawValues) = PartitionRecord(record);
+            while (rawValues != null && IsSkipped(rawValues))
             {
-                record = readWithFilter();
-                schema = getSchema(record);
-                (schema, rawValues) = partitionRecord(record);
+                record = ReadWithFilter();
+                GetSchema(record);
+                (schema, rawValues) = PartitionRecord(record);
             }
             return (schema, rawValues);
         }
 
-        private string readWithFilter()
+        private string ReadWithFilter()
         {
-            var record = readNextRecord();
-            while (record != null && isSkipped(record))
+            var record = ReadNextRecord();
+            while (record != null && IsSkipped(record))
             {
-                record = readNextRecord();
+                record = ReadNextRecord();
             }
             return record;
         }
@@ -190,78 +190,78 @@ namespace FlatFiles
         /// <returns>True if the next record was parsed; otherwise, false if all files are read.</returns>
         public async ValueTask<bool> ReadAsync()
         {
-            if (hasError)
+            if (_hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleHeaderAsync().ConfigureAwait(false);
+            await HandleHeaderAsync().ConfigureAwait(false);
             try
             {
-                values = await parsePartitionsAsync().ConfigureAwait(false);
-                if (values == null)
+                _values = await ParsePartitionsAsync().ConfigureAwait(false);
+                if (_values == null)
                 {
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++_metadata.LogicalRecordCount;
                 return true;
             }
             catch (FlatFileException)
             {
-                hasError = true;
+                _hasError = true;
                 throw;
             }
         }
 
-        private async Task handleHeaderAsync()
+        private async Task HandleHeaderAsync()
         {
-            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
+            if (_metadata.RecordCount == 0 && _metadata.Options.IsFirstRecordHeader)
             {
                 await skipAsync().ConfigureAwait(false);
             }
         }
 
-        private async Task<object[]> parsePartitionsAsync()
+        private async Task<object[]> ParsePartitionsAsync()
         {
-            var (schema, rawValues) = await partitionWithFilterAsync().ConfigureAwait(false);
+            var (schema, rawValues) = await PartitionWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                var values = parseValues(schema, rawValues);
+                var values = ParseValues(schema, rawValues);
                 if (values != null)
                 {
                     return values;
                 }
-                (schema, rawValues) = await partitionWithFilterAsync().ConfigureAwait(false);
+                (schema, rawValues) = await PartitionWithFilterAsync().ConfigureAwait(false);
             }
             return null;
         }
 
-        private async ValueTask<(FixedLengthSchema, string[])> partitionWithFilterAsync()
+        private async ValueTask<(FixedLengthSchema, string[])> PartitionWithFilterAsync()
         {
-            var record = await readWithFilterAsync().ConfigureAwait(false);
-            var (schema, rawValues) = partitionRecord(record);
-            while (rawValues != null && isSkipped(rawValues))
+            var record = await ReadWithFilterAsync().ConfigureAwait(false);
+            var (schema, rawValues) = PartitionRecord(record);
+            while (rawValues != null && IsSkipped(rawValues))
             {
-                record = await readWithFilterAsync().ConfigureAwait(false);
-                (schema, rawValues) = partitionRecord(record);
+                record = await ReadWithFilterAsync().ConfigureAwait(false);
+                (schema, rawValues) = PartitionRecord(record);
             }
             return (schema, rawValues);
         }
 
-        private FixedLengthSchema getSchema(string record)
+        private FixedLengthSchema GetSchema(string record)
         {
             if (record == null)
             {
                 return null;
             }
-            if (schemaSelector == null)
+            if (_schemaSelector == null)
             {
-                return metadata.Schema;
+                return _metadata.Schema;
             }
-            return schemaSelector.GetSchema(record);
+            return _schemaSelector.GetSchema(record);
         }
 
-        private bool isSkipped(string[] values)
+        private bool IsSkipped(string[] values)
         {
             if (RecordPartitioned == null)
             {
@@ -272,17 +272,17 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private async Task<string> readWithFilterAsync()
+        private async Task<string> ReadWithFilterAsync()
         {
-            var record = await readNextRecordAsync().ConfigureAwait(false);
-            while (record != null && isSkipped(record))
+            var record = await ReadNextRecordAsync().ConfigureAwait(false);
+            while (record != null && IsSkipped(record))
             {
-                record = await readNextRecordAsync().ConfigureAwait(false);
+                record = await ReadNextRecordAsync().ConfigureAwait(false);
             }
             return record;
         }
 
-        private bool isSkipped(string record)
+        private bool IsSkipped(string record)
         {
             if (RecordRead == null)
             {
@@ -293,22 +293,22 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private object[] parseValues(FixedLengthSchema schema, string[] rawValues)
+        private object[] ParseValues(FixedLengthSchema schema, string[] rawValues)
         {
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata
+                var metadata = _schemaSelector == null ? _metadata : new Metadata
                 {
                     Schema = schema,
-                    Options = this.metadata.Options,
-                    RecordCount = this.metadata.RecordCount,
-                    LogicalRecordCount = this.metadata.LogicalRecordCount
+                    Options = _metadata.Options,
+                    RecordCount = _metadata.RecordCount,
+                    LogicalRecordCount = _metadata.LogicalRecordCount
                 };
                 return schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(_metadata.RecordCount, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -320,17 +320,17 @@ namespace FlatFiles
         /// <remarks>The previously parsed values remain available.</remarks>
         public bool Skip()
         {
-            if (hasError)
+            if (_hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            handleHeader();
+            HandleHeader();
             return skip();
         }
 
         private bool skip()
         {
-            var record = readNextRecord();
+            var record = ReadNextRecord();
             return record != null;
         }
 
@@ -341,30 +341,30 @@ namespace FlatFiles
         /// <remarks>The previously parsed values remain available.</remarks>
         public async ValueTask<bool> SkipAsync()
         {
-            if (hasError)
+            if (_hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleHeaderAsync().ConfigureAwait(false);
+            await HandleHeaderAsync().ConfigureAwait(false);
             return await skipAsync().ConfigureAwait(false);
         }
 
         private async ValueTask<bool> skipAsync()
         {
-            var record = await readNextRecordAsync().ConfigureAwait(false);
+            var record = await ReadNextRecordAsync().ConfigureAwait(false);
             return record != null;
         }
 
-        private (FixedLengthSchema schema, string[]) partitionRecord(string record)
+        private (FixedLengthSchema schema, string[]) PartitionRecord(string record)
         {
-            var schema = getSchema(record);
+            var schema = GetSchema(record);
             if (schema == null)
             {
                 return (null, null);
             }
             if (record.Length < schema.TotalWidth)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, Resources.FixedLengthRecordTooShort));
+                ProcessError(new RecordProcessingException(_metadata.RecordCount, Resources.FixedLengthRecordTooShort));
                 return (null, null);
             }
             var windows = schema.Windows;
@@ -373,19 +373,12 @@ namespace FlatFiles
             for (int index = 0; index != values.Length;)
             {
                 var definition = schema.ColumnDefinitions[index];
-                if (!(definition is IMetadataColumn metaColumn))
+                if (!(definition is IMetadataColumn))
                 {
                     Window window = windows[index];
                     string value = record.Substring(offset, window.Width);
-                    var alignment = window.Alignment ?? metadata.Options.Alignment;
-                    if (alignment == FixedAlignment.LeftAligned)
-                    {
-                        value = value.TrimEnd(window.FillCharacter ?? metadata.Options.FillCharacter);
-                    }
-                    else
-                    {
-                        value = value.TrimStart(window.FillCharacter ?? metadata.Options.FillCharacter);
-                    }
+                    var alignment = window.Alignment ?? _metadata.Options.Alignment;
+                    value = alignment == FixedAlignment.LeftAligned ? value.TrimEnd(window.FillCharacter ?? _metadata.Options.FillCharacter) : value.TrimStart(window.FillCharacter ?? _metadata.Options.FillCharacter);
                     values[index] = value;
                     ++index;
                     offset += window.Width;
@@ -394,31 +387,31 @@ namespace FlatFiles
             return (schema, values);
         }
 
-        private string readNextRecord()
+        private string ReadNextRecord()
         {
-            if (parser.IsEndOfStream())
+            if (_parser.IsEndOfStream())
             {
-                endOfFile = true;
+                _endOfFile = true;
                 return null;
             }
-            var record = parser.ReadRecord();
-            ++metadata.RecordCount;
+            var record = _parser.ReadRecord();
+            ++_metadata.RecordCount;
             return record;
         }
 
-        private async Task<string> readNextRecordAsync()
+        private async Task<string> ReadNextRecordAsync()
         {
-            if (await parser.IsEndOfStreamAsync().ConfigureAwait(false))
+            if (await _parser.IsEndOfStreamAsync().ConfigureAwait(false))
             {
-                endOfFile = true;
+                _endOfFile = true;
                 return null;
             }
-            var record = await parser.ReadRecordAsync().ConfigureAwait(false);
-            ++metadata.RecordCount;
+            var record = await _parser.ReadRecordAsync().ConfigureAwait(false);
+            ++_metadata.RecordCount;
             return record;
         }
 
-        private void processError(RecordProcessingException exception)
+        private void ProcessError(RecordProcessingException exception)
         {
             if (Error != null)
             {
@@ -438,20 +431,20 @@ namespace FlatFiles
         /// <returns>The values of the current record.</returns>
         public object[] GetValues()
         {
-            if (hasError)
+            if (_hasError)
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            if (metadata.RecordCount == 0)
+            if (_metadata.RecordCount == 0)
             {
                 throw new InvalidOperationException(Resources.ReadNotCalled);
             }
-            if (endOfFile)
+            if (_endOfFile)
             {
                 throw new InvalidOperationException(Resources.NoMoreRecords);
             }
-            var copy = new object[values.Length];
-            Array.Copy(values, copy, values.Length);
+            var copy = new object[_values.Length];
+            Array.Copy(_values, copy, _values.Length);
             return copy;
         }
 

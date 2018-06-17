@@ -24,7 +24,7 @@ namespace FlatFiles.TypeMapping
 
         public Action<TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
         {
-            void reader(TEntity entity, object[] values)
+            void Reader(TEntity entity, object[] values)
             {
                 for (int index = 0; index != mappings.Length; ++index)
                 {
@@ -35,13 +35,14 @@ namespace FlatFiles.TypeMapping
                         mapping.Member.SetValue(entity, value);
                     }
                 }
-            };
-            return reader;
+            }
+
+            return Reader;
         }
 
         public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
-            void writer(TEntity entity, object[] values)
+            void Writer(TEntity entity, object[] values)
             {
                 for (int index = 0; index != mappings.Length; ++index)
                 {
@@ -52,8 +53,9 @@ namespace FlatFiles.TypeMapping
                         values[mapping.WorkIndex] = value;
                     }
                 }
-            };
-            return writer;
+            }
+
+            return Writer;
         }
     }
 
@@ -63,9 +65,9 @@ namespace FlatFiles.TypeMapping
         {
             Type entityType = typeof(TEntity);
             var bindingFlags = BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            var constructorInfo = entityType.GetTypeInfo().GetConstructors(bindingFlags)
-                .Where(c => c.GetParameters().Length == 0)
-                .SingleOrDefault();
+            var constructorInfo = entityType.GetTypeInfo()
+                .GetConstructors(bindingFlags)
+                .SingleOrDefault(c => c.GetParameters().Length == 0);
             if (constructorInfo == null)
             {
                 throw new FlatFileException(Resources.NoDefaultConstructor);
@@ -108,7 +110,7 @@ namespace FlatFiles.TypeMapping
                     MethodInfo setter = propertyInfo.GetSetMethod(true);
                     if (setter == null)
                     {
-                        string message = String.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
+                        string message = string.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
                         throw new FlatFileException(message);
                     }
                     generator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -157,7 +159,7 @@ namespace FlatFiles.TypeMapping
                     MethodInfo getter = propertyInfo.GetGetMethod(true);
                     if (getter == null)
                     {
-                        string message = String.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
+                        string message = string.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
                         throw new FlatFileException(message);
                     }
                     generator.Emit(OpCodes.Callvirt, getter);

@@ -19,7 +19,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType => typeof(String);
+        public override Type ColumnType => typeof(string);
 
         /// <summary>
         /// Gets or sets whether the value should be trimmed.

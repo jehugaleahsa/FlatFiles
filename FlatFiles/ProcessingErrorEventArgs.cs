@@ -22,27 +22,27 @@ namespace FlatFiles
         /// <summary>
         /// Gets the index of the record being processed when the error occurred.
         /// </summary>
-        public int RecordNumber { get; private set; }
+        public int RecordNumber { get; }
 
         /// <summary>
         /// Gets the schema being used when the error occurred.
         /// </summary>
-        public ISchema Schema { get; private set; }
+        public ISchema Schema { get; }
 
         /// <summary>
         /// Gets the column definition being processed when the error occurred.
         /// </summary>
-        public IColumnDefinition ColumnDefinition { get; private set; }
+        public IColumnDefinition ColumnDefinition { get; }
 
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public string ColumnValue { get; private set; }
+        public string ColumnValue { get; }
 
         /// <summary>
         /// Gets the exception that was raised.
         /// </summary>
-        public Exception Exception { get; private set; }
+        public Exception Exception { get; }
 
         /// <summary>
         /// Gets or sets whether the parser should attempt to continue parsing.

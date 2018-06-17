@@ -46,11 +46,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class CharPropertyMapping : ICharPropertyMapping, IMemberMapping
     {
-        private readonly CharColumn column;
+        private readonly CharColumn _column;
 
         public CharPropertyMapping(CharColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -58,40 +58,40 @@ namespace FlatFiles.TypeMapping
 
         public ICharPropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public ICharPropertyMapping AllowTrailing(bool allow)
         {
-            column.AllowTrailing = allow;
+            _column.AllowTrailing = allow;
             return this;
         }
 
         public ICharPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public ICharPropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public ICharPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

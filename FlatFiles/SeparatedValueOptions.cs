@@ -3,26 +3,27 @@ using FlatFiles.Properties;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Holds configuration options for the SeparatedValueParser.
     /// </summary>
     public sealed class SeparatedValueOptions : IOptions
     {
-        private string separator = ",";
+        private string _separator = ",";
 
         /// <summary>
         /// Gets or sets the character or characters used to separate the columns.
         /// </summary>
         public string Separator
         {
-            get => separator;
+            get => _separator;
             set
             {
-                if (String.IsNullOrEmpty(value))
+                if (string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.EmptySeparator);
                 }
-                separator = value;
+                _separator = value;
             }
         }
 

@@ -31,34 +31,34 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
-        private readonly IWriter writer;
-        private readonly Action<TEntity, object[]> serializer;
-        private readonly int workCount;
+        private readonly IWriter _writer;
+        private readonly Action<TEntity, object[]> _serializer;
+        private readonly int _workCount;
 
         public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
         {
-            this.writer = writer;
-            serializer = mapper.GetWriter();
-            workCount = mapper.WorkCount;
+            _writer = writer;
+            _serializer = mapper.GetWriter();
+            _workCount = mapper.WorkCount;
         }
 
         public ISchema GetSchema()
         {
-            return writer.GetSchema();
+            return _writer.GetSchema();
         }
 
         public void Write(TEntity entity)
         {
-            object[] values = new object[workCount];
-            serializer(entity, values);
-            writer.Write(values);
+            object[] values = new object[_workCount];
+            _serializer(entity, values);
+            _writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            object[] values = new object[workCount];
-            serializer(entity, values);
-            await writer.WriteAsync(values).ConfigureAwait(false);
+            object[] values = new object[_workCount];
+            _serializer(entity, values);
+            await _writer.WriteAsync(values).ConfigureAwait(false);
         }
     }
 
@@ -69,13 +69,13 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
     {
-        private readonly IWriter writer;
-        private readonly ITypeMapperInjector injector;
+        private readonly IWriter _writer;
+        private readonly ITypeMapperInjector _injector;
 
         public MultiplexingTypedWriter(IWriter writer, ITypeMapperInjector injector)
         {
-            this.writer = writer;
-            this.injector = injector;
+            _writer = writer;
+            _injector = injector;
         }
 
         public ISchema GetSchema()
@@ -85,18 +85,18 @@ namespace FlatFiles.TypeMapping
 
         public void Write(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
+            (int workCount, Action<object, object[]> serializer) = _injector.SetMatcher(entity);
             object[] values = new object[workCount];
             serializer(entity, values);
-            writer.Write(values);
+            _writer.Write(values);
         }
 
         public async Task WriteAsync(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
+            (int workCount, Action<object, object[]> serializer) = _injector.SetMatcher(entity);
             object[] values = new object[workCount];
             serializer(entity, values);
-            await writer.WriteAsync(values).ConfigureAwait(false);
+            await _writer.WriteAsync(values).ConfigureAwait(false);
         }
     }
 

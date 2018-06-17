@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Interprets solid whitespace as representing null.
@@ -16,7 +14,7 @@ namespace FlatFiles
         /// <returns>True if the value represents null; otherwise, false.</returns>
         public bool IsNullRepresentation(string value)
         {
-            return String.IsNullOrWhiteSpace(value);
+            return string.IsNullOrWhiteSpace(value);
         }
 
         /// <summary>
@@ -25,7 +23,7 @@ namespace FlatFiles
         /// <returns>The string used to represent null in the flat file.</returns>
         public string GetNullRepresentation()
         {
-            return String.Empty;
+            return string.Empty;
         }
     }
 }

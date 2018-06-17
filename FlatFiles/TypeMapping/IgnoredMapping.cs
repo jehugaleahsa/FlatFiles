@@ -15,25 +15,25 @@
 
     internal sealed class IgnoredMapping : IIgnoredMapping, IMemberMapping
     {
-        private readonly IgnoredColumn column;
+        private readonly IgnoredColumn _column;
 
         public IgnoredMapping(IgnoredColumn column, int fileIndex)
         {
-            this.column = column;
+            _column = column;
             FileIndex = fileIndex;
         }
 
         public IIgnoredMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IMemberAccessor Member => null;
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
         public int WorkIndex => -1;
     }

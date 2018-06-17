@@ -8,7 +8,7 @@ namespace FlatFiles
     /// </summary>
     public class FixedLengthComplexColumn : ColumnDefinition
     {
-        private readonly FixedLengthSchema schema;
+        private readonly FixedLengthSchema _schema;
 
         /// <summary>
         /// Initializes a new FixedLengthComplexColumn with the given schema and options.
@@ -19,7 +19,7 @@ namespace FlatFiles
         public FixedLengthComplexColumn(string columnName, FixedLengthSchema schema, FixedLengthOptions options = null)
             : base(columnName)
         {
-            this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
             Options = options;
         }
 
@@ -52,7 +52,7 @@ namespace FlatFiles
             }
 
             var stringReader = new StringReader(value);
-            var reader = new FixedLengthReader(stringReader, schema, Options);
+            var reader = new FixedLengthReader(stringReader, _schema, Options);
             if (reader.Read())
             {
                 return reader.GetValues();
@@ -73,7 +73,7 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             var writer = new StringWriter();
-            var recordWriter = new FixedLengthRecordWriter(writer, schema, Options ?? new FixedLengthOptions());
+            var recordWriter = new FixedLengthRecordWriter(writer, _schema, Options ?? new FixedLengthOptions());
             recordWriter.WriteRecord(values);
             return writer.ToString();
         }

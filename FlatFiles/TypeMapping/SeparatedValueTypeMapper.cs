@@ -681,9 +681,9 @@ namespace FlatFiles.TypeMapping
         IDynamicSeparatedValueTypeMapper,
         IMapperSource<TEntity>
     {
-        private readonly Dictionary<Type, Func<TEntity>> factories = new Dictionary<Type, Func<TEntity>>();
-        private readonly MemberLookup lookup = new MemberLookup();
-        private bool isOptimized = true;
+        private readonly Dictionary<Type, Func<TEntity>> _factories = new Dictionary<Type, Func<TEntity>>();
+        private readonly MemberLookup _lookup = new MemberLookup();
+        private bool _isOptimized = true;
 
         public SeparatedValueTypeMapper()
             : this(null)
@@ -699,25 +699,25 @@ namespace FlatFiles.TypeMapping
         {
             if (factory != null)
             {
-                factories.Add(typeof(TEntity), factory);
+                _factories.Add(typeof(TEntity), factory);
             }
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor)
         {
-            var member = getMember(accessor);
-            return getBooleanMapping(member);
+            var member = GetMember(accessor);
+            return GetBooleanMapping(member);
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> accessor)
         {
-            var member = getMember(accessor);
-            return getBooleanMapping(member);
+            var member = GetMember(accessor);
+            return GetBooleanMapping(member);
         }
 
-        private IBooleanPropertyMapping getBooleanMapping(IMemberAccessor member)
+        private IBooleanPropertyMapping GetBooleanMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 var column = new BooleanColumn(member.Name);
                 return new BooleanPropertyMapping(column, member, fileIndex, workIndex);
@@ -726,13 +726,13 @@ namespace FlatFiles.TypeMapping
 
         public IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> accessor)
         {
-            var member = getMember(accessor);
-            return getByteArrayMapping(member);
+            var member = GetMember(accessor);
+            return GetByteArrayMapping(member);
         }
 
-        private IByteArrayPropertyMapping getByteArrayMapping(IMemberAccessor member)
+        private IByteArrayPropertyMapping GetByteArrayMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 ByteArrayColumn column = new ByteArrayColumn(member.Name);
                 return new ByteArrayPropertyMapping(column, member, fileIndex, workIndex);
@@ -741,19 +741,19 @@ namespace FlatFiles.TypeMapping
 
         public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor)
         {
-            var member = getMember(accessor);
-            return getByteMapping(member);
+            var member = GetMember(accessor);
+            return GetByteMapping(member);
         }
 
         public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> accessor)
         {
-            var member = getMember(accessor);
-            return getByteMapping(member);
+            var member = GetMember(accessor);
+            return GetByteMapping(member);
         }
 
-        private IBytePropertyMapping getByteMapping(IMemberAccessor member)
+        private IBytePropertyMapping GetByteMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 ByteColumn column = new ByteColumn(member.Name);
                 return new BytePropertyMapping(column, member, fileIndex, workIndex);
@@ -762,19 +762,19 @@ namespace FlatFiles.TypeMapping
 
         public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor)
         {
-            var member = getMember(accessor);
-            return getSByteMapping(member);
+            var member = GetMember(accessor);
+            return GetSByteMapping(member);
         }
 
         public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> accessor)
         {
-            var member = getMember(accessor);
-            return getSByteMapping(member);
+            var member = GetMember(accessor);
+            return GetSByteMapping(member);
         }
 
-        private ISBytePropertyMapping getSByteMapping(IMemberAccessor member)
+        private ISBytePropertyMapping GetSByteMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 SByteColumn column = new SByteColumn(member.Name);
                 return new SBytePropertyMapping(column, member, fileIndex, workIndex);
@@ -783,13 +783,13 @@ namespace FlatFiles.TypeMapping
 
         public ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> accessor)
         {
-            var member = getMember(accessor);
-            return getCharArrayMapping(member);
+            var member = GetMember(accessor);
+            return GetCharArrayMapping(member);
         }
 
-        private ICharArrayPropertyMapping getCharArrayMapping(IMemberAccessor member)
+        private ICharArrayPropertyMapping GetCharArrayMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 CharArrayColumn column = new CharArrayColumn(member.Name);
                 return new CharArrayPropertyMapping(column, member, fileIndex, workIndex);
@@ -798,19 +798,19 @@ namespace FlatFiles.TypeMapping
 
         public ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor)
         {
-            var member = getMember(accessor);
-            return getCharMapping(member);
+            var member = GetMember(accessor);
+            return GetCharMapping(member);
         }
 
         public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> accessor)
         {
-            var member = getMember(accessor);
-            return getCharMapping(member);
+            var member = GetMember(accessor);
+            return GetCharMapping(member);
         }
 
-        private ICharPropertyMapping getCharMapping(IMemberAccessor member)
+        private ICharPropertyMapping GetCharMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 CharColumn column = new CharColumn(member.Name);
                 return new CharPropertyMapping(column, member, fileIndex, workIndex);
@@ -819,19 +819,19 @@ namespace FlatFiles.TypeMapping
 
         public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor)
         {
-            var member = getMember(accessor);
-            return getDateTimeMapping(member);
+            var member = GetMember(accessor);
+            return GetDateTimeMapping(member);
         }
 
         public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> accessor)
         {
-            var member = getMember(accessor);
-            return getDateTimeMapping(member);
+            var member = GetMember(accessor);
+            return GetDateTimeMapping(member);
         }
 
-        private IDateTimePropertyMapping getDateTimeMapping(IMemberAccessor member)
+        private IDateTimePropertyMapping GetDateTimeMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DateTimeColumn column = new DateTimeColumn(member.Name);
                 return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
@@ -840,19 +840,19 @@ namespace FlatFiles.TypeMapping
 
         public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor)
         {
-            var member = getMember(accessor);
-            return getDecimalMapping(member);
+            var member = GetMember(accessor);
+            return GetDecimalMapping(member);
         }
 
         public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> accessor)
         {
-            var member = getMember(accessor);
-            return getDecimalMapping(member);
+            var member = GetMember(accessor);
+            return GetDecimalMapping(member);
         }
 
-        private IDecimalPropertyMapping getDecimalMapping(IMemberAccessor member)
+        private IDecimalPropertyMapping GetDecimalMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DecimalColumn column = new DecimalColumn(member.Name);
                 return new DecimalPropertyMapping(column, member, fileIndex, workIndex);
@@ -861,19 +861,19 @@ namespace FlatFiles.TypeMapping
 
         public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor)
         {
-            var member = getMember(accessor);
-            return getDoubleMapping(member);
+            var member = GetMember(accessor);
+            return GetDoubleMapping(member);
         }
 
         public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> accessor)
         {
-            var member = getMember(accessor);
-            return getDoubleMapping(member);
+            var member = GetMember(accessor);
+            return GetDoubleMapping(member);
         }
 
-        private IDoublePropertyMapping getDoubleMapping(IMemberAccessor member)
+        private IDoublePropertyMapping GetDoubleMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 DoubleColumn column = new DoubleColumn(member.Name);
                 return new DoublePropertyMapping(column, member, fileIndex, workIndex);
@@ -882,19 +882,19 @@ namespace FlatFiles.TypeMapping
 
         public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor)
         {
-            var member = getMember(accessor);
-            return getGuidMapping(member);
+            var member = GetMember(accessor);
+            return GetGuidMapping(member);
         }
 
         public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> accessor)
         {
-            var member = getMember(accessor);
-            return getGuidMapping(member);
+            var member = GetMember(accessor);
+            return GetGuidMapping(member);
         }
 
-        private IGuidPropertyMapping getGuidMapping(IMemberAccessor member)
+        private IGuidPropertyMapping GetGuidMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 GuidColumn column = new GuidColumn(member.Name);
                 return new GuidPropertyMapping(column, member, fileIndex, workIndex);
@@ -903,19 +903,19 @@ namespace FlatFiles.TypeMapping
 
         public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt16Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt16Mapping(member);
         }
 
         public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt16Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt16Mapping(member);
         }
 
-        private IInt16PropertyMapping getInt16Mapping(IMemberAccessor member)
+        private IInt16PropertyMapping GetInt16Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int16Column column = new Int16Column(member.Name);
                 return new Int16PropertyMapping(column, member, fileIndex, workIndex);
@@ -924,19 +924,19 @@ namespace FlatFiles.TypeMapping
 
         public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt16Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt16Mapping(member);
         }
 
         public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt16Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt16Mapping(member);
         }
 
-        private IUInt16PropertyMapping getUInt16Mapping(IMemberAccessor member)
+        private IUInt16PropertyMapping GetUInt16Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt16Column column = new UInt16Column(member.Name);
                 return new UInt16PropertyMapping(column, member, fileIndex, workIndex);
@@ -945,19 +945,19 @@ namespace FlatFiles.TypeMapping
 
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt32Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt32Mapping(member);
         }
 
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt32Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt32Mapping(member);
         }
 
-        private IInt32PropertyMapping getInt32Mapping(IMemberAccessor member)
+        private IInt32PropertyMapping GetInt32Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int32Column column = new Int32Column(member.Name);
                 return new Int32PropertyMapping(column, member, fileIndex, workIndex);
@@ -966,19 +966,19 @@ namespace FlatFiles.TypeMapping
 
         public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt32Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt32Mapping(member);
         }
 
         public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt32Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt32Mapping(member);
         }
 
-        private IUInt32PropertyMapping getUInt32Mapping(IMemberAccessor member)
+        private IUInt32PropertyMapping GetUInt32Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt32Column column = new UInt32Column(member.Name);
                 return new UInt32PropertyMapping(column, member, fileIndex, workIndex);
@@ -987,19 +987,19 @@ namespace FlatFiles.TypeMapping
 
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt64Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt64Mapping(member);
         }
 
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> accessor)
         {
-            var member = getMember(accessor);
-            return getInt64Mapping(member);
+            var member = GetMember(accessor);
+            return GetInt64Mapping(member);
         }
 
-        private IInt64PropertyMapping getInt64Mapping(IMemberAccessor member)
+        private IInt64PropertyMapping GetInt64Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 Int64Column column = new Int64Column(member.Name);
                 return new Int64PropertyMapping(column, member, fileIndex, workIndex);
@@ -1008,19 +1008,19 @@ namespace FlatFiles.TypeMapping
 
         public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt64Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt64Mapping(member);
         }
 
         public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> accessor)
         {
-            var member = getMember(accessor);
-            return getUInt64Mapping(member);
+            var member = GetMember(accessor);
+            return GetUInt64Mapping(member);
         }
 
-        private IUInt64PropertyMapping getUInt64Mapping(IMemberAccessor member)
+        private IUInt64PropertyMapping GetUInt64Mapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 UInt64Column column = new UInt64Column(member.Name);
                 return new UInt64PropertyMapping(column, member, fileIndex, workIndex);
@@ -1029,19 +1029,19 @@ namespace FlatFiles.TypeMapping
 
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor)
         {
-            var member = getMember(accessor);
-            return getSingleMapping(member);
+            var member = GetMember(accessor);
+            return GetSingleMapping(member);
         }
 
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> accessor)
         {
-            var member = getMember(accessor);
-            return getSingleMapping(member);
+            var member = GetMember(accessor);
+            return GetSingleMapping(member);
         }
 
-        private ISinglePropertyMapping getSingleMapping(IMemberAccessor member)
+        private ISinglePropertyMapping GetSingleMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 SingleColumn column = new SingleColumn(member.Name);
                 return new SinglePropertyMapping(column, member, fileIndex, workIndex);
@@ -1050,13 +1050,13 @@ namespace FlatFiles.TypeMapping
 
         public IStringPropertyMapping Property(Expression<Func<TEntity, string>> accessor)
         {
-            var member = getMember(accessor);
-            return getStringMapping(member);
+            var member = GetMember(accessor);
+            return GetStringMapping(member);
         }
 
-        private IStringPropertyMapping getStringMapping(IMemberAccessor member)
+        private IStringPropertyMapping GetStringMapping(IMemberAccessor member)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 StringColumn column = new StringColumn(member.Name);
                 return new StringPropertyMapping(column, member, fileIndex, workIndex);
@@ -1065,50 +1065,44 @@ namespace FlatFiles.TypeMapping
 
         public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper)
         {
-            var member = getMember(accessor);
-            return getComplexMapping(member, mapper);
+            var member = GetMember(accessor);
+            return GetComplexMapping(member, mapper);
         }
 
-        private ISeparatedValueComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, ISeparatedValueTypeMapper<TProp> mapper)
+        private ISeparatedValueComplexPropertyMapping GetComplexMapping<TProp>(IMemberAccessor member, ISeparatedValueTypeMapper<TProp> mapper)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
-            {
-                return new SeparatedValueComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex);
-            });
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) => new SeparatedValueComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex));
         }
 
         public IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IFixedLengthTypeMapper<TProp> mapper)
         {
-            var member = getMember(accessor);
-            return getComplexMapping(member, mapper);
+            var member = GetMember(accessor);
+            return GetComplexMapping(member, mapper);
         }
 
-        private IFixedLengthComplexPropertyMapping getComplexMapping<TProp>(IMemberAccessor member, IFixedLengthTypeMapper<TProp> mapper)
+        private IFixedLengthComplexPropertyMapping GetComplexMapping<TProp>(IMemberAccessor member, IFixedLengthTypeMapper<TProp> mapper)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
-            {
-                return new FixedLengthComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex);
-            });
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) => new FixedLengthComplexPropertyMapping<TProp>(mapper, member, fileIndex, workIndex));
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor)
             where TEnum : Enum
         {
-            var member = getMember(accessor);
-            return getEnumMapping<TEnum>(member);
+            var member = GetMember(accessor);
+            return GetEnumMapping<TEnum>(member);
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor)
             where TEnum : struct, Enum
         {
-            var member = getMember(accessor);
-            return getEnumMapping<TEnum>(member);
+            var member = GetMember(accessor);
+            return GetEnumMapping<TEnum>(member);
         }
 
-        private IEnumPropertyMapping<TEnum> getEnumMapping<TEnum>(IMemberAccessor member)
+        private IEnumPropertyMapping<TEnum> GetEnumMapping<TEnum>(IMemberAccessor member)
             where TEnum : Enum
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
                 var column = new EnumColumn<TEnum>(member.Name);
                 return new EnumPropertyMapping<TEnum>(column, member, fileIndex, workIndex);
@@ -1117,37 +1111,31 @@ namespace FlatFiles.TypeMapping
 
         public IIgnoredMapping Ignored()
         {
-            return lookup.AddIgnored();
+            return _lookup.AddIgnored();
         }
 
         public ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column)
         {
-            var member = getMember(accessor);
-            return getCustomMapping(member, column);
+            var member = GetMember(accessor);
+            return GetCustomMapping(member, column);
         }
 
-        private ICustomPropertyMapping getCustomMapping(IMemberAccessor member, IColumnDefinition column)
+        private ICustomPropertyMapping GetCustomMapping(IMemberAccessor member, IColumnDefinition column)
         {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
-            {
-                return new CustomPropertyMapping(column, member, fileIndex, workIndex);
-            });
+            return _lookup.GetOrAddMember(member, (fileIndex, workIndex) => new CustomPropertyMapping(column, member, fileIndex, workIndex));
         }
 
         public IWriteOnlyPropertyMapping WriteOnlyProperty(string name, IColumnDefinition column)
         {
-            return getWriteOnlyMapping(name, column);
+            return GetWriteOnlyMapping(name, column);
         }
 
-        private IWriteOnlyPropertyMapping getWriteOnlyMapping(string name, IColumnDefinition column)
+        private IWriteOnlyPropertyMapping GetWriteOnlyMapping(string name, IColumnDefinition column)
         {
-            return lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) =>
-            {
-                return new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex);
-            });
+            return _lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
         }
 
-        private static IMemberAccessor getMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
+        private static IMemberAccessor GetMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
             return MemberAccessorBuilder.GetMember(accessor);
         }
@@ -1156,12 +1144,12 @@ namespace FlatFiles.TypeMapping
         {
             SeparatedValueSchema schema = getSchema();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
-            return read(separatedValueReader);
+            return Read(separatedValueReader);
         }
 
-        private IEnumerable<TEntity> read(SeparatedValueReader reader)
+        private IEnumerable<TEntity> Read(SeparatedValueReader reader)
         {
-            var typedReader = getTypedReader(reader);
+            var typedReader = GetTypedReader(reader);
             while (typedReader.Read())
             {
                 yield return typedReader.Current;
@@ -1172,12 +1160,12 @@ namespace FlatFiles.TypeMapping
         {
             SeparatedValueSchema schema = getSchema();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
-            return getTypedReader(separatedValueReader);
+            return GetTypedReader(separatedValueReader);
         }
 
-        private SeparatedValueTypedReader<TEntity> getTypedReader(SeparatedValueReader reader)
+        private SeparatedValueTypedReader<TEntity> GetTypedReader(SeparatedValueReader reader)
         {
-            var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
+            var mapper = new Mapper<TEntity>(_lookup, GetCodeGenerator());
             SeparatedValueTypedReader<TEntity> typedReader = new SeparatedValueTypedReader<TEntity>(reader, mapper);
             return typedReader;
         }
@@ -1190,12 +1178,12 @@ namespace FlatFiles.TypeMapping
             }
             SeparatedValueSchema schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            write(separatedValueWriter, entities);
+            Write(separatedValueWriter, entities);
         }
 
-        private void write(IWriter writer, IEnumerable<TEntity> entities)
+        private void Write(IWriter writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
+            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 typedWriter.Write(entity);
@@ -1210,12 +1198,12 @@ namespace FlatFiles.TypeMapping
             }
             SeparatedValueSchema schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            await writeAsync(separatedValueWriter, entities).ConfigureAwait(false);
+            await WriteAsync(separatedValueWriter, entities).ConfigureAwait(false);
         }
 
-        private async Task writeAsync(IWriter writer, IEnumerable<TEntity> entities)
+        private async Task WriteAsync(IWriter writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = getTypedWriter(writer);
+            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 await typedWriter.WriteAsync(entity).ConfigureAwait(false);
@@ -1226,12 +1214,12 @@ namespace FlatFiles.TypeMapping
         {
             SeparatedValueSchema schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            return getTypedWriter(separatedValueWriter);
+            return GetTypedWriter(separatedValueWriter);
         }
 
-        private TypedWriter<TEntity> getTypedWriter(IWriter writer)
+        private TypedWriter<TEntity> GetTypedWriter(IWriter writer)
         {
-            var mapper = new Mapper<TEntity>(lookup, getCodeGenerator());
+            var mapper = new Mapper<TEntity>(_lookup, GetCodeGenerator());
             return new TypedWriter<TEntity>(writer, mapper);
         }
 
@@ -1243,7 +1231,7 @@ namespace FlatFiles.TypeMapping
         private SeparatedValueSchema getSchema()
         {
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            var mappings = lookup.GetMappings();
+            var mappings = _lookup.GetMappings();
             foreach (IMemberMapping mapping in mappings)
             {
                 IColumnDefinition column = mapping.ColumnDefinition;
@@ -1259,128 +1247,128 @@ namespace FlatFiles.TypeMapping
 
         IBooleanPropertyMapping IDynamicSeparatedValueTypeConfiguration.BooleanProperty(string memberName)
         {
-            var member = getMember<bool?>(memberName);
-            return getBooleanMapping(member);
+            var member = GetMember<bool?>(memberName);
+            return GetBooleanMapping(member);
         }
 
         IByteArrayPropertyMapping IDynamicSeparatedValueTypeConfiguration.ByteArrayProperty(string memberName)
         {
-            var member = getMember<byte[]>(memberName);
-            return getByteArrayMapping(member);
+            var member = GetMember<byte[]>(memberName);
+            return GetByteArrayMapping(member);
         }
 
         IBytePropertyMapping IDynamicSeparatedValueTypeConfiguration.ByteProperty(string memberName)
         {
-            var member = getMember<byte?>(memberName);
-            return getByteMapping(member);
+            var member = GetMember<byte?>(memberName);
+            return GetByteMapping(member);
         }
 
         ISBytePropertyMapping IDynamicSeparatedValueTypeConfiguration.SByteProperty(string memberName)
         {
-            var member = getMember<sbyte?>(memberName);
-            return getSByteMapping(member);
+            var member = GetMember<sbyte?>(memberName);
+            return GetSByteMapping(member);
         }
 
         ICharArrayPropertyMapping IDynamicSeparatedValueTypeConfiguration.CharArrayProperty(string memberName)
         {
-            var member = getMember<char[]>(memberName);
-            return getCharArrayMapping(member);
+            var member = GetMember<char[]>(memberName);
+            return GetCharArrayMapping(member);
         }
 
         ICharPropertyMapping IDynamicSeparatedValueTypeConfiguration.CharProperty(string memberName)
         {
-            var member = getMember<char?>(memberName);
-            return getCharMapping(member);
+            var member = GetMember<char?>(memberName);
+            return GetCharMapping(member);
         }
 
         IDateTimePropertyMapping IDynamicSeparatedValueTypeConfiguration.DateTimeProperty(string memberName)
         {
-            var member = getMember<DateTime?>(memberName);
-            return getDateTimeMapping(member);
+            var member = GetMember<DateTime?>(memberName);
+            return GetDateTimeMapping(member);
         }
 
         IDecimalPropertyMapping IDynamicSeparatedValueTypeConfiguration.DecimalProperty(string memberName)
         {
-            var member = getMember<decimal?>(memberName);
-            return getDecimalMapping(member);
+            var member = GetMember<decimal?>(memberName);
+            return GetDecimalMapping(member);
         }
 
         IDoublePropertyMapping IDynamicSeparatedValueTypeConfiguration.DoubleProperty(string memberName)
         {
-            var member = getMember<double?>(memberName);
-            return getDoubleMapping(member);
+            var member = GetMember<double?>(memberName);
+            return GetDoubleMapping(member);
         }
 
         IGuidPropertyMapping IDynamicSeparatedValueTypeConfiguration.GuidProperty(string memberName)
         {
-            var member = getMember<Guid?>(memberName);
-            return getGuidMapping(member);
+            var member = GetMember<Guid?>(memberName);
+            return GetGuidMapping(member);
         }
 
         IInt16PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int16Property(string memberName)
         {
-            var member = getMember<short?>(memberName);
-            return getInt16Mapping(member);
+            var member = GetMember<short?>(memberName);
+            return GetInt16Mapping(member);
         }
 
         IUInt16PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt16Property(string memberName)
         {
-            var member = getMember<ushort?>(memberName);
-            return getUInt16Mapping(member);
+            var member = GetMember<ushort?>(memberName);
+            return GetUInt16Mapping(member);
         }
 
         IInt32PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int32Property(string memberName)
         {
-            var member = getMember<int?>(memberName);
-            return getInt32Mapping(member);
+            var member = GetMember<int?>(memberName);
+            return GetInt32Mapping(member);
         }
 
         IUInt32PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt32Property(string memberName)
         {
-            var member = getMember<uint?>(memberName);
-            return getUInt32Mapping(member);
+            var member = GetMember<uint?>(memberName);
+            return GetUInt32Mapping(member);
         }
 
         IInt64PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int64Property(string memberName)
         {
-            var member = getMember<long?>(memberName);
-            return getInt64Mapping(member);
+            var member = GetMember<long?>(memberName);
+            return GetInt64Mapping(member);
         }
 
         IUInt64PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt64Property(string memberName)
         {
-            var member = getMember<ulong?>(memberName);
-            return getUInt64Mapping(member);
+            var member = GetMember<ulong?>(memberName);
+            return GetUInt64Mapping(member);
         }
 
         ISinglePropertyMapping IDynamicSeparatedValueTypeConfiguration.SingleProperty(string memberName)
         {
-            var member = getMember<float?>(memberName);
-            return getSingleMapping(member);
+            var member = GetMember<float?>(memberName);
+            return GetSingleMapping(member);
         }
 
         IStringPropertyMapping IDynamicSeparatedValueTypeConfiguration.StringProperty(string memberName)
         {
-            var member = getMember<string>(memberName);
-            return getStringMapping(member);
+            var member = GetMember<string>(memberName);
+            return GetStringMapping(member);
         }
 
         ISeparatedValueComplexPropertyMapping IDynamicSeparatedValueTypeConfiguration.ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper)
         {
-            var member = getMember<string>(memberName);
-            return getComplexMapping(member, mapper);
+            var member = GetMember<string>(memberName);
+            return GetComplexMapping(member, mapper);
         }
 
         IFixedLengthComplexPropertyMapping IDynamicSeparatedValueTypeConfiguration.ComplexProperty<TProp>(string memberName, IFixedLengthTypeMapper<TProp> mapper)
         {
-            var member = getMember<string>(memberName);
-            return getComplexMapping(member, mapper);
+            var member = GetMember<string>(memberName);
+            return GetComplexMapping(member, mapper);
         }
 
         IEnumPropertyMapping<TEnum> IDynamicSeparatedValueTypeConfiguration.EnumProperty<TEnum>(string memberName)
         {
-            var member = getMember<TEnum?>(memberName);
-            return getEnumMapping<TEnum>(member);
+            var member = GetMember<TEnum?>(memberName);
+            return GetEnumMapping<TEnum>(member);
         }
 
         IIgnoredMapping IDynamicSeparatedValueTypeConfiguration.Ignored()
@@ -1391,10 +1379,10 @@ namespace FlatFiles.TypeMapping
         ICustomPropertyMapping IDynamicSeparatedValueTypeConfiguration.CustomProperty(string memberName, IColumnDefinition column)
         {
             var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
-            return getCustomMapping(member, column);
+            return GetCustomMapping(member, column);
         }
 
-        private static IMemberAccessor getMember<TProp>(string memberName)
+        private static IMemberAccessor GetMember<TProp>(string memberName)
         {
             return MemberAccessorBuilder.GetMember<TEntity>(typeof(TProp), memberName);
         }
@@ -1428,7 +1416,7 @@ namespace FlatFiles.TypeMapping
 
         public void OptimizeMapping(bool isOptimized = true)
         {
-            this.isOptimized = isOptimized;
+            _isOptimized = isOptimized;
         }
 
         void IDynamicSeparatedValueTypeConfiguration.OptimizeMapping(bool isOptimized)
@@ -1438,17 +1426,17 @@ namespace FlatFiles.TypeMapping
 
         public void UseFactory<TOther>(Func<TOther> factory)
         {
-            lookup.SetFactory(factory);
+            _lookup.SetFactory(factory);
         }
 
         void IDynamicSeparatedValueTypeConfiguration.UseFactory(Type entityType, Func<object> factory)
         {
-            lookup.SetFactory(entityType, factory);
+            _lookup.SetFactory(entityType, factory);
         }
 
         public IMapper<TEntity> GetMapper()
         {
-            return new Mapper<TEntity>(lookup, getCodeGenerator());
+            return new Mapper<TEntity>(_lookup, GetCodeGenerator());
         }
 
         IMapper IMapperSource.GetMapper()
@@ -1456,9 +1444,9 @@ namespace FlatFiles.TypeMapping
             return GetMapper();
         }
 
-        private ICodeGenerator getCodeGenerator()
+        private ICodeGenerator GetCodeGenerator()
         {
-            return isOptimized 
+            return _isOptimized 
                 ? (ICodeGenerator)new EmitCodeGenerator() 
                 : new ReflectionCodeGenerator();
         }

@@ -21,14 +21,14 @@
             WorkIndex = workIndex;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         IMemberAccessor IMemberMapping.Member => null;
 
-        public IColumnDefinition ColumnDefinition { get; private set; }
+        public IColumnDefinition ColumnDefinition { get; }
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

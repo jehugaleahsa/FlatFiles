@@ -30,8 +30,8 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class SeparatedValueTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
-        private IDynamicSeparatedValueTypeMapper defaultMapper;
+        private readonly List<TypeMapperMatcher> _matchers = new List<TypeMapperMatcher>();
+        private IDynamicSeparatedValueTypeMapper _defaultMapper;
 
         internal Func<object[], object> Reader { get; set; }
 
@@ -56,7 +56,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default type mapper to use.</param>
         public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
         {
-            defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+            _defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default schema to use.</param>
         public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
         {
-            defaultMapper = typeMapper;
+            _defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -79,20 +79,20 @@ namespace FlatFiles.TypeMapping
             var selector = new SeparatedValueSchemaSelector();
             var valueReader = new SeparatedValueReader(reader, selector, options);
             var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader, this);
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
-                var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<object[], object>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
             }
-            if (defaultMapper != null)
+            if (_defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
-                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
+                var typeReader = new Lazy<Func<object[], object>>(GetReader(_defaultMapper));
+                selector.WithDefault(_defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<object[], object>> getReader(IDynamicSeparatedValueTypeMapper defaultMapper)
+        private Func<Func<object[], object>> GetReader(IDynamicSeparatedValueTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
@@ -101,7 +101,7 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicSeparatedValueTypeMapper typeMapper, Func<string[], bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher
+            _matchers.Add(new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = predicate
@@ -117,13 +117,13 @@ namespace FlatFiles.TypeMapping
 
         private class SeparatedValueTypeMapperSelectorWhenBuilder : ISeparatedValueTypeMapperSelectorWhenBuilder
         {
-            private readonly SeparatedValueTypeMapperSelector selector;
-            private readonly Func<string[], bool> predicate;
+            private readonly SeparatedValueTypeMapperSelector _selector;
+            private readonly Func<string[], bool> _predicate;
 
             public SeparatedValueTypeMapperSelectorWhenBuilder(SeparatedValueTypeMapperSelector selector, Func<string[], bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate;
+                _selector = selector;
+                _predicate = predicate;
             }
 
             public void Use<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
@@ -138,7 +138,7 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new ArgumentNullException(nameof(typeMapper));
                 }
-                selector.Add(typeMapper, predicate);
+                _selector.Add(typeMapper, _predicate);
             }
         }
     }

@@ -18,7 +18,7 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
         public FlatFileReader(IReader reader)
         {
-            this.parser = reader ?? throw new ArgumentNullException(nameof(parser));
+            parser = reader ?? throw new ArgumentNullException(nameof(parser));
         }
 
         /// <summary>

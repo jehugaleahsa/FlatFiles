@@ -11,8 +11,10 @@ namespace FlatFiles.Benchmark
     {
         static void Main(string[] args)
         {
-            var configuration = new ManualConfig();
-            configuration.KeepBenchmarkFiles = false;
+            var configuration = new ManualConfig
+            {
+                KeepBenchmarkFiles = false
+            };
             configuration.Add(StatisticColumn.Min);
             configuration.Add(StatisticColumn.Max);
             configuration.Add(DefaultConfig.Instance.GetColumnProviders().ToArray());

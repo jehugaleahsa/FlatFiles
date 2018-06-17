@@ -18,7 +18,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the partitioned, unparsed record values read from the source file.
         /// </summary>
-        public string[] Values { get; private set; }
+        public string[] Values { get; }
 
         /// <summary>
         /// Gets or sets whether the record should be skipped.

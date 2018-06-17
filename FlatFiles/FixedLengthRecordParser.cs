@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using FlatFiles.Properties;
@@ -8,13 +7,13 @@ namespace FlatFiles
 {
     internal sealed class FixedLengthRecordParser
     {
-        private readonly IRecordReader recordReader;
+        private readonly IRecordReader _recordReader;
 
         public FixedLengthRecordParser(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options)
         {
             if (options.HasRecordSeparator)
             {
-                recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
+                _recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
             }
             else if (schema == null)
             {
@@ -22,28 +21,28 @@ namespace FlatFiles
             }
             else
             {
-                recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
+                _recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
             }
         }
 
         public bool IsEndOfStream()
         {
-            return recordReader.IsEndOfStream();
+            return _recordReader.IsEndOfStream();
         }
 
         public async ValueTask<bool> IsEndOfStreamAsync()
         {
-            return await recordReader.IsEndOfStreamAsync().ConfigureAwait(false);
+            return await _recordReader.IsEndOfStreamAsync().ConfigureAwait(false);
         }
 
         public string ReadRecord()
         {
-            return recordReader.ReadRecord();
+            return _recordReader.ReadRecord();
         }
 
         public async Task<string> ReadRecordAsync()
         {
-            return await recordReader.ReadRecordAsync().ConfigureAwait(false);
+            return await _recordReader.ReadRecordAsync().ConfigureAwait(false);
         }
 
         private interface IRecordReader
@@ -59,97 +58,97 @@ namespace FlatFiles
 
         private sealed class SeparatorRecordReader : IRecordReader
         {
-            private readonly RetryReader reader;
-            private readonly ISeparatorMatcher matcher;
-            private readonly StringBuilder builder;
+            private readonly RetryReader _reader;
+            private readonly ISeparatorMatcher _matcher;
+            private readonly StringBuilder _builder;
 
             public SeparatorRecordReader(TextReader reader, string separator)
             {
-                this.reader = new RetryReader(reader);
-                matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
-                builder = new StringBuilder();
+                _reader = new RetryReader(reader);
+                _matcher = SeparatorMatcher.GetMatcher(_reader, separator);
+                _builder = new StringBuilder();
             }
 
             public bool IsEndOfStream()
             {
-                if (reader.ShouldLoadBuffer(1))
+                if (_reader.ShouldLoadBuffer(1))
                 {
-                    reader.LoadBuffer();
+                    _reader.LoadBuffer();
                 }
-                return reader.IsEndOfStream();
+                return _reader.IsEndOfStream();
             }
 
             public async ValueTask<bool> IsEndOfStreamAsync()
             {
-                if (reader.ShouldLoadBuffer(1))
+                if (_reader.ShouldLoadBuffer(1))
                 {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
-                return reader.IsEndOfStream();
+                return _reader.IsEndOfStream();
             }
 
             public string ReadRecord()
             {
-                if (reader.ShouldLoadBuffer(matcher.Size))
+                if (_reader.ShouldLoadBuffer(_matcher.Size))
                 {
-                    reader.LoadBuffer();
+                    _reader.LoadBuffer();
                 }
-                while (!matcher.IsMatch() && reader.Read())
+                while (!_matcher.IsMatch() && _reader.Read())
                 {
-                    builder.Append(reader.Current);
-                    if (reader.ShouldLoadBuffer(matcher.Size))
+                    _builder.Append(_reader.Current);
+                    if (_reader.ShouldLoadBuffer(_matcher.Size))
                     {
-                        reader.LoadBuffer();
+                        _reader.LoadBuffer();
                     }
                 }
-                string record = builder.ToString();
-                builder.Clear();
+                string record = _builder.ToString();
+                _builder.Clear();
                 return record;
             }
 
             public async Task<string> ReadRecordAsync()
             {
-                if (reader.ShouldLoadBuffer(matcher.Size))
+                if (_reader.ShouldLoadBuffer(_matcher.Size))
                 {
-                    await reader.LoadBufferAsync().ConfigureAwait(false);
+                    await _reader.LoadBufferAsync().ConfigureAwait(false);
                 }
-                while (!matcher.IsMatch() && reader.Read())
+                while (!_matcher.IsMatch() && _reader.Read())
                 {
-                    builder.Append(reader.Current);
-                    if (reader.ShouldLoadBuffer(matcher.Size))
+                    _builder.Append(_reader.Current);
+                    if (_reader.ShouldLoadBuffer(_matcher.Size))
                     {
-                        await reader.LoadBufferAsync().ConfigureAwait(false);
+                        await _reader.LoadBufferAsync().ConfigureAwait(false);
                     }
                 }
-                string record = builder.ToString();
-                builder.Clear();
+                string record = _builder.ToString();
+                _builder.Clear();
                 return record;
             }
         }
 
         private sealed class FixedLengthRecordReader : IRecordReader
         {
-            private readonly TextReader reader;
-            private readonly char[] buffer;
-            private int length;
-            private bool isEndOfStream;
+            private readonly TextReader _reader;
+            private readonly char[] _buffer;
+            private int _length;
+            private bool _isEndOfStream;
 
             public FixedLengthRecordReader(TextReader reader, int totalWidth)
             {
-                this.reader = reader;
-                buffer = new char[totalWidth];
+                _reader = reader;
+                _buffer = new char[totalWidth];
             }
 
             public bool IsEndOfStream()
             {
-                if (isEndOfStream)
+                if (_isEndOfStream)
                 {
                     return true;
                 }
-                length = reader.ReadBlock(buffer, 0, buffer.Length);
-                if (length == 0)
+                _length = _reader.ReadBlock(_buffer, 0, _buffer.Length);
+                if (_length == 0)
                 {
-                    isEndOfStream = true;
+                    _isEndOfStream = true;
                     return true;
                 }
                 return false;
@@ -157,14 +156,14 @@ namespace FlatFiles
 
             public async ValueTask<bool> IsEndOfStreamAsync()
             {
-                if (isEndOfStream)
+                if (_isEndOfStream)
                 {
                     return true;
                 }
-                length = await reader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                if (length == 0)
+                _length = await _reader.ReadBlockAsync(_buffer, 0, _buffer.Length).ConfigureAwait(false);
+                if (_length == 0)
                 {
-                    isEndOfStream = true;
+                    _isEndOfStream = true;
                     return true;
                 }
                 return false;
@@ -172,12 +171,12 @@ namespace FlatFiles
 
             public string ReadRecord()
             {
-                return new String(buffer, 0, length);
+                return new string(_buffer, 0, _length);
             }
 
             public Task<string> ReadRecordAsync()
             {
-                return Task.FromResult(new String(buffer, 0, length));
+                return Task.FromResult(new string(_buffer, 0, _length));
             }
         }
     }

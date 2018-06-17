@@ -53,8 +53,8 @@ namespace FlatFiles
     /// </summary>
     public abstract class ColumnDefinition : IColumnDefinition
     {
-        private string columnName;
-        private INullHandler nullHandler;
+        private string _columnName;
+        private INullHandler _nullHandler;
 
         /// <summary>
         /// Initializes a new instance of a ColumnDefinition.
@@ -74,7 +74,7 @@ namespace FlatFiles
         {
             IsIgnored = isIgnored;
             ColumnName = columnName;
-            nullHandler = DefaultNullHandler.Instance;
+            _nullHandler = DefaultNullHandler.Instance;
         }
 
         /// <summary>
@@ -82,33 +82,30 @@ namespace FlatFiles
         /// </summary>
         public string ColumnName
         {
-            get => columnName;
+            get => _columnName;
             internal set 
             {
-                if (value != null)
-                {
-                    value = value.Trim();
-                }
-                if (!IsIgnored && String.IsNullOrEmpty(value))
+                value = value?.Trim();
+                if (!IsIgnored && string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.BlankColumnName);
                 }
-                columnName = value;
+                _columnName = value;
             }
         }
 
         /// <summary>
         /// Gets whether the value in this column is returned as a result.
         /// </summary>
-        public bool IsIgnored { get; private set; }
+        public bool IsIgnored { get; }
 
         /// <summary>
         /// Gets or sets the null handler instance used to interpret null values.
         /// </summary>
         public INullHandler NullHandler
         {
-            get => nullHandler;
-            set => nullHandler = value ?? DefaultNullHandler.Instance;
+            get => _nullHandler;
+            set => _nullHandler = value ?? DefaultNullHandler.Instance;
         }
 
         /// <summary>
@@ -137,7 +134,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return String.Empty;
+                return string.Empty;
             }
             return value.Trim();
         }

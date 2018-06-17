@@ -35,9 +35,9 @@ namespace FlatFiles
     /// </summary>
     public class FixedLengthSchemaSelector
     {
-        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
-        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
-        private SchemaMatcher defaultMatcher = nonMatcher;
+        private static readonly SchemaMatcher NonMatcher = new SchemaMatcher { Predicate = values => false };
+        private readonly List<SchemaMatcher> _matchers = new List<SchemaMatcher>();
+        private SchemaMatcher _defaultMatcher = NonMatcher;
 
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
@@ -62,8 +62,8 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public IFixedLengthSchemaSelectorUseBuilder WithDefault(FixedLengthSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
-            return new FixedLengthSchemaSelectorUseBuilder(defaultMatcher);
+            _defaultMatcher = schema == null ? NonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
+            return new FixedLengthSchemaSelectorUseBuilder(_defaultMatcher);
         }
 
         private SchemaMatcher Add(FixedLengthSchema schema, Func<string, bool> predicate)
@@ -73,13 +73,13 @@ namespace FlatFiles
                 Schema = schema,
                 Predicate = predicate
             };
-            matchers.Add(matcher);
+            _matchers.Add(matcher);
             return matcher;
         }
 
         internal FixedLengthSchema GetSchema(string record)
         {
-            foreach (var matcher in matchers)
+            foreach (var matcher in _matchers)
             {
                 if (matcher.Predicate(record))
                 {
@@ -87,10 +87,10 @@ namespace FlatFiles
                     return matcher.Schema;
                 }
             }
-            if (defaultMatcher.Predicate(record))
+            if (_defaultMatcher.Predicate(record))
             {
-                defaultMatcher.Action?.Invoke();
-                return defaultMatcher.Schema;
+                _defaultMatcher.Action?.Invoke();
+                return _defaultMatcher.Schema;
             }
             throw new FlatFileException(Resources.MissingMatcher);
         }
@@ -106,13 +106,13 @@ namespace FlatFiles
 
         private class FixedLengthSchemaSelectorWhenBuilder : IFixedLengthSchemaSelectorWhenBuilder
         {
-            private readonly FixedLengthSchemaSelector selector;
-            private readonly Func<string, bool> predicate;
+            private readonly FixedLengthSchemaSelector _selector;
+            private readonly Func<string, bool> _predicate;
 
             public FixedLengthSchemaSelectorWhenBuilder(FixedLengthSchemaSelector selector, Func<string, bool> predicate)
             {
-                this.selector = selector;
-                this.predicate = predicate;
+                _selector = selector;
+                _predicate = predicate;
             }
 
             public IFixedLengthSchemaSelectorUseBuilder Use(FixedLengthSchema schema)
@@ -121,23 +121,23 @@ namespace FlatFiles
                 {
                     throw new ArgumentNullException(nameof(schema));
                 }
-                var matcher = selector.Add(schema, predicate);
+                var matcher = _selector.Add(schema, _predicate);
                 return new FixedLengthSchemaSelectorUseBuilder(matcher);
             }
         }
 
         private class FixedLengthSchemaSelectorUseBuilder : IFixedLengthSchemaSelectorUseBuilder
         {
-            private readonly SchemaMatcher matcher;
+            private readonly SchemaMatcher _matcher;
 
             public FixedLengthSchemaSelectorUseBuilder(SchemaMatcher matcher)
             {
-                this.matcher = matcher;
+                _matcher = matcher;
             }
 
             public void OnMatch(Action action)
             {
-                matcher.Action = action;
+                _matcher.Action = action;
             }
         }
     }

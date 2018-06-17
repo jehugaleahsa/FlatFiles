@@ -1,117 +1,116 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 namespace FlatFiles
 {
     internal sealed class RetryReader
     {
-        private readonly CircularQueue<char> queue = new CircularQueue<char>(4096);
-        private readonly TextReader reader;
-        private bool isEndOfStreamFound;
+        private readonly CircularQueue<char> _queue = new CircularQueue<char>(4096);
+        private readonly TextReader _reader;
+        private bool _isEndOfStreamFound;
 
         public RetryReader(TextReader reader)
         {
-            this.reader = reader;
+            _reader = reader;
         }
 
         public bool IsEndOfStream()
         {
-            return isEndOfStreamFound && queue.Count == 0;
+            return _isEndOfStreamFound && _queue.Count == 0;
         }
 
         public char Current { get; private set; }
 
         public bool Read()
         {
-            if (queue.Count == 0)
+            if (_queue.Count == 0)
             {
                 return false;
             }
-            Current = queue.Peek();
-            queue.Dequeue(1);
+            Current = _queue.Peek();
+            _queue.Dequeue(1);
             return true;
         }
 
         public bool ShouldLoadBuffer(int minSize)
         {
-            return !isEndOfStreamFound && queue.Count < minSize;
+            return !_isEndOfStreamFound && _queue.Count < minSize;
         }
 
         public void LoadBuffer()
         {
-            if (isEndOfStreamFound)
+            if (_isEndOfStreamFound)
             {
                 return;
             }
-            var segment = queue.PrepareBlock();
-            int length = reader.ReadBlock(segment.Array, segment.Offset, segment.Count);
+            var segment = _queue.PrepareBlock();
+            int length = _reader.ReadBlock(segment.Array, segment.Offset, segment.Count);
             if (length < segment.Count)
             {
-                isEndOfStreamFound = true;
+                _isEndOfStreamFound = true;
             }
-            queue.RecordGrowth(length);
+            _queue.RecordGrowth(length);
         }
 
         public async Task LoadBufferAsync()
         {
-            if (isEndOfStreamFound)
+            if (_isEndOfStreamFound)
             {
                 return;
             }
-            var segment = queue.PrepareBlock();
-            int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count).ConfigureAwait(false);
+            var segment = _queue.PrepareBlock();
+            int length = await _reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count).ConfigureAwait(false);
             if (length < segment.Count)
             {
-                isEndOfStreamFound = true;
+                _isEndOfStreamFound = true;
             }
-            queue.RecordGrowth(length);
+            _queue.RecordGrowth(length);
         }
 
         public bool IsWhitespace()
         {
-            if (queue.Count == 0 || !Char.IsWhiteSpace(queue.Peek()))
+            if (_queue.Count == 0 || !char.IsWhiteSpace(_queue.Peek()))
             {
                 return false;
             }
-            queue.Dequeue(1);
+            _queue.Dequeue(1);
             return true;
         }
 
         public bool IsMatch1(char value)
         {
-            if (queue.Count == 0 || queue.Peek() != value)
+            if (_queue.Count == 0 || _queue.Peek() != value)
             {
                 return false;
             }
-            queue.Dequeue(1);
+            _queue.Dequeue(1);
             return true;
         }
 
         public bool IsMatch2(char first, char second)
         {
-            if (queue.Count < 2 || queue.Peek() != first || queue.Peek(1) != second)
+            if (_queue.Count < 2 || _queue.Peek() != first || _queue.Peek(1) != second)
             {
                 return false;
             }
-            queue.Dequeue(2);
+            _queue.Dequeue(2);
             return true;
         }
 
         public bool IsMatch(string value)
         {
-            if (queue.Count < value.Length)
+            if (_queue.Count < value.Length)
             {
                 return false;
             }
             for (int position = 0; position != value.Length; ++position)
             {
-                if (queue.Peek(position) != value[position])
+                if (_queue.Peek(position) != value[position])
                 {
                     return false;
                 }
             }
-            queue.Dequeue(value.Length);
+            _queue.Dequeue(value.Length);
             return true;
         }
     }

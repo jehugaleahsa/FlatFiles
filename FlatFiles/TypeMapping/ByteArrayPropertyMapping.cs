@@ -47,11 +47,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class ByteArrayPropertyMapping : IByteArrayPropertyMapping, IMemberMapping
     {
-        private readonly ByteArrayColumn column;
+        private readonly ByteArrayColumn _column;
 
         public ByteArrayPropertyMapping(ByteArrayColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -59,40 +59,40 @@ namespace FlatFiles.TypeMapping
 
         public IByteArrayPropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IByteArrayPropertyMapping Encoding(Encoding encoding)
         {
-            column.Encoding = encoding;
+            _column.Encoding = encoding;
             return this;
         }
 
         public IByteArrayPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IByteArrayPropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public IByteArrayPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

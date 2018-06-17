@@ -47,17 +47,17 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class FixedLengthComplexPropertyMapping<TEntity> : IFixedLengthComplexPropertyMapping, IMemberMapping
     {
-        private readonly IFixedLengthTypeMapper<TEntity> mapper;
-        private string columnName;
-        private FixedLengthOptions options;
-        private INullHandler nullHandler;
-        private Func<string, string> preprocessor;
+        private readonly IFixedLengthTypeMapper<TEntity> _mapper;
+        private string _columnName;
+        private FixedLengthOptions _options;
+        private INullHandler _nullHandler;
+        private Func<string, string> _preprocessor;
 
         public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.mapper = mapper;
+            _mapper = mapper;
             Member = member;
-            columnName = member.Name;
+            _columnName = member.Name;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
         }
@@ -66,54 +66,56 @@ namespace FlatFiles.TypeMapping
         {
             get
             {
-                FixedLengthSchema schema = mapper.GetSchema();
-                FixedLengthComplexColumn column = new FixedLengthComplexColumn(columnName, schema);
-                column.Options = options;
-                column.NullHandler = nullHandler;
-                column.Preprocessor = preprocessor;
-                var mapperSource = (IMapperSource<TEntity>)mapper;
+                FixedLengthSchema schema = _mapper.GetSchema();
+                FixedLengthComplexColumn column = new FixedLengthComplexColumn(_columnName, schema)
+                {
+                    Options = _options,
+                    NullHandler = _nullHandler,
+                    Preprocessor = _preprocessor
+                };
+                var mapperSource = (IMapperSource<TEntity>)_mapper;
                 var recordMapper = mapperSource.GetMapper();
                 return new ComplexMapperColumn<TEntity>(column, recordMapper);
             }
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
 
         public IFixedLengthComplexPropertyMapping ColumnName(string name)
         {
-            if (String.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException(Resources.BlankColumnName);
             }
-            columnName = name;
+            _columnName = name;
             return this;
         }
 
         public IFixedLengthComplexPropertyMapping WithOptions(FixedLengthOptions options)
         {
-            this.options = options;
+            _options = options;
             return this;
         }
 
         public IFixedLengthComplexPropertyMapping NullHandler(INullHandler handler)
         {
-            nullHandler = handler;
+            _nullHandler = handler;
             return this;
         }
 
         public IFixedLengthComplexPropertyMapping NullValue(string value)
         {
-            nullHandler = new ConstantNullHandler(value);
+            _nullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IFixedLengthComplexPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.preprocessor = preprocessor;
+            _preprocessor = preprocessor;
             return this;
         }
     }

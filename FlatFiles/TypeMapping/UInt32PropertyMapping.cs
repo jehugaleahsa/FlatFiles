@@ -61,11 +61,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class UInt32PropertyMapping : IUInt32PropertyMapping, IMemberMapping
     {
-        private readonly UInt32Column column;
+        private readonly UInt32Column _column;
 
         public UInt32PropertyMapping(UInt32Column column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -73,52 +73,52 @@ namespace FlatFiles.TypeMapping
 
         public IUInt32PropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IUInt32PropertyMapping FormatProvider(IFormatProvider provider)
         {
-            column.FormatProvider = provider;
+            _column.FormatProvider = provider;
             return this;
         }
 
         public IUInt32PropertyMapping NumberStyles(NumberStyles styles)
         {
-            column.NumberStyles = styles;
+            _column.NumberStyles = styles;
             return this;
         }
 
         public IUInt32PropertyMapping OutputFormat(string format)
         {
-            column.OutputFormat = format;
+            _column.OutputFormat = format;
             return this;
         }
 
         public IUInt32PropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IUInt32PropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public IUInt32PropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

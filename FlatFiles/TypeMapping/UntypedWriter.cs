@@ -4,26 +4,26 @@ namespace FlatFiles.TypeMapping
 {
     internal class UntypedWriter<TEntity> : ITypedWriter<object>
     {
-        private readonly ITypedWriter<TEntity> writer;
+        private readonly ITypedWriter<TEntity> _writer;
 
         public UntypedWriter(ITypedWriter<TEntity> writer)
         {
-            this.writer = writer;
+            _writer = writer;
         }
 
         public ISchema GetSchema()
         {
-            return writer.GetSchema();
+            return _writer.GetSchema();
         }
 
         public void Write(object entity)
         {
-            writer.Write((TEntity)entity);
+            _writer.Write((TEntity)entity);
         }
 
         public async Task WriteAsync(object entity)
         {
-            await writer.WriteAsync((TEntity)entity).ConfigureAwait(false);
+            await _writer.WriteAsync((TEntity)entity).ConfigureAwait(false);
         }
     }
 }

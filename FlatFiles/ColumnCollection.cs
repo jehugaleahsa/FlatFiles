@@ -10,16 +10,16 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
-        private readonly List<IColumnDefinition> definitions;
-        private readonly Dictionary<string, int> ordinals;
+        private readonly List<IColumnDefinition> _definitions;
+        private readonly Dictionary<string, int> _ordinals;
 
         /// <summary>
         /// Initializes a new ColumnCollection.
         /// </summary>
         internal ColumnCollection()
         {
-            definitions = new List<IColumnDefinition>();
-            ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
+            _definitions = new List<IColumnDefinition>();
+            _ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="index">The index of the column definition to get.</param>
         /// <returns>The column definition at the given index.</returns>
-        public IColumnDefinition this[int index] => definitions[index];
+        public IColumnDefinition this[int index] => _definitions[index];
 
         /// <summary>
         /// Gets the column definition with the given name.
@@ -38,15 +38,15 @@ namespace FlatFiles
         {
             get 
             {
-                int index = ordinals.ContainsKey(columnName) ? ordinals[columnName] : -1;
-                return definitions[index];
+                int index = _ordinals.ContainsKey(columnName) ? _ordinals[columnName] : -1;
+                return _definitions[index];
             }
         }
 
         /// <summary>
         /// Gets the number of columns in the collection.
         /// </summary>
-        public int Count => definitions.Count;
+        public int Count => _definitions.Count;
 
         /// <summary>
         /// Gets the number of columns that are ignored.
@@ -61,7 +61,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of columns that are not ignored.
         /// </summary>
-        internal int PhysicalCount => definitions.Count - IgnoredCount;
+        internal int PhysicalCount => _definitions.Count - IgnoredCount;
 
         internal void AddColumn(IColumnDefinition definition)
         {
@@ -69,7 +69,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(definition));
             }
-            if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName))
+            if (!string.IsNullOrEmpty(definition.ColumnName) && _ordinals.ContainsKey(definition.ColumnName))
             {
                 throw new ArgumentException(Resources.DuplicateColumnName, nameof(definition));
             }
@@ -78,7 +78,7 @@ namespace FlatFiles
 
         private void addColumn(IColumnDefinition definition)
         {
-            definitions.Add(definition);
+            _definitions.Add(definition);
             if (definition is IMetadataColumn)
             {
                 ++MetadataCount;
@@ -87,9 +87,9 @@ namespace FlatFiles
             {
                 ++IgnoredCount;
             }
-            if (!String.IsNullOrEmpty(definition.ColumnName))
+            if (!string.IsNullOrEmpty(definition.ColumnName))
             {
-                ordinals.Add(definition.ColumnName, definitions.Count - 1);
+                _ordinals.Add(definition.ColumnName, _definitions.Count - 1);
             }
         }
 
@@ -100,11 +100,11 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name -or- -1 if the column is not found.</returns>
         public int GetOrdinal(string columnName)
         {
-            if (!ordinals.ContainsKey(columnName))
+            if (!_ordinals.ContainsKey(columnName))
             {
                 return -1;
             }
-            return ordinals[columnName];
+            return _ordinals[columnName];
         }
 
         /// <summary>
@@ -113,12 +113,12 @@ namespace FlatFiles
         /// <returns>The enumerator.</returns>
         public IEnumerator<IColumnDefinition> GetEnumerator()
         {
-            return definitions.GetEnumerator();
+            return _definitions.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return definitions.GetEnumerator();
+            return _definitions.GetEnumerator();
         }
     }
 }

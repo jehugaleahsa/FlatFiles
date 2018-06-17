@@ -19,17 +19,17 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType => typeof(Boolean);
+        public override Type ColumnType => typeof(bool);
 
         /// <summary>
         /// Gets or sets the value representing true.
         /// </summary>
-        public string TrueString { get; set; } = Boolean.TrueString;
+        public string TrueString { get; set; } = bool.TrueString;
 
         /// <summary>
         /// Gets or sets the value representing false.
         /// </summary>
-        public string FalseString { get; set; } = Boolean.FalseString;
+        public string FalseString { get; set; } = bool.FalseString;
 
         /// <summary>
         /// Parses the given value into its equivilent boolean value.
@@ -47,11 +47,11 @@ namespace FlatFiles
                 return null;
             }
             value = TrimValue(value);
-            if (String.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
             {
                 return true;
             }
-            if (String.Equals(value, FalseString, StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(value, FalseString, StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }

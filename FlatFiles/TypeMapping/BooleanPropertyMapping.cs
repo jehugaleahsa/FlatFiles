@@ -53,11 +53,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class BooleanPropertyMapping : IBooleanPropertyMapping, IMemberMapping
     {
-        private readonly BooleanColumn column;
+        private readonly BooleanColumn _column;
 
         public BooleanPropertyMapping(BooleanColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -65,46 +65,46 @@ namespace FlatFiles.TypeMapping
 
         public IBooleanPropertyMapping ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IBooleanPropertyMapping TrueString(string value)
         {
-            column.TrueString = value;
+            _column.TrueString = value;
             return this;
         }
 
         public IBooleanPropertyMapping FalseString(string value)
         {
-            column.FalseString = value;
+            _column.FalseString = value;
             return this;
         }
 
         public IBooleanPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IBooleanPropertyMapping NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public IBooleanPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

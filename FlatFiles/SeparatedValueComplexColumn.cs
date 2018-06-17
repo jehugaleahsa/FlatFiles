@@ -3,12 +3,13 @@ using System.IO;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
     public class SeparatedValueComplexColumn : ColumnDefinition
     {
-        private readonly SeparatedValueSchema schema;
+        private readonly SeparatedValueSchema _schema;
 
         /// <summary>
         /// Initializes a new SeparatedValueComplexColumn with no schema.
@@ -38,7 +39,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(schema));
             }
-            this.schema = schema;
+            _schema = schema;
             Options = options;
         }
 
@@ -71,7 +72,7 @@ namespace FlatFiles
             }
 
             var stringReader = new StringReader(value);
-            var reader = getReader(stringReader);
+            var reader = GetReader(stringReader);
             if (reader.Read())
             {
                 return reader.GetValues();
@@ -79,14 +80,14 @@ namespace FlatFiles
             return null;
         }
 
-        private SeparatedValueReader getReader(StringReader stringReader)
+        private SeparatedValueReader GetReader(StringReader stringReader)
         {
-            if (schema == null)
+            if (_schema == null)
             {
                 return new SeparatedValueReader(stringReader, Options);
             }
 
-            return new SeparatedValueReader(stringReader, schema, Options);
+            return new SeparatedValueReader(stringReader, _schema, Options);
         }
 
         /// <summary>
@@ -102,14 +103,14 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             var writer = new StringWriter();
-            var recordWriter = getWriter(writer);
+            var recordWriter = GetWriter(writer);
             recordWriter.WriteRecord(values);
             return writer.ToString();
         }
 
-        private SeparatedValueRecordWriter getWriter(StringWriter writer)
+        private SeparatedValueRecordWriter GetWriter(StringWriter writer)
         {
-            return new SeparatedValueRecordWriter(writer, schema, Options ?? new SeparatedValueOptions());
+            return new SeparatedValueRecordWriter(writer, _schema, Options ?? new SeparatedValueOptions());
         }
     }
 }

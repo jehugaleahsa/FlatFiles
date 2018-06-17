@@ -20,59 +20,59 @@ namespace FlatFiles.TypeMapping
 
     internal class FieldAccessor : IMemberAccessor
     {
-        private readonly FieldInfo fieldInfo;
+        private readonly FieldInfo _fieldInfo;
 
         public FieldAccessor(FieldInfo fieldInfo, IMemberAccessor parent)
         {
-            this.fieldInfo = fieldInfo;
+            _fieldInfo = fieldInfo;
             ParentAccessor = parent;
         }
 
-        public MemberInfo MemberInfo => fieldInfo;
+        public MemberInfo MemberInfo => _fieldInfo;
 
-        public IMemberAccessor ParentAccessor { get; private set;  }
+        public IMemberAccessor ParentAccessor { get; }
 
-        public string Name => ParentAccessor == null ? fieldInfo.Name : $"{ParentAccessor.Name}.{fieldInfo.Name}";
+        public string Name => ParentAccessor == null ? _fieldInfo.Name : $"{ParentAccessor.Name}.{_fieldInfo.Name}";
 
-        public Type Type => fieldInfo.FieldType;
+        public Type Type => _fieldInfo.FieldType;
 
         public object GetValue(object instance)
         {
-            return fieldInfo.GetValue(instance);
+            return _fieldInfo.GetValue(instance);
         }
 
         public void SetValue(object instance, object value)
         {
-            fieldInfo.SetValue(instance, value);
+            _fieldInfo.SetValue(instance, value);
         }
     }
 
     internal class PropertyAccessor : IMemberAccessor
     {
-        private readonly PropertyInfo propertyInfo;
+        private readonly PropertyInfo _propertyInfo;
 
         public PropertyAccessor(PropertyInfo propertyInfo, IMemberAccessor parent)
         {
-            this.propertyInfo = propertyInfo;
+            _propertyInfo = propertyInfo;
             ParentAccessor = parent;
         }
 
-        public MemberInfo MemberInfo => propertyInfo;
+        public MemberInfo MemberInfo => _propertyInfo;
 
-        public IMemberAccessor ParentAccessor { get; private set; }
+        public IMemberAccessor ParentAccessor { get; }
 
-        public string Name => ParentAccessor == null ? propertyInfo.Name : $"{ParentAccessor.Name}.{propertyInfo.Name}";
+        public string Name => ParentAccessor == null ? _propertyInfo.Name : $"{ParentAccessor.Name}.{_propertyInfo.Name}";
 
-        public Type Type => propertyInfo.PropertyType;
+        public Type Type => _propertyInfo.PropertyType;
 
         public object GetValue(object instance)
         {
-            return propertyInfo.GetValue(instance);
+            return _propertyInfo.GetValue(instance);
         }
 
         public void SetValue(object instance, object value)
         {
-            propertyInfo.SetValue(instance, value);
+            _propertyInfo.SetValue(instance, value);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace FlatFiles.Benchmark
 {
     public class SimpleCsvTester
     {
-        private readonly string data;
+        private readonly string _data;
 
         public SimpleCsvTester()
         {
@@ -25,13 +25,13 @@ namespace FlatFiles.Benchmark
             };
             string header = String.Join(",", headers);
             string record = String.Join(",", values);
-            data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
+            _data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
         }
 
         [Benchmark]
         public void RunCsvHelper()
         {
-            StringReader reader = new StringReader(data);
+            StringReader reader = new StringReader(_data);
             var csvReader = new CsvHelper.CsvReader(reader, new Configuration() {  });
             var people = csvReader.GetRecords<Person>().ToArray();
         }
@@ -39,7 +39,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public async Task RunCsvHelperAsync()
         {
-            StringReader reader = new StringReader(data);
+            StringReader reader = new StringReader(_data);
             var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
             List<Person> people = new List<Person>();
             await csvReader.ReadAsync().ConfigureAwait(false);
@@ -68,7 +68,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader reader = new StringReader(data);
+            StringReader reader = new StringReader(_data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -90,7 +90,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader textReader = new StringReader(data);
+            StringReader textReader = new StringReader(_data);
             var people = new List<Person>();
             var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             while (await reader.ReadAsync().ConfigureAwait(false))
@@ -102,25 +102,27 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunStringSplit()
         {
-            var lines = data.Split(Environment.NewLine);
+            var lines = _data.Split(Environment.NewLine);
             var records = lines.Skip(1).Select(l => l.Split(",").ToArray());
             var people = new List<Person>();
             foreach (var record in records)
             {
-                Person person = new Person();
-                person.FirstName = record[0];
-                person.LastName = record[1];
-                person.Age = Int32.Parse(record[2]);
-                person.Street1 = record[3];
-                person.Street2 = record[4];
-                person.City = record[5];
-                person.State = record[6];
-                person.Zip = record[7];
-                person.FavoriteColor = record[8];
-                person.FavoriteFood = record[9];
-                person.FavoriteSport = record[10];
-                person.CreatedOn = DateTime.Parse(record[11]);
-                person.IsActive = Boolean.Parse(record[12]);
+                Person person = new Person
+                {
+                    FirstName = record[0],
+                    LastName = record[1],
+                    Age = Int32.Parse(record[2]),
+                    Street1 = record[3],
+                    Street2 = record[4],
+                    City = record[5],
+                    State = record[6],
+                    Zip = record[7],
+                    FavoriteColor = record[8],
+                    FavoriteFood = record[9],
+                    FavoriteSport = record[10],
+                    CreatedOn = DateTime.Parse(record[11]),
+                    IsActive = Boolean.Parse(record[12])
+                };
                 people.Add(person);
             }
         }

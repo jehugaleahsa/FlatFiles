@@ -8,8 +8,8 @@ namespace FlatFiles
     /// </summary>
     public class Window
     {
-        private FixedAlignment? alignment;
-        private OverflowTruncationPolicy? truncationPolicy;
+        private FixedAlignment? _alignment;
+        private OverflowTruncationPolicy? _truncationPolicy;
 
         /// <summary>
         /// Initializes a new instance of a Window.
@@ -27,21 +27,21 @@ namespace FlatFiles
         /// <summary>
         /// Gets the width of the column.
         /// </summary>
-        public int Width { get; private set; }
+        public int Width { get; }
 
         /// <summary>
         /// Gets or sets the alignment of the value in the column, using the value found in the FixedLengthOptions object by default.
         /// </summary>
         public FixedAlignment? Alignment
         {
-            get => alignment;
+            get => _alignment;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(FixedAlignment), value.Value))
                 {
                     throw new ArgumentException(Resources.InvalidAlignment, nameof(value));
                 }
-                alignment = value;
+                _alignment = value;
             }
         }
 
@@ -56,7 +56,7 @@ namespace FlatFiles
         /// </summary>
         public OverflowTruncationPolicy? TruncationPolicy 
         {
-            get => truncationPolicy;
+            get => _truncationPolicy;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(OverflowTruncationPolicy), value.Value))
@@ -64,7 +64,7 @@ namespace FlatFiles
                     throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
 
-                truncationPolicy = value;
+                _truncationPolicy = value;
             }
         }
 

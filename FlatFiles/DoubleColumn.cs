@@ -20,7 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType => typeof(Double);
+        public override Type ColumnType => typeof(double);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -54,7 +54,7 @@ namespace FlatFiles
             }
             IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
             value = TrimValue(value);
-            return Double.Parse(value, NumberStyles, provider);
+            return double.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

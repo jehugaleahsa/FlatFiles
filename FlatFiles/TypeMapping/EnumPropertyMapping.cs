@@ -55,11 +55,11 @@ namespace FlatFiles.TypeMapping
     internal sealed class EnumPropertyMapping<TEnum> : IEnumPropertyMapping<TEnum>, IMemberMapping
         where TEnum : Enum
     {
-        private readonly EnumColumn<TEnum> column;
+        private readonly EnumColumn<TEnum> _column;
 
         public EnumPropertyMapping(EnumColumn<TEnum> column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.column = column;
+            _column = column;
             Member = member;
             FileIndex = fileIndex;
             WorkIndex = workIndex;
@@ -67,46 +67,46 @@ namespace FlatFiles.TypeMapping
 
         public IEnumPropertyMapping<TEnum> ColumnName(string name)
         {
-            column.ColumnName = name;
+            _column.ColumnName = name;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Parser(Func<string, TEnum> parser)
         {
-            column.Parser = parser;
+            _column.Parser = parser;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Formatter(Func<TEnum, string> formatter)
         {
-            column.Formatter = formatter;
+            _column.Formatter = formatter;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            _column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> NullHandler(INullHandler handler)
         {
-            column.NullHandler = handler;
+            _column.NullHandler = handler;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Preprocessor(Func<string, string> preprocessor)
         {
-            column.Preprocessor = preprocessor;
+            _column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition => column;
+        public IColumnDefinition ColumnDefinition => _column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }
