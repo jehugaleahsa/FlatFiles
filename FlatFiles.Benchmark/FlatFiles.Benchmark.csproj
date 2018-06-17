@@ -8,8 +8,6 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.10.14" />
     <PackageReference Include="CsvHelper" Version="7.1.1" />
-    <PackageReference Include="FlatFile.Core" Version="0.2.51" />
-    <PackageReference Include="FlatFile.Delimited" Version="0.2.51" />
   </ItemGroup>
 
   <ItemGroup>
