@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     internal interface ISeparatorMatcher
     {
@@ -17,18 +15,18 @@ namespace FlatFiles
             {
                 return new DefaultSeparatorMatcher(reader);
             }
-            else if (separator.Length == 1)
+
+            if (separator.Length == 1)
             {
                 return new OneCharacterSeparatorMatcher(reader, separator[0]);
             }
-            else if (separator.Length == 2)
+
+            if (separator.Length == 2)
             {
                 return new TwoCharacterSeparatorMatcher(reader, separator[0], separator[1]);
             }
-            else
-            {
-                return new StringSeparatorMatcher(reader, separator);
-            }
+
+            return new StringSeparatorMatcher(reader, separator);
         }
     }
 
@@ -41,10 +39,7 @@ namespace FlatFiles
             this.reader = reader;
         }
 
-        public int Size
-        {
-            get { return 2; }
-        }
+        public int Size => 2;
 
         public bool IsMatch()
         {
@@ -53,7 +48,8 @@ namespace FlatFiles
                 reader.IsMatch1('\n');
                 return true;
             }
-            else if (reader.IsMatch1('\n'))
+
+            if (reader.IsMatch1('\n'))
             {
                 return true;
             }
@@ -72,10 +68,7 @@ namespace FlatFiles
             this.first = first;
         }
 
-        public int Size
-        {
-            get { return 1; }
-        }
+        public int Size => 1;
 
         public bool IsMatch()
         {
@@ -96,10 +89,7 @@ namespace FlatFiles
             this.second = second;
         }
 
-        public int Size
-        {
-            get { return 2; }
-        }
+        public int Size => 2;
 
         public bool IsMatch()
         {
@@ -117,10 +107,7 @@ namespace FlatFiles
             this.reader = reader;
             this.separator = separator;
         }
-        public int Size
-        {
-            get { return separator.Length; }
-        }
+        public int Size => separator.Length;
 
         public bool IsMatch()
         {

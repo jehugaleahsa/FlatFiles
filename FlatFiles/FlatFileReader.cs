@@ -51,10 +51,7 @@ namespace FlatFiles
             Dispose();
         }
 
-        int IDataReader.Depth
-        {
-            get { return 0; }
-        }
+        int IDataReader.Depth => 0;
 
         /// <summary>
         /// Gets a DataTable containing the schema of the data.
@@ -154,10 +151,7 @@ namespace FlatFiles
             return parser.Read();
         }
 
-        int IDataReader.RecordsAffected
-        {
-            get { return 0; }
-        }
+        int IDataReader.RecordsAffected => 0;
 
         /// <summary>
         /// Gets the number of fields in the current record.

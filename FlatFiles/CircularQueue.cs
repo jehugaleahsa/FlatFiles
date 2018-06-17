@@ -10,7 +10,7 @@ namespace FlatFiles
 
         public CircularQueue(int bufferSize)
         {
-            this.items = new T[bufferSize];
+            items = new T[bufferSize];
         }
 
         public int Count { get; private set; }

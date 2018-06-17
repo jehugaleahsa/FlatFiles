@@ -38,8 +38,8 @@ namespace FlatFiles.TypeMapping
         public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
-            this.serializer = mapper.GetWriter();
-            this.workCount = mapper.WorkCount;
+            serializer = mapper.GetWriter();
+            workCount = mapper.WorkCount;
         }
 
         public ISchema GetSchema()

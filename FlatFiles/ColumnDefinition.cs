@@ -82,10 +82,7 @@ namespace FlatFiles
         /// </summary>
         public string ColumnName
         {
-            get 
-            { 
-                return columnName; 
-            }
+            get => columnName;
             internal set 
             {
                 if (value != null)
@@ -110,8 +107,8 @@ namespace FlatFiles
         /// </summary>
         public INullHandler NullHandler
         {
-            get { return nullHandler; }
-            set { nullHandler = value ?? DefaultNullHandler.Instance; }
+            get => nullHandler;
+            set => nullHandler = value ?? DefaultNullHandler.Instance;
         }
 
         /// <summary>

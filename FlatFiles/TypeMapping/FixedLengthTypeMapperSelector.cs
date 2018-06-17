@@ -35,13 +35,6 @@ namespace FlatFiles.TypeMapping
         private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
         private IDynamicFixedLengthTypeMapper defaultMapper;
 
-        /// <summary>
-        /// Initializes a new instance of a FixedLengthTypeMapperSelector.
-        /// </summary>
-        public FixedLengthTypeMapperSelector()
-        {
-        }
-
         internal Func<object[], object> Reader { get; set; }
 
         /// <summary>
@@ -67,7 +60,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
         {
-            this.defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
+            defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -77,7 +70,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
         {
-            this.defaultMapper = typeMapper;
+            defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -113,7 +106,7 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicFixedLengthTypeMapper typeMapper, Func<string, bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher()
+            matchers.Add(new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = predicate

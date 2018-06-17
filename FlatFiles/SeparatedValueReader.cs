@@ -74,11 +74,11 @@ namespace FlatFiles
                 throw new ArgumentException(Resources.SameSeparator, nameof(options));
             }
             RetryReader retryReader = new RetryReader(reader);
-            this.parser = new SeparatedValueRecordParser(retryReader, options);
-            this.metadata = new Metadata()
+            parser = new SeparatedValueRecordParser(retryReader, options);
+            metadata = new Metadata
             {
                 Schema = hasSchema ? schema : null,
-                Options = this.parser.Options
+                Options = parser.Options
             };
         }
 
@@ -157,11 +157,9 @@ namespace FlatFiles
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -245,11 +243,9 @@ namespace FlatFiles
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -344,7 +340,7 @@ namespace FlatFiles
             }
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata()
+                var metadata = schemaSelector == null ? this.metadata : new Metadata
                 {
                     Schema = schema,
                     Options = this.metadata.Options,
@@ -485,17 +481,11 @@ namespace FlatFiles
         {
             public SeparatedValueSchema Schema { get; set; }
 
-            ISchema IProcessMetadata.Schema
-            {
-                get { return Schema; }
-            }
+            ISchema IProcessMetadata.Schema => Schema;
 
             public SeparatedValueOptions Options { get; set; }
 
-            IOptions IProcessMetadata.Options
-            {
-                get { return Options; }
-            }
+            IOptions IProcessMetadata.Options => Options;
 
             public int RecordCount { get; set; }
 

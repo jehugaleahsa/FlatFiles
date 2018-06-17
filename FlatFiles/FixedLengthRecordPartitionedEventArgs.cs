@@ -12,7 +12,7 @@ namespace FlatFiles
         /// </summary>
         internal FixedLengthRecordPartitionedEventArgs(string[] values)
         {
-            this.Values = values;
+            Values = values;
         }
 
         /// <summary>

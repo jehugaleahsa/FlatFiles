@@ -78,28 +78,23 @@ namespace FlatFiles.TypeMapping
                 {
                     return new PropertyAccessor(propertyInfo, null);
                 }
-                else
-                {
-                    IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
-                    return new PropertyAccessor(propertyInfo, parentAccessor);
-                }
+
+                IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
+                return new PropertyAccessor(propertyInfo, parentAccessor);
             }
-            else if (member.Member is FieldInfo fieldInfo)
+
+            if (member.Member is FieldInfo fieldInfo)
             {
                 if (fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
                 {
                     return new FieldAccessor(fieldInfo, null);
                 }
-                else
-                {
-                    IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
-                    return new FieldAccessor(fieldInfo, parentAccessor);
-                }
+
+                IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
+                return new FieldAccessor(fieldInfo, parentAccessor);
             }
-            else
-            {
-                throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
-            }
+
+            throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
         }
     }
 }

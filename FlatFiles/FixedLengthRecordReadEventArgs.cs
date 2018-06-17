@@ -12,7 +12,7 @@ namespace FlatFiles
         /// </summary>
         internal FixedLengthRecordReadEventArgs(string record)
         {
-            this.Record = record;
+            Record = record;
         }
 
         /// <summary>

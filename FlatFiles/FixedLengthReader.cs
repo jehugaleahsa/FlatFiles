@@ -59,7 +59,7 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
-            this.metadata = new Metadata()
+            metadata = new Metadata
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -127,11 +127,9 @@ namespace FlatFiles
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -204,11 +202,9 @@ namespace FlatFiles
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -301,7 +297,7 @@ namespace FlatFiles
         {
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata()
+                var metadata = schemaSelector == null ? this.metadata : new Metadata
                 {
                     Schema = schema,
                     Options = this.metadata.Options,
@@ -463,17 +459,11 @@ namespace FlatFiles
         {
             public FixedLengthSchema Schema { get; internal set; }
 
-            ISchema IProcessMetadata.Schema
-            {
-                get { return Schema; }
-            }
+            ISchema IProcessMetadata.Schema => Schema;
 
             public FixedLengthOptions Options { get; internal set; }
 
-            IOptions IProcessMetadata.Options
-            {
-                get { return Options; }
-            }
+            IOptions IProcessMetadata.Options => Options;
 
             public int RecordCount { get; internal set; }
 

@@ -51,47 +51,44 @@ namespace FlatFiles.TypeMapping
         public StringPropertyMapping(StringColumn column, IMemberAccessor member, int fileIndex, int workFile)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workFile;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workFile;
         }
 
         public IStringPropertyMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public IStringPropertyMapping Trim(bool trim)
         {
-            this.column.Trim = trim;
+            column.Trim = trim;
             return this;
         }
 
         public IStringPropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IStringPropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public IStringPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            column.Preprocessor = preprocessor;
             return this;
         }
 
         public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
         public int FileIndex { get; private set; }
 

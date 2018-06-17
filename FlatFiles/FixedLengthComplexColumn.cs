@@ -20,16 +20,13 @@ namespace FlatFiles
             : base(columnName)
         {
             this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
-            this.Options = options;
+            Options = options;
         }
 
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(object[]); }
-        }
+        public override Type ColumnType => typeof(object[]);
 
         /// <summary>
         /// Gets or sets the options used to read/write the records.

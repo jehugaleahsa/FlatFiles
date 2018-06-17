@@ -14,7 +14,7 @@ namespace FlatFiles
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
-            this.Metadata = new FixedLengthWriterMetadata()
+            Metadata = new FixedLengthWriterMetadata
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -66,7 +66,7 @@ namespace FlatFiles
 
         private string[] formatValues(object[] values, FixedLengthSchema schema)
         {
-            var metadata = injector == null ? Metadata : new FixedLengthWriterMetadata()
+            var metadata = injector == null ? Metadata : new FixedLengthWriterMetadata
             {
                 Schema = schema,
                 Options = Metadata.Options,
@@ -123,14 +123,13 @@ namespace FlatFiles
             {
                 return getTruncatedValue(value, window);
             }
-            else if (value.Length < window.Width)
+
+            if (value.Length < window.Width)
             {
                 return getPaddedValue(value, window);
             }
-            else
-            {
-                return value;
-            }
+
+            return value;
         }
 
         private string getTruncatedValue(string value, Window window)
@@ -141,10 +140,8 @@ namespace FlatFiles
                 int start = value.Length - window.Width;  // take characters on the end
                 return value.Substring(start, window.Width);
             }
-            else
-            {
-                return value.Substring(0, window.Width);
-            }
+
+            return value.Substring(0, window.Width);
         }
 
         private string getPaddedValue(string value, Window window)
@@ -154,10 +151,8 @@ namespace FlatFiles
             {
                 return value.PadRight(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
             }
-            else
-            {
-                return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
-            }
+
+            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
         }
 
         public void WriteRecordSeparator()
@@ -180,17 +175,11 @@ namespace FlatFiles
         {
             public FixedLengthSchema Schema { get; internal set; }
 
-            ISchema IProcessMetadata.Schema
-            {
-                get { return Schema; }
-            }
+            ISchema IProcessMetadata.Schema => Schema;
 
             public FixedLengthOptions Options { get; internal set; }
 
-            IOptions IProcessMetadata.Options
-            {
-                get { return Options; }
-            }
+            IOptions IProcessMetadata.Options => Options;
 
             public int RecordCount { get; internal set; }
 

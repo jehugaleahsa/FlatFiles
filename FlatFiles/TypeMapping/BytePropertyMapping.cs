@@ -66,59 +66,56 @@ namespace FlatFiles.TypeMapping
         public BytePropertyMapping(ByteColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public IBytePropertyMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public IBytePropertyMapping FormatProvider(IFormatProvider provider)
         {
-            this.column.FormatProvider = provider;
+            column.FormatProvider = provider;
             return this;
         }
 
         public IBytePropertyMapping NumberStyles(NumberStyles styles)
         {
-            this.column.NumberStyles = styles;
+            column.NumberStyles = styles;
             return this;
         }
 
         public IBytePropertyMapping OutputFormat(string format)
         {
-            this.column.OutputFormat = format;
+            column.OutputFormat = format;
             return this;
         }
 
         public IBytePropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IBytePropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public IBytePropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            column.Preprocessor = preprocessor;
             return this;
         }
 
         public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
         public int FileIndex { get; private set; }
 

@@ -83,7 +83,7 @@ namespace FlatFiles.TypeMapping
             var method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_read",
                 typeof(void),
-                new Type[] { entityType, typeof(object[]) },
+                new[] { entityType, typeof(object[]) },
                 true);
             var generator = method.GetILGenerator();
             for (int index = 0; index != mappings.Length; ++index)
@@ -127,7 +127,7 @@ namespace FlatFiles.TypeMapping
             var method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_write",
                 null,
-                new Type[] { entityType, typeof(object[]) },
+                new[] { entityType, typeof(object[]) },
                 true);
             var generator = method.GetILGenerator();
 

@@ -12,7 +12,7 @@ namespace FlatFiles
         /// </summary>
         internal SeparatedValueRecordReadEventArgs(string[] values)
         {
-            this.Values = values;
+            Values = values;
         }
 
         /// <summary>

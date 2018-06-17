@@ -12,13 +12,6 @@ namespace FlatFiles
         private OverflowTruncationPolicy truncationPolicy = OverflowTruncationPolicy.TruncateLeading;
 
         /// <summary>
-        /// Initializes a new instance of a FixedLengthParserOptions.
-        /// </summary>
-        public FixedLengthOptions()
-        {
-        }
-
-        /// <summary>
         /// Gets or sets the character used to buffer values in a column.
         /// </summary>
         /// <remarks>The fill character can be controlled at the column level using the Window class.</remarks>
@@ -47,10 +40,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets whether the first record in the source holds header information and should be skipped.
         /// </summary>
-        bool IOptions.IsFirstRecordSchema
-        {
-            get { return IsFirstRecordHeader; }
-        }
+        bool IOptions.IsFirstRecordSchema => IsFirstRecordHeader;
 
         /// <summary>
         /// Gets or sets the default alignment for the values in the fixed length file.
@@ -58,10 +48,7 @@ namespace FlatFiles
         /// <remarks>The alignment can be controlled at the columnm level using the Window class.</remarks>
         public FixedAlignment Alignment
         {
-            get
-            {
-                return alignment;
-            }
+            get => alignment;
             set
             {
                 if (!Enum.IsDefined(typeof(FixedAlignment), value))
@@ -78,10 +65,7 @@ namespace FlatFiles
         /// <remarks>The trunaction policy can be controlled at the column level using the Window class.</remarks>
         public OverflowTruncationPolicy TruncationPolicy
         {
-            get 
-            { 
-                return truncationPolicy; 
-            }
+            get => truncationPolicy;
             set
             {
                 if (!Enum.IsDefined(typeof(OverflowTruncationPolicy), value))

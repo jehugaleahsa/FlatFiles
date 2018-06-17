@@ -19,15 +19,15 @@ namespace FlatFiles
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
         {
             this.reader = reader;
-            this.Options = options.Clone();
-            this.separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
-            this.recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
+            Options = options.Clone();
+            separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
+            recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
             if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
             {
                 string postfix = options.RecordSeparator.Substring(options.Separator.Length);
-                this.postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
+                postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
-            this.separatorLength = Math.Max(this.Options.RecordSeparator?.Length ?? 2, this.Options.Separator.Length);
+            separatorLength = Math.Max(Options.RecordSeparator?.Length ?? 2, Options.Separator.Length);
         }
 
         internal SeparatedValueOptions Options { get; private set; }
@@ -100,10 +100,8 @@ namespace FlatFiles
             {
                 return getQuotedToken();
             }
-            else
-            {
-                return getUnquotedToken();
-            }
+
+            return getUnquotedToken();
         }
 
         private async ValueTask<TokenType> getNextTokenAsync()
@@ -125,10 +123,8 @@ namespace FlatFiles
             {
                 return await getQuotedTokenAsync().ConfigureAwait(false);
             }
-            else
-            {
-                return await getUnquotedTokenAsync().ConfigureAwait(false);
-            }
+
+            return await getUnquotedTokenAsync().ConfigureAwait(false);
         }
 
         private TokenType getUnquotedToken()
@@ -236,11 +232,9 @@ namespace FlatFiles
                         {
                             break;
                         }
-                        else
-                        {
-                            addToken();
-                            return tokenType;
-                        }
+
+                        addToken();
+                        return tokenType;
                     }
                 }
                 if (reader.ShouldLoadBuffer(1))
@@ -295,11 +289,9 @@ namespace FlatFiles
                         {
                             break;
                         }
-                        else
-                        {
-                            addToken();
-                            return tokenType;
-                        }
+
+                        addToken();
+                        return tokenType;
                     }
                 }
                 if (reader.ShouldLoadBuffer(1))
@@ -406,7 +398,8 @@ namespace FlatFiles
             {
                 return TokenType.EndOfStream;
             }
-            else if (separatorMatcher.IsMatch())
+
+            if (separatorMatcher.IsMatch())
             {
                 // This code handles the case where the separator is a substring of the record separator.
                 // We check to see if the remaining characters make up the record separator.
@@ -414,21 +407,18 @@ namespace FlatFiles
                 {
                     return TokenType.EndOfRecord;
                 }
-                else
-                {
-                    return TokenType.EndOfToken;
-                }
+
+                return TokenType.EndOfToken;
             }
-            else if (postfixMatcher == null && recordSeparatorMatcher.IsMatch())
+
+            if (postfixMatcher == null && recordSeparatorMatcher.IsMatch())
             {
                 // If the separator is a substring of the record separator and we didn't find it,
                 // we won't find the record separator either.
                 return TokenType.EndOfRecord;
             }
-            else
-            {
-                return TokenType.Normal;
-            }
+
+            return TokenType.Normal;
         }
 
         private enum TokenType

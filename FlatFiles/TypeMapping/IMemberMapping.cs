@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles.TypeMapping
+﻿namespace FlatFiles.TypeMapping
 {
     /// <summary>
     /// Represents the mapping from a type property/field to a column.

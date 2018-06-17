@@ -11,13 +11,6 @@ namespace FlatFiles
         private readonly List<Window> windows = new List<Window>();
 
         /// <summary>
-        /// Initializes a new instance of a FixedLengthSchema.
-        /// </summary>
-        public FixedLengthSchema()
-        {
-        }
-
-        /// <summary>
         /// Adds a column to the schema, using the given definition to define it.
         /// </summary>
         /// <param name="definition">The definition of the column to add.</param>
@@ -41,10 +34,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column widths.
         /// </summary>
-        public WindowCollection Windows
-        {
-            get { return new WindowCollection(windows); }
-        }
+        public WindowCollection Windows => new WindowCollection(windows);
 
         /// <summary>
         /// Gets the total width of all columns.

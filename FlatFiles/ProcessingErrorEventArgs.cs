@@ -9,13 +9,13 @@ namespace FlatFiles
     {
         internal ProcessingErrorEventArgs(RecordProcessingException exception)
         {
-            this.Exception = exception;
-            this.RecordNumber = exception.RecordNumber;
+            Exception = exception;
+            RecordNumber = exception.RecordNumber;
             if (exception.InnerException != null && exception.InnerException is ColumnProcessingException columnException)
             {
-                this.Schema = columnException.Schema;
-                this.ColumnDefinition = columnException.ColumnDefinition;
-                this.ColumnValue = columnException.ColumnValue;
+                Schema = columnException.Schema;
+                ColumnDefinition = columnException.ColumnDefinition;
+                ColumnValue = columnException.ColumnValue;
             }
         }
 

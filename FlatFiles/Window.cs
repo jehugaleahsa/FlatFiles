@@ -21,7 +21,7 @@ namespace FlatFiles
             {
                 throw new ArgumentOutOfRangeException(nameof(width), width, Resources.InvalidColumnWidth);
             }
-            this.Width = width;
+            Width = width;
         }
 
         /// <summary>
@@ -34,10 +34,7 @@ namespace FlatFiles
         /// </summary>
         public FixedAlignment? Alignment
         {
-            get
-            {
-                return alignment;
-            }
+            get => alignment;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(FixedAlignment), value.Value))
@@ -59,20 +56,15 @@ namespace FlatFiles
         /// </summary>
         public OverflowTruncationPolicy? TruncationPolicy 
         {
-            get
-            {
-                return truncationPolicy;
-            }
+            get => truncationPolicy;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(OverflowTruncationPolicy), value.Value))
                 {
                     throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
-                else
-                {
-                    truncationPolicy = value;
-                }
+
+                truncationPolicy = value;
             }
         }
 

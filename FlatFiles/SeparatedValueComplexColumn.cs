@@ -39,16 +39,13 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(schema));
             }
             this.schema = schema;
-            this.Options = options;
+            Options = options;
         }
 
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(object[]); }
-        }
+        public override Type ColumnType => typeof(object[]);
 
         /// <summary>
         /// Gets or sets the separated value options.
@@ -88,10 +85,8 @@ namespace FlatFiles
             {
                 return new SeparatedValueReader(stringReader, Options);
             }
-            else
-            {
-                return new SeparatedValueReader(stringReader, schema, Options);
-            }
+
+            return new SeparatedValueReader(stringReader, schema, Options);
         }
 
         /// <summary>

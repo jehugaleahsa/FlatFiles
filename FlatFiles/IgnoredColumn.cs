@@ -28,10 +28,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of data in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(String); }
-        }
+        public override Type ColumnType => typeof(String);
 
         /// <summary>
         /// Ignores the values that was parsed from the document.

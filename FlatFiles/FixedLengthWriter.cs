@@ -34,7 +34,7 @@ namespace FlatFiles
             {
                 options = new FixedLengthOptions();
             }
-            this.recordWriter = new FixedLengthRecordWriter(writer, schema, options);
+            recordWriter = new FixedLengthRecordWriter(writer, schema, options);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace FlatFiles
             {
                 options = new FixedLengthOptions();
             }
-            this.recordWriter = new FixedLengthRecordWriter(writer, injector, options);
+            recordWriter = new FixedLengthRecordWriter(writer, injector, options);
         }
 
         /// <summary>

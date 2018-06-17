@@ -50,7 +50,7 @@ namespace FlatFiles
             {
                 options = new SeparatedValueOptions();
             }
-            this.recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
+            recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace FlatFiles
             {
                 options = new SeparatedValueOptions();
             }
-            this.recordWriter = new SeparatedValueRecordWriter(writer, injector, options);
+            recordWriter = new SeparatedValueRecordWriter(writer, injector, options);
         }
 
         /// <summary>

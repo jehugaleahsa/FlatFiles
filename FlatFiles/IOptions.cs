@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Represents reader/writer options that are common among file types.

@@ -58,13 +58,11 @@ namespace FlatFiles
                 }
                 return recordCount;
             }
-            else
-            {
-                // We only incrememnt the logical count after we are sure the record is not filtered out.
-                // Since the value for the column is generated beforehand, we must increase it by one.
-                int offset = (IncludeSchema && metadata.Options.IsFirstRecordSchema) ? 2 : 1;
-                return metadata.LogicalRecordCount + offset;
-            }
+
+            // We only incrememnt the logical count after we are sure the record is not filtered out.
+            // Since the value for the column is generated beforehand, we must increase it by one.
+            int offset = (IncludeSchema && metadata.Options.IsFirstRecordSchema) ? 2 : 1;
+            return metadata.LogicalRecordCount + offset;
         }
 
         /// <summary>
@@ -78,10 +76,8 @@ namespace FlatFiles
             {
                 return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-            else
-            {
-                return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-            }
+
+            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
 
         /// <summary>

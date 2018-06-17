@@ -16,13 +16,13 @@ namespace FlatFiles
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
-            this.Metadata = new SeparatedValueMetadata()
+            Metadata = new SeparatedValueMetadata
             {
                 Schema = schema,
                 Options = options.Clone()
             };
-            this.quoteString = String.Empty + options.Quote;
-            this.doubleQuoteString = String.Empty + options.Quote + options.Quote;
+            quoteString = String.Empty + options.Quote;
+            doubleQuoteString = String.Empty + options.Quote + options.Quote;
         }
 
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
@@ -75,17 +75,15 @@ namespace FlatFiles
                 }
                 return results;
             }
-            else
+
+            var metadata = injector == null ? Metadata : new SeparatedValueMetadata
             {
-                var metadata = injector == null ? Metadata : new SeparatedValueMetadata()
-                {
-                    Schema = schema,
-                    Options = Metadata.Options,
-                    RecordCount = Metadata.RecordCount,
-                    LogicalRecordCount = Metadata.LogicalRecordCount
-                };
-                return schema.FormatValues(Metadata, values);
-            }
+                Schema = schema,
+                Options = Metadata.Options,
+                RecordCount = Metadata.RecordCount,
+                LogicalRecordCount = Metadata.LogicalRecordCount
+            };
+            return schema.FormatValues(Metadata, values);
         }
 
         private static string toString(object value)
@@ -107,10 +105,8 @@ namespace FlatFiles
             {
                 return quoteString + value.Replace(quoteString, doubleQuoteString) + quoteString;
             }
-            else
-            {
-                return value;
-            }
+
+            return value;
         }
 
         private bool needsEscaped(string value)
@@ -196,17 +192,11 @@ namespace FlatFiles
         {
             public SeparatedValueSchema Schema { get; internal set; }
 
-            ISchema IProcessMetadata.Schema
-            {
-                get { return Schema; }
-            }
+            ISchema IProcessMetadata.Schema => Schema;
 
             public SeparatedValueOptions Options { get; internal set; }
 
-            IOptions IProcessMetadata.Options
-            {
-                get { return Options; }
-            }
+            IOptions IProcessMetadata.Options => Options;
 
             public int RecordCount { get; internal set; }
 

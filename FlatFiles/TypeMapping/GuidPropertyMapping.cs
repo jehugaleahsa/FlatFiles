@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles.TypeMapping
+﻿namespace FlatFiles.TypeMapping
 {
     /// <summary>
     /// Represents the mapping from a type property to a Guid column.
@@ -51,47 +49,44 @@ namespace FlatFiles.TypeMapping
         public GuidPropertyMapping(GuidColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public IGuidPropertyMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public IGuidPropertyMapping InputFormat(string format)
         {
-            this.column.InputFormat = format;
+            column.InputFormat = format;
             return this;
         }
 
         public IGuidPropertyMapping OutputFormat(string format)
         {
-            this.column.OutputFormat = format;
+            column.OutputFormat = format;
             return this;
         }
 
         public IGuidPropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IGuidPropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
         public int FileIndex { get; private set; }
 

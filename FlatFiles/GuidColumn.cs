@@ -19,10 +19,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(Guid); }
-        }
+        public override Type ColumnType => typeof(Guid);
 
         /// <summary>
         /// Gets or sets the format string to use when parsing the Guid.
@@ -53,10 +50,8 @@ namespace FlatFiles
             {
                 return Guid.Parse(value);
             }
-            else
-            {
-                return Guid.ParseExact(value, InputFormat);
-            }
+
+            return Guid.ParseExact(value, InputFormat);
         }
 
         /// <summary>
@@ -76,10 +71,8 @@ namespace FlatFiles
             {
                 return actual.ToString();
             }
-            else
-            {
-                return actual.ToString(OutputFormat);
-            }
+
+            return actual.ToString(OutputFormat);
         }
     }
 }

@@ -19,8 +19,8 @@ namespace FlatFiles
         public EnumColumn(string columnName) 
             : base(columnName)
         {
-            this.parser = defaultParser;
-            this.formatter = defaultFormatter;
+            parser = defaultParser;
+            formatter = defaultFormatter;
         }
 
         private static TEnum defaultParser(string value)
@@ -36,18 +36,15 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(TEnum); }
-        }
+        public override Type ColumnType => typeof(TEnum);
 
         /// <summary>
         /// Gets or sets the parser used to convert string values into enumeration values.
         /// </summary>
         public Func<string, TEnum> Parser
         {
-            get { return parser; }
-            set { parser = value ?? defaultParser; }
+            get => parser;
+            set => parser = value ?? defaultParser;
         }
 
         /// <summary>
@@ -55,8 +52,8 @@ namespace FlatFiles
         /// </summary>
         public Func<TEnum, string> Formatter
         {
-            get { return formatter; }
-            set { formatter = value ?? defaultFormatter; }
+            get => formatter;
+            set => formatter = value ?? defaultFormatter;
         }
 
         /// <summary>

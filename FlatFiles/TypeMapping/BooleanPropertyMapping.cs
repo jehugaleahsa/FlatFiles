@@ -58,53 +58,50 @@ namespace FlatFiles.TypeMapping
         public BooleanPropertyMapping(BooleanColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public IBooleanPropertyMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public IBooleanPropertyMapping TrueString(string value)
         {
-            this.column.TrueString = value;
+            column.TrueString = value;
             return this;
         }
 
         public IBooleanPropertyMapping FalseString(string value)
         {
-            this.column.FalseString = value;
+            column.FalseString = value;
             return this;
         }
 
         public IBooleanPropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IBooleanPropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public IBooleanPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            column.Preprocessor = preprocessor;
             return this;
         }
 
         public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
         public int FileIndex { get; private set; }
 

@@ -20,10 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(DateTime); }
-        }
+        public override Type ColumnType => typeof(DateTime);
 
         /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
@@ -60,10 +57,8 @@ namespace FlatFiles
             {
                 return DateTime.Parse(value, provider);
             }
-            else
-            {
-                return DateTime.ParseExact(value, InputFormat, provider);
-            }
+
+            return DateTime.ParseExact(value, InputFormat, provider);
         }
 
         /// <summary>
@@ -82,10 +77,8 @@ namespace FlatFiles
             {
                 return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-            else
-            {
-                return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-            }
+
+            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

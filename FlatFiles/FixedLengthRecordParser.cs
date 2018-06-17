@@ -14,7 +14,7 @@ namespace FlatFiles
         {
             if (options.HasRecordSeparator)
             {
-                this.recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
+                recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
             }
             else if (schema == null)
             {
@@ -22,7 +22,7 @@ namespace FlatFiles
             }
             else
             {
-                this.recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
+                recordReader = new FixedLengthRecordReader(reader, schema.TotalWidth);
             }
         }
 
@@ -66,8 +66,8 @@ namespace FlatFiles
             public SeparatorRecordReader(TextReader reader, string separator)
             {
                 this.reader = new RetryReader(reader);
-                this.matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
-                this.builder = new StringBuilder();
+                matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
+                builder = new StringBuilder();
             }
 
             public bool IsEndOfStream()
@@ -137,7 +137,7 @@ namespace FlatFiles
             public FixedLengthRecordReader(TextReader reader, int totalWidth)
             {
                 this.reader = reader;
-                this.buffer = new char[totalWidth];
+                buffer = new char[totalWidth];
             }
 
             public bool IsEndOfStream()

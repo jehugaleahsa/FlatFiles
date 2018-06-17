@@ -60,53 +60,50 @@ namespace FlatFiles.TypeMapping
         public EnumPropertyMapping(EnumColumn<TEnum> column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public IEnumPropertyMapping<TEnum> ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Parser(Func<string, TEnum> parser)
         {
-            this.column.Parser = parser;
+            column.Parser = parser;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Formatter(Func<TEnum, string> formatter)
         {
-            this.column.Formatter = formatter;
+            column.Formatter = formatter;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public IEnumPropertyMapping<TEnum> Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            column.Preprocessor = preprocessor;
             return this;
         }
 
         public IMemberAccessor Member { get; private set; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
         public int FileIndex { get; private set; }
 

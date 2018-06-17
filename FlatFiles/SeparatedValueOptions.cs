@@ -11,28 +11,18 @@ namespace FlatFiles
         private string separator = ",";
 
         /// <summary>
-        /// Initializes a new instance of a SeparatedValueParserOptions.
-        /// </summary>
-        public SeparatedValueOptions()
-        {
-        }
-
-        /// <summary>
         /// Gets or sets the character or characters used to separate the columns.
         /// </summary>
         public string Separator
         {
-            get
-            {
-                return separator;
-            }
+            get => separator;
             set
             {
                 if (String.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.EmptySeparator);
                 }
-                this.separator = value;
+                separator = value;
             }
         }
 

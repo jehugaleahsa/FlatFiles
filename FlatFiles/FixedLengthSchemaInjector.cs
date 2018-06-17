@@ -22,16 +22,9 @@ namespace FlatFiles
     /// </summary>
     public class FixedLengthSchemaInjector
     {
-        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
+        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
         private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
         private SchemaMatcher defaultMatcher = nonMatcher;
-
-        /// <summary>
-        /// Initializes a new instance of a FixedLengthSchemaInjector.
-        /// </summary>
-        public FixedLengthSchemaInjector()
-        {
-        }
 
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
@@ -56,12 +49,12 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(FixedLengthSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = schema };
+            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
         }
 
         private SchemaMatcher Add(FixedLengthSchema schema, Func<object[], bool> predicate)
         {
-            var matcher = new SchemaMatcher()
+            var matcher = new SchemaMatcher
             {
                 Schema = schema,
                 Predicate = predicate

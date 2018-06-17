@@ -26,13 +26,6 @@ namespace FlatFiles
     public abstract class Schema : ISchema
     {
         /// <summary>
-        /// Initializes a new instance of a Schema.
-        /// </summary>
-        protected Schema()
-        {
-        }
-
-        /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
         public ColumnCollection ColumnDefinitions { get; private set; } = new ColumnCollection();

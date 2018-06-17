@@ -33,13 +33,6 @@ namespace FlatFiles.TypeMapping
         private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
         private IDynamicSeparatedValueTypeMapper defaultMapper;
 
-        /// <summary>
-        /// Initializes a new instance of a SeparatedValueTypeMapperSelector.
-        /// </summary>
-        public SeparatedValueTypeMapperSelector()
-        {
-        }
-
         internal Func<object[], object> Reader { get; set; }
 
         /// <summary>
@@ -63,7 +56,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default type mapper to use.</param>
         public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
         {
-            this.defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+            defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -72,7 +65,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default schema to use.</param>
         public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
         {
-            this.defaultMapper = typeMapper;
+            defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -108,7 +101,7 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicSeparatedValueTypeMapper typeMapper, Func<string[], bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher()
+            matchers.Add(new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
                 Predicate = predicate

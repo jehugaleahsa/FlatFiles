@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Metadata associated with the file processing.

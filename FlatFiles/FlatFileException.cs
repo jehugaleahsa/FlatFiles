@@ -36,9 +36,9 @@ namespace FlatFiles
         internal ColumnProcessingException(ISchema schema, IColumnDefinition definition, string value, Exception innerException)
             : base(getErrorMessage(schema, definition, value), innerException)
         {
-            this.Schema = schema;
-            this.ColumnDefinition = definition;
-            this.ColumnValue = value;
+            Schema = schema;
+            ColumnDefinition = definition;
+            ColumnValue = value;
         }
 
         private static string getErrorMessage(ISchema schema, IColumnDefinition definition, string value)
@@ -72,13 +72,13 @@ namespace FlatFiles
         internal RecordProcessingException(int recordNumber, string message)
             : base(String.Format(null, message, recordNumber))
         {
-            this.RecordNumber = recordNumber;
+            RecordNumber = recordNumber;
         }
 
         internal RecordProcessingException(int recordNumber, string message, Exception innerException)
             : base(String.Format(null, message, recordNumber), innerException)
         {
-            this.RecordNumber = recordNumber;
+            RecordNumber = recordNumber;
         }
 
         /// <summary>

@@ -699,7 +699,7 @@ namespace FlatFiles.TypeMapping
         {
             if (factory != null)
             {
-                this.factories.Add(typeof(TEntity), factory);
+                factories.Add(typeof(TEntity), factory);
             }
         }
 
