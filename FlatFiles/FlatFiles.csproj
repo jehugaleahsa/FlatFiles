@@ -10,10 +10,10 @@
     <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Skipping records in fixed-length files causing NullReferenceException.</PackageReleaseNotes>
+    <PackageReleaseNotes>Use ConfigureAwait(false) everywhere.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>2.1.2.0</Version>
+    <Version>2.1.3.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">

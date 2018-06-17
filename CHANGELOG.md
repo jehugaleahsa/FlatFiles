@@ -1,3 +1,9 @@
+## 2.1.3 (2018-06-16)
+**Summary** - Use `ConfigureAwait(false)` for all async operations.
+
+### Enhancements
+* Using `ConfigureAwait(false)` consistently can improve async/await performance and avoid deadlocks in some environments. For more information, read [this article](https://msdn.microsoft.com/en-us/magazine/jj991977.aspx).
+
 ## 2.1.2 (2018-06-16)
 **Summary** - Code modernization and bug fixes.
 
