@@ -99,8 +99,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestFormat_OverrideFormatter_UsesCustomFormatter()
         {
-            EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count");
-            column.Formatter = e => e.ToString();
+            EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count")
+            {
+                Formatter = e => e.ToString()
+            };
             string actual = column.Format(MyEnum.First);
             string expected = "First";
             Assert.AreEqual(expected, actual);

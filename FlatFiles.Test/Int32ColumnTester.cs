@@ -48,8 +48,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_FormatProviderNull_UsesCurrentCulture()
         {
-            Int32Column column = new Int32Column("count");
-            column.FormatProvider = null;
+            Int32Column column = new Int32Column("count")
+            {
+                FormatProvider = null
+            };
             int actual = (int)column.Parse("  -123 ");
             int expected = -123;
             Assert.AreEqual(expected, actual);
@@ -61,8 +63,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_FormatProviderProvided_UsesProvider()
         {
-            Int32Column column = new Int32Column("count");
-            column.FormatProvider = CultureInfo.CurrentCulture;
+            Int32Column column = new Int32Column("count")
+            {
+                FormatProvider = CultureInfo.CurrentCulture
+            };
             int actual = (int)column.Parse("  -123 ");
             int expected = -123;
             Assert.AreEqual(expected, actual);

@@ -21,8 +21,10 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("Default"), new Window(5));
             schema.AddColumn(new StringColumn("Leading"), new Window(5) { TruncationPolicy = OverflowTruncationPolicy.TruncateLeading });
             schema.AddColumn(new StringColumn("Trailing"), new Window(5) { TruncationPolicy = OverflowTruncationPolicy.TruncateTrailing });
-            FixedLengthOptions options = new FixedLengthOptions();
-            options.TruncationPolicy = OverflowTruncationPolicy.TruncateLeading; // this is the default anyway
+            FixedLengthOptions options = new FixedLengthOptions
+            {
+                TruncationPolicy = OverflowTruncationPolicy.TruncateLeading // this is the default anyway
+            };
 
             StringWriter stringWriter = new StringWriter();
             FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);
