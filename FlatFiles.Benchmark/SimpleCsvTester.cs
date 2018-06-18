@@ -107,20 +107,22 @@ namespace FlatFiles.Benchmark
             var people = new List<Person>();
             foreach (var record in records)
             {
-                Person person = new Person();
-                person.FirstName = record[0];
-                person.LastName = record[1];
-                person.Age = Int32.Parse(record[2]);
-                person.Street1 = record[3];
-                person.Street2 = record[4];
-                person.City = record[5];
-                person.State = record[6];
-                person.Zip = record[7];
-                person.FavoriteColor = record[8];
-                person.FavoriteFood = record[9];
-                person.FavoriteSport = record[10];
-                person.CreatedOn = DateTime.Parse(record[11]);
-                person.IsActive = Boolean.Parse(record[12]);
+                Person person = new Person
+                {
+                    FirstName = record[0],
+                    LastName = record[1],
+                    Age = Int32.Parse(record[2]),
+                    Street1 = record[3],
+                    Street2 = record[4],
+                    City = record[5],
+                    State = record[6],
+                    Zip = record[7],
+                    FavoriteColor = record[8],
+                    FavoriteFood = record[9],
+                    FavoriteSport = record[10],
+                    CreatedOn = DateTime.Parse(record[11]),
+                    IsActive = Boolean.Parse(record[12])
+                };
                 people.Add(person);
             }
         }

@@ -30,7 +30,7 @@ namespace FlatFiles.Benchmark
             dynamicMapper.BooleanProperty("IsActive").ColumnName("IsActive");
             this.dynamicMapper = dynamicMapper;
 
-            this.people = Enumerable.Range(0, 10000).Select(i => new Person()
+            people = Enumerable.Range(0, 10000).Select(i => new Person()
             {
                 Name = "Susan",
                 IQ = 132,

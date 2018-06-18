@@ -20,7 +20,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.TopSpeed).ColumnName("TopSpeed");
             this.mapper = mapper;
 
-            this.people = Enumerable.Range(0, 10000).Select(i => new Person()
+            people = Enumerable.Range(0, 10000).Select(i => new Person()
             {
                 Name = "Susan",
                 IQ = 132,
