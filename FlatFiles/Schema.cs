@@ -35,7 +35,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
-        public ColumnCollection ColumnDefinitions { get; private set; } = new ColumnCollection();
+        public ColumnCollection ColumnDefinitions { get; } = new ColumnCollection();
 
         /// <summary>
         /// Gets the index of the column with the given name.
@@ -79,7 +79,7 @@ namespace FlatFiles
                 {
                     string rawValue = values[sourceIndex];
                     ++sourceIndex;
-                    object parsedValue = parse(definition, rawValue);
+                    object parsedValue = Parse(definition, rawValue);
                     parsedValues[destinationIndex] = parsedValue;
                     ++destinationIndex;
                 }
@@ -91,7 +91,7 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object parse(IColumnDefinition definition, string rawValue)
+        private object Parse(IColumnDefinition definition, string rawValue)
         {
             try
             {

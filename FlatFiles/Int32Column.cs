@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Text;
 
 namespace FlatFiles
 {
@@ -21,10 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(Int32); }
-        }
+        public override Type ColumnType => typeof(int);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -78,10 +74,8 @@ namespace FlatFiles
             {
                 return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-            else
-            {
-                return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-            }
+
+            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

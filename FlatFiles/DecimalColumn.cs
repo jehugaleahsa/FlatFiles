@@ -20,10 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(Decimal); }
-        }
+        public override Type ColumnType => typeof(decimal);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -77,10 +74,8 @@ namespace FlatFiles
             {
                 return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-            else
-            {
-                return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-            }
+
+            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

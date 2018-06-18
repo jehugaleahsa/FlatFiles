@@ -7,6 +7,7 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueSyntaxException : Exception
     {
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of a SeparatedValueSyntaxException.
         /// </summary>

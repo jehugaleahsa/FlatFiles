@@ -7,7 +7,6 @@ namespace FlatFiles
     /// </summary>
     /// <typeparam name="TEnum">The type of the enumeration.</typeparam>
     public class EnumColumn<TEnum> : ColumnDefinition
-        where TEnum : Enum
     {
         private Func<string, TEnum> parser;
         private Func<TEnum, string> formatter;
@@ -19,16 +18,16 @@ namespace FlatFiles
         public EnumColumn(string columnName) 
             : base(columnName)
         {
-            this.parser = defaultParser;
-            this.formatter = defaultFormatter;
+            parser = DefaultParser;
+            formatter = DefaultFormatter;
         }
 
-        private static TEnum defaultParser(string value)
+        private static TEnum DefaultParser(string value)
         {
             return (TEnum)Enum.Parse(typeof(TEnum), value, true);
         }
 
-        private static string defaultFormatter(TEnum value)
+        private static string DefaultFormatter(TEnum value)
         {
             return Convert.ToInt32(value).ToString();
         }
@@ -36,18 +35,15 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(TEnum); }
-        }
+        public override Type ColumnType => typeof(TEnum);
 
         /// <summary>
         /// Gets or sets the parser used to convert string values into enumeration values.
         /// </summary>
         public Func<string, TEnum> Parser
         {
-            get { return parser; }
-            set { parser = value ?? defaultParser; }
+            get => parser;
+            set => parser = value ?? DefaultParser;
         }
 
         /// <summary>
@@ -55,8 +51,8 @@ namespace FlatFiles
         /// </summary>
         public Func<TEnum, string> Formatter
         {
-            get { return formatter; }
-            set { formatter = value ?? defaultFormatter; }
+            get => formatter;
+            set => formatter = value ?? DefaultFormatter;
         }
 
         /// <summary>

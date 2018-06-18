@@ -24,18 +24,12 @@ namespace FlatFiles
         /// </summary>
         /// <param name="index">The index of the window to get.</param>
         /// <returns>The window at the given index.</returns>
-        public Window this[int index]
-        {
-            get { return windows[index]; }
-        }
+        public Window this[int index] => windows[index];
 
         /// <summary>
         /// Gets the number of columns in the collection.
         /// </summary>
-        public int Count
-        {
-            get { return windows.Count; }
-        }
+        public int Count => windows.Count;
 
         /// <summary>
         /// Gets an enumerator over the column definitions in the collection.

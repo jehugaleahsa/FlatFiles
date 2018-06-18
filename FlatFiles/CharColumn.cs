@@ -19,10 +19,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(Char); }
-        }
+        public override Type ColumnType => typeof(char);
 
         /// <summary>
         /// Gets or sets whether the parser should allow for trailing characters.
@@ -49,10 +46,8 @@ namespace FlatFiles
             {
                 return value[0];
             }
-            else
-            {
-                throw new InvalidCastException();
-            }
+
+            throw new InvalidCastException();
         }
 
         /// <summary>

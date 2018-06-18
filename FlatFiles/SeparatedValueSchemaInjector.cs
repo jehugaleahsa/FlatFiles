@@ -22,7 +22,7 @@ namespace FlatFiles
     /// </summary>
     public class SeparatedValueSchemaInjector
     {
-        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
+        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
         private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
@@ -56,10 +56,10 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(SeparatedValueSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = schema };
+            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
         }
 
-        private SchemaMatcher Add(SeparatedValueSchema schema, Func<object[], bool> predicate)
+        private void Add(SeparatedValueSchema schema, Func<object[], bool> predicate)
         {
             var matcher = new SchemaMatcher()
             {
@@ -67,7 +67,6 @@ namespace FlatFiles
                 Predicate = predicate
             };
             matchers.Add(matcher);
-            return matcher;
         }
 
         internal SeparatedValueSchema GetSchema(object[] values)

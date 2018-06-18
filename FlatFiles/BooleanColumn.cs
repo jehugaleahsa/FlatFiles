@@ -19,10 +19,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(Boolean); }
-        }
+        public override Type ColumnType => typeof(bool);
 
         /// <summary>
         /// Gets or sets the value representing true.

@@ -20,10 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(byte[]); }
-        }
+        public override Type ColumnType => typeof(byte[]);
 
         /// <summary>
         /// Gets or sets the encoding to use when parsing the value.

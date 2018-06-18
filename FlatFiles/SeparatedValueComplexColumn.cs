@@ -3,6 +3,7 @@ using System.IO;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
@@ -39,16 +40,13 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(schema));
             }
             this.schema = schema;
-            this.Options = options;
+            Options = options;
         }
 
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(object[]); }
-        }
+        public override Type ColumnType => typeof(object[]);
 
         /// <summary>
         /// Gets or sets the separated value options.
@@ -74,7 +72,7 @@ namespace FlatFiles
             }
 
             var stringReader = new StringReader(value);
-            var reader = getReader(stringReader);
+            var reader = GetReader(stringReader);
             if (reader.Read())
             {
                 return reader.GetValues();
@@ -82,16 +80,14 @@ namespace FlatFiles
             return null;
         }
 
-        private SeparatedValueReader getReader(StringReader stringReader)
+        private SeparatedValueReader GetReader(StringReader stringReader)
         {
             if (schema == null)
             {
                 return new SeparatedValueReader(stringReader, Options);
             }
-            else
-            {
-                return new SeparatedValueReader(stringReader, schema, Options);
-            }
+
+            return new SeparatedValueReader(stringReader, schema, Options);
         }
 
         /// <summary>
@@ -107,12 +103,12 @@ namespace FlatFiles
                 return NullHandler.GetNullRepresentation();
             }
             var writer = new StringWriter();
-            var recordWriter = getWriter(writer);
+            var recordWriter = GetWriter(writer);
             recordWriter.WriteRecord(values);
             return writer.ToString();
         }
 
-        private SeparatedValueRecordWriter getWriter(StringWriter writer)
+        private SeparatedValueRecordWriter GetWriter(StringWriter writer)
         {
             return new SeparatedValueRecordWriter(writer, schema, Options ?? new SeparatedValueOptions());
         }

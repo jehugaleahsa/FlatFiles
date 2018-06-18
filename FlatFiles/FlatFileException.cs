@@ -34,14 +34,14 @@ namespace FlatFiles
     public sealed class ColumnProcessingException : FlatFileException
     {
         internal ColumnProcessingException(ISchema schema, IColumnDefinition definition, string value, Exception innerException)
-            : base(getErrorMessage(schema, definition, value), innerException)
+            : base(GetErrorMessage(schema, definition, value), innerException)
         {
-            this.Schema = schema;
-            this.ColumnDefinition = definition;
-            this.ColumnValue = value;
+            Schema = schema;
+            ColumnDefinition = definition;
+            ColumnValue = value;
         }
 
-        private static string getErrorMessage(ISchema schema, IColumnDefinition definition, string value)
+        private static string GetErrorMessage(ISchema schema, IColumnDefinition definition, string value)
         {
             int position = schema.GetOrdinal(definition.ColumnName);
             string message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
@@ -51,17 +51,17 @@ namespace FlatFiles
         /// <summary>
         /// Gets the schema that was being used to parse when the error occurred.
         /// </summary>
-        public ISchema Schema { get; private set; }
+        public ISchema Schema { get; }
 
         /// <summary>
         /// Gets the column that was being used to parse when the error occurred.
         /// </summary>
-        public IColumnDefinition ColumnDefinition { get; private set; }
+        public IColumnDefinition ColumnDefinition { get; }
 
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public string ColumnValue { get; private set; }
+        public string ColumnValue { get; }
     }
 
     /// <summary>
@@ -72,18 +72,18 @@ namespace FlatFiles
         internal RecordProcessingException(int recordNumber, string message)
             : base(String.Format(null, message, recordNumber))
         {
-            this.RecordNumber = recordNumber;
+            RecordNumber = recordNumber;
         }
 
         internal RecordProcessingException(int recordNumber, string message, Exception innerException)
             : base(String.Format(null, message, recordNumber), innerException)
         {
-            this.RecordNumber = recordNumber;
+            RecordNumber = recordNumber;
         }
 
         /// <summary>
         /// Gets the index of the record that was being parsed when the error occurred.
         /// </summary>
-        public int RecordNumber { get; private set; }
+        public int RecordNumber { get; }
     }
 }

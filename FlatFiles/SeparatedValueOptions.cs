@@ -3,6 +3,7 @@ using FlatFiles.Properties;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Holds configuration options for the SeparatedValueParser.
     /// </summary>
@@ -22,17 +23,14 @@ namespace FlatFiles
         /// </summary>
         public string Separator
         {
-            get
-            {
-                return separator;
-            }
+            get => separator;
             set
             {
                 if (String.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.EmptySeparator);
                 }
-                this.separator = value;
+                separator = value;
             }
         }
 

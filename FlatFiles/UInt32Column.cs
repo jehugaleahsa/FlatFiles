@@ -3,11 +3,13 @@ using System.Globalization;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents a column containing unsigned 32-bit integers.
     /// </summary>
     public class UInt32Column : ColumnDefinition
     {
+        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of an UInt32Column.
         /// </summary>
@@ -17,13 +19,11 @@ namespace FlatFiles
         {
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Gets the type of the values in the column.
         /// </summary>
-        public override Type ColumnType
-        {
-            get { return typeof(UInt32); }
-        }
+        public override Type ColumnType => typeof(uint);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -40,6 +40,7 @@ namespace FlatFiles
         /// </summary>
         public string OutputFormat { get; set; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Parses the given value, returning an UInt32.
         /// </summary>
@@ -60,6 +61,7 @@ namespace FlatFiles
             return UInt32.Parse(value, NumberStyles, provider);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Formats the given object.
         /// </summary>
@@ -77,10 +79,8 @@ namespace FlatFiles
             {
                 return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-            else
-            {
-                return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-            }
+
+            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

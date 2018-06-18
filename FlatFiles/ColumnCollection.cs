@@ -10,16 +10,14 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
-        private readonly List<IColumnDefinition> definitions;
-        private readonly Dictionary<string, int> ordinals;
+        private readonly List<IColumnDefinition> definitions = new List<IColumnDefinition>();
+        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
 
         /// <summary>
         /// Initializes a new ColumnCollection.
         /// </summary>
         internal ColumnCollection()
         {
-            definitions = new List<IColumnDefinition>();
-            ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -27,10 +25,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="index">The index of the column definition to get.</param>
         /// <returns>The column definition at the given index.</returns>
-        public IColumnDefinition this[int index]
-        {
-            get { return definitions[index]; }
-        }
+        public IColumnDefinition this[int index] => definitions[index];
 
         /// <summary>
         /// Gets the column definition with the given name.
@@ -49,10 +44,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of columns in the collection.
         /// </summary>
-        public int Count
-        {
-            get { return definitions.Count; }
-        }
+        public int Count => definitions.Count;
 
         /// <summary>
         /// Gets the number of columns that are ignored.
@@ -67,10 +59,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of columns that are not ignored.
         /// </summary>
-        internal int PhysicalCount
-        {
-            get { return definitions.Count - IgnoredCount; }
-        }
+        internal int PhysicalCount => definitions.Count - IgnoredCount;
 
         internal void AddColumn(IColumnDefinition definition)
         {

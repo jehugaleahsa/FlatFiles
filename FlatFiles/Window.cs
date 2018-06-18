@@ -21,23 +21,20 @@ namespace FlatFiles
             {
                 throw new ArgumentOutOfRangeException(nameof(width), width, Resources.InvalidColumnWidth);
             }
-            this.Width = width;
+            Width = width;
         }
 
         /// <summary>
         /// Gets the width of the column.
         /// </summary>
-        public int Width { get; private set; }
+        public int Width { get; }
 
         /// <summary>
         /// Gets or sets the alignment of the value in the column, using the value found in the FixedLengthOptions object by default.
         /// </summary>
         public FixedAlignment? Alignment
         {
-            get
-            {
-                return alignment;
-            }
+            get => alignment;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(FixedAlignment), value.Value))
@@ -59,20 +56,15 @@ namespace FlatFiles
         /// </summary>
         public OverflowTruncationPolicy? TruncationPolicy 
         {
-            get
-            {
-                return truncationPolicy;
-            }
+            get => truncationPolicy;
             set
             {
                 if (value != null && !Enum.IsDefined(typeof(OverflowTruncationPolicy), value.Value))
                 {
                     throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
-                else
-                {
-                    truncationPolicy = value;
-                }
+
+                truncationPolicy = value;
             }
         }
 

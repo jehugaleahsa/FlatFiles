@@ -35,7 +35,7 @@ namespace FlatFiles
     /// </summary>
     public class SeparatedValueSchemaSelector
     {
-        private readonly static SchemaMatcher nonMatcher = new SchemaMatcher() { Predicate = (values) => false };
+        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
         private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
@@ -69,7 +69,7 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public ISeparatedValueSchemaSelectorUseBuilder WithDefault(SeparatedValueSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher() { Predicate = (values) => true, Schema = schema };
+            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
             return new SeparatedValueSchemaSelectorUseBuilder(defaultMatcher);
         }
 

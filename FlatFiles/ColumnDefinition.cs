@@ -82,16 +82,10 @@ namespace FlatFiles
         /// </summary>
         public string ColumnName
         {
-            get 
-            { 
-                return columnName; 
-            }
+            get => columnName;
             internal set 
             {
-                if (value != null)
-                {
-                    value = value.Trim();
-                }
+                value = value?.Trim();
                 if (!IsIgnored && String.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.BlankColumnName);
@@ -103,15 +97,15 @@ namespace FlatFiles
         /// <summary>
         /// Gets whether the value in this column is returned as a result.
         /// </summary>
-        public bool IsIgnored { get; private set; }
+        public bool IsIgnored { get; }
 
         /// <summary>
         /// Gets or sets the null handler instance used to interpret null values.
         /// </summary>
         public INullHandler NullHandler
         {
-            get { return nullHandler; }
-            set { nullHandler = value ?? DefaultNullHandler.Instance; }
+            get => nullHandler;
+            set => nullHandler = value ?? DefaultNullHandler.Instance;
         }
 
         /// <summary>

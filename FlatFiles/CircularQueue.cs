@@ -4,13 +4,13 @@ namespace FlatFiles
 {
     internal sealed class CircularQueue<T>
     {
-        private T[] items;
+        private readonly T[] items;
         private int front;
         private int back;
 
         public CircularQueue(int bufferSize)
         {
-            this.items = new T[bufferSize];
+            items = new T[bufferSize];
         }
 
         public int Count { get; private set; }

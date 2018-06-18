@@ -12,13 +12,13 @@ namespace FlatFiles
         /// </summary>
         internal FixedLengthRecordPartitionedEventArgs(string[] values)
         {
-            this.Values = values;
+            Values = values;
         }
 
         /// <summary>
         /// Gets the partitioned, unparsed record values read from the source file.
         /// </summary>
-        public string[] Values { get; private set; }
+        public string[] Values { get; }
 
         /// <summary>
         /// Gets or sets whether the record should be skipped.

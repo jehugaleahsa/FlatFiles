@@ -5,6 +5,7 @@ using FlatFiles.Properties;
 
 namespace FlatFiles
 {
+    /// <inheritdoc />
     /// <summary>
     /// Extracts records from a file that has values separated by a separator token.
     /// </summary>
@@ -74,11 +75,11 @@ namespace FlatFiles
                 throw new ArgumentException(Resources.SameSeparator, nameof(options));
             }
             RetryReader retryReader = new RetryReader(reader);
-            this.parser = new SeparatedValueRecordParser(retryReader, options);
-            this.metadata = new Metadata()
+            parser = new SeparatedValueRecordParser(retryReader, options);
+            metadata = new Metadata()
             {
                 Schema = hasSchema ? schema : null,
-                Options = this.parser.Options
+                Options = parser.Options
             };
         }
 
@@ -102,7 +103,7 @@ namespace FlatFiles
             {
                 return null;
             }
-            handleSchema();
+            HandleSchema();
             if (metadata.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
@@ -125,7 +126,7 @@ namespace FlatFiles
             {
                 return null;
             }
-            await handleSchemaAsync().ConfigureAwait(false);
+            await HandleSchemaAsync().ConfigureAwait(false);
             if (metadata.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
@@ -149,19 +150,17 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            handleSchema();
+            HandleSchema();
             try
             {
-                values = parsePartitions();
+                values = ParsePartitions();
                 if (values == null)
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -170,7 +169,7 @@ namespace FlatFiles
             }
         }
 
-        private void handleSchema()
+        private void HandleSchema()
         {
             if (metadata.RecordCount != 0)
             {
@@ -185,7 +184,7 @@ namespace FlatFiles
                 skip();
                 return;
             }
-            string[] columnNames = readNextRecord();
+            string[] columnNames = ReadNextRecord();
             metadata.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
@@ -194,39 +193,40 @@ namespace FlatFiles
             }
         }
 
-        private object[] parsePartitions()
+        private object[] ParsePartitions()
         {
-            string[] rawValues = readWithFilter();
+            string[] rawValues = ReadWithFilter();
             while (rawValues != null)
             {
-                var schema = getSchema(rawValues);
+                var schema = GetSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
-                    processError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
+                    ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
-                    object[] values = parseValues(schema, rawValues);
+                    object[] values = ParseValues(schema, rawValues);
                     if (values != null)
                     {
                         return values;
                     }
                 }
-                rawValues = readWithFilter();
+                rawValues = ReadWithFilter();
             }
             return null;
         }
 
-        private string[] readWithFilter()
+        private string[] ReadWithFilter()
         {
-            string[] rawValues = readNextRecord();
-            while (rawValues != null && isSkipped(rawValues))
+            string[] rawValues = ReadNextRecord();
+            while (rawValues != null && IsSkipped(rawValues))
             {
-                rawValues = readNextRecord();
+                rawValues = ReadNextRecord();
             }
             return rawValues;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Attempts to read the next record from the stream.
         /// </summary>
@@ -237,19 +237,17 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleSchemaAsync().ConfigureAwait(false);
+            await HandleSchemaAsync().ConfigureAwait(false);
             try
             {
-                values = await parsePartitionsAsync().ConfigureAwait(false);
+                values = await ParsePartitionsAsync().ConfigureAwait(false);
                 if (values == null)
                 {
                     return false;
                 }
-                else
-                {
-                    ++metadata.LogicalRecordCount;
-                    return true;
-                }
+
+                ++metadata.LogicalRecordCount;
+                return true;
             }
             catch (FlatFileException)
             {
@@ -258,7 +256,7 @@ namespace FlatFiles
             }
         }
 
-        private async Task handleSchemaAsync()
+        private async Task HandleSchemaAsync()
         {
             if (metadata.RecordCount != 0)
             {
@@ -273,7 +271,7 @@ namespace FlatFiles
                 await skipAsync().ConfigureAwait(false);
                 return;
             }
-            string[] columnNames = await readNextRecordAsync().ConfigureAwait(false);
+            string[] columnNames = await ReadNextRecordAsync().ConfigureAwait(false);
             metadata.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
@@ -282,30 +280,30 @@ namespace FlatFiles
             }
         }
 
-        private async Task<object[]> parsePartitionsAsync()
+        private async Task<object[]> ParsePartitionsAsync()
         {
-            string[] rawValues = await readWithFilterAsync().ConfigureAwait(false);
+            string[] rawValues = await ReadWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                var schema = getSchema(rawValues);
+                var schema = GetSchema(rawValues);
                 if (schema != null && hasWrongNumberOfColumns(schema, rawValues))
                 {
-                    processError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
+                    ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
-                    object[] values = parseValues(schema, rawValues);
+                    object[] values = ParseValues(schema, rawValues);
                     if (values != null)
                     {
                         return values;
                     }
                 }
-                rawValues = await readWithFilterAsync().ConfigureAwait(false);
+                rawValues = await ReadWithFilterAsync().ConfigureAwait(false);
             }
             return null;
         }
 
-        private SeparatedValueSchema getSchema(string[] rawValues)
+        private SeparatedValueSchema GetSchema(string[] rawValues)
         {
             return schemaSelector == null ? metadata.Schema : schemaSelector.GetSchema(rawValues);
         }
@@ -315,17 +313,17 @@ namespace FlatFiles
             return values.Length + schema.ColumnDefinitions.MetadataCount < schema.ColumnDefinitions.PhysicalCount;
         }
 
-        private async Task<string[]> readWithFilterAsync()
+        private async Task<string[]> ReadWithFilterAsync()
         {
-            string[] rawValues = await readNextRecordAsync().ConfigureAwait(false);
-            while (rawValues != null && isSkipped(rawValues))
+            string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
+            while (rawValues != null && IsSkipped(rawValues))
             {
-                rawValues = await readNextRecordAsync().ConfigureAwait(false);
+                rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
             }
             return rawValues;
         }
 
-        private bool isSkipped(string[] values)
+        private bool IsSkipped(string[] values)
         {
             if (RecordRead == null)
             {
@@ -336,7 +334,7 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private object[] parseValues(SeparatedValueSchema schema, string[] rawValues)
+        private object[] ParseValues(SeparatedValueSchema schema, string[] rawValues)
         {
             if (schema == null)
             {
@@ -344,7 +342,7 @@ namespace FlatFiles
             }
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata()
+                var metadata = schemaSelector == null ? this.metadata : new Metadata
                 {
                     Schema = schema,
                     Options = this.metadata.Options,
@@ -355,7 +353,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                processError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -371,17 +369,18 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            handleSchema();
+            HandleSchema();
             bool result = skip();
             return result;
         }
 
         private bool skip()
         {
-            string[] rawValues = readNextRecord();
+            string[] rawValues = ReadNextRecord();
             return rawValues != null;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Attempts to skip the next record from the stream.
         /// </summary>
@@ -393,18 +392,18 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            await handleSchemaAsync().ConfigureAwait(false);
+            await HandleSchemaAsync().ConfigureAwait(false);
             bool result = await skipAsync().ConfigureAwait(false);
             return result;
         }
 
         private async ValueTask<bool> skipAsync()
         {
-            string[] rawValues = await readNextRecordAsync().ConfigureAwait(false);
+            string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
             return rawValues != null;
         }
 
-        private void processError(RecordProcessingException exception)
+        private void ProcessError(RecordProcessingException exception)
         {
             if (Error != null)
             {
@@ -418,7 +417,7 @@ namespace FlatFiles
             throw exception;
         }
 
-        private string[] readNextRecord()
+        private string[] ReadNextRecord()
         {
             if (parser.IsEndOfStream())
             {
@@ -438,7 +437,7 @@ namespace FlatFiles
             }
         }
 
-        private async Task<string[]> readNextRecordAsync()
+        private async Task<string[]> ReadNextRecordAsync()
         {
             if (await parser.IsEndOfStreamAsync().ConfigureAwait(false))
             {
@@ -485,17 +484,11 @@ namespace FlatFiles
         {
             public SeparatedValueSchema Schema { get; set; }
 
-            ISchema IProcessMetadata.Schema
-            {
-                get { return Schema; }
-            }
+            ISchema IProcessMetadata.Schema => Schema;
 
             public SeparatedValueOptions Options { get; set; }
 
-            IOptions IProcessMetadata.Options
-            {
-                get { return Options; }
-            }
+            IOptions IProcessMetadata.Options => Options;
 
             public int RecordCount { get; set; }
 
