@@ -25,25 +25,16 @@ namespace FlatFiles.TypeMapping
         public FieldAccessor(FieldInfo fieldInfo, IMemberAccessor parent)
         {
             this.fieldInfo = fieldInfo;
-            this.ParentAccessor = parent;
+            ParentAccessor = parent;
         }
 
-        public MemberInfo MemberInfo
-        {
-            get { return fieldInfo; }
-        }
+        public MemberInfo MemberInfo => fieldInfo;
 
-        public IMemberAccessor ParentAccessor { get; private set;  }
+        public IMemberAccessor ParentAccessor { get; }
 
-        public string Name
-        {
-            get { return ParentAccessor == null ? fieldInfo.Name : $"{ParentAccessor.Name}.{fieldInfo.Name}"; }
-        }
+        public string Name => ParentAccessor == null ? fieldInfo.Name : $"{ParentAccessor.Name}.{fieldInfo.Name}";
 
-        public Type Type
-        {
-            get { return fieldInfo.FieldType; }
-        }
+        public Type Type => fieldInfo.FieldType;
 
         public object GetValue(object instance)
         {
@@ -63,25 +54,16 @@ namespace FlatFiles.TypeMapping
         public PropertyAccessor(PropertyInfo propertyInfo, IMemberAccessor parent)
         {
             this.propertyInfo = propertyInfo;
-            this.ParentAccessor = parent;
+            ParentAccessor = parent;
         }
 
-        public MemberInfo MemberInfo
-        {
-            get { return propertyInfo; }
-        }
+        public MemberInfo MemberInfo => propertyInfo;
 
-        public IMemberAccessor ParentAccessor { get; private set; }
+        public IMemberAccessor ParentAccessor { get; }
 
-        public string Name
-        {
-            get { return ParentAccessor == null ? propertyInfo.Name : $"{ParentAccessor.Name}.{propertyInfo.Name}"; }
-        }
+        public string Name => ParentAccessor == null ? propertyInfo.Name : $"{ParentAccessor.Name}.{propertyInfo.Name}";
 
-        public Type Type
-        {
-            get { return propertyInfo.PropertyType; }
-        }
+        public Type Type => propertyInfo.PropertyType;
 
         public object GetValue(object instance)
         {

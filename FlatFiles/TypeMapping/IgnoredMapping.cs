@@ -22,30 +22,21 @@ namespace FlatFiles.TypeMapping
         public IgnoredMapping(IgnoredColumn column, int fileIndex)
         {
             this.column = column;
-            this.FileIndex = fileIndex;
+            FileIndex = fileIndex;
         }
 
         public IIgnoredMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
-        public IMemberAccessor Member
-        {
-            get { return null; }
-        }
+        public IMemberAccessor Member => null;
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex
-        {
-            get { return -1; }
-        }
+        public int WorkIndex => -1;
     }
 }

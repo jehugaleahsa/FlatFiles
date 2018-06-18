@@ -39,15 +39,12 @@ namespace FlatFiles.TypeMapping
         {
             this.lookup = lookup;
             this.codeGenerator = codeGenerator;
-            this.Member = member;
+            Member = member;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public int WorkCount
-        {
-            get { return lookup.WorkCount; }
-        }
+        public int WorkCount => lookup.WorkCount;
 
         public Func<object[], TEntity> GetReader()
         {
@@ -55,19 +52,15 @@ namespace FlatFiles.TypeMapping
             {
                 return cachedReader;
             }
-            var factory = lookup.GetFactory<TEntity>();
-            if (factory == null)
-            {
-                factory = codeGenerator.GetFactory<TEntity>();
-            }
+            var factory = lookup.GetFactory<TEntity>() ?? codeGenerator.GetFactory<TEntity>();
             var mappings = lookup.GetMappings();
-            var memberMappings = getMemberMappings(mappings);
+            var memberMappings = GetMemberMappings(mappings);
             var setter = codeGenerator.GetReader<TEntity>(memberMappings);
-            var nullChecker = getNullChecker(memberMappings);
-            var nestedMappers = getNestedMappers(mappings);
+            var nullChecker = GetNullChecker(memberMappings);
+            var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
-                cachedReader = (values) =>
+                cachedReader = values =>
                 {
                     var entity = factory();
                     nullChecker(values);
@@ -83,7 +76,7 @@ namespace FlatFiles.TypeMapping
             }
             else
             {
-                cachedReader = (values) =>
+                cachedReader = values =>
                 {
                     var entity = factory();
                     nullChecker(values);
@@ -94,7 +87,7 @@ namespace FlatFiles.TypeMapping
             return cachedReader;
         }
 
-        private Action<object[]> getNullChecker(IMemberMapping[] memberMappings)
+        private Action<object[]> GetNullChecker(IMemberMapping[] memberMappings)
         {
             var nonNullLookup = memberMappings
                 .Where(m => !m.Member.Type.GetTypeInfo().IsClass)
@@ -102,9 +95,9 @@ namespace FlatFiles.TypeMapping
                 .ToDictionary(m => m.WorkIndex);
             if (nonNullLookup.Count == 0)
             {
-                return (values) => { };
+                return values => { };
             }
-            return (values) =>
+            return values =>
             {
                 for (int index = 0; index != values.Length; ++index)
                 {
@@ -120,7 +113,7 @@ namespace FlatFiles.TypeMapping
         Func<object[], object> IMapper.GetReader()
         {
             var reader = GetReader();
-            return (values) => reader(values);
+            return values => reader(values);
         }
 
         public Action<TEntity, object[]> GetWriter()
@@ -130,9 +123,9 @@ namespace FlatFiles.TypeMapping
                 return cachedWriter;
             }
             var mappings = lookup.GetMappings();
-            var memberMappings = getMemberMappings(mappings);
+            var memberMappings = GetMemberMappings(mappings);
             var getter = codeGenerator.GetWriter<TEntity>(memberMappings);
-            var nestedMappers = getNestedMappers(mappings);
+            var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
                 cachedWriter = (entity, values) =>
@@ -159,7 +152,7 @@ namespace FlatFiles.TypeMapping
             return (entity, values) => writer((TEntity)entity, values);
         }
 
-        private IMemberMapping[] getMemberMappings(IMemberMapping[] mappings)
+        private IMemberMapping[] GetMemberMappings(IMemberMapping[] mappings)
         {
             var memberMappings = mappings
                 .Where(m => m.Member != null)
@@ -168,21 +161,21 @@ namespace FlatFiles.TypeMapping
             return memberMappings;
         }
 
-        private IMapper[] getNestedMappers(IMemberMapping[] mappings)
+        private IMapper[] GetNestedMappers(IMemberMapping[] mappings)
         {
             var mappers = mappings
                 .Where(m => m.Member != null)
                 .Where(m => Member?.Name != m.Member.ParentAccessor?.Name)
                 .Where(m => m.Member.Name.StartsWith(Member?.Name ?? String.Empty))
-                .Select(m => getParentAccessor(m))
+                .Select(GetParentAccessor)
                 .GroupBy(p => p.Name)
                 .Select(g => g.First())
-                .Select(m => getMapper(m))
+                .Select(GetMapper)
                 .ToArray();
             return mappers;
         }
 
-        private IMemberAccessor getParentAccessor(IMemberMapping mapping)
+        private IMemberAccessor GetParentAccessor(IMemberMapping mapping)
         {
             string accessorName = Member?.Name ?? String.Empty;
             var childAccessor = mapping.Member;
@@ -195,7 +188,7 @@ namespace FlatFiles.TypeMapping
             return childAccessor;
         }
 
-        private IMapper getMapper(IMemberAccessor member)
+        private IMapper GetMapper(IMemberAccessor member)
         {
             var entityType = member.Type;
             var mapperType = typeof(Mapper<>).MakeGenericType(entityType);

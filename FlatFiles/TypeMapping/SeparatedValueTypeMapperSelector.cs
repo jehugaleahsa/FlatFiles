@@ -63,7 +63,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default type mapper to use.</param>
         public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
         {
-            this.defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+            defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default schema to use.</param>
         public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
         {
-            this.defaultMapper = typeMapper;
+            defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -88,18 +88,18 @@ namespace FlatFiles.TypeMapping
             var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader, this);
             foreach (var matcher in matchers)
             {
-                var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<object[], object>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
             }
             if (defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
+                var typeReader = new Lazy<Func<object[], object>>(GetReader(defaultMapper));
                 selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<object[], object>> getReader(IDynamicSeparatedValueTypeMapper defaultMapper)
+        private Func<Func<object[], object>> GetReader(IDynamicSeparatedValueTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();

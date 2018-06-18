@@ -90,10 +90,10 @@ namespace FlatFiles.TypeMapping
         private readonly IReader reader;
         private readonly Func<object[], TEntity> deserializer;
 
-        public TypedReader(IReader reader, IMapper<TEntity> mapper)
+        protected TypedReader(IReader reader, IMapper<TEntity> mapper)
         {
             this.reader = reader;
-            this.deserializer = mapper.GetReader();
+            deserializer = mapper.GetReader();
         }
 
         public ISchema GetSchema()
@@ -148,14 +148,14 @@ namespace FlatFiles.TypeMapping
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
-            add { reader.RecordRead += value; }
-            remove { reader.RecordRead -= value; }
+            add => reader.RecordRead += value;
+            remove => reader.RecordRead -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error
         {
-            add { reader.Error += value; }
-            remove { reader.Error -= value; }
+            add => reader.Error += value;
+            remove => reader.Error -= value;
         }
     }
 
@@ -174,14 +174,14 @@ namespace FlatFiles.TypeMapping
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
-            add { reader.RecordRead += value; }
-            remove { reader.RecordRead -= value; }
+            add => reader.RecordRead += value;
+            remove => reader.RecordRead -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error
         {
-            add { reader.Error += value; }
-            remove { reader.Error -= value; }
+            add => reader.Error += value;
+            remove => reader.Error -= value;
         }
 
         public ISchema GetSchema()
@@ -234,20 +234,20 @@ namespace FlatFiles.TypeMapping
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
-            add { reader.RecordRead += value; }
-            remove { reader.RecordRead -= value; }
+            add => reader.RecordRead += value;
+            remove => reader.RecordRead -= value;
         }
 
         public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
         {
-            add { reader.RecordPartitioned += value; }
-            remove { reader.RecordPartitioned -= value; }
+            add => reader.RecordPartitioned += value;
+            remove => reader.RecordPartitioned -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error
         {
-            add { reader.Error += value; }
-            remove { reader.Error -= value; }
+            add => reader.Error += value;
+            remove => reader.Error -= value;
         }
     }
 
@@ -266,20 +266,20 @@ namespace FlatFiles.TypeMapping
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
-            add { reader.RecordRead += value; }
-            remove { reader.RecordRead -= value; }
+            add => reader.RecordRead += value;
+            remove => reader.RecordRead -= value;
         }
 
         public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
         {
-            add { reader.RecordPartitioned += value; }
-            remove { reader.RecordPartitioned -= value; }
+            add => reader.RecordPartitioned += value;
+            remove => reader.RecordPartitioned -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error
         {
-            add { reader.Error += value; }
-            remove { reader.Error -= value; }
+            add => reader.Error += value;
+            remove => reader.Error -= value;
         }
 
         public ISchema GetSchema()

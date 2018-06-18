@@ -15,7 +15,7 @@ namespace FlatFiles.TypeMapping
         public static IMemberAccessor GetMember<TEntity>(Type propertyType, string memberName)
         {
             string[] memberNames = memberName.Split('.');
-            var member = getMember(typeof(TEntity), memberNames, 0, null);
+            var member = GetMember(typeof(TEntity), memberNames, 0, null);
             if (propertyType != null && member.Type != propertyType && member.Type != Nullable.GetUnderlyingType(propertyType))
             {
                 throw new ArgumentException(Resources.WrongPropertyType);
@@ -23,35 +23,35 @@ namespace FlatFiles.TypeMapping
             return member;
         }
 
-        public static IMemberAccessor getMember(Type entityType, string[] memberNames, int nameIndex, IMemberAccessor parent)
+        public static IMemberAccessor GetMember(Type entityType, string[] memberNames, int nameIndex, IMemberAccessor parent)
         {
             if (nameIndex == memberNames.Length)
             {
                 return parent;
             }
             string memberName = memberNames[nameIndex];
-            var propertyInfo = getProperty(entityType, memberName);
+            var propertyInfo = GetProperty(entityType, memberName);
             if (propertyInfo != null)
             {
                 var accessor = new PropertyAccessor(propertyInfo, parent);
-                return getMember(propertyInfo.PropertyType, memberNames, nameIndex + 1, accessor);
+                return GetMember(propertyInfo.PropertyType, memberNames, nameIndex + 1, accessor);
             }
-            var fieldInfo = getField(entityType, memberName);
+            var fieldInfo = GetField(entityType, memberName);
             if (fieldInfo != null)
             {
                 var accessor = new FieldAccessor(fieldInfo, parent);
-                return getMember(fieldInfo.FieldType, memberNames, nameIndex + 1, accessor);
+                return GetMember(fieldInfo.FieldType, memberNames, nameIndex + 1, accessor);
             }
             throw new ArgumentException(Resources.BadPropertySelector, nameof(memberName));
         }
 
-        private static PropertyInfo getProperty(Type type, string propertyName)
+        private static PropertyInfo GetProperty(Type type, string propertyName)
         {
             var bindingFlags = BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             return type.GetTypeInfo().GetProperty(propertyName, bindingFlags);
         }
 
-        private static FieldInfo getField(Type type, string fieldName)
+        private static FieldInfo GetField(Type type, string fieldName)
         {
             var bindingFlags = BindingFlags.GetField | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             return type.GetTypeInfo().GetField(fieldName, bindingFlags);
@@ -63,10 +63,10 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(accessor));
             }
-            return getMember<TEntity>(accessor.Body);
+            return GetMember<TEntity>(accessor.Body);
         }
 
-        private static IMemberAccessor getMember<TEntity>(Expression expression)
+        private static IMemberAccessor GetMember<TEntity>(Expression expression)
         {
             if (!(expression is MemberExpression member))
             {
@@ -78,28 +78,23 @@ namespace FlatFiles.TypeMapping
                 {
                     return new PropertyAccessor(propertyInfo, null);
                 }
-                else
-                {
-                    IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
-                    return new PropertyAccessor(propertyInfo, parentAccessor);
-                }
+
+                IMemberAccessor parentAccessor = GetMember<TEntity>(member.Expression);
+                return new PropertyAccessor(propertyInfo, parentAccessor);
             }
-            else if (member.Member is FieldInfo fieldInfo)
+
+            if (member.Member is FieldInfo fieldInfo)
             {
                 if (fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
                 {
                     return new FieldAccessor(fieldInfo, null);
                 }
-                else
-                {
-                    IMemberAccessor parentAccessor = getMember<TEntity>(member.Expression);
-                    return new FieldAccessor(fieldInfo, parentAccessor);
-                }
+
+                IMemberAccessor parentAccessor = GetMember<TEntity>(member.Expression);
+                return new FieldAccessor(fieldInfo, parentAccessor);
             }
-            else
-            {
-                throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
-            }
+
+            throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
         }
     }
 }

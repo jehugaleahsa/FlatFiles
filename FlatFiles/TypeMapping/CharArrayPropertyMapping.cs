@@ -44,44 +44,41 @@ namespace FlatFiles.TypeMapping
         public CharArrayPropertyMapping(CharArrayColumn column, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.column = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public ICharArrayPropertyMapping ColumnName(string name)
         {
-            this.column.ColumnName = name;
+            column.ColumnName = name;
             return this;
         }
 
         public ICharArrayPropertyMapping NullValue(string value)
         {
-            this.column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = new ConstantNullHandler(value);
             return this;
         }
 
         public ICharArrayPropertyMapping NullHandler(INullHandler handler)
         {
-            this.column.NullHandler = handler;
+            column.NullHandler = handler;
             return this;
         }
 
         public ICharArrayPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
-            this.column.Preprocessor = preprocessor;
+            column.Preprocessor = preprocessor;
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition
-        {
-            get { return column; }
-        }
+        public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

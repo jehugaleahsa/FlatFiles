@@ -37,7 +37,7 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public class SeparatedValueTypeMapperInjector : ITypeMapperInjector
     {
-        private static readonly TypeMapperMatcher nonMatcher = new TypeMapperMatcher() { Predicate = (o) => false };
+        private static readonly TypeMapperMatcher nonMatcher = new TypeMapperMatcher { Predicate = o => false };
         private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
         private TypeMapperMatcher defaultMatcher = nonMatcher;
 
@@ -47,7 +47,7 @@ namespace FlatFiles.TypeMapping
         public SeparatedValueTypeMapperInjector()
         {
         }
-
+        
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
         /// </summary>
@@ -90,10 +90,10 @@ namespace FlatFiles.TypeMapping
         /// <param name="typeMapper">The default schema to use.</param>
         public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
         {
-            this.defaultMatcher = typeMapper == null ? nonMatcher : new TypeMapperMatcher()
+            defaultMatcher = typeMapper == null ? nonMatcher : new TypeMapperMatcher
             {
                 TypeMapper = typeMapper,
-                Predicate = (o) => true
+                Predicate = o => true
             };
         }
 
@@ -110,7 +110,7 @@ namespace FlatFiles.TypeMapping
             var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             foreach (var matcher in matchers)
             {
-                injector.When((values) => matcher.IsMatch).Use(matcher.TypeMapper.GetSchema());
+                injector.When(values => matcher.IsMatch).Use(matcher.TypeMapper.GetSchema());
             }
             if (defaultMatcher != nonMatcher)
             {
@@ -139,7 +139,7 @@ namespace FlatFiles.TypeMapping
                     matcher.IsMatch = true;
                     if (matcher.Serializer == null)
                     {
-                        initializeMatcher(matcher);
+                        InitializeMatcher(matcher);
                     }
                     workCount = matcher.WorkCount;
                     serializer = matcher.Serializer;
@@ -157,7 +157,7 @@ namespace FlatFiles.TypeMapping
                 }
                 if (defaultMatcher.Serializer == null)
                 {
-                    initializeMatcher(defaultMatcher);
+                    InitializeMatcher(defaultMatcher);
                 }
                 workCount = defaultMatcher.WorkCount;
                 serializer = defaultMatcher.Serializer;
@@ -165,7 +165,7 @@ namespace FlatFiles.TypeMapping
             return (workCount, serializer);
         }
 
-        private static void initializeMatcher(TypeMapperMatcher matcher)
+        private static void InitializeMatcher(TypeMapperMatcher matcher)
         {
             var source = (IMapperSource)matcher.TypeMapper;
             var mapper = source.GetMapper();
@@ -209,14 +209,14 @@ namespace FlatFiles.TypeMapping
 
         private class SeparatedValueTypeMapperInjectorWhenBuilder<TEntity> : ISeparatedValueTypeMapperInjectorWhenBuilder<TEntity>
         {
-            private static readonly Func<object, bool> typeCheck = (o) => o is TEntity;
+            private static readonly Func<object, bool> typeCheck = o => o is TEntity;
             private readonly SeparatedValueTypeMapperInjector selector;
             private readonly Func<object, bool> predicate;
 
             public SeparatedValueTypeMapperInjectorWhenBuilder(SeparatedValueTypeMapperInjector selector, Func<TEntity, bool> predicate)
             {
                 this.selector = selector;
-                this.predicate = predicate == null ? typeCheck : (o) => o is TEntity entity && predicate(entity);
+                this.predicate = predicate == null ? typeCheck : o => o is TEntity entity && predicate(entity);
             }
 
             public void Use(ISeparatedValueTypeMapper<TEntity> typeMapper)

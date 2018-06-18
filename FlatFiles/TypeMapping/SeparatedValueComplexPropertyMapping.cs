@@ -56,10 +56,10 @@ namespace FlatFiles.TypeMapping
         public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
         {
             this.mapper = mapper;
-            this.Member = member;
-            this.columnName = member.Name;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            Member = member;
+            columnName = member.Name;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -67,10 +67,12 @@ namespace FlatFiles.TypeMapping
             get
             {
                 SeparatedValueSchema schema = mapper.GetSchema();
-                SeparatedValueComplexColumn column = new SeparatedValueComplexColumn(columnName, schema);
-                column.Options = options;
-                column.NullHandler = nullHandler;
-                column.Preprocessor = preprocessor;
+                SeparatedValueComplexColumn column = new SeparatedValueComplexColumn(columnName, schema)
+                {
+                    Options = options,
+                    NullHandler = nullHandler,
+                    Preprocessor = preprocessor
+                };
 
                 var mapperSource = (IMapperSource<TEntity>)mapper;
                 var recordMapper = mapperSource.GetMapper();
@@ -78,11 +80,11 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
 
         public ISeparatedValueComplexPropertyMapping ColumnName(string name)
         {
@@ -90,7 +92,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentException(Resources.BlankColumnName);
             }
-            this.columnName = name;
+            columnName = name;
             return this;
         }
 
@@ -102,13 +104,13 @@ namespace FlatFiles.TypeMapping
 
         public ISeparatedValueComplexPropertyMapping NullHandler(INullHandler handler)
         {
-            this.nullHandler = handler;
+            nullHandler = handler;
             return this;
         }
 
         public ISeparatedValueComplexPropertyMapping NullValue(string value)
         {
-            this.nullHandler = new ConstantNullHandler(value);
+            nullHandler = new ConstantNullHandler(value);
             return this;
         }
 

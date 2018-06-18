@@ -10,42 +10,33 @@ namespace FlatFiles.TypeMapping
         private readonly Dictionary<Type, object> factories = new Dictionary<Type, object>();
         private int ignoredCount;
 
-        public MemberLookup()
-        {
-        }
-
-        public int WorkCount
-        {
-            get { return lookup.Count - ignoredCount; }
-        }
+        public int WorkCount => lookup.Count - ignoredCount;
 
         public TMemberMapping GetOrAddMember<TMemberMapping>(IMemberAccessor member, Func<int, int, TMemberMapping> factory)
             where TMemberMapping : IMemberMapping
         {
-            return getOrAddMember(member.Name, factory);
+            return GetOrAddMember(member.Name, factory);
         }
 
         public WriteOnlyPropertyMapping GetOrAddWriteOnlyMember(string name, Func<int, int, WriteOnlyPropertyMapping> factory)
         {
             string key = $"@WriteOnly_{name}";
-            return getOrAddMember(key, factory);
+            return GetOrAddMember(key, factory);
         }
 
-        private TMapping getOrAddMember<TMapping>(string key, Func<int, int, TMapping> factory)
+        private TMapping GetOrAddMember<TMapping>(string key, Func<int, int, TMapping> factory)
             where TMapping : IMemberMapping
         {
             if (lookup.TryGetValue(key, out var mapping))
             {
                 return (TMapping)mapping;
             }
-            else
-            {
-                int fileIndex = lookup.Count;
-                int workIndex = fileIndex - ignoredCount;
-                var newMapping = factory(fileIndex, workIndex);
-                lookup.Add(key, newMapping);
-                return newMapping;
-            }
+
+            int fileIndex = lookup.Count;
+            int workIndex = fileIndex - ignoredCount;
+            var newMapping = factory(fileIndex, workIndex);
+            lookup.Add(key, newMapping);
+            return newMapping;
         }
 
         public IgnoredMapping AddIgnored()
@@ -71,7 +62,8 @@ namespace FlatFiles.TypeMapping
                 {
                     return entityFactory;
                 }
-                else if (factory is Func<object> objectFactory)
+
+                if (factory is Func<object> objectFactory)
                 {
                     return () => (TEntity)objectFactory();
                 }

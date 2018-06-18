@@ -38,8 +38,8 @@ namespace FlatFiles.TypeMapping
         public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
-            this.serializer = mapper.GetWriter();
-            this.workCount = mapper.WorkCount;
+            serializer = mapper.GetWriter();
+            workCount = mapper.WorkCount;
         }
 
         public ISchema GetSchema()
@@ -49,14 +49,14 @@ namespace FlatFiles.TypeMapping
 
         public void Write(TEntity entity)
         {
-            object[] values = new object[workCount];
+            var values = new object[workCount];
             serializer(entity, values);
             writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            object[] values = new object[workCount];
+            var values = new object[workCount];
             serializer(entity, values);
             await writer.WriteAsync(values).ConfigureAwait(false);
         }

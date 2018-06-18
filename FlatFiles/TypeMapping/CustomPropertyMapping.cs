@@ -34,10 +34,10 @@ namespace FlatFiles.TypeMapping
     {
         public CustomPropertyMapping(IColumnDefinition column, IMemberAccessor member, int fileIndex, int workIndex)
         {
-            this.ColumnDefinition = column;
-            this.Member = member;
-            this.FileIndex = fileIndex;
-            this.WorkIndex = workIndex;
+            ColumnDefinition = column;
+            Member = member;
+            FileIndex = fileIndex;
+            WorkIndex = workIndex;
         }
 
         public ICustomPropertyMapping NullValue(string value)
@@ -58,12 +58,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public IMemberAccessor Member { get; private set; }
+        public IMemberAccessor Member { get; }
 
-        public IColumnDefinition ColumnDefinition { get; private set; }
+        public IColumnDefinition ColumnDefinition { get; }
 
-        public int FileIndex { get; private set; }
+        public int FileIndex { get; }
 
-        public int WorkIndex { get; private set; }
+        public int WorkIndex { get; }
     }
 }

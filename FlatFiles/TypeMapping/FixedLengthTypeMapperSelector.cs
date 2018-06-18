@@ -67,7 +67,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
         {
-            this.defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
+            defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
         {
-            this.defaultMapper = typeMapper;
+            defaultMapper = typeMapper;
         }
 
         /// <summary>
@@ -93,18 +93,18 @@ namespace FlatFiles.TypeMapping
             var multiReader = new MultiplexingFixedLengthTypedReader(valueReader, this);
             foreach (var matcher in matchers)
             {
-                var typedReader = new Lazy<Func<object[], object>>(getReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<object[], object>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
             }
             if (defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<object[], object>>(getReader(defaultMapper));
+                var typeReader = new Lazy<Func<object[], object>>(GetReader(defaultMapper));
                 selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<object[], object>> getReader(IDynamicFixedLengthTypeMapper defaultMapper)
+        private Func<Func<object[], object>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
