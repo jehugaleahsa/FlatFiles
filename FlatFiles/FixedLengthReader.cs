@@ -77,6 +77,17 @@ namespace FlatFiles
         public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
 
         /// <summary>
+        /// Raised after a record is parsed.
+        /// </summary>
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed;
+
+        event EventHandler<IRecordParsedEventArgs> IReader.RecordParsed
+        {
+            add => RecordParsed += (sender, e) => value(sender, e);
+            remove => RecordParsed -= (sender, e) => value(sender, e);
+        }
+
+        /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
         public event EventHandler<ProcessingErrorEventArgs> Error;
@@ -154,6 +165,7 @@ namespace FlatFiles
                 var values = ParseValues(schema, rawValues);
                 if (values != null)
                 {
+                    RecordParsed?.Invoke(this, new FixedLengthRecordParsedEventArgs(GetMetadata(schema), values));
                     return values;
                 }
                 (schema, rawValues) = PartitionWithFilter();
@@ -165,7 +177,7 @@ namespace FlatFiles
         {
             var record = ReadWithFilter();
             var (schema, rawValues) = PartitionRecord(record);
-            while (rawValues != null && IsSkipped(rawValues))
+            while (rawValues != null && IsSkipped(schema, rawValues))
             {
                 record = ReadWithFilter();
                 GetSchema(record);
@@ -240,7 +252,7 @@ namespace FlatFiles
         {
             var record = await ReadWithFilterAsync().ConfigureAwait(false);
             var (schema, rawValues) = PartitionRecord(record);
-            while (rawValues != null && IsSkipped(rawValues))
+            while (rawValues != null && IsSkipped(schema, rawValues))
             {
                 record = await ReadWithFilterAsync().ConfigureAwait(false);
                 (schema, rawValues) = PartitionRecord(record);
@@ -261,13 +273,14 @@ namespace FlatFiles
             return schemaSelector.GetSchema(record);
         }
 
-        private bool IsSkipped(string[] values)
+        private bool IsSkipped(FixedLengthSchema schema, string[] values)
         {
             if (RecordPartitioned == null)
             {
                 return false;
             }
-            var e = new FixedLengthRecordPartitionedEventArgs(values);
+            var metadata = GetMetadata(schema);
+            var e = new FixedLengthRecordPartitionedEventArgs(metadata, values);
             RecordPartitioned(this, e);
             return e.IsSkipped;
         }
@@ -297,13 +310,7 @@ namespace FlatFiles
         {
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata
-                {
-                    Schema = schema,
-                    Options = this.metadata.Options,
-                    RecordCount = this.metadata.RecordCount,
-                    LogicalRecordCount = this.metadata.LogicalRecordCount
-                };
+                var metadata = GetMetadata(schema);
                 return schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
@@ -311,6 +318,17 @@ namespace FlatFiles
                 ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
                 return null;
             }
+        }
+
+        private Metadata GetMetadata(FixedLengthSchema schema)
+        {
+            return schemaSelector == null ? this.metadata : new Metadata()
+            {
+                Schema = schema,
+                Options = this.metadata.Options,
+                RecordCount = this.metadata.RecordCount,
+                LogicalRecordCount = this.metadata.LogicalRecordCount
+            };
         }
 
         /// <summary>

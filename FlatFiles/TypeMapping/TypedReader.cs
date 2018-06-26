@@ -11,6 +11,16 @@ namespace FlatFiles.TypeMapping
     public interface ITypedReader<out TEntity>
     {
         /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        event EventHandler<ProcessingErrorEventArgs> Error;
+
+        /// <summary>
+        /// Raised when a record is parsed.
+        /// </summary>
+        event EventHandler<IRecordParsedEventArgs> RecordParsed;
+
+        /// <summary>
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
@@ -58,9 +68,9 @@ namespace FlatFiles.TypeMapping
         event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
 
         /// <summary>
-        /// Raised when an error occurs while processing a record.
+        /// Raised after a record is parsed.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        new event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed;
     }
 
     /// <summary>
@@ -80,9 +90,9 @@ namespace FlatFiles.TypeMapping
         event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
 
         /// <summary>
-        /// Raised when an error occurs while processing a record.
+        /// Raised after a record is parsed.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        new event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed;
     }
 
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
@@ -94,6 +104,18 @@ namespace FlatFiles.TypeMapping
         {
             this.reader = reader;
             deserializer = mapper.GetReader();
+        }
+
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<TEntity>.RecordParsed
+        {
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
+        }
+
+        public event EventHandler<ProcessingErrorEventArgs> Error
+        {
+            add => reader.Error += value;
+            remove => reader.Error -= value;
         }
 
         public ISchema GetSchema()
@@ -152,10 +174,10 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordRead -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
         }
     }
 
@@ -176,6 +198,18 @@ namespace FlatFiles.TypeMapping
         {
             add => reader.RecordRead += value;
             remove => reader.RecordRead -= value;
+        }
+
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
+        {
+            add => ((IReader)reader).RecordParsed += value;
+            remove => ((IReader)reader).RecordParsed -= value;
+        }
+
+        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
+        {
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error
@@ -244,10 +278,10 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordPartitioned -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
         }
     }
 
@@ -274,6 +308,18 @@ namespace FlatFiles.TypeMapping
         {
             add => reader.RecordPartitioned += value;
             remove => reader.RecordPartitioned -= value;
+        }
+
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
+        {
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
+        }
+
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
+        {
+            add => ((IReader)reader).RecordParsed += value;
+            remove => ((IReader)reader).RecordParsed -= value;
         }
 
         public event EventHandler<ProcessingErrorEventArgs> Error

@@ -1158,7 +1158,7 @@ namespace FlatFiles.TypeMapping
 
         public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
         {
-            SeparatedValueSchema schema = getSchema();
+            var schema = getSchema();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
             return GetTypedReader(separatedValueReader);
         }
@@ -1166,7 +1166,7 @@ namespace FlatFiles.TypeMapping
         private SeparatedValueTypedReader<TEntity> GetTypedReader(SeparatedValueReader reader)
         {
             var mapper = new Mapper<TEntity>(lookup, GetCodeGenerator());
-            SeparatedValueTypedReader<TEntity> typedReader = new SeparatedValueTypedReader<TEntity>(reader, mapper);
+            var typedReader = new SeparatedValueTypedReader<TEntity>(reader, mapper);
             return typedReader;
         }
 
@@ -1176,14 +1176,14 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            SeparatedValueSchema schema = getSchema();
+            var schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             Write(separatedValueWriter, entities);
         }
 
         private void Write(IWriter writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 typedWriter.Write(entity);
@@ -1196,14 +1196,14 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            SeparatedValueSchema schema = getSchema();
+            var schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             await WriteAsync(separatedValueWriter, entities).ConfigureAwait(false);
         }
 
         private async Task WriteAsync(IWriter writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 await typedWriter.WriteAsync(entity).ConfigureAwait(false);
@@ -1212,7 +1212,7 @@ namespace FlatFiles.TypeMapping
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null)
         {
-            SeparatedValueSchema schema = getSchema();
+            var schema = getSchema();
             IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             return GetTypedWriter(separatedValueWriter);
         }
