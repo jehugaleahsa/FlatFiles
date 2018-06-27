@@ -16,7 +16,7 @@ namespace FlatFiles
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
-            Metadata = new SeparatedValueMetadata()
+            Metadata = new ProcessMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -31,16 +31,16 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public SeparatedValueMetadata Metadata { get; }
+        public ProcessMetadata Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
-            var schema = GetSchema(values);
-            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
+            Metadata.Schema = GetSchema(values);
+            if (Metadata.Schema != null && values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
-            var formattedValues = FormatValues(schema, values);
+            var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
             string joined = String.Join(Metadata.Options.Separator, formattedValues);
             writer.Write(joined);
@@ -48,12 +48,12 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            var schema = GetSchema(values);
-            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
+            Metadata.Schema = GetSchema(values);
+            if (Metadata.Schema != null && values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
-            var formattedValues = FormatValues(schema, values);
+            var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
             string joined = String.Join(Metadata.Options.Separator, formattedValues);
             await writer.WriteAsync(joined).ConfigureAwait(false);
@@ -64,9 +64,9 @@ namespace FlatFiles
             return injector == null ? Metadata.Schema : injector.GetSchema(values);
         }
 
-        private string[] FormatValues(SeparatedValueSchema schema, object[] values)
+        private string[] FormatValues(object[] values)
         {
-            if (schema == null)
+            if (Metadata.Schema == null)
             {
                 string[] results = new string[values.Length];
                 for (int index = 0; index != results.Length; ++index)
@@ -75,15 +75,7 @@ namespace FlatFiles
                 }
                 return results;
             }
-
-            var metadata = injector == null ? Metadata : new SeparatedValueMetadata()
-            {
-                Schema = schema,
-                Options = Metadata.Options,
-                RecordCount = Metadata.RecordCount,
-                LogicalRecordCount = Metadata.LogicalRecordCount
-            };
-            return schema.FormatValues(Metadata, values);
+            return Metadata.Schema.FormatValues(Metadata, values);
         }
 
         private static string ToString(object value)
@@ -188,7 +180,7 @@ namespace FlatFiles
             await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
         }
 
-        internal class SeparatedValueMetadata : IProcessMetadata
+        internal class ProcessMetadata : IProcessMetadata
         {
             public SeparatedValueSchema Schema { get; internal set; }
 

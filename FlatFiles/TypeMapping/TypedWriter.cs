@@ -31,11 +31,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
-        private readonly IWriter writer;
+        private readonly IWriterWithMetadata writer;
         private readonly Action<TEntity, object[]> serializer;
         private readonly int workCount;
 
-        public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
+        public TypedWriter(IWriterWithMetadata writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
             serializer = mapper.GetWriter();
@@ -69,10 +69,10 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
     {
-        private readonly IWriter writer;
+        private readonly IWriterWithMetadata writer;
         private readonly ITypeMapperInjector injector;
 
-        public MultiplexingTypedWriter(IWriter writer, ITypeMapperInjector injector)
+        public MultiplexingTypedWriter(IWriterWithMetadata writer, ITypeMapperInjector injector)
         {
             this.writer = writer;
             this.injector = injector;
@@ -85,16 +85,16 @@ namespace FlatFiles.TypeMapping
 
         public void Write(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
-            object[] values = new object[workCount];
+            var (workCount, serializer) = injector.SetMatcher(entity);
+            var values = new object[workCount];
             serializer(entity, values);
             writer.Write(values);
         }
 
         public async Task WriteAsync(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
-            object[] values = new object[workCount];
+            var (workCount, serializer) = injector.SetMatcher(entity);
+            var values = new object[workCount];
             serializer(entity, values);
             await writer.WriteAsync(values).ConfigureAwait(false);
         }

@@ -27,4 +27,9 @@ namespace FlatFiles
         /// <returns>The textual representation of the given values.</returns>
         Task WriteAsync(object[] values);
     }
+
+    internal interface IWriterWithMetadata : IWriter
+    {
+        IProcessMetadata GetMetadata();
+    }
 }

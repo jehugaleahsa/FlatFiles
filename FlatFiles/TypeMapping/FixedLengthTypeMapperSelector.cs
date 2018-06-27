@@ -42,8 +42,6 @@ namespace FlatFiles.TypeMapping
         {
         }
 
-        internal Func<object[], object> Reader { get; set; }
-
         /// <summary>
         /// Indicates that the given schema should be used when the predicate returns true.
         /// </summary>
@@ -90,16 +88,16 @@ namespace FlatFiles.TypeMapping
         {
             var selector = new FixedLengthSchemaSelector();
             var valueReader = new FixedLengthReader(reader, selector, options);
-            var multiReader = new MultiplexingFixedLengthTypedReader(valueReader, this);
+            var multiReader = new MultiplexingFixedLengthTypedReader(valueReader);
             foreach (var matcher in matchers)
             {
                 var typedReader = new Lazy<Func<object[], object>>(GetReader(matcher.TypeMapper));
-                selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => Reader = typedReader.Value);
+                selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typedReader.Value);
             }
             if (defaultMapper != null)
             {
                 var typeReader = new Lazy<Func<object[], object>>(GetReader(defaultMapper));
-                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => Reader = typeReader.Value);
+                selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typeReader.Value);
             }
             return multiReader;
         }

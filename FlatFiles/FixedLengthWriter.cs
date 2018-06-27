@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Builds textual representations of data by giving each field a fixed width.
     /// </summary>
-    public sealed class FixedLengthWriter : IWriter
+    public sealed class FixedLengthWriter : IWriter, IWriterWithMetadata
     {
         private readonly FixedLengthRecordWriter recordWriter;
         private bool isSchemaWritten;
@@ -160,6 +160,11 @@ namespace FlatFiles
             await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
             ++recordWriter.Metadata.RecordCount;
             ++recordWriter.Metadata.LogicalRecordCount;
+        }
+
+        IProcessMetadata IWriterWithMetadata.GetMetadata()
+        {
+            return recordWriter.Metadata;
         }
     }
 }

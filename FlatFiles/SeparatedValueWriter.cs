@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Builds textual representations of data by separating fields with a delimiter.
     /// </summary>
-    public sealed class SeparatedValueWriter : IWriter
+    public sealed class SeparatedValueWriter : IWriter, IWriterWithMetadata
     {
         private readonly SeparatedValueRecordWriter recordWriter;
         private bool isSchemaWritten;
@@ -182,6 +182,11 @@ namespace FlatFiles
             await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
             ++recordWriter.Metadata.RecordCount;
             ++recordWriter.Metadata.LogicalRecordCount;
+        }
+
+        IProcessMetadata IWriterWithMetadata.GetMetadata()
+        {
+            return recordWriter.Metadata;
         }
     }
 }

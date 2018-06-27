@@ -97,10 +97,10 @@ namespace FlatFiles.TypeMapping
 
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
-        private readonly IReader reader;
+        private readonly IReaderWithMetadata reader;
         private readonly Func<object[], TEntity> deserializer;
 
-        protected TypedReader(IReader reader, IMapper<TEntity> mapper)
+        protected TypedReader(IReaderWithMetadata reader, IMapper<TEntity> mapper)
         {
             this.reader = reader;
             deserializer = mapper.GetReader();
@@ -184,15 +184,15 @@ namespace FlatFiles.TypeMapping
     internal sealed class MultiplexingSeparatedValueTypedReader : ISeparatedValueTypedReader<object>
     {
         private readonly SeparatedValueReader reader;
-        private readonly SeparatedValueTypeMapperSelector selector;
 
-        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader, SeparatedValueTypeMapperSelector selector)
+        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader)
         {
             this.reader = reader;
-            this.selector = selector;
         }
 
         public object Current { get; private set; }
+
+        public Func<object[], object> Deserializer { get; set; }
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
@@ -229,8 +229,8 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            var values = reader.GetValues();
+            Current = Deserializer(values);
             return true;
         }
 
@@ -240,8 +240,8 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            var values = reader.GetValues();
+            Current = Deserializer(values);
             return true;
         }
 
@@ -288,15 +288,15 @@ namespace FlatFiles.TypeMapping
     internal sealed class MultiplexingFixedLengthTypedReader : IFixedLengthTypedReader<object>
     {
         private readonly FixedLengthReader reader;
-        private readonly FixedLengthTypeMapperSelector selector;
 
-        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader, FixedLengthTypeMapperSelector selector)
+        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader)
         {
             this.reader = reader;
-            this.selector = selector;
         }
 
         public object Current { get; private set; }
+
+        public Func<object[], object> Deserializer { get; set; }
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
@@ -340,7 +340,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            Current = Deserializer(values);
             return true;
         }
 
@@ -351,7 +351,7 @@ namespace FlatFiles.TypeMapping
                 return false;
             }
             object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            Current = Deserializer(values);
             return true;
         }
 

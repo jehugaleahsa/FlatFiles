@@ -60,4 +60,9 @@ namespace FlatFiles
         /// <returns>The value of the current record.</returns>
         object[] GetValues();
     }
+
+    internal interface IReaderWithMetadata : IReader
+    {
+        IProcessMetadata GetMetadata();
+    }
 }

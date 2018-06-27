@@ -14,7 +14,7 @@ namespace FlatFiles
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
-            Metadata = new FixedLengthWriterMetadata
+            Metadata = new ProcessMetadata
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -27,17 +27,17 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public FixedLengthWriterMetadata Metadata { get; }
+        public ProcessMetadata Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
-            var schema = GetSchema(values);
-            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
+            Metadata.Schema = GetSchema(values);
+            if (values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
-            string[] formattedColumns = FormatValues(values, schema);
-            FitWindows(schema, formattedColumns);
+            string[] formattedColumns = FormatValues(values);
+            FitWindows(formattedColumns);
             foreach (string column in formattedColumns)
             {
                 writer.Write(column);
@@ -46,13 +46,13 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            var schema = GetSchema(values);
-            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
+            Metadata.Schema = GetSchema(values);
+            if (values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
-            var formattedColumns = FormatValues(values, schema);
-            FitWindows(schema, formattedColumns);
+            var formattedColumns = FormatValues(values);
+            FitWindows(formattedColumns);
             foreach (string column in formattedColumns)
             {
                 await writer.WriteAsync(column).ConfigureAwait(false);
@@ -64,23 +64,16 @@ namespace FlatFiles
             return injector == null ? Metadata.Schema : injector.GetSchema(values);
         }
 
-        private string[] FormatValues(object[] values, FixedLengthSchema schema)
+        private string[] FormatValues(object[] values)
         {
-            var metadata = injector == null ? Metadata : new FixedLengthWriterMetadata()
-            {
-                Schema = schema,
-                Options = Metadata.Options,
-                RecordCount = Metadata.RecordCount,
-                LogicalRecordCount = Metadata.LogicalRecordCount
-            };
-            return schema.FormatValues(metadata, values);
+            return Metadata.Schema.FormatValues(Metadata, values);
         }
 
-        private void FitWindows(FixedLengthSchema schema, string[] values)
+        private void FitWindows(string[] values)
         {
             for (int index = 0; index != values.Length; ++index)
             {
-                var window = schema.Windows[index];
+                var window = Metadata.Schema.Windows[index];
                 values[index] = FitWidth(window, values[index]);
             }
         }
@@ -123,7 +116,6 @@ namespace FlatFiles
             {
                 return GetTruncatedValue(value, window);
             }
-
             if (value.Length < window.Width)
             {
                 return GetPaddedValue(value, window);
@@ -171,7 +163,7 @@ namespace FlatFiles
             }
         }
 
-        internal class FixedLengthWriterMetadata : IProcessMetadata
+        internal class ProcessMetadata : IProcessMetadata
         {
             public FixedLengthSchema Schema { get; internal set; }
 

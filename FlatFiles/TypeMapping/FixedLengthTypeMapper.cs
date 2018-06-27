@@ -1285,14 +1285,14 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            FixedLengthSchema schema = getSchema();
-            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            var schema = getSchema();
+            var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
             Write(fixedLengthWriter, entities);
         }
 
-        private void Write(IWriter writer, IEnumerable<TEntity> entities)
+        private void Write(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 typedWriter.Write(entity);
@@ -1305,14 +1305,14 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            FixedLengthSchema schema = getSchema();
-            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            var schema = getSchema();
+            var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
             await WriteAsync(fixedLengthWriter, entities).ConfigureAwait(false);
         }
 
-        private async Task WriteAsync(IWriter writer, IEnumerable<TEntity> entities)
+        private async Task WriteAsync(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
-            TypedWriter<TEntity> typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
             {
                 await typedWriter.WriteAsync(entity).ConfigureAwait(false);
@@ -1321,12 +1321,12 @@ namespace FlatFiles.TypeMapping
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)
         {
-            FixedLengthSchema schema = getSchema();
-            IWriter fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
+            var schema = getSchema();
+            var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
             return GetTypedWriter(fixedLengthWriter);
         }
 
-        private TypedWriter<TEntity> GetTypedWriter(IWriter writer)
+        private TypedWriter<TEntity> GetTypedWriter(IWriterWithMetadata writer)
         {
             var mapper = new Mapper<TEntity>(lookup, GetCodeGenerator());
             return new TypedWriter<TEntity>(writer, mapper);

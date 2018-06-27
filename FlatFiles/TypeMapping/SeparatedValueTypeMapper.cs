@@ -1177,11 +1177,11 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(entities));
             }
             var schema = getSchema();
-            IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
+            var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             Write(separatedValueWriter, entities);
         }
 
-        private void Write(IWriter writer, IEnumerable<TEntity> entities)
+        private void Write(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
             var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
@@ -1197,11 +1197,11 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(entities));
             }
             var schema = getSchema();
-            IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
+            var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             await WriteAsync(separatedValueWriter, entities).ConfigureAwait(false);
         }
 
-        private async Task WriteAsync(IWriter writer, IEnumerable<TEntity> entities)
+        private async Task WriteAsync(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
             var typedWriter = GetTypedWriter(writer);
             foreach (TEntity entity in entities)
@@ -1213,11 +1213,11 @@ namespace FlatFiles.TypeMapping
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null)
         {
             var schema = getSchema();
-            IWriter separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
+            var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             return GetTypedWriter(separatedValueWriter);
         }
 
-        private TypedWriter<TEntity> GetTypedWriter(IWriter writer)
+        private TypedWriter<TEntity> GetTypedWriter(IWriterWithMetadata writer)
         {
             var mapper = new Mapper<TEntity>(lookup, GetCodeGenerator());
             return new TypedWriter<TEntity>(writer, mapper);
