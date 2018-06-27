@@ -98,7 +98,7 @@ namespace FlatFiles.TypeMapping
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
         private readonly IReaderWithMetadata reader;
-        private readonly Func<object[], TEntity> deserializer;
+        private readonly Func<IProcessMetadata, object[], TEntity> deserializer;
 
         protected TypedReader(IReaderWithMetadata reader, IMapper<TEntity> mapper)
         {
@@ -129,8 +129,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = deserializer(values);
+            SetCurrent();
             return true;
         }
 
@@ -140,9 +139,15 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = deserializer(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            var metadata = reader.GetMetadata();
+            Current = deserializer(metadata, values);
         }
 
         public bool Skip()
@@ -192,7 +197,7 @@ namespace FlatFiles.TypeMapping
 
         public object Current { get; private set; }
 
-        public Func<object[], object> Deserializer { get; set; }
+        public Func<IProcessMetadata, object[], object> Deserializer { get; set; }
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
@@ -229,8 +234,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            var values = reader.GetValues();
-            Current = Deserializer(values);
+            SetCurrent();
             return true;
         }
 
@@ -240,9 +244,16 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            var values = reader.GetValues();
-            Current = Deserializer(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            IReaderWithMetadata metadataReader = reader;
+            var metadata = metadataReader.GetMetadata();
+            Current = Deserializer(metadata, values);
         }
 
         public bool Skip()
@@ -296,7 +307,7 @@ namespace FlatFiles.TypeMapping
 
         public object Current { get; private set; }
 
-        public Func<object[], object> Deserializer { get; set; }
+        public Func<IProcessMetadata, object[], object> Deserializer { get; set; }
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
@@ -339,8 +350,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = Deserializer(values);
+            SetCurrent();
             return true;
         }
 
@@ -350,9 +360,16 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = Deserializer(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            IReaderWithMetadata metadataReader = reader;
+            var metadata = metadataReader.GetMetadata();
+            Current = Deserializer(metadata, values);
         }
 
         public bool Skip()

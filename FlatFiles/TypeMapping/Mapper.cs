@@ -11,14 +11,14 @@ namespace FlatFiles.TypeMapping
 
         int WorkCount { get; }
 
-        Func<object[], object> GetReader();
+        Func<IProcessMetadata, object[], object> GetReader();
 
         Action<object, object[]> GetWriter();
     }
 
     internal interface IMapper<TEntity>: IMapper
     {
-        new Func<object[], TEntity> GetReader();
+        new Func<IProcessMetadata, object[], TEntity> GetReader();
 
         new Action<TEntity, object[]> GetWriter();
     }
@@ -27,7 +27,7 @@ namespace FlatFiles.TypeMapping
     {
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
-        private Func<object[], TEntity> cachedReader;
+        private Func<IProcessMetadata, object[], TEntity> cachedReader;
         private Action<TEntity, object[]> cachedWriter;
 
         public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator)
@@ -46,7 +46,7 @@ namespace FlatFiles.TypeMapping
 
         public int WorkCount => lookup.WorkCount;
 
-        public Func<object[], TEntity> GetReader()
+        public Func<IProcessMetadata, object[], TEntity> GetReader()
         {
             if (cachedReader != null)
             {
@@ -60,15 +60,15 @@ namespace FlatFiles.TypeMapping
             var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
-                cachedReader = values =>
+                cachedReader = (metadata, values) =>
                 {
                     var entity = factory();
                     nullChecker(values);
-                    setter(entity, values);
+                    setter(metadata, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
                         var nestedReader = nestedMapper.GetReader();
-                        var result = nestedReader(values);
+                        var result = nestedReader(metadata, values);
                         nestedMapper.Member.SetValue(entity, result);
                     }
                     return entity;
@@ -76,11 +76,11 @@ namespace FlatFiles.TypeMapping
             }
             else
             {
-                cachedReader = values =>
+                cachedReader = (metadata, values) =>
                 {
                     var entity = factory();
                     nullChecker(values);
-                    setter(entity, values);
+                    setter(metadata, entity, values);
                     return entity;
                 };
             }
@@ -110,10 +110,10 @@ namespace FlatFiles.TypeMapping
             };
         }
 
-        Func<object[], object> IMapper.GetReader()
+        Func<IProcessMetadata, object[], object> IMapper.GetReader()
         {
             var reader = GetReader();
-            return values => reader(values);
+            return (metadata, values) => reader(metadata, values);
         }
 
         public Action<TEntity, object[]> GetWriter()

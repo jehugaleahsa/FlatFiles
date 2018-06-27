@@ -5,7 +5,7 @@ namespace FlatFiles.TypeMapping
     internal class ComplexMapperColumn<TEntity> : IColumnDefinition
     {
         private readonly IColumnDefinition column;
-        private readonly Func<object[], TEntity> reader;
+        private readonly Func<IProcessMetadata, object[], TEntity> reader;
         private readonly Action<TEntity, object[]> writer;
         private readonly int workCount;
 
@@ -39,7 +39,7 @@ namespace FlatFiles.TypeMapping
         {
             object parsed = column.Parse(value);
             object[] values = parsed as object[];
-            TEntity result = reader(values);
+            TEntity result = reader(null, values);
             return result;
         }
 
