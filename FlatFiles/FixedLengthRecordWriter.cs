@@ -14,7 +14,7 @@ namespace FlatFiles
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
-            Metadata = new ProcessMetadata
+            Metadata = new FixedLengthProcessMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -27,7 +27,7 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public ProcessMetadata Metadata { get; }
+        public FixedLengthProcessMetadata Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
@@ -161,21 +161,6 @@ namespace FlatFiles
             {
                 await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
             }
-        }
-
-        internal class ProcessMetadata : IProcessMetadata
-        {
-            public FixedLengthSchema Schema { get; internal set; }
-
-            ISchema IProcessMetadata.Schema => Schema;
-
-            public FixedLengthOptions Options { get; internal set; }
-
-            IOptions IProcessMetadata.Options => Options;
-
-            public int RecordCount { get; internal set; }
-
-            public int LogicalRecordCount { get; internal set; }
         }
     }
 }

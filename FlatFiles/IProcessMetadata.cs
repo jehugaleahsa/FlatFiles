@@ -27,4 +27,45 @@ namespace FlatFiles
         /// </summary>
         int LogicalRecordCount { get; }
     }
+
+    internal class ProcessMetadata : IProcessMetadata
+    {
+        public ISchema Schema { get; set; }
+
+        public IOptions Options { get; set; }
+
+        public int RecordCount { get; set; }
+
+        public int LogicalRecordCount { get; set; }
+    }
+
+    internal class FixedLengthProcessMetadata : IProcessMetadata
+    {
+        public FixedLengthSchema Schema { get; set; }
+
+        ISchema IProcessMetadata.Schema => Schema;
+
+        public FixedLengthOptions Options { get; set; }
+
+        IOptions IProcessMetadata.Options => Options;
+
+        public int RecordCount { get; set; }
+
+        public int LogicalRecordCount { get; set; }
+    }
+
+    internal class SeparatedValueProcessMetadata : IProcessMetadata
+    {
+        public SeparatedValueSchema Schema { get; set; }
+
+        ISchema IProcessMetadata.Schema => Schema;
+
+        public SeparatedValueOptions Options { get; set; }
+
+        IOptions IProcessMetadata.Options => Options;
+
+        public int RecordCount { get; set; }
+
+        public int LogicalRecordCount { get; set; }
+    }
 }

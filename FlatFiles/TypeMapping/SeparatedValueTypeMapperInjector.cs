@@ -110,11 +110,13 @@ namespace FlatFiles.TypeMapping
             var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             foreach (var matcher in matchers)
             {
-                injector.When(values => matcher.IsMatch).Use(matcher.TypeMapper.GetSchema());
+                matcher.Reset();
+                injector.When(values => matcher.IsMatch).Use(matcher.Schema);
             }
             if (defaultMatcher != nonMatcher)
             {
-                injector.WithDefault(defaultMatcher.TypeMapper.GetSchema());
+                defaultMatcher.Reset();
+                injector.WithDefault(defaultMatcher.Schema);
             }
             return multiWriter;
         }
@@ -128,19 +130,18 @@ namespace FlatFiles.TypeMapping
             });
         }
 
-        (int, Action<object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
+        (ISchema, int, Action<IProcessMetadata, object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
         {
+            ISchema schema = null;
             int workCount = 0;
-            Action<object, object[]> serializer = null;
+            Action<IProcessMetadata, object, object[]> serializer = null;
             foreach (var matcher in matchers)
             {
                 if (serializer == null && matcher.Predicate(entity))
                 {
                     matcher.IsMatch = true;
-                    if (matcher.Serializer == null)
-                    {
-                        InitializeMatcher(matcher);
-                    }
+                    matcher.Initialize();
+                    schema = matcher.Schema;
                     workCount = matcher.WorkCount;
                     serializer = matcher.Serializer;
                 }
@@ -155,22 +156,12 @@ namespace FlatFiles.TypeMapping
                 {
                     throw new FlatFileException(Resources.MissingMatcher);
                 }
-                if (defaultMatcher.Serializer == null)
-                {
-                    InitializeMatcher(defaultMatcher);
-                }
+                defaultMatcher.Initialize();
+                schema = defaultMatcher.Schema;
                 workCount = defaultMatcher.WorkCount;
                 serializer = defaultMatcher.Serializer;
             }
-            return (workCount, serializer);
-        }
-
-        private static void InitializeMatcher(TypeMapperMatcher matcher)
-        {
-            var source = (IMapperSource)matcher.TypeMapper;
-            var mapper = source.GetMapper();
-            matcher.WorkCount = mapper.WorkCount;
-            matcher.Serializer = mapper.GetWriter();
+            return (schema, workCount, serializer);
         }
 
         private class TypeMapperMatcher
@@ -181,9 +172,30 @@ namespace FlatFiles.TypeMapping
 
             public bool IsMatch { get; set; }
 
+            public SeparatedValueSchema Schema { get; set; }
+
             public int WorkCount { get; set; }
 
-            public Action<object, object[]> Serializer { get; set; }
+            public Action<IProcessMetadata, object, object[]> Serializer { get; set; }
+
+            public void Reset()
+            {
+                Schema = TypeMapper.GetSchema();
+                WorkCount = 0;
+                Serializer = null;
+            }
+
+            public void Initialize()
+            {
+                if (Serializer != null)
+                {
+                    return;
+                }
+                var source = (IMapperSource)TypeMapper;
+                var mapper = source.GetMapper();
+                WorkCount = mapper.WorkCount;
+                Serializer = mapper.GetWriter();
+            }
         }
 
         private class SeparatedValueTypeMapperInjectorWhenBuilder : ISeparatedValueTypeMapperInjectorWhenBuilder

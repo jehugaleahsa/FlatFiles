@@ -32,7 +32,7 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
         private readonly IWriterWithMetadata writer;
-        private readonly Action<TEntity, object[]> serializer;
+        private readonly Action<IProcessMetadata, TEntity, object[]> serializer;
         private readonly int workCount;
 
         public TypedWriter(IWriterWithMetadata writer, IMapper<TEntity> mapper)
@@ -49,22 +49,28 @@ namespace FlatFiles.TypeMapping
 
         public void Write(TEntity entity)
         {
-            var values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            var values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             await writer.WriteAsync(values).ConfigureAwait(false);
+        }
+
+        private object[] Serialize(TEntity entity)
+        {
+            var values = new object[workCount];
+            var metadata = writer.GetMetadata();
+            serializer(metadata, entity, values);
+            return values;
         }
     }
 
     internal interface ITypeMapperInjector
     {
-        (int, Action<object, object[]>) SetMatcher(object entity);
+        (ISchema, int, Action<IProcessMetadata, object, object[]>) SetMatcher(object entity);
     }
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
@@ -85,18 +91,31 @@ namespace FlatFiles.TypeMapping
 
         public void Write(object entity)
         {
-            var (workCount, serializer) = injector.SetMatcher(entity);
-            var values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             writer.Write(values);
         }
 
         public async Task WriteAsync(object entity)
         {
-            var (workCount, serializer) = injector.SetMatcher(entity);
-            var values = new object[workCount];
-            serializer(entity, values);
+            object[] values = Serialize(entity);
             await writer.WriteAsync(values).ConfigureAwait(false);
+        }
+
+        private object[] Serialize(object entity)
+        {
+            var (schema, workCount, serializer) = injector.SetMatcher(entity);
+            var values = new object[workCount];
+            IWriterWithMetadata metadataWriter = writer;
+            var metadata = metadataWriter.GetMetadata();
+            var copy = new ProcessMetadata()
+            {
+                Schema = schema,
+                Options = metadata.Options,
+                RecordCount = metadata.RecordCount,
+                LogicalRecordCount = metadata.LogicalRecordCount
+            };
+            serializer(metadata, entity, values);
+            return values;
         }
     }
 

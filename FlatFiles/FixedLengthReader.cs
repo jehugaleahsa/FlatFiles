@@ -12,7 +12,7 @@ namespace FlatFiles
     {
         private readonly FixedLengthRecordParser parser;
         private readonly FixedLengthSchemaSelector schemaSelector;
-        private readonly ProcessMetadata metadata;
+        private readonly FixedLengthProcessMetadata metadata;
         private object[] values;
         private bool endOfFile;
         private bool hasError;
@@ -59,7 +59,7 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
-            metadata = new ProcessMetadata()
+            metadata = new FixedLengthProcessMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -458,21 +458,6 @@ namespace FlatFiles
         IProcessMetadata IReaderWithMetadata.GetMetadata()
         {
             return metadata;
-        }
-
-        private class ProcessMetadata : IProcessMetadata
-        {
-            public FixedLengthSchema Schema { get; internal set; }
-
-            ISchema IProcessMetadata.Schema => Schema;
-
-            public FixedLengthOptions Options { get; internal set; }
-
-            IOptions IProcessMetadata.Options => Options;
-
-            public int RecordCount { get; internal set; }
-
-            public int LogicalRecordCount { get; internal set; }
         }
     }
 }

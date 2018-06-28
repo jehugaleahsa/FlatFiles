@@ -13,14 +13,14 @@ namespace FlatFiles.TypeMapping
 
         Func<IProcessMetadata, object[], object> GetReader();
 
-        Action<object, object[]> GetWriter();
+        Action<IProcessMetadata, object, object[]> GetWriter();
     }
 
     internal interface IMapper<TEntity>: IMapper
     {
         new Func<IProcessMetadata, object[], TEntity> GetReader();
 
-        new Action<TEntity, object[]> GetWriter();
+        new Action<IProcessMetadata, TEntity, object[]> GetWriter();
     }
 
     internal class Mapper<TEntity> : IMapper<TEntity>
@@ -28,7 +28,7 @@ namespace FlatFiles.TypeMapping
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
         private Func<IProcessMetadata, object[], TEntity> cachedReader;
-        private Action<TEntity, object[]> cachedWriter;
+        private Action<IProcessMetadata, TEntity, object[]> cachedWriter;
 
         public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator)
             : this(lookup, codeGenerator, null)
@@ -116,7 +116,7 @@ namespace FlatFiles.TypeMapping
             return (metadata, values) => reader(metadata, values);
         }
 
-        public Action<TEntity, object[]> GetWriter()
+        public Action<IProcessMetadata, TEntity, object[]> GetWriter()
         {
             if (cachedWriter != null)
             {
@@ -128,14 +128,14 @@ namespace FlatFiles.TypeMapping
             var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
-                cachedWriter = (entity, values) =>
+                cachedWriter = (metadata, entity, values) =>
                 {
-                    getter(entity, values);
+                    getter(metadata, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
                         var nested = nestedMapper.Member.GetValue(entity);
                         var writer = nestedMapper.GetWriter();
-                        writer(nested, values);
+                        writer(metadata, nested, values);
                     }
                 };
             }
@@ -146,10 +146,10 @@ namespace FlatFiles.TypeMapping
             return cachedWriter;
         }
 
-        Action<object, object[]> IMapper.GetWriter()
+        Action<IProcessMetadata, object, object[]> IMapper.GetWriter()
         {
             var writer = GetWriter();
-            return (entity, values) => writer((TEntity)entity, values);
+            return (metadata, entity, values) => writer(metadata, (TEntity)entity, values);
         }
 
         private IMemberMapping[] GetMemberMappings(IMemberMapping[] mappings)

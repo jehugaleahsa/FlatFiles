@@ -16,7 +16,7 @@ namespace FlatFiles
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
-            Metadata = new ProcessMetadata()
+            Metadata = new SeparatedValueProcessMetadata()
             {
                 Schema = schema,
                 Options = options.Clone()
@@ -31,7 +31,7 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public ProcessMetadata Metadata { get; }
+        public SeparatedValueProcessMetadata Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
@@ -178,21 +178,6 @@ namespace FlatFiles
         public async Task WriteRecordSeparatorAsync()
         {
             await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
-        }
-
-        internal class ProcessMetadata : IProcessMetadata
-        {
-            public SeparatedValueSchema Schema { get; internal set; }
-
-            ISchema IProcessMetadata.Schema => Schema;
-
-            public SeparatedValueOptions Options { get; internal set; }
-
-            IOptions IProcessMetadata.Options => Options;
-
-            public int RecordCount { get; internal set; }
-
-            public int LogicalRecordCount { get; internal set; }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace FlatFiles
     {
         private readonly SeparatedValueRecordParser parser;
         private readonly SeparatedValueSchemaSelector schemaSelector;
-        private readonly ProcessMetadata metadata;
+        private readonly SeparatedValueProcessMetadata metadata;
         private object[] values;
         private bool endOfFile;
         private bool hasError;
@@ -76,7 +76,7 @@ namespace FlatFiles
             }
             RetryReader retryReader = new RetryReader(reader);
             parser = new SeparatedValueRecordParser(retryReader, options);
-            metadata = new ProcessMetadata()
+            metadata = new SeparatedValueProcessMetadata()
             {
                 Schema = hasSchema ? schema : null,
                 Options = parser.Options
@@ -499,21 +499,6 @@ namespace FlatFiles
         IProcessMetadata IReaderWithMetadata.GetMetadata()
         {
             return metadata;
-        }
-
-        private class ProcessMetadata : IProcessMetadata
-        {
-            public SeparatedValueSchema Schema { get; set; }
-
-            ISchema IProcessMetadata.Schema => Schema;
-
-            public SeparatedValueOptions Options { get; set; }
-
-            IOptions IProcessMetadata.Options => Options;
-
-            public int RecordCount { get; set; }
-
-            public int LogicalRecordCount { get; set; }
         }
     }
 }

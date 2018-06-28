@@ -12,7 +12,7 @@ namespace FlatFiles.TypeMapping
 
         Action<IProcessMetadata, TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings);
 
-        Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings);
+        Action<IProcessMetadata, TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings);
     }
 
     internal sealed class ReflectionCodeGenerator : ICodeGenerator
@@ -40,9 +40,9 @@ namespace FlatFiles.TypeMapping
             return Reader;
         }
 
-        public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
+        public Action<IProcessMetadata, TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
-            void Writer(TEntity entity, object[] values)
+            void Writer(IProcessMetadata metadata, TEntity entity, object[] values)
             {
                 for (int index = 0; index != mappings.Length; ++index)
                 {
@@ -95,8 +95,8 @@ namespace FlatFiles.TypeMapping
                 {
                     continue;
                 }
-                generator.Emit(OpCodes.Ldarg, 1);
-                generator.Emit(OpCodes.Ldarg, 2);
+                generator.Emit(OpCodes.Ldarg_1);
+                generator.Emit(OpCodes.Ldarg_2);
                 generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
@@ -123,13 +123,13 @@ namespace FlatFiles.TypeMapping
             return result;
         }
 
-        public Action<TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
+        public Action<IProcessMetadata, TEntity, object[]> GetWriter<TEntity>(IMemberMapping[] mappings)
         {
             Type entityType = typeof(TEntity);
             var method = new DynamicMethod(
                 "__FlatFiles_TypeMapping_write",
                 null,
-                new[] { entityType, typeof(object[]) },
+                new[] { typeof(IProcessMetadata), entityType, typeof(object[]) },
                 true);
             var generator = method.GetILGenerator();
 
@@ -141,9 +141,9 @@ namespace FlatFiles.TypeMapping
                     continue;
                 }
 
-                generator.Emit(OpCodes.Ldarg_1);
+                generator.Emit(OpCodes.Ldarg_2);
                 generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
-                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Ldarg_1);
 
                 if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
                 {
@@ -174,7 +174,7 @@ namespace FlatFiles.TypeMapping
             }
             generator.Emit(OpCodes.Ret);
 
-            var result = (Action<TEntity, object[]>)method.CreateDelegate(typeof(Action<TEntity, object[]>));
+            var result = (Action<IProcessMetadata, TEntity, object[]>)method.CreateDelegate(typeof(Action<IProcessMetadata, TEntity, object[]>));
             return result;
         }
     }
