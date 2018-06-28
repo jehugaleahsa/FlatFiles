@@ -53,13 +53,17 @@ namespace FlatFiles.TypeMapping
         private INullHandler nullHandler;
         private Func<string, string> preprocessor;
 
-        public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
+        public FixedLengthComplexPropertyMapping(
+            IFixedLengthTypeMapper<TEntity> mapper, 
+            IMemberAccessor member, 
+            int physicalIndex, 
+            int logicalIndex)
         {
             this.mapper = mapper;
             Member = member;
             columnName = member.Name;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -81,9 +85,9 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
 
         public IFixedLengthComplexPropertyMapping ColumnName(string name)
         {

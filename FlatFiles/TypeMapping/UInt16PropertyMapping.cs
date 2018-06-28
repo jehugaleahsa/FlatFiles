@@ -63,12 +63,12 @@ namespace FlatFiles.TypeMapping
     {
         private readonly UInt16Column column;
 
-        public UInt16PropertyMapping(UInt16Column column, IMemberAccessor member, int fileIndex, int workIndex)
+        public UInt16PropertyMapping(UInt16Column column, IMemberAccessor member, int physicalIndex, int logicalIndex)
         {
             this.column = column;
             Member = member;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IUInt16PropertyMapping ColumnName(string name)
@@ -117,8 +117,8 @@ namespace FlatFiles.TypeMapping
 
         public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

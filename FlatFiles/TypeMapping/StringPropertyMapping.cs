@@ -48,12 +48,12 @@ namespace FlatFiles.TypeMapping
     {
         private readonly StringColumn column;
 
-        public StringPropertyMapping(StringColumn column, IMemberAccessor member, int fileIndex, int workFile)
+        public StringPropertyMapping(StringColumn column, IMemberAccessor member, int physicalIndex, int logicalIndex)
         {
             this.column = column;
             Member = member;
-            FileIndex = fileIndex;
-            WorkIndex = workFile;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IStringPropertyMapping ColumnName(string name)
@@ -90,8 +90,8 @@ namespace FlatFiles.TypeMapping
 
         public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

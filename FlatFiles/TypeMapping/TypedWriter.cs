@@ -33,13 +33,13 @@ namespace FlatFiles.TypeMapping
     {
         private readonly IWriterWithMetadata writer;
         private readonly Action<IProcessMetadata, TEntity, object[]> serializer;
-        private readonly int workCount;
+        private readonly int logicalCount;
 
         public TypedWriter(IWriterWithMetadata writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
             serializer = mapper.GetWriter();
-            workCount = mapper.WorkCount;
+            logicalCount = mapper.LogicalCount;
         }
 
         public ISchema GetSchema()
@@ -61,7 +61,7 @@ namespace FlatFiles.TypeMapping
 
         private object[] Serialize(TEntity entity)
         {
-            var values = new object[workCount];
+            var values = new object[logicalCount];
             var metadata = writer.GetMetadata();
             serializer(metadata, entity, values);
             return values;
@@ -103,8 +103,8 @@ namespace FlatFiles.TypeMapping
 
         private object[] Serialize(object entity)
         {
-            var (schema, workCount, serializer) = injector.SetMatcher(entity);
-            var values = new object[workCount];
+            var (schema, logicalCount, serializer) = injector.SetMatcher(entity);
+            var values = new object[logicalCount];
             IWriterWithMetadata metadataWriter = writer;
             var metadata = metadataWriter.GetMetadata();
             var copy = new ProcessMetadata()

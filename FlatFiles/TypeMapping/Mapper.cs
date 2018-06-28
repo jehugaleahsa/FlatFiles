@@ -9,7 +9,7 @@ namespace FlatFiles.TypeMapping
     {
         IMemberAccessor Member { get; }
 
-        int WorkCount { get; }
+        int LogicalCount { get; }
 
         Func<IProcessMetadata, object[], object> GetReader();
 
@@ -44,7 +44,7 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
-        public int WorkCount => lookup.WorkCount;
+        public int LogicalCount => lookup.LogicalCount;
 
         public Func<IProcessMetadata, object[], TEntity> GetReader()
         {
@@ -92,7 +92,7 @@ namespace FlatFiles.TypeMapping
             var nonNullLookup = memberMappings
                 .Where(m => !m.Member.Type.GetTypeInfo().IsClass)
                 .Where(m => Nullable.GetUnderlyingType(m.Member.Type) == null)
-                .ToDictionary(m => m.WorkIndex);
+                .ToDictionary(m => m.LogicalIndex);
             if (nonNullLookup.Count == 0)
             {
                 return values => { };

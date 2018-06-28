@@ -133,7 +133,7 @@ namespace FlatFiles.TypeMapping
         (ISchema, int, Action<IProcessMetadata, object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
         {
             ISchema schema = null;
-            int workCount = 0;
+            int logicalCount = 0;
             Action<IProcessMetadata, object, object[]> serializer = null;
             foreach (var matcher in matchers)
             {
@@ -142,7 +142,7 @@ namespace FlatFiles.TypeMapping
                     matcher.IsMatch = true;
                     matcher.Initialize();
                     schema = matcher.Schema;
-                    workCount = matcher.WorkCount;
+                    logicalCount = matcher.WorkCount;
                     serializer = matcher.Serializer;
                 }
                 else
@@ -158,10 +158,10 @@ namespace FlatFiles.TypeMapping
                 }
                 defaultMatcher.Initialize();
                 schema = defaultMatcher.Schema;
-                workCount = defaultMatcher.WorkCount;
+                logicalCount = defaultMatcher.WorkCount;
                 serializer = defaultMatcher.Serializer;
             }
-            return (schema, workCount, serializer);
+            return (schema, logicalCount, serializer);
         }
 
         private class TypeMapperMatcher
@@ -193,7 +193,7 @@ namespace FlatFiles.TypeMapping
                 }
                 var source = (IMapperSource)TypeMapper;
                 var mapper = source.GetMapper();
-                WorkCount = mapper.WorkCount;
+                WorkCount = mapper.LogicalCount;
                 Serializer = mapper.GetWriter();
             }
         }

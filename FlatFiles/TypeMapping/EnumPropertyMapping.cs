@@ -57,12 +57,12 @@ namespace FlatFiles.TypeMapping
     {
         private readonly EnumColumn<TEnum> column;
 
-        public EnumPropertyMapping(EnumColumn<TEnum> column, IMemberAccessor member, int fileIndex, int workIndex)
+        public EnumPropertyMapping(EnumColumn<TEnum> column, IMemberAccessor member, int physicalIndex, int logicalIndex)
         {
             this.column = column;
             Member = member;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IEnumPropertyMapping<TEnum> ColumnName(string name)
@@ -105,8 +105,8 @@ namespace FlatFiles.TypeMapping
 
         public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

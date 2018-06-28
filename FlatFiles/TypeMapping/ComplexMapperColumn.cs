@@ -7,14 +7,14 @@ namespace FlatFiles.TypeMapping
         private readonly IColumnDefinition column;
         private readonly Func<IProcessMetadata, object[], TEntity> reader;
         private readonly Action<IProcessMetadata, TEntity, object[]> writer;
-        private readonly int workCount;
+        private readonly int logicalCount;
 
         public ComplexMapperColumn(IColumnDefinition column, IMapper<TEntity> mapper)
         {
             this.column = column;
             reader = mapper.GetReader();
             writer = mapper.GetWriter();
-            workCount = mapper.WorkCount;
+            logicalCount = mapper.LogicalCount;
         }
 
         public string ColumnName => column.ColumnName;
@@ -45,7 +45,7 @@ namespace FlatFiles.TypeMapping
 
         public string Format(object value)
         {
-            object[] values = new object[workCount];
+            object[] values = new object[logicalCount];
             writer(null, (TEntity)value, values);
             string formatted = column.Format(values);
             return formatted;

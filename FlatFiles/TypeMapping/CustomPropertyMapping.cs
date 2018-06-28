@@ -32,12 +32,12 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class CustomPropertyMapping : ICustomPropertyMapping, IMemberMapping
     {
-        public CustomPropertyMapping(IColumnDefinition column, IMemberAccessor member, int fileIndex, int workIndex)
+        public CustomPropertyMapping(IColumnDefinition column, IMemberAccessor member, int physicalIndex, int logicalIndex)
         {
             ColumnDefinition = column;
             Member = member;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public ICustomPropertyMapping NullValue(string value)
@@ -62,8 +62,8 @@ namespace FlatFiles.TypeMapping
 
         public IColumnDefinition ColumnDefinition { get; }
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

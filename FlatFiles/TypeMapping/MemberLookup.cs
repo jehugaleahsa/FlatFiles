@@ -10,7 +10,7 @@ namespace FlatFiles.TypeMapping
         private readonly Dictionary<Type, object> factories = new Dictionary<Type, object>();
         private int ignoredCount;
 
-        public int WorkCount => lookup.Count - ignoredCount;
+        public int LogicalCount => lookup.Count - ignoredCount;
 
         public TMemberMapping GetOrAddMember<TMemberMapping>(IMemberAccessor member, Func<int, int, TMemberMapping> factory)
             where TMemberMapping : IMemberMapping
@@ -32,9 +32,9 @@ namespace FlatFiles.TypeMapping
                 return (TMapping)mapping;
             }
 
-            int fileIndex = lookup.Count;
-            int workIndex = fileIndex - ignoredCount;
-            var newMapping = factory(fileIndex, workIndex);
+            int physicalIndex = lookup.Count;
+            int logicalIndex = physicalIndex - ignoredCount;
+            var newMapping = factory(physicalIndex, logicalIndex);
             lookup.Add(key, newMapping);
             return newMapping;
         }
@@ -43,7 +43,7 @@ namespace FlatFiles.TypeMapping
         {
             var column = new IgnoredColumn();
             var mapping = new IgnoredMapping(column, lookup.Count);
-            string key = $"@Ignored_{mapping.FileIndex}";
+            string key = $"@Ignored_{mapping.PhysicalIndex}";
             lookup.Add(key, mapping);
             ++ignoredCount;
             return mapping;
@@ -51,7 +51,7 @@ namespace FlatFiles.TypeMapping
 
         public IMemberMapping[] GetMappings()
         {
-            return lookup.Values.OrderBy(m => m.FileIndex).ToArray();
+            return lookup.Values.OrderBy(m => m.PhysicalIndex).ToArray();
         }
 
         public Func<TEntity> GetFactory<TEntity>()

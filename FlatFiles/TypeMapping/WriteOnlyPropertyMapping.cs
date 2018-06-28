@@ -13,12 +13,12 @@
 
     internal sealed class WriteOnlyPropertyMapping : IWriteOnlyPropertyMapping, IMemberMapping
     {
-        public WriteOnlyPropertyMapping(IColumnDefinition column, string name, int fileIndex, int workIndex)
+        public WriteOnlyPropertyMapping(IColumnDefinition column, string name, int physicalIndex, int logicalIndex)
         {
             ColumnDefinition = column;
             Name = name;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public string Name { get; }
@@ -27,8 +27,8 @@
 
         public IColumnDefinition ColumnDefinition { get; }
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

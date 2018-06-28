@@ -18,13 +18,13 @@ namespace FlatFiles.TypeMapping
         IColumnDefinition ColumnDefinition { get; }
 
         /// <summary>
-        /// Gets the column index that this member corresponds to when reading data.
+        /// Gets the index of the column as it appears in the file.
         /// </summary>
-        int FileIndex { get; }
+        int PhysicalIndex { get; }
 
         /// <summary>
-        /// Gets the column index that this member corresponds to when writing data.
+        /// Gets the index pf the column, excluding ignored columns.
         /// </summary>
-        int WorkIndex { get; }
+        int LogicalIndex { get; }
     }
 }

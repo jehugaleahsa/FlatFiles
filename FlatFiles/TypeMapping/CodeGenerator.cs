@@ -31,7 +31,7 @@ namespace FlatFiles.TypeMapping
                     IMemberMapping mapping = mappings[index];
                     if (mapping.Member != null)
                     {
-                        object value = values[mapping.WorkIndex];
+                        object value = values[mapping.LogicalIndex];
                         mapping.Member.SetValue(entity, value);
                     }
                 }
@@ -50,7 +50,7 @@ namespace FlatFiles.TypeMapping
                     if (mapping.Member != null)
                     {
                         object value = mapping.Member.GetValue(entity);
-                        values[mapping.WorkIndex] = value;
+                        values[mapping.LogicalIndex] = value;
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace FlatFiles.TypeMapping
                 }
                 generator.Emit(OpCodes.Ldarg_1);
                 generator.Emit(OpCodes.Ldarg_2);
-                generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
+                generator.Emit(OpCodes.Ldc_I4, mapping.LogicalIndex);
                 generator.Emit(OpCodes.Ldelem_Ref);
 
                 if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
@@ -142,7 +142,7 @@ namespace FlatFiles.TypeMapping
                 }
 
                 generator.Emit(OpCodes.Ldarg_2);
-                generator.Emit(OpCodes.Ldc_I4, mapping.WorkIndex);
+                generator.Emit(OpCodes.Ldc_I4, mapping.LogicalIndex);
                 generator.Emit(OpCodes.Ldarg_1);
 
                 if (mapping.Member.MemberInfo is FieldInfo fieldInfo)
