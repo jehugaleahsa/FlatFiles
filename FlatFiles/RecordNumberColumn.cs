@@ -25,7 +25,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets whether filtered records should be included in the count.
         /// </summary>
-        public bool IncludeFilteredRecords { get; set; }
+        public bool IncludeSkippedRecords { get; set; }
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -49,10 +49,10 @@ namespace FlatFiles
         /// <returns>The number of parsed records.</returns>
         object IMetadataColumn.GetValue(IRecordContext context)
         {
-            if (IncludeFilteredRecords)
+            if (IncludeSkippedRecords)
             {
                 int recordCount = context.PhysicalRecordNumber;
-                if (context.ProcessContext.Options.IsFirstRecordSchema && !IncludeSchema)
+                if (context.ExecutionContext.Options.IsFirstRecordSchema && !IncludeSchema)
                 {
                     --recordCount;
                 }
@@ -61,7 +61,7 @@ namespace FlatFiles
 
             // We only incrememnt the logical count after we are sure the record is not filtered out.
             // Since the value for the column is generated beforehand, we must increase it by one.
-            int offset = (IncludeSchema && context.ProcessContext.Options.IsFirstRecordSchema) ? 2 : 1;
+            int offset = (IncludeSchema && context.ExecutionContext.Options.IsFirstRecordSchema) ? 2 : 1;
             return context.LogicalRecordNumber + offset;
         }
 

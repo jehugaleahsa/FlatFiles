@@ -398,17 +398,6 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored(Window window);
-
-        /// <summary>
-        /// Specifies that the next column is a custom definition and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property that the custom column definition parses and formats.</typeparam>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column, Window window);
-
         /// <summary>
         /// Specifies the next column will be mapped using custom functions.
         /// </summary>
@@ -671,15 +660,6 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored(Window window);
-
-        /// <summary>
-        /// Specifies that the next column is a custom definition and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICustomPropertyMapping CustomProperty(string memberName, IColumnDefinition column, Window window);
 
         /// <summary>
         /// Specifies the next column will be mapped using custom functions.
@@ -1236,26 +1216,6 @@ namespace FlatFiles.TypeMapping
             return mapping;
         }
 
-        public ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column, Window window)
-        {
-            var member = GetMember(accessor);
-            return GetCustomMapping(member, column, window);
-        }
-
-        private ICustomPropertyMapping GetCustomMapping(IMemberAccessor member, IColumnDefinition column, Window window)
-        {
-            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) => new CustomPropertyMapping(column, member, fileIndex, workIndex));
-            windowLookup[mapping] = window;
-            return mapping;
-        }
-
-        public IWriteOnlyPropertyMapping WriteOnlyProperty(string name, IColumnDefinition column, Window window)
-        {
-            var mapping = lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
-            windowLookup[mapping] = window;
-            return mapping;
-        }
-
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column, Window window)
         {
             var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
@@ -1502,12 +1462,6 @@ namespace FlatFiles.TypeMapping
         IIgnoredMapping IDynamicFixedLengthTypeConfiguration.Ignored(Window window)
         {
             return Ignored(window);
-        }
-
-        ICustomPropertyMapping IDynamicFixedLengthTypeConfiguration.CustomProperty(string memberName, IColumnDefinition column, Window window)
-        {
-            var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
-            return GetCustomMapping(member, column, window);
         }
 
         ICustomMapping IDynamicFixedLengthTypeConfiguration.CustomMapping(IColumnDefinition column, Window window)

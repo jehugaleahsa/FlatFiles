@@ -36,7 +36,7 @@ namespace FlatFiles
         {
             get
             {
-                var schema = RecordContext.ProcessContext.Schema;
+                var schema = RecordContext.ExecutionContext.Schema;
                 var columns = schema.ColumnDefinitions;
                 IColumnDefinition definition = schema.ColumnDefinitions[PhysicalIndex];
                 return definition;

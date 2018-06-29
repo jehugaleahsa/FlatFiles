@@ -68,7 +68,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return recordWriter.Metadata.ProcessContext.Schema;
+            return recordWriter.Metadata.ExecutionContext.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -121,7 +121,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ProcessContext.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordHeader)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
@@ -148,7 +148,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ProcessContext.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordHeader)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);

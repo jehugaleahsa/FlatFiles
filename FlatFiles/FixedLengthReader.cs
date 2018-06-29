@@ -61,7 +61,7 @@ namespace FlatFiles
             parser = new FixedLengthRecordParser(reader, schema, options);
             metadata = new FixedLengthRecordContext()
             {
-                ProcessContext = new FixedLengthProcessContext()
+                ExecutionContext = new FixedLengthExecutionContext()
                 {
                     Schema = schema,
                     Options = options.Clone()
@@ -93,7 +93,7 @@ namespace FlatFiles
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<ProcessingErrorEventArgs> Error;
+        public event EventHandler<ExecutionErrorEventArgs> Error;
 
         /// <summary>
         /// Gets the schema being used by the parser.
@@ -101,7 +101,7 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return metadata.ProcessContext.Schema;
+            return metadata.ExecutionContext.Schema;
         } 
 
         ISchema IReader.GetSchema()
@@ -115,12 +115,12 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public Task<FixedLengthSchema> GetSchemaAsync()
         {
-            return Task.FromResult(metadata.ProcessContext.Schema);
+            return Task.FromResult(metadata.ExecutionContext.Schema);
         }
 
         Task<ISchema> IReader.GetSchemaAsync()
         {
-            return Task.FromResult<ISchema>(metadata.ProcessContext.Schema);
+            return Task.FromResult<ISchema>(metadata.ExecutionContext.Schema);
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace FlatFiles
 
         private void HandleHeader()
         {
-            if (metadata.PhysicalRecordNumber == 0 && metadata.ProcessContext.Options.IsFirstRecordHeader)
+            if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
                 skip();
             }
@@ -230,7 +230,7 @@ namespace FlatFiles
 
         private async Task HandleHeaderAsync()
         {
-            if (metadata.PhysicalRecordNumber == 0 && metadata.ProcessContext.Options.IsFirstRecordHeader)
+            if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
                 await skipAsync().ConfigureAwait(false);
             }
@@ -299,7 +299,7 @@ namespace FlatFiles
         {
             try
             {
-                return metadata.ProcessContext.Schema.ParseValues(metadata, rawValues);
+                return metadata.ExecutionContext.Schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
@@ -352,30 +352,30 @@ namespace FlatFiles
 
         private string[] PartitionRecord(string record)
         {
-            metadata.ProcessContext.Schema = GetSchema(record);
-            if (metadata.ProcessContext.Schema == null)
+            metadata.ExecutionContext.Schema = GetSchema(record);
+            if (metadata.ExecutionContext.Schema == null)
             {
                 return null;
             }
-            if (record.Length < metadata.ProcessContext.Schema.TotalWidth)
+            if (record.Length < metadata.ExecutionContext.Schema.TotalWidth)
             {
                 ProcessError(new RecordProcessingException(metadata, Resources.FixedLengthRecordTooShort));
                 return null;
             }
-            var windows = metadata.ProcessContext.Schema.Windows;
-            var values = new string[windows.Count - metadata.ProcessContext.Schema.ColumnDefinitions.MetadataCount];
+            var windows = metadata.ExecutionContext.Schema.Windows;
+            var values = new string[windows.Count - metadata.ExecutionContext.Schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
             for (int index = 0; index != values.Length;)
             {
-                var definition = metadata.ProcessContext.Schema.ColumnDefinitions[index];
+                var definition = metadata.ExecutionContext.Schema.ColumnDefinitions[index];
                 if (!(definition is IMetadataColumn))
                 {
                     Window window = windows[index];
                     string value = record.Substring(offset, window.Width);
-                    var alignment = window.Alignment ?? metadata.ProcessContext.Options.Alignment;
+                    var alignment = window.Alignment ?? metadata.ExecutionContext.Options.Alignment;
                     value = alignment == FixedAlignment.LeftAligned 
-                        ? value.TrimEnd(window.FillCharacter ?? metadata.ProcessContext.Options.FillCharacter) 
-                        : value.TrimStart(window.FillCharacter ?? metadata.ProcessContext.Options.FillCharacter);
+                        ? value.TrimEnd(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter) 
+                        : value.TrimStart(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter);
                     values[index] = value;
                     ++index;
                     offset += window.Width;
@@ -392,7 +392,7 @@ namespace FlatFiles
             }
             if (schemaSelector == null)
             {
-                return metadata.ProcessContext.Schema;
+                return metadata.ExecutionContext.Schema;
             }
             return schemaSelector.GetSchema(record);
         }
@@ -425,7 +425,7 @@ namespace FlatFiles
         {
             if (Error != null)
             {
-                var args = new ProcessingErrorEventArgs(exception);
+                var args = new ExecutionErrorEventArgs(exception);
                 Error(this, args);
                 if (args.IsHandled)
                 {

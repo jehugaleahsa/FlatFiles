@@ -10,7 +10,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets information about the currently running process.
         /// </summary>
-        IProcessContext ProcessContext { get; }
+        IExecutionContext ExecutionContext { get; }
 
         /// <summary>
         /// Gets the index of the record being processed.
@@ -31,7 +31,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets information about the currently running process.
         /// </summary>
-        new IFixedLengthProcessContext ProcessContext { get; }
+        new IFixedLengthExecutionContext ExecutionContext { get; }
     }
 
     /// <summary>
@@ -42,38 +42,38 @@ namespace FlatFiles
         /// <summary>
         /// Gets information about the currently running process.
         /// </summary>
-        new ISeparatedValueProcessContext ProcessContext { get; }
+        new ISeparatedValueExecutionContext ExecutionContext { get; }
     }
 
     internal class FixedLengthRecordContext : IFixedLengthRecordContext
     {
-        public FixedLengthProcessContext ProcessContext { get; set; }
+        public FixedLengthExecutionContext ExecutionContext { get; set; }
 
         public int PhysicalRecordNumber { get; set; }
 
         public int LogicalRecordNumber { get; set; }
 
-        IFixedLengthProcessContext IFixedLengthRecordContext.ProcessContext => ProcessContext;
+        IFixedLengthExecutionContext IFixedLengthRecordContext.ExecutionContext => ExecutionContext;
 
-        IProcessContext IRecordContext.ProcessContext => ProcessContext;
+        IExecutionContext IRecordContext.ExecutionContext => ExecutionContext;
     }
 
     internal class SeparatedValueRecordContext : ISeparatedValueRecordContext
     {
-        public SeparatedValueProcessContext ProcessContext { get; set; }
+        public SeparatedValueExecutionContext ExecutionContext { get; set; }
 
         public int PhysicalRecordNumber { get; set; }
 
         public int LogicalRecordNumber { get; set; }
 
-        ISeparatedValueProcessContext ISeparatedValueRecordContext.ProcessContext => ProcessContext;
+        ISeparatedValueExecutionContext ISeparatedValueRecordContext.ExecutionContext => ExecutionContext;
 
-        IProcessContext IRecordContext.ProcessContext => ProcessContext;
+        IExecutionContext IRecordContext.ExecutionContext => ExecutionContext;
     }
 
     internal class RecordContext : IRecordContext
     {
-        public IProcessContext ProcessContext { get; set; }
+        public IExecutionContext ExecutionContext { get; set; }
 
         public int PhysicalRecordNumber { get; set; }
 

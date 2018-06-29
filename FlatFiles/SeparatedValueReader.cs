@@ -78,7 +78,7 @@ namespace FlatFiles
             parser = new SeparatedValueRecordParser(retryReader, options);
             metadata = new SeparatedValueRecordContext()
             {
-                ProcessContext = new SeparatedValueProcessContext()
+                ExecutionContext = new SeparatedValueExecutionContext()
                 {
                     Schema = hasSchema ? schema : null,
                     Options = parser.Options
@@ -105,7 +105,7 @@ namespace FlatFiles
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<ProcessingErrorEventArgs> Error;
+        public event EventHandler<ExecutionErrorEventArgs> Error;
 
         /// <summary>
         /// Gets the names of the columns found in the file.
@@ -118,11 +118,11 @@ namespace FlatFiles
                 return null;
             }
             HandleSchema();
-            if (metadata.ProcessContext.Schema == null)
+            if (metadata.ExecutionContext.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.ProcessContext.Schema;
+            return metadata.ExecutionContext.Schema;
         }
 
         ISchema IReader.GetSchema()
@@ -141,11 +141,11 @@ namespace FlatFiles
                 return null;
             }
             await HandleSchemaAsync().ConfigureAwait(false);
-            if (metadata.ProcessContext.Schema == null)
+            if (metadata.ExecutionContext.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.ProcessContext.Schema;
+            return metadata.ExecutionContext.Schema;
         }
 
         async Task<ISchema> IReader.GetSchemaAsync()
@@ -193,17 +193,17 @@ namespace FlatFiles
             {
                 return;
             }
-            if (schemaSelector != null || metadata.ProcessContext.Schema != null)
+            if (schemaSelector != null || metadata.ExecutionContext.Schema != null)
             {
                 skip();
                 return;
             }
             string[] columnNames = ReadNextRecord();
-            metadata.ProcessContext.Schema = new SeparatedValueSchema();
+            metadata.ExecutionContext.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.ProcessContext.Schema.AddColumn(column);
+                metadata.ExecutionContext.Schema.AddColumn(column);
             }
         }
 
@@ -212,7 +212,7 @@ namespace FlatFiles
             var rawValues = ReadWithFilter();
             while (rawValues != null)
             {
-                if (metadata.ProcessContext.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ExecutionContext.Schema != null && hasWrongNumberOfColumns(rawValues))
                 {
                     ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
@@ -233,11 +233,11 @@ namespace FlatFiles
         private string[] ReadWithFilter()
         {
             string[] rawValues = ReadNextRecord();
-            metadata.ProcessContext.Schema = GetSchema(rawValues);
+            metadata.ExecutionContext.Schema = GetSchema(rawValues);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 rawValues = ReadNextRecord();
-                metadata.ProcessContext.Schema = GetSchema(rawValues);
+                metadata.ExecutionContext.Schema = GetSchema(rawValues);
             }
             return rawValues;
         }
@@ -282,17 +282,17 @@ namespace FlatFiles
             {
                 return;
             }
-            if (metadata.ProcessContext.Schema != null)
+            if (metadata.ExecutionContext.Schema != null)
             {
                 await skipAsync().ConfigureAwait(false);
                 return;
             }
             string[] columnNames = await ReadNextRecordAsync().ConfigureAwait(false);
-            metadata.ProcessContext.Schema = new SeparatedValueSchema();
+            metadata.ExecutionContext.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.ProcessContext.Schema.AddColumn(column);
+                metadata.ExecutionContext.Schema.AddColumn(column);
             }
         }
 
@@ -301,7 +301,7 @@ namespace FlatFiles
             var rawValues = await ReadWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                if (metadata.ProcessContext.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ExecutionContext.Schema != null && hasWrongNumberOfColumns(rawValues))
                 {
                     ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
@@ -320,18 +320,18 @@ namespace FlatFiles
 
         private bool hasWrongNumberOfColumns(string[] values)
         {
-            var schema = metadata.ProcessContext.Schema;
+            var schema = metadata.ExecutionContext.Schema;
             return values.Length + schema.ColumnDefinitions.MetadataCount < schema.ColumnDefinitions.PhysicalCount;
         }
 
         private async Task<string[]> ReadWithFilterAsync()
         {
             string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
-            metadata.ProcessContext.Schema = GetSchema(rawValues);
+            metadata.ExecutionContext.Schema = GetSchema(rawValues);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
-                metadata.ProcessContext.Schema = GetSchema(rawValues);
+                metadata.ExecutionContext.Schema = GetSchema(rawValues);
             }
             return rawValues;
         }
@@ -344,7 +344,7 @@ namespace FlatFiles
             }
             if (schemaSelector == null)
             {
-                return metadata.ProcessContext.Schema;
+                return metadata.ExecutionContext.Schema;
             }
             return schemaSelector.GetSchema(rawValues);
         }
@@ -362,13 +362,13 @@ namespace FlatFiles
 
         private object[] ParseValues(string[] rawValues)
         {
-            if (metadata.ProcessContext.Schema == null)
+            if (metadata.ExecutionContext.Schema == null)
             {
                 return rawValues;
             }
             try
             {
-                return metadata.ProcessContext.Schema.ParseValues(metadata, rawValues);
+                return metadata.ExecutionContext.Schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
@@ -426,7 +426,7 @@ namespace FlatFiles
         {
             if (Error != null)
             {
-                var args = new ProcessingErrorEventArgs(exception);
+                var args = new ExecutionErrorEventArgs(exception);
                 Error(this, args);
                 if (args.IsHandled)
                 {

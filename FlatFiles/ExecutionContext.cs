@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds information about the currently running process.
     /// </summary>
-    public interface IProcessContext
+    public interface IExecutionContext
     {
         /// <summary>
         /// Gets the schema being used to process the records.
@@ -21,7 +21,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds information about the currently running process.
     /// </summary>
-    public interface IFixedLengthProcessContext : IProcessContext
+    public interface IFixedLengthExecutionContext : IExecutionContext
     {
         /// <summary>
         /// Gets the schema being used to process the records.
@@ -37,7 +37,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds information about the currently running process.
     /// </summary>
-    public interface ISeparatedValueProcessContext : IProcessContext
+    public interface ISeparatedValueExecutionContext : IExecutionContext
     {
         /// <summary>
         /// Gets the schema being used to process the records.
@@ -50,32 +50,25 @@ namespace FlatFiles
         new SeparatedValueOptions Options { get; }
     }
 
-    internal class FixedLengthProcessContext : IFixedLengthProcessContext
+    internal class FixedLengthExecutionContext : IFixedLengthExecutionContext
     {
         public FixedLengthSchema Schema { get; set; }
 
         public FixedLengthOptions Options { get; set; }
 
-        ISchema IProcessContext.Schema => Schema;
+        ISchema IExecutionContext.Schema => Schema;
 
-        IOptions IProcessContext.Options => Options;
+        IOptions IExecutionContext.Options => Options;
     }
 
-    internal class SeparatedValueProcessContext : ISeparatedValueProcessContext
+    internal class SeparatedValueExecutionContext : ISeparatedValueExecutionContext
     {
         public SeparatedValueSchema Schema { get; set; }
 
         public SeparatedValueOptions Options { get; set; }
 
-        ISchema IProcessContext.Schema => Schema;
+        ISchema IExecutionContext.Schema => Schema;
 
-        IOptions IProcessContext.Options => Options;
-    }
-
-    internal class ProcessContext : IProcessContext
-    {
-        public ISchema Schema { get; set; }
-
-        public IOptions Options { get; set; }
+        IOptions IExecutionContext.Options => Options;
     }
 }

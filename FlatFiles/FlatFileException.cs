@@ -33,18 +33,18 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnProcessingException : FlatFileException
     {
-        internal ColumnProcessingException(ISchema schema, IColumnContext context, string value, Exception innerException)
-            : base(GetErrorMessage(schema, context, value), innerException)
+        internal ColumnProcessingException(IColumnContext context, string value, Exception innerException)
+            : base(GetErrorMessage(context, value), innerException)
         {
             ColumnContext = context;
             ColumnValue = value;
         }
 
-        private static string GetErrorMessage(ISchema schema, IColumnContext context, string value)
+        private static string GetErrorMessage(IColumnContext context, string value)
         {
-            int position = context.PhysicalIndex;
-            IColumnDefinition definition = schema.ColumnDefinitions[context.PhysicalIndex];
-            string message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
+            var position = context.PhysicalIndex;
+            var definition = context.ColumnDefinition;
+            var message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
             return message;
         }
 
@@ -73,16 +73,6 @@ namespace FlatFiles
         internal RecordProcessingException(IRecordContext context, string message, Exception innerException)
             : base(String.Format(null, message, context.PhysicalRecordNumber), innerException)
         {
-            if (innerException != null && innerException is ColumnProcessingException columnException)
-            {
-                var oldContext = columnException.ColumnContext;
-                columnException.ColumnContext = new ColumnContext()
-                {
-                    RecordContext = context,
-                    PhysicalIndex = oldContext.PhysicalIndex,
-                    LogicalIndex = oldContext.LogicalIndex
-                };
-            }
             Context = context;
         }
 

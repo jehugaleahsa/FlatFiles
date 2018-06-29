@@ -79,7 +79,7 @@ namespace FlatFiles
                 {
                     string rawValue = values[sourceIndex];
                     ++sourceIndex;
-                    object parsedValue = Parse(definition, rawValue);
+                    object parsedValue = Parse(context, definition, rawValue);
                     parsedValues[destinationIndex] = parsedValue;
                     ++destinationIndex;
                 }
@@ -91,7 +91,7 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object Parse(IColumnDefinition definition, string rawValue)
+        private object Parse(IRecordContext recordContext, IColumnDefinition definition, string rawValue)
         {
             try
             {
@@ -102,11 +102,11 @@ namespace FlatFiles
             {
                 var columnContext = new ColumnContext()
                 {
-                    RecordContext = null, // To be populated later
+                    RecordContext = recordContext,
                     PhysicalIndex = ColumnDefinitions.GetPhysicalIndex(definition),
                     LogicalIndex = ColumnDefinitions.GetLogicalIndex(definition)
                 };
-                throw new ColumnProcessingException(this, columnContext, rawValue, exception);
+                throw new ColumnProcessingException(columnContext, rawValue, exception);
             }
         }
 

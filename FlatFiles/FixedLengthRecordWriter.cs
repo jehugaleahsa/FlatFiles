@@ -16,7 +16,7 @@ namespace FlatFiles
             this.writer = writer;
             Metadata = new FixedLengthRecordContext()
             {
-                ProcessContext = new FixedLengthProcessContext()
+                ExecutionContext = new FixedLengthExecutionContext()
                 {
                     Schema = schema,
                     Options = options.Clone()
@@ -34,8 +34,8 @@ namespace FlatFiles
 
         public void WriteRecord(object[] values)
         {
-            Metadata.ProcessContext.Schema = GetSchema(values);
-            if (values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ExecutionContext.Schema = GetSchema(values);
+            if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
@@ -49,8 +49,8 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            Metadata.ProcessContext.Schema = GetSchema(values);
-            if (values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ExecutionContext.Schema = GetSchema(values);
+            if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
@@ -64,19 +64,19 @@ namespace FlatFiles
 
         private FixedLengthSchema GetSchema(object[] values)
         {
-            return injector == null ? Metadata.ProcessContext.Schema : injector.GetSchema(values);
+            return injector == null ? Metadata.ExecutionContext.Schema : injector.GetSchema(values);
         }
 
         private string[] FormatValues(object[] values)
         {
-            return Metadata.ProcessContext.Schema.FormatValues(Metadata, values);
+            return Metadata.ExecutionContext.Schema.FormatValues(Metadata, values);
         }
 
         private void FitWindows(string[] values)
         {
             for (int index = 0; index != values.Length; ++index)
             {
-                var window = Metadata.ProcessContext.Schema.Windows[index];
+                var window = Metadata.ExecutionContext.Schema.Windows[index];
                 values[index] = FitWidth(window, values[index]);
             }
         }
@@ -87,8 +87,8 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.ProcessContext.Schema.Windows[i], v));
+            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => FitWidth(Metadata.ExecutionContext.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 writer.Write(column);
@@ -101,8 +101,8 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.ProcessContext.Schema.Windows[i], v));
+            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => FitWidth(Metadata.ExecutionContext.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 await writer.WriteAsync(column).ConfigureAwait(false);
@@ -129,7 +129,7 @@ namespace FlatFiles
 
         private string GetTruncatedValue(string value, Window window)
         {
-            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.ProcessContext.Options.TruncationPolicy;
+            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.ExecutionContext.Options.TruncationPolicy;
             if (policy == OverflowTruncationPolicy.TruncateLeading)
             {
                 int start = value.Length - window.Width;  // take characters on the end
@@ -141,28 +141,28 @@ namespace FlatFiles
 
         private string GetPaddedValue(string value, Window window)
         {
-            var alignment = window.Alignment ?? Metadata.ProcessContext.Options.Alignment;
+            var alignment = window.Alignment ?? Metadata.ExecutionContext.Options.Alignment;
             if (alignment == FixedAlignment.LeftAligned)
             {
-                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.ProcessContext.Options.FillCharacter);
+                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.ExecutionContext.Options.FillCharacter);
             }
 
-            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.ProcessContext.Options.FillCharacter);
+            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.ExecutionContext.Options.FillCharacter);
         }
 
         public void WriteRecordSeparator()
         {
-            if (Metadata.ProcessContext.Options.HasRecordSeparator)
+            if (Metadata.ExecutionContext.Options.HasRecordSeparator)
             {
-                writer.Write(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine);
+                writer.Write(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine);
             }
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            if (Metadata.ProcessContext.Options.HasRecordSeparator)
+            if (Metadata.ExecutionContext.Options.HasRecordSeparator)
             {
-                await writer.WriteAsync(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
+                await writer.WriteAsync(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
             }
         }
     }

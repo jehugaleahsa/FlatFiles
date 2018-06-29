@@ -5,9 +5,9 @@ namespace FlatFiles
     /// <summary>
     /// Raised when a error occurs while parsing a record.
     /// </summary>
-    public sealed class ProcessingErrorEventArgs : EventArgs
+    public sealed class ExecutionErrorEventArgs : EventArgs
     {
-        internal ProcessingErrorEventArgs(RecordProcessingException exception)
+        internal ExecutionErrorEventArgs(RecordProcessingException exception)
         {
             Exception = exception;
             RecordContext = exception.Context;

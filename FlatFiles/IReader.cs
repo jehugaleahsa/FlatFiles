@@ -16,7 +16,7 @@ namespace FlatFiles
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        event EventHandler<ExecutionErrorEventArgs> Error;
 
         /// <summary>
         /// Gets the schema being used by the parser to parse record values.

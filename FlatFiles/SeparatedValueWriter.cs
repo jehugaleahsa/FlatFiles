@@ -84,7 +84,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public SeparatedValueSchema GetSchema()
         {
-            return recordWriter.Metadata.ProcessContext.Schema;
+            return recordWriter.Metadata.ExecutionContext.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -102,7 +102,7 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.ProcessContext.Schema != null)
+            if (recordWriter.Metadata.ExecutionContext.Schema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
@@ -121,7 +121,7 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.ProcessContext.Schema != null)
+            if (recordWriter.Metadata.ExecutionContext.Schema != null)
             {
                 await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ProcessContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ProcessContext.Schema != null)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
@@ -170,7 +170,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ProcessContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ProcessContext.Schema != null)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);

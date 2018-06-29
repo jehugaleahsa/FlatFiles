@@ -13,7 +13,7 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        event EventHandler<ExecutionErrorEventArgs> Error;
 
         /// <summary>
         /// Raised when a record is parsed.
@@ -112,7 +112,7 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordParsed -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<ExecutionErrorEventArgs> Error
         {
             add => reader.Error += value;
             remove => reader.Error -= value;
@@ -217,7 +217,7 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordParsed -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<ExecutionErrorEventArgs> Error
         {
             add => reader.Error += value;
             remove => reader.Error -= value;
@@ -333,7 +333,7 @@ namespace FlatFiles.TypeMapping
             remove => ((IReader)reader).RecordParsed -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<ExecutionErrorEventArgs> Error
         {
             add => reader.Error += value;
             remove => reader.Error -= value;

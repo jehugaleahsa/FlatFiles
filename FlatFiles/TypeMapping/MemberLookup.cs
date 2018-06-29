@@ -18,12 +18,6 @@ namespace FlatFiles.TypeMapping
             return GetOrAddMember(member.Name, factory);
         }
 
-        public WriteOnlyPropertyMapping GetOrAddWriteOnlyMember(string name, Func<int, int, WriteOnlyPropertyMapping> factory)
-        {
-            string key = $"@WriteOnly_{name}";
-            return GetOrAddMember(key, factory);
-        }
-
         public CustomMapping<TEntity> GetOrAddCustomMapping<TEntity>(string name, Func<int, int, CustomMapping<TEntity>> factory)
         {
             string key = $"@Custom_{name}";

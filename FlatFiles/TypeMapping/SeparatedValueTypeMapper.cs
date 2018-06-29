@@ -362,15 +362,6 @@ namespace FlatFiles.TypeMapping
         IIgnoredMapping Ignored();
 
         /// <summary>
-        /// Specifies that the next column is a custom definition and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property that the custom column definition parses and formats.</typeparam>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column);
-
-        /// <summary>
         /// Specifies the next column will be mapped using custom functions.
         /// </summary>
         /// <param name="column">The custom column definition for parsing and formatting the column.</param>
@@ -609,14 +600,6 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <returns>An object to configure the mapping.</returns>
         IIgnoredMapping Ignored();
-
-        /// <summary>
-        /// Specifies that the next column is a custom definition and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICustomPropertyMapping CustomProperty(string memberName, IColumnDefinition column);
 
         /// <summary>
         /// Specifies the next column will be mapped using custom functions.
@@ -1128,27 +1111,6 @@ namespace FlatFiles.TypeMapping
             return lookup.AddIgnored();
         }
 
-        public ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column)
-        {
-            var member = GetMember(accessor);
-            return GetCustomMapping(member, column);
-        }
-
-        private ICustomPropertyMapping GetCustomMapping(IMemberAccessor member, IColumnDefinition column)
-        {
-            return lookup.GetOrAddMember(member, (fileIndex, workIndex) => new CustomPropertyMapping(column, member, fileIndex, workIndex));
-        }
-
-        public IWriteOnlyPropertyMapping WriteOnlyProperty(string name, IColumnDefinition column)
-        {
-            return GetWriteOnlyMapping(name, column);
-        }
-
-        private IWriteOnlyPropertyMapping GetWriteOnlyMapping(string name, IColumnDefinition column)
-        {
-            return lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
-        }
-
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column)
         {
             var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
@@ -1394,12 +1356,6 @@ namespace FlatFiles.TypeMapping
         IIgnoredMapping IDynamicSeparatedValueTypeConfiguration.Ignored()
         {
             return Ignored();
-        }
-
-        ICustomPropertyMapping IDynamicSeparatedValueTypeConfiguration.CustomProperty(string memberName, IColumnDefinition column)
-        {
-            var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
-            return GetCustomMapping(member, column);
         }
 
         ICustomMapping IDynamicSeparatedValueTypeConfiguration.CustomMapping(IColumnDefinition column)

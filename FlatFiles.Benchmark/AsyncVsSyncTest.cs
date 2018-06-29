@@ -35,7 +35,9 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
+            mapper.CustomMapping(new GeoLocationColumn("GeoLocation"))
+                .WithReader((d, v) => d.GeoLocation = (GeoLocation)v)
+                .WithWriter(d => d.GeoLocation);
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
@@ -89,7 +91,9 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
+            mapper.CustomMapping(new GeoLocationColumn("GeoLocation"))
+                .WithReader((d, v) => d.GeoLocation = (GeoLocation)v)
+                .WithWriter(d => d.GeoLocation);
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
