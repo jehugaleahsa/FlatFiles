@@ -5,8 +5,8 @@ namespace FlatFiles.TypeMapping
     internal class ComplexMapperColumn<TEntity> : IColumnDefinition
     {
         private readonly IColumnDefinition column;
-        private readonly Func<IProcessMetadata, object[], TEntity> reader;
-        private readonly Action<IProcessMetadata, TEntity, object[]> writer;
+        private readonly Func<IRecordContext, object[], TEntity> reader;
+        private readonly Action<IRecordContext, TEntity, object[]> writer;
         private readonly int logicalCount;
 
         public ComplexMapperColumn(IColumnDefinition column, IMapper<TEntity> mapper)

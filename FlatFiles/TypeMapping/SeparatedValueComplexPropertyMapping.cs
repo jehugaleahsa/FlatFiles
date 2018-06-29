@@ -86,6 +86,10 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
+        public Action<IColumnContext, object, object> Reader => null;
+
+        public Action<IColumnContext, object, object[]> Writer => null;
+
         public int PhysicalIndex { get; }
 
         public int LogicalIndex { get; }

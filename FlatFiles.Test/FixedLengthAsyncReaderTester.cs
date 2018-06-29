@@ -82,7 +82,7 @@ namespace FlatFiles.Test
             Assert.AreEqual(true, person1.IsActive);
         }
 
-        private class Person
+        internal class Person
         {
             public int Id { get; set; }
 

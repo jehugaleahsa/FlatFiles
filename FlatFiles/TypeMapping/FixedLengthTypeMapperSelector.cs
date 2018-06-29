@@ -91,18 +91,18 @@ namespace FlatFiles.TypeMapping
             var multiReader = new MultiplexingFixedLengthTypedReader(valueReader);
             foreach (var matcher in matchers)
             {
-                var typedReader = new Lazy<Func<IProcessMetadata, object[], object>>(GetReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typedReader.Value);
             }
             if (defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<IProcessMetadata, object[], object>>(GetReader(defaultMapper));
+                var typeReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(defaultMapper));
                 selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<IProcessMetadata, object[], object>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
+        private Func<Func<IRecordContext, object[], object>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();

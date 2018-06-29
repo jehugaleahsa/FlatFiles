@@ -32,7 +32,7 @@ namespace FlatFiles.TypeMapping
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
         private readonly IWriterWithMetadata writer;
-        private readonly Action<IProcessMetadata, TEntity, object[]> serializer;
+        private readonly Action<IRecordContext, TEntity, object[]> serializer;
         private readonly int logicalCount;
 
         public TypedWriter(IWriterWithMetadata writer, IMapper<TEntity> mapper)
@@ -63,14 +63,25 @@ namespace FlatFiles.TypeMapping
         {
             var values = new object[logicalCount];
             var metadata = writer.GetMetadata();
-            serializer(metadata, entity, values);
+            var processContext = new ProcessContext()
+            {
+                Schema = metadata.Schema,
+                Options = metadata.Options,
+            };
+            var recordContext = new RecordContext()
+            {
+                ProcessContext = processContext,
+                PhysicalCount = metadata.RecordCount,
+                LogicalCount = metadata.LogicalRecordCount
+            };
+            serializer(recordContext, entity, values);
             return values;
         }
     }
 
     internal interface ITypeMapperInjector
     {
-        (ISchema, int, Action<IProcessMetadata, object, object[]>) SetMatcher(object entity);
+        (ISchema, int, Action<IRecordContext, object, object[]>) SetMatcher(object entity);
     }
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
@@ -107,14 +118,18 @@ namespace FlatFiles.TypeMapping
             var values = new object[logicalCount];
             IWriterWithMetadata metadataWriter = writer;
             var metadata = metadataWriter.GetMetadata();
-            var copy = new ProcessMetadata()
+            var processContext = new ProcessContext()
             {
-                Schema = schema,
+                Schema = metadata.Schema,
                 Options = metadata.Options,
-                RecordCount = metadata.RecordCount,
-                LogicalRecordCount = metadata.LogicalRecordCount
             };
-            serializer(metadata, entity, values);
+            var recordContext = new RecordContext()
+            {
+                ProcessContext = processContext,
+                PhysicalCount = metadata.RecordCount,
+                LogicalCount = metadata.LogicalRecordCount
+            };
+            serializer(recordContext, entity, values);
             return values;
         }
     }

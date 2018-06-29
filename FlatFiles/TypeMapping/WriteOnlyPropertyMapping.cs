@@ -1,4 +1,6 @@
-﻿namespace FlatFiles.TypeMapping
+﻿using System;
+
+namespace FlatFiles.TypeMapping
 {
     /// <summary>
     /// Represents the mapping from a type property to a WriteOnly column.
@@ -24,6 +26,10 @@
         public string Name { get; }
 
         IMemberAccessor IMemberMapping.Member => null;
+
+        public Action<IColumnContext, object, object> Reader => null;
+
+        public Action<IColumnContext, object, object[]> Writer => null;
 
         public IColumnDefinition ColumnDefinition { get; }
 

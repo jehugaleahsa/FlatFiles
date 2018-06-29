@@ -13,6 +13,16 @@ namespace FlatFiles.TypeMapping
         IMemberAccessor Member { get; }
 
         /// <summary>
+        /// Gets a custom reader to use when populating entities.
+        /// </summary>
+        Action<IColumnContext, object, object> Reader { get; }
+
+        /// <summary>
+        /// Gets a custom writer to use when writing entities.
+        /// </summary>
+        Action<IColumnContext, object, object[]> Writer { get; }
+
+        /// <summary>
         /// Gets the column that is mapped to. 
         /// </summary>
         IColumnDefinition ColumnDefinition { get; }
@@ -23,7 +33,7 @@ namespace FlatFiles.TypeMapping
         int PhysicalIndex { get; }
 
         /// <summary>
-        /// Gets the index pf the column, excluding ignored columns.
+        /// Gets the index of the column, excluding ignored columns.
         /// </summary>
         int LogicalIndex { get; }
     }

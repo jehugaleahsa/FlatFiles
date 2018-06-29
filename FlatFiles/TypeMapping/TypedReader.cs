@@ -98,7 +98,7 @@ namespace FlatFiles.TypeMapping
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
         private readonly IReaderWithMetadata reader;
-        private readonly Func<IProcessMetadata, object[], TEntity> deserializer;
+        private readonly Func<IRecordContext, object[], TEntity> deserializer;
 
         protected TypedReader(IReaderWithMetadata reader, IMapper<TEntity> mapper)
         {
@@ -147,7 +147,18 @@ namespace FlatFiles.TypeMapping
         {
             var values = reader.GetValues();
             var metadata = reader.GetMetadata();
-            Current = deserializer(metadata, values);
+            var processContext = new ProcessContext()
+            {
+                Schema = metadata.Schema,
+                Options = metadata.Options
+            };
+            var recordContext = new RecordContext()
+            {
+                ProcessContext = processContext,
+                PhysicalCount = metadata.RecordCount,
+                LogicalCount = metadata.LogicalRecordCount
+            };
+            Current = deserializer(recordContext, values);
         }
 
         public bool Skip()
@@ -197,7 +208,7 @@ namespace FlatFiles.TypeMapping
 
         public object Current { get; private set; }
 
-        public Func<IProcessMetadata, object[], object> Deserializer { get; set; }
+        public Func<IRecordContext, object[], object> Deserializer { get; set; }
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
@@ -253,7 +264,18 @@ namespace FlatFiles.TypeMapping
             var values = reader.GetValues();
             IReaderWithMetadata metadataReader = reader;
             var metadata = metadataReader.GetMetadata();
-            Current = Deserializer(metadata, values);
+            var processContext = new ProcessContext()
+            {
+                Schema = metadata.Schema,
+                Options = metadata.Options
+            };
+            var recordContext = new RecordContext()
+            {
+                ProcessContext = processContext,
+                PhysicalCount = metadata.RecordCount,
+                LogicalCount = metadata.LogicalRecordCount
+            };
+            Current = Deserializer(recordContext, values);
         }
 
         public bool Skip()
@@ -307,7 +329,7 @@ namespace FlatFiles.TypeMapping
 
         public object Current { get; private set; }
 
-        public Func<IProcessMetadata, object[], object> Deserializer { get; set; }
+        public Func<IRecordContext, object[], object> Deserializer { get; set; }
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
@@ -369,7 +391,18 @@ namespace FlatFiles.TypeMapping
             var values = reader.GetValues();
             IReaderWithMetadata metadataReader = reader;
             var metadata = metadataReader.GetMetadata();
-            Current = Deserializer(metadata, values);
+            var processContext = new ProcessContext()
+            {
+                Schema = metadata.Schema,
+                Options = metadata.Options,
+            };
+            var recordContext = new RecordContext()
+            {
+                ProcessContext = processContext,
+                PhysicalCount = metadata.RecordCount,
+                LogicalCount = metadata.LogicalRecordCount
+            };
+            Current = Deserializer(recordContext, values);
         }
 
         public bool Skip()

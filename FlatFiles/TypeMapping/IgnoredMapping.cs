@@ -33,6 +33,10 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member => null;
 
+        public Action<IColumnContext, object, object> Reader => null;
+
+        public Action<IColumnContext, object, object[]> Writer => null;
+
         public IColumnDefinition ColumnDefinition => column;
 
         public int PhysicalIndex { get; }

@@ -102,9 +102,9 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
-        public void TestPrivateType()
+        public void TestInternalType()
         {
-            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivatePerson));
+            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(InternalPerson));
             mapper.StringProperty("Name").ColumnName("Name");
 
             string expected = $"John{Environment.NewLine}Susan{Environment.NewLine}";
@@ -112,8 +112,8 @@ namespace FlatFiles.Test
             StringReader reader = new StringReader(expected);
             var people = mapper.Read(reader).ToArray();
             Assert.AreEqual(2, people.Length);
-            Assert.IsInstanceOfType(people[0], typeof(PrivatePerson));
-            Assert.IsInstanceOfType(people[1], typeof(PrivatePerson));
+            Assert.IsInstanceOfType(people[0], typeof(InternalPerson));
+            Assert.IsInstanceOfType(people[1], typeof(InternalPerson));
 
             StringWriter writer = new StringWriter();
             mapper.Write(writer, people);
@@ -123,9 +123,9 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
-        public void TestPrivateType_Unoptimized()
+        public void TestInternalType_Unoptimized()
         {
-            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivatePerson));
+            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(InternalPerson));
             mapper.StringProperty("Name").ColumnName("Name");
             mapper.OptimizeMapping(false);
 
@@ -134,8 +134,8 @@ namespace FlatFiles.Test
             StringReader reader = new StringReader(expected);
             var people = mapper.Read(reader).ToArray();
             Assert.AreEqual(2, people.Length);
-            Assert.IsInstanceOfType(people[0], typeof(PrivatePerson));
-            Assert.IsInstanceOfType(people[1], typeof(PrivatePerson));
+            Assert.IsInstanceOfType(people[0], typeof(InternalPerson));
+            Assert.IsInstanceOfType(people[1], typeof(InternalPerson));
 
             StringWriter writer = new StringWriter();
             mapper.Write(writer, people);
@@ -155,13 +155,13 @@ namespace FlatFiles.Test
             public decimal TopSpeed { get; set; }
         }
 
-        private class PrivatePerson
+        internal class InternalPerson
         {
-            private PrivatePerson()
+            internal InternalPerson()
             {
             }
 
-            private string Name { get; set; }
+            internal string Name { get; set; }
         }
     }
 }

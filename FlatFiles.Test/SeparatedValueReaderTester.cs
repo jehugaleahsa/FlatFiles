@@ -260,7 +260,7 @@ This is not a real record
             Assert.IsFalse(parser.Read(), "There should not be any more records.");
         }
 
-        private class Person
+        internal class Person
         {
             public int Id { get; set; }
 
@@ -716,7 +716,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             }
         }
 
-        private class ClassWithDate
+        internal class ClassWithDate
         {
             public DateTime DateTime { get; set; }
         }

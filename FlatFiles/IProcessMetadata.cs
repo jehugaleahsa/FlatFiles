@@ -28,17 +28,6 @@ namespace FlatFiles
         int LogicalRecordCount { get; }
     }
 
-    internal class ProcessMetadata : IProcessMetadata
-    {
-        public ISchema Schema { get; set; }
-
-        public IOptions Options { get; set; }
-
-        public int RecordCount { get; set; }
-
-        public int LogicalRecordCount { get; set; }
-    }
-
     internal class FixedLengthProcessMetadata : IProcessMetadata
     {
         public FixedLengthSchema Schema { get; set; }

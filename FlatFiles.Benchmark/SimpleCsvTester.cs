@@ -100,6 +100,74 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public void RunFlatFiles_Unoptimized()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.OptimizeMapping(false);
+            mapper.Property(x => x.FirstName);
+            mapper.Property(x => x.LastName);
+            mapper.Property(x => x.Age);
+            mapper.Property(x => x.Street1);
+            mapper.Property(x => x.Street2);
+            mapper.Property(x => x.City);
+            mapper.Property(x => x.State);
+            mapper.Property(x => x.Zip);
+            mapper.Property(x => x.FavoriteColor);
+            mapper.Property(x => x.FavoriteFood);
+            mapper.Property(x => x.FavoriteSport);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+
+            StringReader reader = new StringReader(data);
+            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_CustomMapping()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.CustomMapping(new StringColumn("FirstName")).WithReader((ctx, p, fn) => p.FirstName = (string)fn);
+            mapper.CustomMapping(new StringColumn("LastName")).WithReader((ctx, p, fn) => p.LastName = (string)fn);
+            mapper.CustomMapping(new Int32Column("Age")).WithReader((ctx, p, fn) => p.Age = (int)fn);
+            mapper.CustomMapping(new StringColumn("Street1")).WithReader((ctx, p, fn) => p.Street1 = (string)fn);
+            mapper.CustomMapping(new StringColumn("Street2")).WithReader((ctx, p, fn) => p.Street2 = (string)fn);
+            mapper.CustomMapping(new StringColumn("City")).WithReader((ctx, p, fn) => p.City = (string)fn);
+            mapper.CustomMapping(new StringColumn("State")).WithReader((ctx, p, fn) => p.State = (string)fn);
+            mapper.CustomMapping(new StringColumn("Zip")).WithReader((ctx, p, fn) => p.Zip = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteColor")).WithReader((ctx, p, fn) => p.FavoriteColor = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteFood)")).WithReader((ctx, p, fn) => p.FavoriteFood = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteSport")).WithReader((ctx, p, fn) => p.FavoriteSport = (string)fn);
+            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader((ctx, p, fn) => p.CreatedOn = (DateTime?)fn);
+            mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader((ctx, p, fn) => p.IsActive = (bool)fn);
+
+            StringReader reader = new StringReader(data);
+            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_CustomMapping_Unoptimized()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.OptimizeMapping(false);
+            mapper.CustomMapping(new StringColumn("FirstName")).WithReader((ctx, p, fn) => p.FirstName = (string)fn);
+            mapper.CustomMapping(new StringColumn("LastName")).WithReader((ctx, p, fn) => p.LastName = (string)fn);
+            mapper.CustomMapping(new Int32Column("Age")).WithReader((ctx, p, fn) => p.Age = (int)fn);
+            mapper.CustomMapping(new StringColumn("Street1")).WithReader((ctx, p, fn) => p.Street1 = (string)fn);
+            mapper.CustomMapping(new StringColumn("Street2")).WithReader((ctx, p, fn) => p.Street2 = (string)fn);
+            mapper.CustomMapping(new StringColumn("City")).WithReader((ctx, p, fn) => p.City = (string)fn);
+            mapper.CustomMapping(new StringColumn("State")).WithReader((ctx, p, fn) => p.State = (string)fn);
+            mapper.CustomMapping(new StringColumn("Zip")).WithReader((ctx, p, fn) => p.Zip = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteColor")).WithReader((ctx, p, fn) => p.FavoriteColor = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteFood)")).WithReader((ctx, p, fn) => p.FavoriteFood = (string)fn);
+            mapper.CustomMapping(new StringColumn("FavoriteSport")).WithReader((ctx, p, fn) => p.FavoriteSport = (string)fn);
+            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader((ctx, p, fn) => p.CreatedOn = (DateTime?)fn);
+            mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader((ctx, p, fn) => p.IsActive = (bool)fn);
+
+            StringReader reader = new StringReader(data);
+            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
         public void RunStringSplit()
         {
             var lines = data.Split(Environment.NewLine);

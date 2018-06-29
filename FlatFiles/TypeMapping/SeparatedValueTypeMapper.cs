@@ -371,6 +371,13 @@ namespace FlatFiles.TypeMapping
         ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column);
 
         /// <summary>
+        /// Specifies the next column will be mapped using custom functions.
+        /// </summary>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <returns>An object to configure the custom mapping.</returns>
+        ICustomMapping<TEntity> CustomMapping(IColumnDefinition column);
+
+        /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
         /// code to get and set entity properties, resulting in significant performance improvements. 
         /// However, some environments do not support runtime JIT, so disabling optimization will allow
@@ -610,6 +617,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="column">The custom column definition for parsing and formatting the column.</param>
         /// <returns>An object to configure the property mapping.</returns>
         ICustomPropertyMapping CustomProperty(string memberName, IColumnDefinition column);
+
+        /// <summary>
+        /// Specifies the next column will be mapped using custom functions.
+        /// </summary>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <returns>An object to configure the custom mapping.</returns>
+        ICustomMapping CustomMapping(IColumnDefinition column);
 
         /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
@@ -1135,6 +1149,12 @@ namespace FlatFiles.TypeMapping
             return lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
         }
 
+        public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column)
+        {
+            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
+            return mapping;
+        }
+
         private static IMemberAccessor GetMember<TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
             return MemberAccessorBuilder.GetMember(accessor);
@@ -1380,6 +1400,12 @@ namespace FlatFiles.TypeMapping
         {
             var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
             return GetCustomMapping(member, column);
+        }
+
+        ICustomMapping IDynamicSeparatedValueTypeConfiguration.CustomMapping(IColumnDefinition column)
+        {
+            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
+            return mapping;
         }
 
         private static IMemberAccessor GetMember<TProp>(string memberName)

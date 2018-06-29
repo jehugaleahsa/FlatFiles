@@ -481,7 +481,7 @@ a weird row that should be skipped
             Assert.IsFalse(parser.Read(), "All records should have been skipped.");
         }
 
-        private class Person
+        internal class Person
         {
             public int Id { get; set; }
 

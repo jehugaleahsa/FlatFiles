@@ -410,6 +410,14 @@ namespace FlatFiles.TypeMapping
         ICustomPropertyMapping CustomProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IColumnDefinition column, Window window);
 
         /// <summary>
+        /// Specifies the next column will be mapped using custom functions.
+        /// </summary>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the custom mapping.</returns>
+        ICustomMapping<TEntity> CustomMapping(IColumnDefinition column, Window window);
+
+        /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
         /// code to get and set entity properties, resulting in significant performance improvements. 
         /// However, some environments do not support runtime JIT, so disabling optimization will allow
@@ -672,6 +680,14 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
         ICustomPropertyMapping CustomProperty(string memberName, IColumnDefinition column, Window window);
+
+        /// <summary>
+        /// Specifies the next column will be mapped using custom functions.
+        /// </summary>
+        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the custom mapping.</returns>
+        ICustomMapping CustomMapping(IColumnDefinition column, Window window);
 
         /// <summary>
         /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
@@ -1235,12 +1251,14 @@ namespace FlatFiles.TypeMapping
 
         public IWriteOnlyPropertyMapping WriteOnlyProperty(string name, IColumnDefinition column, Window window)
         {
-            return GetWriteOnlyMapping(name, column, window);
+            var mapping = lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
+            windowLookup[mapping] = window;
+            return mapping;
         }
 
-        private IWriteOnlyPropertyMapping GetWriteOnlyMapping(string name, IColumnDefinition column, Window window)
+        public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column, Window window)
         {
-            var mapping = lookup.GetOrAddWriteOnlyMember(name, (fileIndex, workIndex) => new WriteOnlyPropertyMapping(column, name, fileIndex, workIndex));
+            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
             windowLookup[mapping] = window;
             return mapping;
         }
@@ -1490,6 +1508,13 @@ namespace FlatFiles.TypeMapping
         {
             var member = MemberAccessorBuilder.GetMember<TEntity>(null, memberName);
             return GetCustomMapping(member, column, window);
+        }
+
+        ICustomMapping IDynamicFixedLengthTypeConfiguration.CustomMapping(IColumnDefinition column, Window window)
+        {
+            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
+            windowLookup[mapping] = window;
+            return mapping;
         }
 
         private static IMemberAccessor GetMember<TProp>(string memberName)

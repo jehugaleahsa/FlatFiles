@@ -24,6 +24,12 @@ namespace FlatFiles.TypeMapping
             return GetOrAddMember(key, factory);
         }
 
+        public CustomMapping<TEntity> GetOrAddCustomMapping<TEntity>(string name, Func<int, int, CustomMapping<TEntity>> factory)
+        {
+            string key = $"@Custom_{name}";
+            return GetOrAddMember(key, factory);
+        }
+
         private TMapping GetOrAddMember<TMapping>(string key, Func<int, int, TMapping> factory)
             where TMapping : IMemberMapping
         {
@@ -62,7 +68,6 @@ namespace FlatFiles.TypeMapping
                 {
                     return entityFactory;
                 }
-
                 if (factory is Func<object> objectFactory)
                 {
                     return () => (TEntity)objectFactory();

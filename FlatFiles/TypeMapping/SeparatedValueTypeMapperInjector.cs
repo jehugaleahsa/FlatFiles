@@ -130,11 +130,11 @@ namespace FlatFiles.TypeMapping
             });
         }
 
-        (ISchema, int, Action<IProcessMetadata, object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
+        (ISchema, int, Action<IRecordContext, object, object[]>) ITypeMapperInjector.SetMatcher(object entity)
         {
             ISchema schema = null;
             int logicalCount = 0;
-            Action<IProcessMetadata, object, object[]> serializer = null;
+            Action<IRecordContext, object, object[]> serializer = null;
             foreach (var matcher in matchers)
             {
                 if (serializer == null && matcher.Predicate(entity))
@@ -176,7 +176,7 @@ namespace FlatFiles.TypeMapping
 
             public int WorkCount { get; set; }
 
-            public Action<IProcessMetadata, object, object[]> Serializer { get; set; }
+            public Action<IRecordContext, object, object[]> Serializer { get; set; }
 
             public void Reset()
             {
