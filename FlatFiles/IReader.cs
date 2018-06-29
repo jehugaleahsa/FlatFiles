@@ -63,6 +63,6 @@ namespace FlatFiles
 
     internal interface IReaderWithMetadata : IReader
     {
-        IProcessMetadata GetMetadata();
+        IRecordContext GetMetadata();
     }
 }

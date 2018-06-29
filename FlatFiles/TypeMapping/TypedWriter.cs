@@ -62,18 +62,7 @@ namespace FlatFiles.TypeMapping
         private object[] Serialize(TEntity entity)
         {
             var values = new object[logicalCount];
-            var metadata = writer.GetMetadata();
-            var processContext = new ProcessContext()
-            {
-                Schema = metadata.Schema,
-                Options = metadata.Options,
-            };
-            var recordContext = new RecordContext()
-            {
-                ProcessContext = processContext,
-                PhysicalCount = metadata.RecordCount,
-                LogicalCount = metadata.LogicalRecordCount
-            };
+            var recordContext = writer.GetMetadata();
             serializer(recordContext, entity, values);
             return values;
         }
@@ -117,18 +106,7 @@ namespace FlatFiles.TypeMapping
             var (schema, logicalCount, serializer) = injector.SetMatcher(entity);
             var values = new object[logicalCount];
             IWriterWithMetadata metadataWriter = writer;
-            var metadata = metadataWriter.GetMetadata();
-            var processContext = new ProcessContext()
-            {
-                Schema = metadata.Schema,
-                Options = metadata.Options,
-            };
-            var recordContext = new RecordContext()
-            {
-                ProcessContext = processContext,
-                PhysicalCount = metadata.RecordCount,
-                LogicalCount = metadata.LogicalRecordCount
-            };
+            var recordContext = metadataWriter.GetMetadata();
             serializer(recordContext, entity, values);
             return values;
         }

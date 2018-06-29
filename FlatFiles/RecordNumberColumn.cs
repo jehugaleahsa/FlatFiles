@@ -45,14 +45,14 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of records that have been parsed.
         /// </summary>
-        /// <param name="metadata">The current metadata of the process.</param>
+        /// <param name="context">The metadata for the record currently being processed.</param>
         /// <returns>The number of parsed records.</returns>
-        object IMetadataColumn.GetValue(IProcessMetadata metadata)
+        object IMetadataColumn.GetValue(IRecordContext context)
         {
             if (IncludeFilteredRecords)
             {
-                int recordCount = metadata.RecordCount;
-                if (metadata.Options.IsFirstRecordSchema && !IncludeSchema)
+                int recordCount = context.PhysicalRecordNumber;
+                if (context.ProcessContext.Options.IsFirstRecordSchema && !IncludeSchema)
                 {
                     --recordCount;
                 }
@@ -61,8 +61,8 @@ namespace FlatFiles
 
             // We only incrememnt the logical count after we are sure the record is not filtered out.
             // Since the value for the column is generated beforehand, we must increase it by one.
-            int offset = (IncludeSchema && metadata.Options.IsFirstRecordSchema) ? 2 : 1;
-            return metadata.LogicalRecordCount + offset;
+            int offset = (IncludeSchema && context.ProcessContext.Options.IsFirstRecordSchema) ? 2 : 1;
+            return context.LogicalRecordNumber + offset;
         }
 
         /// <summary>

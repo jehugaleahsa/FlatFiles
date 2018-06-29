@@ -12,16 +12,16 @@ namespace FlatFiles
         /// <summary>
         /// Creates a new instance of a SeparatedValueRecordParsedEventArgs.
         /// </summary>
-        internal SeparatedValueRecordParsedEventArgs(IProcessMetadata metadata, object[] values)
+        internal SeparatedValueRecordParsedEventArgs(IRecordContext metadata, object[] values)
         {
-            Metadata = metadata;
+            Context = metadata;
             Values = values;
         }
 
         /// <summary>
         /// Gets any metadata associated with the current read process.
         /// </summary>
-        public IProcessMetadata Metadata { get; }
+        public IRecordContext Context { get; }
 
         /// <summary>
         /// Gets the parsed record values read from the source file.

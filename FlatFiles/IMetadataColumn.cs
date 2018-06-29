@@ -10,8 +10,8 @@ namespace FlatFiles
         /// <summary>
         /// Extracts the relevant metadata.
         /// </summary>
-        /// <param name="metadata">The current metadata.</param>
+        /// <param name="context">Metadata about the record currently being processed.</param>
         /// <returns>The relevant metadata.</returns>
-        object GetValue(IProcessMetadata metadata);
+        object GetValue(IRecordContext context);
     }
 }

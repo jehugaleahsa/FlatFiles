@@ -10,16 +10,16 @@ namespace FlatFiles
         /// <summary>
         /// Creates a new instance of a FixedLengthRecordParsedEventArgs.
         /// </summary>
-        internal FixedLengthRecordParsedEventArgs(IProcessMetadata metadata, object[] values)
+        internal FixedLengthRecordParsedEventArgs(IRecordContext context, object[] values)
         {
-            Metadata = metadata;
+            Context = context;
             Values = values;
         }
 
         /// <summary>
         /// Gets any metadata associated with the current read process.
         /// </summary>
-        public IProcessMetadata Metadata { get; }
+        public IRecordContext Context { get; }
 
         /// <summary>
         /// Gets the parsed record values read from the source file.

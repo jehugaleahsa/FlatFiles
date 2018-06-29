@@ -686,7 +686,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var reader = mapper.GetReader(stringReader);
             reader.Error += (sender, e) =>
             {
-                errorRecords.Add(e.RecordNumber);
+                errorRecords.Add(e.RecordContext.PhysicalRecordNumber);
                 e.IsHandled = true;
             };
             var people = reader.ReadAll().ToArray();

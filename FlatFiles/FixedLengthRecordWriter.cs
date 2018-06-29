@@ -14,10 +14,13 @@ namespace FlatFiles
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
-            Metadata = new FixedLengthProcessMetadata()
+            Metadata = new FixedLengthRecordContext()
             {
-                Schema = schema,
-                Options = options.Clone()
+                ProcessContext = new FixedLengthProcessContext()
+                {
+                    Schema = schema,
+                    Options = options.Clone()
+                }
             };
         }
 
@@ -27,12 +30,12 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public FixedLengthProcessMetadata Metadata { get; }
+        public FixedLengthRecordContext Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
-            Metadata.Schema = GetSchema(values);
-            if (values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ProcessContext.Schema = GetSchema(values);
+            if (values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
@@ -46,8 +49,8 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            Metadata.Schema = GetSchema(values);
-            if (values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ProcessContext.Schema = GetSchema(values);
+            if (values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
@@ -61,19 +64,19 @@ namespace FlatFiles
 
         private FixedLengthSchema GetSchema(object[] values)
         {
-            return injector == null ? Metadata.Schema : injector.GetSchema(values);
+            return injector == null ? Metadata.ProcessContext.Schema : injector.GetSchema(values);
         }
 
         private string[] FormatValues(object[] values)
         {
-            return Metadata.Schema.FormatValues(Metadata, values);
+            return Metadata.ProcessContext.Schema.FormatValues(Metadata, values);
         }
 
         private void FitWindows(string[] values)
         {
             for (int index = 0; index != values.Length; ++index)
             {
-                var window = Metadata.Schema.Windows[index];
+                var window = Metadata.ProcessContext.Schema.Windows[index];
                 values[index] = FitWidth(window, values[index]);
             }
         }
@@ -84,8 +87,8 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.Schema.Windows[i], v));
+            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => FitWidth(Metadata.ProcessContext.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 writer.Write(column);
@@ -98,8 +101,8 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.Schema.Windows[i], v));
+            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
+            var fitted = names.Select((v, i) => FitWidth(Metadata.ProcessContext.Schema.Windows[i], v));
             foreach (string column in fitted)
             {
                 await writer.WriteAsync(column).ConfigureAwait(false);
@@ -126,7 +129,7 @@ namespace FlatFiles
 
         private string GetTruncatedValue(string value, Window window)
         {
-            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.Options.TruncationPolicy;
+            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.ProcessContext.Options.TruncationPolicy;
             if (policy == OverflowTruncationPolicy.TruncateLeading)
             {
                 int start = value.Length - window.Width;  // take characters on the end
@@ -138,28 +141,28 @@ namespace FlatFiles
 
         private string GetPaddedValue(string value, Window window)
         {
-            var alignment = window.Alignment ?? Metadata.Options.Alignment;
+            var alignment = window.Alignment ?? Metadata.ProcessContext.Options.Alignment;
             if (alignment == FixedAlignment.LeftAligned)
             {
-                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
+                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.ProcessContext.Options.FillCharacter);
             }
 
-            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.Options.FillCharacter);
+            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.ProcessContext.Options.FillCharacter);
         }
 
         public void WriteRecordSeparator()
         {
-            if (Metadata.Options.HasRecordSeparator)
+            if (Metadata.ProcessContext.Options.HasRecordSeparator)
             {
-                writer.Write(Metadata.Options.RecordSeparator ?? Environment.NewLine);
+                writer.Write(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine);
             }
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            if (Metadata.Options.HasRecordSeparator)
+            if (Metadata.ProcessContext.Options.HasRecordSeparator)
             {
-                await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
+                await writer.WriteAsync(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
             }
         }
     }

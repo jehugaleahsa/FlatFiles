@@ -146,18 +146,7 @@ namespace FlatFiles.TypeMapping
         private void SetCurrent()
         {
             var values = reader.GetValues();
-            var metadata = reader.GetMetadata();
-            var processContext = new ProcessContext()
-            {
-                Schema = metadata.Schema,
-                Options = metadata.Options
-            };
-            var recordContext = new RecordContext()
-            {
-                ProcessContext = processContext,
-                PhysicalCount = metadata.RecordCount,
-                LogicalCount = metadata.LogicalRecordCount
-            };
+            var recordContext = reader.GetMetadata();
             Current = deserializer(recordContext, values);
         }
 
@@ -263,18 +252,7 @@ namespace FlatFiles.TypeMapping
         {
             var values = reader.GetValues();
             IReaderWithMetadata metadataReader = reader;
-            var metadata = metadataReader.GetMetadata();
-            var processContext = new ProcessContext()
-            {
-                Schema = metadata.Schema,
-                Options = metadata.Options
-            };
-            var recordContext = new RecordContext()
-            {
-                ProcessContext = processContext,
-                PhysicalCount = metadata.RecordCount,
-                LogicalCount = metadata.LogicalRecordCount
-            };
+            var recordContext = metadataReader.GetMetadata();
             Current = Deserializer(recordContext, values);
         }
 
@@ -390,18 +368,7 @@ namespace FlatFiles.TypeMapping
         {
             var values = reader.GetValues();
             IReaderWithMetadata metadataReader = reader;
-            var metadata = metadataReader.GetMetadata();
-            var processContext = new ProcessContext()
-            {
-                Schema = metadata.Schema,
-                Options = metadata.Options,
-            };
-            var recordContext = new RecordContext()
-            {
-                ProcessContext = processContext,
-                PhysicalCount = metadata.RecordCount,
-                LogicalCount = metadata.LogicalRecordCount
-            };
+            var recordContext = metadataReader.GetMetadata();
             Current = Deserializer(recordContext, values);
         }
 

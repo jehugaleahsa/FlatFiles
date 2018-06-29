@@ -30,6 +30,6 @@ namespace FlatFiles
 
     internal interface IWriterWithMetadata : IWriter
     {
-        IProcessMetadata GetMetadata();
+        IRecordContext GetMetadata();
     }
 }

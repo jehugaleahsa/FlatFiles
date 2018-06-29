@@ -573,7 +573,7 @@ a weird row that should be skipped
             var reader = mapper.GetReader(stringReader);
             reader.Error += (sender, e) =>
             {
-                errorRecords.Add(e.RecordNumber);
+                errorRecords.Add(e.RecordContext.PhysicalRecordNumber);
                 e.IsHandled = true;
             };
             var people = reader.ReadAll().ToArray();

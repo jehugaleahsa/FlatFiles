@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FlatFiles.TypeMapping
+namespace FlatFiles
 {
     /// <summary>
     /// Holds information about the column currently being processed.
@@ -11,6 +11,11 @@ namespace FlatFiles.TypeMapping
         /// Gets information about the record currently being processed.
         /// </summary>
         IRecordContext RecordContext { get; }
+
+        /// <summary>
+        /// Gets the definition for the current column.
+        /// </summary>
+        IColumnDefinition ColumnDefinition { get; }
 
         /// <summary>
         /// Gets the physical index into the underlying file.
@@ -26,6 +31,17 @@ namespace FlatFiles.TypeMapping
     internal class ColumnContext : IColumnContext
     {
         public IRecordContext RecordContext { get; set; }
+
+        public IColumnDefinition ColumnDefinition
+        {
+            get
+            {
+                var schema = RecordContext.ProcessContext.Schema;
+                var columns = schema.ColumnDefinitions;
+                IColumnDefinition definition = schema.ColumnDefinitions[PhysicalIndex];
+                return definition;
+            }
+        }
 
         public int PhysicalIndex { get; set; }
 

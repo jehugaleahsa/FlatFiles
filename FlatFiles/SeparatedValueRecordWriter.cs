@@ -16,10 +16,13 @@ namespace FlatFiles
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
-            Metadata = new SeparatedValueProcessMetadata()
+            Metadata = new SeparatedValueRecordContext()
             {
-                Schema = schema,
-                Options = options.Clone()
+                ProcessContext = new SeparatedValueProcessContext()
+                {
+                    Schema = schema,
+                    Options = options.Clone()
+                }
             };
             quoteString = String.Empty + options.Quote;
             doubleQuoteString = String.Empty + options.Quote + options.Quote;
@@ -31,42 +34,42 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public SeparatedValueProcessMetadata Metadata { get; }
+        public SeparatedValueRecordContext Metadata { get; }
 
         public void WriteRecord(object[] values)
         {
-            Metadata.Schema = GetSchema(values);
-            if (Metadata.Schema != null && values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ProcessContext.Schema = GetSchema(values);
+            if (Metadata.ProcessContext.Schema != null && values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
-            string joined = String.Join(Metadata.Options.Separator, formattedValues);
+            string joined = String.Join(Metadata.ProcessContext.Options.Separator, formattedValues);
             writer.Write(joined);
         }
 
         public async Task WriteRecordAsync(object[] values)
         {
-            Metadata.Schema = GetSchema(values);
-            if (Metadata.Schema != null && values.Length != Metadata.Schema.ColumnDefinitions.PhysicalCount)
+            Metadata.ProcessContext.Schema = GetSchema(values);
+            if (Metadata.ProcessContext.Schema != null && values.Length != Metadata.ProcessContext.Schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
             }
             var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
-            string joined = String.Join(Metadata.Options.Separator, formattedValues);
+            string joined = String.Join(Metadata.ProcessContext.Options.Separator, formattedValues);
             await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 
         private SeparatedValueSchema GetSchema(object[] values)
         {
-            return injector == null ? Metadata.Schema : injector.GetSchema(values);
+            return injector == null ? Metadata.ProcessContext.Schema : injector.GetSchema(values);
         }
 
         private string[] FormatValues(object[] values)
         {
-            if (Metadata.Schema == null)
+            if (Metadata.ProcessContext.Schema == null)
             {
                 string[] results = new string[values.Length];
                 for (int index = 0; index != results.Length; ++index)
@@ -75,7 +78,7 @@ namespace FlatFiles
                 }
                 return results;
             }
-            return Metadata.Schema.FormatValues(Metadata, values);
+            return Metadata.ProcessContext.Schema.FormatValues(Metadata, values);
         }
 
         private static string ToString(object value)
@@ -108,7 +111,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            if (Metadata.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
+            if (Metadata.ProcessContext.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
             {
                 return true;
             }
@@ -123,12 +126,12 @@ namespace FlatFiles
                 return true;
             }
             // Escape strings containing the separator.
-            if (value.Contains(Metadata.Options.Separator))
+            if (value.Contains(Metadata.ProcessContext.Options.Separator))
             {
                 return true;
             }
             // Escape strings containing the record separator.
-            if (Metadata.Options.RecordSeparator != null && value.Contains(Metadata.Options.RecordSeparator))
+            if (Metadata.ProcessContext.Options.RecordSeparator != null && value.Contains(Metadata.ProcessContext.Options.RecordSeparator))
             {
                 return true;
             }
@@ -146,12 +149,12 @@ namespace FlatFiles
             {
                 return;
             }
-            if (Metadata.Schema == null)
+            if (Metadata.ProcessContext.Schema == null)
             {
                 return;
             }
-            var names = Metadata.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
-            string joined = String.Join(Metadata.Options.Separator, names);
+            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
+            string joined = String.Join(Metadata.ProcessContext.Options.Separator, names);
             writer.Write(joined);
         }
 
@@ -161,23 +164,23 @@ namespace FlatFiles
             {
                 return;
             }
-            if (Metadata.Schema == null)
+            if (Metadata.ProcessContext.Schema == null)
             {
                 return;
             }
-            var names = Metadata.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
-            string joined = String.Join(Metadata.Options.Separator, names);
+            var names = Metadata.ProcessContext.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
+            string joined = String.Join(Metadata.ProcessContext.Options.Separator, names);
             await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 
         public void WriteRecordSeparator()
         {
-            writer.Write(Metadata.Options.RecordSeparator ?? Environment.NewLine);
+            writer.Write(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine);
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            await writer.WriteAsync(Metadata.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
+            await writer.WriteAsync(Metadata.ProcessContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
         }
     }
 }

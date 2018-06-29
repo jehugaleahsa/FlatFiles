@@ -10,29 +10,23 @@ namespace FlatFiles
         internal ProcessingErrorEventArgs(RecordProcessingException exception)
         {
             Exception = exception;
-            RecordNumber = exception.RecordNumber;
+            RecordContext = exception.Context;
             if (exception.InnerException != null && exception.InnerException is ColumnProcessingException columnException)
             {
-                Schema = columnException.Schema;
-                ColumnDefinition = columnException.ColumnDefinition;
+                ColumnContext = columnException.ColumnContext;
                 ColumnValue = columnException.ColumnValue;
             }
         }
 
         /// <summary>
-        /// Gets the index of the record being processed when the error occurred.
+        /// Gets the metata for the column that was being processed when the error occurred.
         /// </summary>
-        public int RecordNumber { get; }
+        public IColumnContext ColumnContext { get; }
 
         /// <summary>
-        /// Gets the schema being used when the error occurred.
+        /// Gets the metata for the record that was being processed when the error occurred.
         /// </summary>
-        public ISchema Schema { get; }
-
-        /// <summary>
-        /// Gets the column definition being processed when the error occurred.
-        /// </summary>
-        public IColumnDefinition ColumnDefinition { get; }
+        public IRecordContext RecordContext { get; }
 
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.

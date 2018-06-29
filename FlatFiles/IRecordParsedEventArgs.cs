@@ -8,9 +8,9 @@ namespace FlatFiles
     public interface IRecordParsedEventArgs
     {
         /// <summary>
-        /// Gets any metadata associated with the current read process.
+        /// Gets the metadata associated with the current read process.
         /// </summary>
-        IProcessMetadata Metadata { get; }
+        IRecordContext Context { get; }
 
         /// <summary>
         /// Gets the parsed record values read from the source file.

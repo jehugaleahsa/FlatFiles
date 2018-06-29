@@ -13,7 +13,7 @@ namespace FlatFiles
     {
         private readonly SeparatedValueRecordParser parser;
         private readonly SeparatedValueSchemaSelector schemaSelector;
-        private readonly SeparatedValueProcessMetadata metadata;
+        private readonly SeparatedValueRecordContext metadata;
         private object[] values;
         private bool endOfFile;
         private bool hasError;
@@ -76,10 +76,13 @@ namespace FlatFiles
             }
             RetryReader retryReader = new RetryReader(reader);
             parser = new SeparatedValueRecordParser(retryReader, options);
-            metadata = new SeparatedValueProcessMetadata()
+            metadata = new SeparatedValueRecordContext()
             {
-                Schema = hasSchema ? schema : null,
-                Options = parser.Options
+                ProcessContext = new SeparatedValueProcessContext()
+                {
+                    Schema = hasSchema ? schema : null,
+                    Options = parser.Options
+                }
             };
         }
 
@@ -115,11 +118,11 @@ namespace FlatFiles
                 return null;
             }
             HandleSchema();
-            if (metadata.Schema == null)
+            if (metadata.ProcessContext.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.Schema;
+            return metadata.ProcessContext.Schema;
         }
 
         ISchema IReader.GetSchema()
@@ -138,11 +141,11 @@ namespace FlatFiles
                 return null;
             }
             await HandleSchemaAsync().ConfigureAwait(false);
-            if (metadata.Schema == null)
+            if (metadata.ProcessContext.Schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.Schema;
+            return metadata.ProcessContext.Schema;
         }
 
         async Task<ISchema> IReader.GetSchemaAsync()
@@ -170,7 +173,7 @@ namespace FlatFiles
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++metadata.LogicalRecordNumber;
                 return true;
             }
             catch (FlatFileException)
@@ -182,7 +185,7 @@ namespace FlatFiles
 
         private void HandleSchema()
         {
-            if (metadata.RecordCount != 0)
+            if (metadata.PhysicalRecordNumber != 0)
             {
                 return;
             }
@@ -190,17 +193,17 @@ namespace FlatFiles
             {
                 return;
             }
-            if (schemaSelector != null || metadata.Schema != null)
+            if (schemaSelector != null || metadata.ProcessContext.Schema != null)
             {
                 skip();
                 return;
             }
             string[] columnNames = ReadNextRecord();
-            metadata.Schema = new SeparatedValueSchema();
+            metadata.ProcessContext.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.Schema.AddColumn(column);
+                metadata.ProcessContext.Schema.AddColumn(column);
             }
         }
 
@@ -209,9 +212,9 @@ namespace FlatFiles
             var rawValues = ReadWithFilter();
             while (rawValues != null)
             {
-                if (metadata.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ProcessContext.Schema != null && hasWrongNumberOfColumns(rawValues))
                 {
-                    ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
+                    ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
@@ -230,11 +233,11 @@ namespace FlatFiles
         private string[] ReadWithFilter()
         {
             string[] rawValues = ReadNextRecord();
-            metadata.Schema = GetSchema(rawValues);
+            metadata.ProcessContext.Schema = GetSchema(rawValues);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 rawValues = ReadNextRecord();
-                metadata.Schema = GetSchema(rawValues);
+                metadata.ProcessContext.Schema = GetSchema(rawValues);
             }
             return rawValues;
         }
@@ -259,7 +262,7 @@ namespace FlatFiles
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++metadata.LogicalRecordNumber;
                 return true;
             }
             catch (FlatFileException)
@@ -271,7 +274,7 @@ namespace FlatFiles
 
         private async Task HandleSchemaAsync()
         {
-            if (metadata.RecordCount != 0)
+            if (metadata.PhysicalRecordNumber != 0)
             {
                 return;
             }
@@ -279,17 +282,17 @@ namespace FlatFiles
             {
                 return;
             }
-            if (metadata.Schema != null)
+            if (metadata.ProcessContext.Schema != null)
             {
                 await skipAsync().ConfigureAwait(false);
                 return;
             }
             string[] columnNames = await ReadNextRecordAsync().ConfigureAwait(false);
-            metadata.Schema = new SeparatedValueSchema();
+            metadata.ProcessContext.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.Schema.AddColumn(column);
+                metadata.ProcessContext.Schema.AddColumn(column);
             }
         }
 
@@ -298,9 +301,9 @@ namespace FlatFiles
             var rawValues = await ReadWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                if (metadata.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ProcessContext.Schema != null && hasWrongNumberOfColumns(rawValues))
                 {
-                    ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.SeparatedValueRecordWrongNumberOfColumns));
+                    ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
                 else
                 {
@@ -317,18 +320,18 @@ namespace FlatFiles
 
         private bool hasWrongNumberOfColumns(string[] values)
         {
-            var schema = metadata.Schema;
+            var schema = metadata.ProcessContext.Schema;
             return values.Length + schema.ColumnDefinitions.MetadataCount < schema.ColumnDefinitions.PhysicalCount;
         }
 
         private async Task<string[]> ReadWithFilterAsync()
         {
             string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
-            metadata.Schema = GetSchema(rawValues);
+            metadata.ProcessContext.Schema = GetSchema(rawValues);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
-                metadata.Schema = GetSchema(rawValues);
+                metadata.ProcessContext.Schema = GetSchema(rawValues);
             }
             return rawValues;
         }
@@ -341,7 +344,7 @@ namespace FlatFiles
             }
             if (schemaSelector == null)
             {
-                return metadata.Schema;
+                return metadata.ProcessContext.Schema;
             }
             return schemaSelector.GetSchema(rawValues);
         }
@@ -359,17 +362,17 @@ namespace FlatFiles
 
         private object[] ParseValues(string[] rawValues)
         {
-            if (metadata.Schema == null)
+            if (metadata.ProcessContext.Schema == null)
             {
                 return rawValues;
             }
             try
             {
-                return metadata.Schema.ParseValues(metadata, rawValues);
+                return metadata.ProcessContext.Schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -444,12 +447,12 @@ namespace FlatFiles
             try
             {
                 string[] results = parser.ReadRecord();
-                ++metadata.RecordCount;
+                ++metadata.PhysicalRecordNumber;
                 return results;
             }
             catch (SeparatedValueSyntaxException exception)
             {
-                throw new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordFormatNumber, exception);
+                throw new RecordProcessingException(metadata, Resources.InvalidRecordFormatNumber, exception);
             }
         }
 
@@ -464,12 +467,12 @@ namespace FlatFiles
             try
             {
                 string[] results = await parser.ReadRecordAsync().ConfigureAwait(false);
-                ++metadata.RecordCount;
+                ++metadata.PhysicalRecordNumber;
                 return results;
             }
             catch (SeparatedValueSyntaxException exception)
             {
-                throw new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordFormatNumber, exception);
+                throw new RecordProcessingException(metadata, Resources.InvalidRecordFormatNumber, exception);
             }
         }
 
@@ -483,7 +486,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            if (metadata.RecordCount == 0)
+            if (metadata.PhysicalRecordNumber == 0)
             {
                 throw new InvalidOperationException(Resources.ReadNotCalled);
             }
@@ -496,7 +499,7 @@ namespace FlatFiles
             return copy;
         }
 
-        IProcessMetadata IReaderWithMetadata.GetMetadata()
+        IRecordContext IReaderWithMetadata.GetMetadata()
         {
             return metadata;
         }
