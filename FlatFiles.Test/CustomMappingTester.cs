@@ -280,7 +280,7 @@ namespace FlatFiles.Test
                 .WithReader((x, v) => x.Coordinates.Longitude = (decimal)v)
                 .WithWriter(x => x.Coordinates.Longitude);
             mapper.CustomMapping(new DecimalColumn("Latitude"))
-                .WithReader((x, v) => x.Coordinates.Latitude = (decimal)v)
+                .WithReader(x => x.Coordinates.Latitude)
                 .WithWriter(x => x.Coordinates.Latitude);
             mapper.CustomMapping(new StringColumn("Street1"))
                 .WithReader((x, v) => x.Address.Street = (string)v)

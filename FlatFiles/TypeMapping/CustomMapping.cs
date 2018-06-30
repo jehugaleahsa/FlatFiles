@@ -135,11 +135,11 @@ namespace FlatFiles.TypeMapping
 
         public ICustomMapping<TEntity> WithReader<TProp>(Expression<Func<TEntity, TProp>> reader)
         {
-            var newReader = GetDelegate(reader);
+            var newReader = GetReader(reader);
             return WithReader(newReader);
         }
 
-        private static Action<IColumnContext, TEntity, object> GetDelegate<TProp>(Expression<Func<TEntity, TProp>> reader)
+        private static Action<IColumnContext, TEntity, object> GetReader<TProp>(Expression<Func<TEntity, TProp>> reader)
         {
             if (reader == null)
             {
@@ -148,8 +148,7 @@ namespace FlatFiles.TypeMapping
             var context = Expression.Parameter(typeof(IColumnContext), "context");
             var entity = Expression.Parameter(typeof(TEntity), "entity");
             var value = Expression.Parameter(typeof(object), "value");
-            var memberInfo = MemberAccessorBuilder.GetMemberInfo(reader);
-            var member = GetMemberExpression(entity, memberInfo);
+            var member = GetMemberExpression(entity, reader.Body);
             var readerBuilder = Expression.Lambda<Action<IColumnContext, TEntity, object>>(
                 Expression.Assign(member, Expression.Convert(value, typeof(TProp))),
                 context,
@@ -159,23 +158,30 @@ namespace FlatFiles.TypeMapping
             return readerBuilder.Compile();
         }
 
-        private static Expression GetMemberExpression(Expression entityParameter, MemberInfo memberInfo)
+        private static Expression GetMemberExpression(Expression entityParameter, Expression expression)
         {
-            if (memberInfo == null)
+            if (expression == null || !(expression is MemberExpression memberExpression))
             {
-                throw new FlatFileException(Resources.BadPropertySelector);
+                throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
             }
-            if (!memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
-            {
-                throw new FlatFileException(Resources.BadPropertySelector);
-            }
+            var memberInfo = memberExpression.Member;
             if (memberInfo is PropertyInfo propertyInfo)
             {
-                return Expression.Property(entityParameter, propertyInfo);
+                if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    return Expression.Property(entityParameter, propertyInfo);
+                }
+                var nestedMember = GetMemberExpression(entityParameter, memberExpression.Expression);
+                return Expression.Property(nestedMember, propertyInfo);
             }
             if (memberInfo is FieldInfo fieldInfo)
             {
-                return Expression.Field(entityParameter, fieldInfo);
+                if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+                {
+                    return Expression.Field(entityParameter, fieldInfo);
+                }
+                var nestedMember = GetMemberExpression(entityParameter, memberExpression.Expression);
+                return Expression.Field(nestedMember, fieldInfo);
             }
             throw new FlatFileException(Resources.BadPropertySelector);
         }
