@@ -678,7 +678,6 @@ namespace FlatFiles.TypeMapping
         IDynamicSeparatedValueTypeMapper,
         IMapperSource<TEntity>
     {
-        private readonly Dictionary<Type, Func<TEntity>> factories = new Dictionary<Type, Func<TEntity>>();
         private readonly MemberLookup lookup = new MemberLookup();
         private bool isOptimized = true;
 
@@ -696,7 +695,7 @@ namespace FlatFiles.TypeMapping
         {
             if (factory != null)
             {
-                factories.Add(typeof(TEntity), factory);
+                lookup.SetFactory(factory);
             }
         }
 

@@ -13,7 +13,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldManuallyReadWriteEntity_WithReflection()
         {
-            var mapper = getTypeMapper();
+            var mapper = GetTypeMapper();
             mapper.OptimizeMapping(false);
 
             StringWriter writer = new StringWriter();
@@ -36,7 +36,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldManuallyReadWriteEntity_WithEmit()
         {
-            var mapper = getTypeMapper();
+            var mapper = GetTypeMapper();
 
             StringWriter writer = new StringWriter();
             var data = new[]
@@ -55,7 +55,7 @@ namespace FlatFiles.Test
             AssertPeopleEqual(data, people, 2);
         }
 
-        private static ISeparatedValueTypeMapper<Person> getTypeMapper()
+        private static ISeparatedValueTypeMapper<Person> GetTypeMapper()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.CustomMapping(new Int32Column("Id")).WithReader((ctx, person, value) =>
@@ -102,7 +102,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldManuallyReadWriteEntityWithCollection_WithReflection()
         {
-            var mapper = getCollectionTypeMapper();
+            var mapper = GetCollectionTypeMapper();
             mapper.OptimizeMapping(false);
 
             var data = GetContacts();
@@ -122,7 +122,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldManuallyReadWriteEntityWithCollection_WithEmit()
         {
-            var mapper = getCollectionTypeMapper();
+            var mapper = GetCollectionTypeMapper();
 
             var data = GetContacts();
             var writer = new StringWriter();
@@ -175,53 +175,32 @@ namespace FlatFiles.Test
             return data;
         }
 
-        private IFixedLengthTypeMapper<Contact> getCollectionTypeMapper()
+        private static IFixedLengthTypeMapper<Contact> GetCollectionTypeMapper()
         {
             var mapper = FixedLengthTypeMapper.Define(() => new Contact());
-            mapper.CustomMapping(new Int32Column("Id"), 10).WithReader((ctx, c, id) =>
-            {
-                c.Id = (int)id;
-            }).WithWriter((ctx, c, values) =>
-            {
-                values[ctx.LogicalIndex] = c.Id;
-            });
-            mapper.CustomMapping(new StringColumn("Name"), 10).WithReader((ctx, c, name) =>
-            {
-                c.Name = (string)name;
-            }).WithWriter((ctx, c, values) =>
-            {
-                values[ctx.LogicalIndex] = c.Name;
-            });
-            mapper.CustomMapping(new StringColumn("Phone1"), 12).WithReader((ctx, c, phone1) =>
+            mapper.CustomMapping(new Int32Column("Id"), 10).WithReader(c => c.Id).WithWriter(c => c.Id);
+            mapper.CustomMapping(new StringColumn("Name"), 10).WithReader(c => c.Name).WithWriter(c => c.Name);
+            mapper.CustomMapping(new StringColumn("Phone1"), 12).WithReader((c, phone1) =>
             {
                 if (phone1 != null)
                 {
                     c.PhoneNumbers.Add((string)phone1);
                 }
-            }).WithWriter((ctx, c, values) =>
-            {
-                values[ctx.LogicalIndex] = c.PhoneNumbers.Count > 0 ? c.PhoneNumbers[0] : null;
-            });
-            mapper.CustomMapping(new StringColumn("Phone2"), 12).WithReader((ctx, c, phone2) =>
+            }).WithWriter(c => c.PhoneNumbers.Count > 0 ? c.PhoneNumbers[0] : null);
+            mapper.CustomMapping(new StringColumn("Phone2"), 12).WithReader((c, phone2) =>
             {
                 if (phone2 != null)
                 {
                     c.PhoneNumbers.Add((string)phone2);
                 }
-            }).WithWriter((ctx, c, values) =>
-            {
-                values[ctx.LogicalIndex] = c.PhoneNumbers.Count > 1 ? c.PhoneNumbers[1] : null;
-            });
-            mapper.CustomMapping(new StringColumn("Phone3"), 12).WithReader((ctx, c, phone3) =>
+            }).WithWriter(c => c.PhoneNumbers.Count > 1 ? c.PhoneNumbers[1] : null);
+            mapper.CustomMapping(new StringColumn("Phone3"), 12).WithReader((c, phone3) =>
             {
                 if (phone3 != null)
                 {
                     c.PhoneNumbers.Add((string)phone3);
                 }
-            }).WithWriter((ctx, c, values) =>
-            {
-                values[ctx.LogicalIndex] = c.PhoneNumbers.Count > 2 ? c.PhoneNumbers[2] : null;
-            });
+            }).WithWriter(c => c.PhoneNumbers.Count > 2 ? c.PhoneNumbers[2] : null);
             mapper.CustomMapping(new StringColumn("Email1"), 15).WithReader((ctx, c, email1) =>
             {
                 if (email1 != null)
@@ -254,6 +233,145 @@ namespace FlatFiles.Test
             public List<string> PhoneNumbers { get; set; } = new List<string>();
 
             public List<string> Emails { get; set; } = new List<string>();
+        }
+
+        [TestMethod]
+        public void ShouldManuallyReadWriteEntityWithNestedMember_WithReflection()
+        {
+            var mapper = GetNestedTypeMapper();
+            mapper.OptimizeMapping(false);
+
+            var data = GetRealtyProperties();
+            var writer = new StringWriter();
+            mapper.Write(writer, data);
+            string output = writer.ToString();
+            StringReader reader = new StringReader(output);
+            var properties = mapper.Read(reader).ToArray();
+            Assert.AreEqual(2, properties.Length, "The wrong number of entities were read.");
+            AssertPropertyEqual(data, properties, 0);
+            AssertPropertyEqual(data, properties, 1);
+        }
+
+        [TestMethod]
+        public void ShouldManuallyReadWriteEntityWithNestedMember_WithEmit()
+        {
+            var mapper = GetNestedTypeMapper();
+
+            var data = GetRealtyProperties();
+            var writer = new StringWriter();
+            mapper.Write(writer, data);
+            string output = writer.ToString();
+            StringReader reader = new StringReader(output);
+            var properties = mapper.Read(reader).ToArray();
+            Assert.AreEqual(2, properties.Length, "The wrong number of entities were read.");
+            AssertPropertyEqual(data, properties, 0);
+            AssertPropertyEqual(data, properties, 1);
+        }
+
+        private static ISeparatedValueTypeMapper<RealtyProperty> GetNestedTypeMapper()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new RealtyProperty()
+            {
+                Address = new Address(),
+                Coordinates = new Geolocation()
+            });
+            mapper.CustomMapping(new Int32Column("Id")).WithReader(x => x.Id).WithWriter(x => x.Id);
+            mapper.CustomMapping(new DecimalColumn("Longitude"))
+                .WithReader((x, v) => x.Coordinates.Longitude = (decimal)v)
+                .WithWriter(x => x.Coordinates.Longitude);
+            mapper.CustomMapping(new DecimalColumn("Latitude"))
+                .WithReader((x, v) => x.Coordinates.Latitude = (decimal)v)
+                .WithWriter(x => x.Coordinates.Latitude);
+            mapper.CustomMapping(new StringColumn("Street1"))
+                .WithReader((x, v) => x.Address.Street = (string)v)
+                .WithWriter(x => x.Address.Street);
+            mapper.CustomMapping(new StringColumn("City"))
+                .WithReader((x, v) => x.Address.City = (string)v)
+                .WithWriter(x => x.Address.City);
+            mapper.CustomMapping(new StringColumn("State"))
+                .WithReader((x, v) => x.Address.State = (string)v)
+                .WithWriter(x => x.Address.State);
+            mapper.CustomMapping(new StringColumn("Zip"))
+                .WithReader((x, v) => x.Address.Zip = (string)v)
+                .WithWriter(x => x.Address.Zip);
+            return mapper;
+        }
+
+        private static RealtyProperty[] GetRealtyProperties()
+        {
+            return new[]
+            {
+                new RealtyProperty()
+                {
+                    Id = 1,
+                    Coordinates = new Geolocation()
+                    {
+                        Latitude = 90,
+                        Longitude = 120
+                    },
+                    Address = new Address()
+                    {
+                        Street = "123 Ardvark Ln",
+                        City = "Los Alimos",
+                        State = "NM",
+                        Zip = "55555"
+                    }
+                },
+                new RealtyProperty()
+                {
+                    Id = 2,
+                    Coordinates = new Geolocation()
+                    {
+                        Latitude = 33,
+                        Longitude = 80
+                    },
+                    Address = new Address()
+                    {
+                        Street = "23 Hamburger Rd",
+                        City = "Greenwich",
+                        State = "NY",
+                        Zip = "11111"
+                    }
+                }
+            };
+        }
+
+        private void AssertPropertyEqual(RealtyProperty[] expected, RealtyProperty[] actual, int id)
+        {
+            Assert.AreEqual(expected[id].Id, actual[id].Id, $"Property {id} ID is wrong.");
+            Assert.AreEqual(expected[id].Coordinates.Longitude, actual[id].Coordinates.Longitude, $"Property {id} Longitude is wrong.");
+            Assert.AreEqual(expected[id].Coordinates.Latitude, actual[id].Coordinates.Latitude, $"Property {id} Latitude is wrong.");
+            Assert.AreEqual(expected[id].Address.Street, actual[id].Address.Street, $"Property {id} Street is wrong.");
+            Assert.AreEqual(expected[id].Address.City, actual[id].Address.City, $"Property {id} City is wrong.");
+            Assert.AreEqual(expected[id].Address.State, actual[id].Address.State, $"Property {id} State is wrong.");
+            Assert.AreEqual(expected[id].Address.Zip, actual[id].Address.Zip, $"Property {id} Zip is wrong.");
+        }
+
+        internal class Address
+        {
+            public string Street { get; set; }
+
+            public string City { get; set; }
+
+            public string State { get; set; }
+
+            public string Zip { get; set; }
+        }
+
+        internal class Geolocation
+        {
+            public decimal Longitude { get; set; }
+
+            public decimal Latitude { get; set; }
+        }
+
+        internal class RealtyProperty
+        {
+            public int Id { get; set; }
+
+            public Address Address { get; set; }
+
+            public Geolocation Coordinates { get; set; }
         }
     }
 }
