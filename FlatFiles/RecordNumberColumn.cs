@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column containing the record number metadata.
     /// </summary>
-    public class RecordNumberColumn : ColumnDefinition<int>, IMetadataColumn
+    public class RecordNumberColumn : MetadataColumn<int>
     {
         /// <summary>
         /// Initializes a new instance of a RecordNumberColumn.
@@ -43,16 +43,38 @@ namespace FlatFiles
         public string OutputFormat { get; set; }
 
         /// <summary>
-        /// Gets the number of records that have been parsed.
+        /// Provides a textual representation for the value.
         /// </summary>
-        /// <param name="context">The metadata for the record currently being processed.</param>
-        /// <returns>The number of parsed records.</returns>
-        object IMetadataColumn.GetValue(IRecordContext context)
+        /// <param name="context">Holds information about the column current being processed.</param>
+        /// <returns>The formatted value.</returns>
+        protected override string OnFormat(IColumnContext context)
+        {
+            var recordNumber = GetRecordNumber(context);
+            if (OutputFormat == null)
+            {
+                return recordNumber.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+            }
+            return recordNumber.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+        }
+
+        /// <summary>
+        /// Parses a textual representation of the value.
+        /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
+        /// <returns>The parsed value.</returns>
+        protected override int OnParse(IColumnContext context)
+        {
+            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var recordNumber = GetRecordNumber(context);
+            return recordNumber;
+        }
+
+        private int GetRecordNumber(IColumnContext context)
         {
             if (IncludeSkippedRecords)
             {
-                int recordCount = context.PhysicalRecordNumber;
-                if (context.ExecutionContext.Options.IsFirstRecordSchema && !IncludeSchema)
+                int recordCount = context.RecordContext.PhysicalRecordNumber;
+                if (context.RecordContext.ExecutionContext.Options.IsFirstRecordSchema && !IncludeSchema)
                 {
                     --recordCount;
                 }
@@ -61,34 +83,8 @@ namespace FlatFiles
 
             // We only incrememnt the logical count after we are sure the record is not filtered out.
             // Since the value for the column is generated beforehand, we must increase it by one.
-            int offset = (IncludeSchema && context.ExecutionContext.Options.IsFirstRecordSchema) ? 2 : 1;
-            return context.LogicalRecordNumber + offset;
-        }
-
-        /// <summary>
-        /// Provides a textual representation for the value.
-        /// </summary>
-        /// <param name="value">The value to format.</param>
-        /// <returns>The formatted value.</returns>
-        protected override string OnFormat(int value)
-        {
-            if (OutputFormat == null)
-            {
-                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
-            }
-
-            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
-        }
-
-        /// <summary>
-        /// Parses a textual representation of the value.
-        /// </summary>
-        /// <param name="value">The text to parse.</param>
-        /// <returns>The parsed value.</returns>
-        protected override int OnParse(string value)
-        {
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            return Int32.Parse(value, NumberStyles, provider);
+            int offset = (IncludeSchema && context.RecordContext.ExecutionContext.Options.IsFirstRecordSchema) ? 2 : 1;
+            return context.RecordContext.LogicalRecordNumber + offset;
         }
     }
 }

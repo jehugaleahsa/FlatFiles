@@ -56,11 +56,12 @@ namespace FlatFiles
         /// <summary>
         /// Extracts a single record from the embedded data.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value containing the embedded data.</param>
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        public override object Parse(string value)
+        public override object Parse(IColumnContext context, string value)
         {
             if (Preprocessor != null)
             {
@@ -93,9 +94,10 @@ namespace FlatFiles
         /// <summary>
         /// Formats the given object array into an embedded record.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object array containing the values of the embedded record.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        public override string Format(object value)
+        public override string Format(IColumnContext context, object value)
         {
             var values = value as object[];
             if (values == null)

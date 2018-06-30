@@ -12,6 +12,8 @@
 * The `RecordNumber` property of `RecordProcessingException` has been replaced with the `Context` property.
 * The `ProcessingErrorEventArgs` class has been replaced by the `ExecutionErrorEventArgs` class.
 * The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
+* The `IColumnDefinition` interface methods `Parse` and `Format` now accept `IColumnContext` objects.
+* The `IMetadataColumn` interface no longer has the `GetValue` method. Use the `MetadataColumn` base class instead. 
 
 Most significantly of all, previous versions of FlatFiles used `DynamicMethod` to generate code at runtime. A `DynamicMethod` can be configured to allow the generated code to access non-public classes and members from other assemblies. However, this additional access requires the code to be running in a trusted environment, meaning FlatFiles could not be used in a sandboxed environment.
 

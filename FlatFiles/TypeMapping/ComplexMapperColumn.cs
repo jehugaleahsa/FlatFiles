@@ -35,19 +35,19 @@ namespace FlatFiles.TypeMapping
             set => column.Preprocessor = value;
         }
 
-        public object Parse(string value)
+        public object Parse(IColumnContext context, string value)
         {
-            object parsed = column.Parse(value);
+            object parsed = column.Parse(context, value);
             object[] values = parsed as object[];
             TEntity result = reader(null, values);
             return result;
         }
 
-        public string Format(object value)
+        public string Format(IColumnContext context, object value)
         {
             object[] values = new object[logicalCount];
             writer(null, (TEntity)value, values);
-            string formatted = column.Format(values);
+            string formatted = column.Format(context, values);
             return formatted;
         }
     }

@@ -40,9 +40,10 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value, returning an Int16.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed Int16.</returns>
-        public override object Parse(string value)
+        public override object Parse(IColumnContext context, string value)
         {
             if (Preprocessor != null)
             {
@@ -60,9 +61,10 @@ namespace FlatFiles
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        public override string Format(IColumnContext context, object value)
         {
             if (value == null)
             {

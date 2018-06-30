@@ -137,7 +137,7 @@ namespace FlatFiles.Benchmark
             //return textWriter.ToString();
         }
 
-        private class SampleData
+        public class SampleData
         {
             public int YearStart { get; set; }
 
@@ -208,7 +208,7 @@ namespace FlatFiles.Benchmark
             public string StratificationId3 { get; set; }
         }
 
-        private class GeoLocation
+        public class GeoLocation
         {
             public decimal Latitude { get; set; }
 
@@ -220,19 +220,19 @@ namespace FlatFiles.Benchmark
             }
         }
 
-        private class GeoLocationColumn : ColumnDefinition<GeoLocation>
+        public class GeoLocationColumn : ColumnDefinition<GeoLocation>
         {
             public GeoLocationColumn(string columnName)
                 : base(columnName)
             {
             }
 
-            protected override string OnFormat(GeoLocation value)
+            protected override string OnFormat(IColumnContext context, GeoLocation value)
             {
                 return value.ToString();
             }
 
-            protected override GeoLocation OnParse(string value)
+            protected override GeoLocation OnParse(IColumnContext context, string value)
             {
                 string[] parts = value.Substring(1, value.Length - 2).Split(',', 2);
                 var result = new GeoLocation()

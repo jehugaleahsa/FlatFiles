@@ -36,7 +36,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueBlank_ReturnsNull()
         {
             StringColumn column = new StringColumn("name");
-            string actual = (string)column.Parse("     ");
+            string actual = (string)column.Parse(null, "     ");
             string expected = null;
             Assert.AreEqual(expected, actual);
         }
@@ -48,7 +48,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueTrimmed()
         {
             StringColumn column = new StringColumn("name");
-            string actual = (string)column.Parse("  abc 123 ");
+            string actual = (string)column.Parse(null, "  abc 123 ");
             string expected = "abc 123";
             Assert.AreEqual(expected, actual);
         }

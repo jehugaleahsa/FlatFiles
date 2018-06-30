@@ -36,16 +36,18 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        object Parse(string value);
+        object Parse(IColumnContext context, string value);
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        string Format(object value);
+        string Format(IColumnContext context, object value);
     }
 
     /// <summary>
@@ -121,9 +123,10 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public abstract object Parse(string value);
+        public abstract object Parse(IColumnContext context, string value);
 
         /// <summary>
         /// Removes any leading or trailing whitespace from the value.
@@ -142,9 +145,10 @@ namespace FlatFiles
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public abstract string Format(object value);
+        public abstract string Format(IColumnContext context, object value);
     }
 
     /// <summary>
@@ -170,9 +174,10 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public override object Parse(string value)
+        public override object Parse(IColumnContext context, string value)
         {
             if (Preprocessor != null)
             {
@@ -183,35 +188,38 @@ namespace FlatFiles
                 return null;
             }
             string trimmed = TrimValue(value);
-            return OnParse(trimmed);
+            return OnParse(context, trimmed);
         }
 
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        protected abstract T OnParse(string value);
+        protected abstract T OnParse(IColumnContext context, string value);
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        public override string Format(IColumnContext context, object value)
         {
             if (value == null)
             {
                 return NullHandler.GetNullRepresentation();
             }
-            return OnFormat((T)value);
+            return OnFormat(context, (T)value);
         }
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected abstract string OnFormat(T value);
+        protected abstract string OnFormat(IColumnContext context, T value);
     }
 }

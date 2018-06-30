@@ -68,19 +68,21 @@ namespace FlatFiles
             object[] parsedValues = new object[ColumnDefinitions.PhysicalCount];
             for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
-                IColumnDefinition definition = ColumnDefinitions[columnIndex];
-                if (definition is IMetadataColumn metaColumn)
+                var definition = ColumnDefinitions[columnIndex];
+                if (definition is IMetadataColumn)
                 {
-                    object value = metaColumn.GetValue(context);
-                    parsedValues[destinationIndex] = value;
+                    var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                    var metadata = Parse(columnContext, definition, null);
+                    parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    string rawValue = values[sourceIndex];
-                    ++sourceIndex;
-                    object parsedValue = Parse(context, definition, rawValue);
+                    var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                    var rawValue = values[sourceIndex];
+                    var parsedValue = Parse(columnContext, definition, rawValue);
                     parsedValues[destinationIndex] = parsedValue;
+                    ++sourceIndex;
                     ++destinationIndex;
                 }
                 else
@@ -91,21 +93,15 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object Parse(IRecordContext recordContext, IColumnDefinition definition, string rawValue)
+        private object Parse(IColumnContext columnContext, IColumnDefinition definition, string rawValue)
         {
             try
             {
-                object parsedValue = definition.Parse(rawValue);
+                object parsedValue = definition.Parse(columnContext, rawValue);
                 return parsedValue;
             }
             catch (Exception exception)
             {
-                var columnContext = new ColumnContext()
-                {
-                    RecordContext = recordContext,
-                    PhysicalIndex = ColumnDefinitions.GetPhysicalIndex(definition),
-                    LogicalIndex = ColumnDefinitions.GetLogicalIndex(definition)
-                };
                 throw new ColumnProcessingException(columnContext, rawValue, exception);
             }
         }
@@ -122,22 +118,33 @@ namespace FlatFiles
             for (int columnIndex = 0, valueIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
                 IColumnDefinition definition = ColumnDefinitions[columnIndex];
-                if (definition is IMetadataColumn metaColumn)
+                if (definition is IMetadataColumn)
                 {
-                    object value = metaColumn.GetValue(context);
-                    string formattedValue = definition.Format(value);
+                    var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                    var formattedValue = definition.Format(columnContext, null);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    object value = values[valueIndex];
-                    string formattedValue = definition.Format(value);
+                    var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                    var value = values[valueIndex];
+                    var formattedValue = definition.Format(columnContext, value);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
             }
             return formattedValues;
+        }
+
+        private ColumnContext GetColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)
+        {
+            return new ColumnContext()
+            {
+                RecordContext = context,
+                PhysicalIndex = physicalIndex,
+                LogicalIndex = logicalIndex
+            };
         }
     }
 }

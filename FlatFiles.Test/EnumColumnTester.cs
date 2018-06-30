@@ -52,7 +52,7 @@ namespace FlatFiles.Test
         public void TestParse_ValueBlank_NullReturned()
         {
             EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count");
-            MyEnum? actual = (MyEnum?)column.Parse("    ");
+            MyEnum? actual = (MyEnum?)column.Parse(null, "    ");
             MyEnum? expected = null;
             Assert.AreEqual(expected, actual);
         }
@@ -64,7 +64,7 @@ namespace FlatFiles.Test
         public void TestParse_Int32Value_EnumReturned()
         {
             EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count");
-            MyEnum actual = (MyEnum)column.Parse("1");
+            MyEnum actual = (MyEnum)column.Parse(null, "1");
             MyEnum expected = MyEnum.First;
             Assert.AreEqual(expected, actual);
         }
@@ -76,7 +76,7 @@ namespace FlatFiles.Test
         public void TestParse_StringValue_EnumReturned()
         {
             EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count");
-            MyEnum actual = (MyEnum)column.Parse("First");
+            MyEnum actual = (MyEnum)column.Parse(null, "First");
             MyEnum expected = MyEnum.First;
             Assert.AreEqual(expected, actual);
         }
@@ -88,7 +88,7 @@ namespace FlatFiles.Test
         public void TestFormat_IntegerStringReturned()
         {
             EnumColumn<MyEnum> column = new EnumColumn<MyEnum>("count");
-            string actual = column.Format(MyEnum.First);
+            string actual = column.Format(null, MyEnum.First);
             string expected = "1";
             Assert.AreEqual(expected, actual);
         }
@@ -103,7 +103,7 @@ namespace FlatFiles.Test
             {
                 Formatter = e => e.ToString()
             };
-            string actual = column.Format(MyEnum.First);
+            string actual = column.Format(null, MyEnum.First);
             string expected = "First";
             Assert.AreEqual(expected, actual);
         }
