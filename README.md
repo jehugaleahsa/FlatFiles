@@ -289,7 +289,7 @@ It's important to note that the type returned by the `IColumnDefinition` must ex
 Here is a more complicated example where two columns are used to build a `Geolocation` property.
 
 ```csharp
-public struct Geolocation { public decimal Longitude; public decimal Latitude; }
+public class Geolocation { public decimal Longitude; public decimal Latitude; }
 public class Person { public Geolocation Location { get; set; } }
 //...
 var mapper = SeparatedValueTypeMapper.Define(() => new Person() 
@@ -297,14 +297,14 @@ var mapper = SeparatedValueTypeMapper.Define(() => new Person()
     Location = new Geolocation() 
 });
 mapper.CustomMapping(new DecimalColumn("Longitude"))
-    .WithReader((p, v) => p.Location.Longitude = (decimal)v)
+    .WithReader((p, v) => p.Location.Longitude = (decimal)v)  // long way
     .WithWriter(p => p.Location.Longitude);
 mapper.CustomMapping(new DecimalColumn("Latitude"))
-    .WithReader(p => p.Location.Latitude)  // Direct support for nested members
+    .WithReader(p => p.Location.Latitude)  // short way
     .WithWriter(p => p.Location.Latitude);
 ```
 
-Finally, here is an example configuration, where values multiple columns are stored in a collection.
+Finally, here is an example configuration, where multiple columns are stored in a collection.
 
 ```csharp
 public class Contact
@@ -328,7 +328,7 @@ mapper.CustomMapping(new StringColumn("Phone2"), 12)
     .WithReader(PhoneReader)
     .WithWriter(c => c.PhoneNumbers.Count > 1 ? c.PhoneNumbers[1] : null);
 //...
-void PhoneReader(Contact contact, string phoneNumber)
+public void PhoneReader(Contact contact, string phoneNumber)
 {
     if (phoneNumber != null)
     {
@@ -337,7 +337,9 @@ void PhoneReader(Contact contact, string phoneNumber)
 }
 ```
 
-In benchmarks, using `CustomMapping` is only slightly slower than using `Property`.
+In benchmarks, using `CustomMapping` is only slightly slower than using `Property`, making it a great option when you need a little extra control. 
+
+There are versions of `WithReader` and `WithWriter` that provide contextual information (`IColumnContext`), so you can access metadata while reading and writing. The `WithWriter` method also provides an overload passing along the underlying array being written to, so you can write to multiple columns simultaneously or inspect previously serialized values.
 
 ## Runtime Types and Support for Other Programming Languages
 Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
