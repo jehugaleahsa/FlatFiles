@@ -267,6 +267,75 @@ writer.Write(new FooterRecord() { TotalAmount = 46.9m, AverageAmount = 23.45m, I
 
 The `When` method accepts a predicate if you need more than just the record type to decide what type mapper/schema to use.
 
+## Custom Mapping
+The `Property` methods are best when your file's schema pretty much matches one-to-one with your classes. One column goes to one property. Frequently, though, your classes are more structured than your flat files. Starting with FlatFiles 3.0, you can provide your own mapping logic to control serializing and deserializing your objects.
+
+First, let's see how to use the `CustomMapping` method to simulate the `Property` methods:
+
+```csharp
+var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+mapper.CustomMapping(new StringColumn("FirstName"))
+    .WithReader(p => p.FirstName)
+    .WithWriter(p => p.FirstName);
+```
+
+This mapping tells FlatFiles to use a `StringColumm` to read/write the values from the file. It then says to read the values into and write out of the `FirstName` property of your class.
+
+It's important to note that the type returned by the `IColumnDefinition` must exactly match the type of the property. You must deal with `null`s and conversions yourself. There are several other overloads that provide more control -- this particular example would be better handled sticking to the `Property` methods.
+
+Here is a more complicated example where two columns are used to build a `Geolocation` property.
+
+```csharp
+public struct Geolocation { public decimal Longitude; public decimal Latitude; }
+public class Person { public Geolocation Location { get; set; } }
+//...
+var mapper = SeparatedValueTypeMapper.Define(() => new Person() 
+{ 
+    Location = new Geolocation() 
+});
+mapper.CustomMapping(new DecimalColumn("Longitude"))
+    .WithReader((p, v) => p.Location.Longitude = (decimal)v)
+    .WithWriter(p => p.Location.Longitude);
+mapper.CustomMapping(new DecimalColumn("Latitude"))
+    .WithReader(p => p.Location.Latitude)  // Direct support for nested members
+    .WithWriter(p => p.Location.Latitude);
+```
+
+Finally, here is an example configuration, where values multiple columns are stored in a collection.
+
+```csharp
+public class Contact
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public List<string> PhoneNumbers { get; set; } = new List<string>();
+}
+//...
+var mapper = FixedLengthTypeMapper.Define(() => new Contact());
+mapper.CustomMapping(new Int32Column("Id"), 10)
+    .WithReader(c => c.Id)
+    .WithWriter(c => c.Id);
+mapper.CustomMapping(new StringColumn("Name"), 10)
+    .WithReader(c => c.Name)
+    .WithWriter(c => c.Name);
+mapper.CustomMapping(new StringColumn("Phone1"), 12)
+    .WithReader(PhoneReader)
+    .WithWriter(c => c.PhoneNumbers.Count > 0 ? c.PhoneNumbers[0] : null);
+mapper.CustomMapping(new StringColumn("Phone2"), 12)
+    .WithReader(PhoneReader)
+    .WithWriter(c => c.PhoneNumbers.Count > 1 ? c.PhoneNumbers[1] : null);
+//...
+void PhoneReader(Contact contact, string phoneNumber)
+{
+    if (phoneNumber != null)
+    {
+        contact.PhoneNumbers.Add(phoneNumber);
+    }
+}
+```
+
+In benchmarks, using `CustomMapping` is only slightly slower than using `Property`.
+
 ## Runtime Types and Support for Other Programming Languages
 Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
 
