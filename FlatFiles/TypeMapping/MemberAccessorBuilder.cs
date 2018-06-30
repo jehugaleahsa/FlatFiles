@@ -98,7 +98,7 @@ namespace FlatFiles.TypeMapping
             throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
         }
 
-        internal static ConstructorInfo GetConstructor<TEntity>(params Type[] parameterTypes)
+        public static ConstructorInfo GetConstructor<TEntity>(params Type[] parameterTypes)
         {
             var bindingFlags = BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             var query = from constructor in typeof(TEntity).GetTypeInfo().GetConstructors(bindingFlags)
@@ -123,13 +123,10 @@ namespace FlatFiles.TypeMapping
             return true;
         }
 
-        internal static PropertyInfo GetProperty<TEntity, TProp>(Expression<Func<TEntity, TProp>> accessor)
+        public static PropertyInfo GetProperty<TEntity, TProp>(Expression<Func<TEntity, TProp>> accessor)
         {
-            if (!(accessor.Body is MemberExpression member))
-            {
-                return null;
-            }
-            if (!(member.Member is PropertyInfo propertyInfo))
+            var memberInfo = GetMemberInfo(accessor);
+            if (!(memberInfo is PropertyInfo propertyInfo))
             {
                 return null;
             }
@@ -140,13 +137,10 @@ namespace FlatFiles.TypeMapping
             return propertyInfo;
         }
 
-        internal static FieldInfo GetField<TEntity, TValue>(Expression<Func<TEntity, TValue>> accessor)
+        public static FieldInfo GetField<TEntity, TValue>(Expression<Func<TEntity, TValue>> accessor)
         {
-            if (!(accessor.Body is MemberExpression member))
-            {
-                return null;
-            }
-            if (!(member.Member is FieldInfo fieldInfo))
+            var memberInfo = GetMemberInfo(accessor);
+            if (!(memberInfo is FieldInfo fieldInfo))
             {
                 return null;
             }
@@ -157,7 +151,16 @@ namespace FlatFiles.TypeMapping
             return fieldInfo;
         }
 
-        internal static MethodInfo GetMethod<TEntity, TReturn>(Expression<Func<TEntity, TReturn>> accessor)
+        public static MemberInfo GetMemberInfo<TEntity, TValue>(Expression<Func<TEntity, TValue>> accessor)
+        {
+            if (!(accessor.Body is MemberExpression member))
+            {
+                return null;
+            }
+            return member.Member;
+        }
+
+        public static MethodInfo GetMethod<TEntity, TReturn>(Expression<Func<TEntity, TReturn>> accessor)
         {
             if (!(accessor.Body is MethodCallExpression method))
             {
@@ -170,7 +173,7 @@ namespace FlatFiles.TypeMapping
             return method.Method;
         }
 
-        internal static MethodInfo GetMethod<TEntity>(Expression<Action<TEntity>> accessor)
+        public static MethodInfo GetMethod<TEntity>(Expression<Action<TEntity>> accessor)
         {
             if (!(accessor.Body is MethodCallExpression method))
             {

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Reflection;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -60,6 +63,14 @@ namespace FlatFiles.TypeMapping
         /// Specifies the delegate used to store a value in an entity. 
         /// </summary>
         /// <param name="reader">A delegate that can populate the entity.</param>
+        /// <typeparam name="TProp">The type of the property being read.</typeparam>
+        /// <returns>The mapper for further customizations.</returns>
+        ICustomMapping<TEntity> WithReader<TProp>(Expression<Func<TEntity, TProp>> reader);
+
+        /// <summary>
+        /// Specifies the delegate used to store a value in an entity. 
+        /// </summary>
+        /// <param name="reader">A delegate that can populate the entity.</param>
         /// <returns>The mapper for further customizations.</returns>
         ICustomMapping<TEntity> WithReader(Action<TEntity, object> reader);
 
@@ -88,6 +99,7 @@ namespace FlatFiles.TypeMapping
         /// Specifies the delegate used to store an entity value in the output.
         /// </summary>
         /// <param name="writer">A delegate that can extract a value from the entity.</param>
+        /// <typeparam name="TProp">The type of the property being read.</typeparam>
         /// <returns>The mapper for further customizations.</returns>
         ICustomMapping<TEntity> WithWriter<TProp>(Func<TEntity, TProp> writer);
 
@@ -95,6 +107,7 @@ namespace FlatFiles.TypeMapping
         /// Specifies the delegate used to store an entity value in the output.
         /// </summary>
         /// <param name="writer">A delegate that can extract a value from the entity.</param>
+        /// <typeparam name="TProp">The type of the property being read.</typeparam>
         /// <returns>The mapper for further customizations.</returns>
         ICustomMapping<TEntity> WithWriter<TProp>(Func<IColumnContext, TEntity, TProp> writer);
     }
@@ -119,6 +132,53 @@ namespace FlatFiles.TypeMapping
         public int PhysicalIndex { get; }
 
         public int LogicalIndex { get; }
+
+        public ICustomMapping<TEntity> WithReader<TProp>(Expression<Func<TEntity, TProp>> reader)
+        {
+            var newReader = GetDelegate(reader);
+            return WithReader(newReader);
+        }
+
+        private static Action<IColumnContext, TEntity, object> GetDelegate<TProp>(Expression<Func<TEntity, TProp>> reader)
+        {
+            if (reader == null)
+            {
+                return null;
+            }
+            var context = Expression.Parameter(typeof(IColumnContext), "context");
+            var entity = Expression.Parameter(typeof(TEntity), "entity");
+            var value = Expression.Parameter(typeof(object), "value");
+            var memberInfo = MemberAccessorBuilder.GetMemberInfo(reader);
+            var member = GetMemberExpression(entity, memberInfo);
+            var readerBuilder = Expression.Lambda<Action<IColumnContext, TEntity, object>>(
+                Expression.Assign(member, Expression.Convert(value, typeof(TProp))),
+                context,
+                entity,
+                value
+            );
+            return readerBuilder.Compile();
+        }
+
+        private static Expression GetMemberExpression(Expression entityParameter, MemberInfo memberInfo)
+        {
+            if (memberInfo == null)
+            {
+                throw new FlatFileException(Resources.BadPropertySelector);
+            }
+            if (!memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            {
+                throw new FlatFileException(Resources.BadPropertySelector);
+            }
+            if (memberInfo is PropertyInfo propertyInfo)
+            {
+                return Expression.Property(entityParameter, propertyInfo);
+            }
+            if (memberInfo is FieldInfo fieldInfo)
+            {
+                return Expression.Field(entityParameter, fieldInfo);
+            }
+            throw new FlatFileException(Resources.BadPropertySelector);
+        }
 
         public ICustomMapping<TEntity> WithReader(Action<TEntity, object> reader)
         {

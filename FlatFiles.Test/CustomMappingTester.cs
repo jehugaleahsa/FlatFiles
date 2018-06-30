@@ -65,20 +65,11 @@ namespace FlatFiles.Test
             {
                 values[ctx.LogicalIndex] = person.Id;
             });
-            mapper.CustomMapping(new StringColumn("Name")).WithReader((ctx, person, value) =>
+            mapper.CustomMapping(new StringColumn("Name")).WithReader((person, value) =>
             {
                 person.Name = (string)value;
-            }).WithWriter((ctx, person, values) =>
-            {
-                values[ctx.LogicalIndex] = person.Name;
-            });
-            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader((ctx, person, value) =>
-            {
-                person.CreatedOn = (DateTime)value;
-            }).WithWriter((ctx, person, values) =>
-            {
-                values[ctx.LogicalIndex] = person.CreatedOn;
-            });
+            }).WithWriter(p => p.Name);
+            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader(p => p.CreatedOn).WithWriter(p => p.CreatedOn);;
             mapper.CustomMapping(new DecimalColumn("Amount")).WithReader((ctx, person, value) =>
             {
                 person.Amount = value == null ? (decimal?)null : (decimal)value;
