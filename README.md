@@ -4,18 +4,6 @@ Reads and writes CSV, fixed-length and other flat file formats with a focus on s
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
-## Support for .NET Core
-As of version 0.3.18.0, FlatFiles now supports .NET Core (.NETStandard v1.6) and .NET 4.5.1!
-
-## Awesome News
-As a bonus for those of you using FlatFiles, as of version 1.2, you should now be seeing a nearly 2x performance improvement over previous versions, both read and write, both CSV and fixed-length. I spent some time playing with BenchmarkDotNet and using the profiler to squeeze every ounce of performance out of FlatFiles.
-
-Also as part of version 1.2, there is now support for mapping to both properties and fields, even intermingled in the same class, using the same `Property` methods you already know and love. Performance-wise, I've not seen much of a difference; however, this may be more convenient for some users.
-
-As of version 1.3, you can now read and write files asynchronously!
-
-With version 1.6, you can now map into nested members, such as `mapper.Property(x => x.Address.City)`. Go as deep as you like! You can also use `mapper.UseFactory(() => new Address())` to provide methods for customizing nested object instantiation; otherwise, FlatFiles will instantiate nested objects using `Activator.CreateInstance`.
-
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
 
@@ -32,7 +20,7 @@ mapper.Property(c => c.CustomerId).ColumnName("customer_id");
 mapper.Property(c => c.Name).ColumnName("name");
 mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
-using (StreamReader reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
+using (var reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
 {
     var customers = mapper.Read(reader).ToList();
 }
@@ -47,13 +35,13 @@ Writing to a file is just as easily:
 ```csharp
 mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).OutputFormat("N2");
-using (StreamWriter writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
+using (var writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
 {
     mapper.Write(writer, customers);
 }
 ```
 
-*Note* I was able to customize the `OutputFormat` of properties that were already configured. The first time `Property` is called on a property, it assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns or reset any other settings.
+*Note* I was able to customize the `OutputFormat` of properties that were previously configured. The first time `Property` is called on a property, FlatFiles assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns or reset any other settings.
 
 ## Schemas
 Under the hood, type mapping internally defines a schema, giving each column a name, order and type in the flat file. You can get access to the schema by calling `GetSchema` on the mapper.
@@ -61,7 +49,7 @@ Under the hood, type mapping internally defines a schema, giving each column a n
 You can work directly with schemas if you don't plan on using the type mappers. For instance, this is how we would define a CSV file schema:
 
 ```csharp
-SeparatedValueSchema schema = new SeparatedValueSchema();
+var schema = new SeparatedValueSchema();
 schema.AddColumn(new Int64Column("customer_id"))
       .AddColumn(new StringColumn("name"))
       .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
@@ -71,25 +59,25 @@ schema.AddColumn(new Int64Column("customer_id"))
 Or, if the schema is for a fixed-length file:
 
 ```csharp
-FixedLengthSchema schema = new FixedLengthSchema();
+var schema = new FixedLengthSchema();
 schema.AddColumn(new Int64Column("customer_id"), 10)
   .AddColumn(new StringColumn("name"), 255)
   .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" }, 8)
   .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
 ```
 
-The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the end of values that exceed their width.
+The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the back of values that exceed their width.
 
-*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the **Ignored Fields** section below to learn about ways to to handle this.
+*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the [Ignored Fields](#Ignored%20Fields) section below to learn about ways to to handle this.
 
 ## Separated Value Files (CSV, TSV, etc.)
 If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you want to use the `SeparatedValueTypeMapper`. Internally, the mapper uses the `SeparatedValueReader` and `SeparatedValueWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as a `StreamReader` or a `StringReader`, and write data to a `TextWriter`, such as a `StreamWriter` or a `StringWriter`. Internally, the mapper will build a `SeparatedValueSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `SeparatedValueOptions` object that allows you to customize the read/write behavior to suit your needs.
 
-When parsing separated value files, you can surround fields with double quotes (`"`). This way you can include the separator string within the field. You can override the "quote" character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string/character that separates your fields. A comma (`,`) is the default separator; you'd obviously want to change this to tab (`\t`) for a TSV file.
+Within separated value files, fields can be surrounded with double quotes (`"`). This way they can include the separator within the field. You can override the "quote" character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string/character that separates your fields. A comma (`,`) is the default separator; you'd obviously want to change this to tab (`\t`) for a TSV file.
 
 The `RecordSeparator` property specifies what string/character is used to separate records. By default, FlatFiles will look for `\r`, `\n` or `\r\n`, which are the default line separators for Mac, Linux and Windows, respectively. When writing files, `Environment.NewLine` is used by default; this means by default you'll get different output if you run the same code on different platforms. If you need to target a specific platform, be sure to set the `RecordSeparator` property explicitly.
 
-When working directly with the `SeparatedValueReader` class, the `IsFirstRecordSchema` option tells the reader to treat the first record in the file as the schema. This is useful when you don't know the schema ahead of time or you are just dumping files into staging tables. If you provide a schema, this setting tells the reader to simply skip the first record. If you are using it to determine the schema from the file, the reader treats every column as a string - it doesn't try to interpret the type from the data. While occasionally useful, you will normally want to provide a schema to give you the most control over the parsing process - that's what FlatFiles is good at!
+When working directly with the `SeparatedValueReader` class, the `IsFirstRecordSchema` option tells the reader to treat the first record in the file as the schema. This is useful when you don't know the schema ahead of time or you are just dumping files into staging tables. If you provide a schema, this setting tells the reader to simply skip the first record. If you are using it to determine the schema from the file, the reader treats every column as a `string` - it doesn't try to interpret the type from the data. While occasionally useful, you will normally want to provide a schema to give you the most control over the parsing process - that's what FlatFiles is good at!
 
 When working directly with the `SeparatedValueWriter` class, setting `IsFirstRecordSchema` to `true` option causes a header to be written to the file upon writing the first record.
 
@@ -133,57 +121,54 @@ It is often useful to incorporate metadata with the records you are reading from
 
 Currently, the only out-of-the-box metadata column is `RecordNumberColumn`; however, it's really easy to create your own custom metadata columns (more on that below).
 
-The `RecordNumberColumn` class provides options for controlling how the record number is generated. The `IncludeSchema` property indicates whether the schema or header row should be included in the count. The `IncludeFilteredRecords` property specifies whether to count records that are [filtered out](#Skipping_Records).
+The `RecordNumberColumn` class provides options for controlling how the record number is generated. The `IncludeSchema` property indicates whether the schema or header row should be included in the count. The `IncludeSkippedRecords` property specifies whether to count records that are [skipped](#Skipping_Records).
 
-By default, `RecordNumberColumn` will only count records that are actually returned, starting from `1`, then `2`, `3`, `4`, `5` and so on. If you count the schema, records will always start at `2`. Including the schema and filtered records is what you probably want if you're trying to simulate line number. The only time the record # wouldn't be the same as the line # is if a record spanned multiple lines. Here's an example showing how to capture this *pseudo* line number:
+By default, `RecordNumberColumn` will only count records that are actually returned, starting from `1`, then `2`, `3`, `4`, `5` and so on. If you count the schema, records will always start at `2`. Including the schema and skipped records is what you probably want if you're trying to simulate line number. The only time the record # wouldn't be the same as the line # is if a record spanned multiple lines. Here's an example showing how to capture this *pseudo* line number:
 
 ```csharp
-var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+var mapper = SeparatedValueTypeMapper.Define(() => new Person());
 mapper.Property(x => x.Name);
-mapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
+mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
     IncludeSchema = true,
     IncludeFilteredRecords = true
-});
+}).WithReader((p, v) => p.RecordNumber = (int)v);
 
 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
 ```
 
-Note the use of `CustomProperty` here.
+Note the use of `CustomMapping` here.
 
 ### Write-Only
-I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!). Using type mappers to write metadata is a bit weird since there isn't a property being mapped. To overcome this problem, I've provided a new `WriteOnlyProperty` method.
+I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!).
 
 ```csharp
-var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
 outputMapper.Property(x => x.Name, 10);
 outputMapper.Ignored(1);
-outputMapper.WriteOnlyProperty("RecordNumber", new RecordNumberColumn("RecordNumber")
+outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
     IncludeSchema = true
-}, 10);
+}, 10).WithWriter((ctx, p) => ctx.RecordContext.PhysicalRecordNumber);
 outputMapper.Ignored(1);
 outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 ```
-
-The `"RecordNumber"` string is an arbitrary identifier to uniquely identify the column.
 
 ### Creating your own metadata columns
 FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you must implement the method:
 
 ```csharp
-object GetValue(IProcessMetadata metadata)
+object GetValue(IRecordContext context)
 ```
 
-Within `IProcessMetadata`, the following information is currently provided:
+Within `IRecordContext`, the following information is currently provided:
 
-* `Schema` - The schema being used to parse the file.
-* `Options` - The options passed to the reader/writer.
-* `RecordCount` - The number of records read from the file.
-* `LogicalRecordCount` - The number of records that were not filtered out. *This count does not yet include the current record.*
-
-Additional information can be provided later on if the need arises.
+* `ExecutionContext` - Details about the current read/write operation
+    * `Schema` - The schema being used to parse the file.
+    * `Options` - The options passed to the reader/writer.
+* `PhysicalRecordNumber` - The actual number of records read from the file.
+* `LogicalRecordNumber` - The number of records that have not been skipped. *This count does not yet include the current record.*
 
 ## Skipping Records
 If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
@@ -299,7 +284,7 @@ var entities = mapper.Read(reader).ToArray();
 ## Disabling Optimization
 FlatFile's type mappers can serialize and deserialize extremely quickly by generating code at runtime, using classes in the  `System.Reflection.Emit` namespace. For most of us, that's awesome news because it means mapping values to and from your entities is almost as fast as if you had done the mapping by hand. However, there are some enviornments, like Mono running on iOS, that do not support runtime JIT'ing, so FlatFiles would not work.
 
-As of version 1.0, mappers support a new method `OptimizeMapping` that can be used to switch to normal (A.K.A., slow) reflection. For example:
+As of version 1.0, mappers support a new method `OptimizeMapping` that can be used to switch to (A.K.A., slow) reflection. For example:
 
 ```csharp
 var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
@@ -307,6 +292,20 @@ mapper.Property(x => x.Id);
 mapper.Property(x => x.Name);
 mapper.OptimizeMapping(false);  // Use normal reflection to get and set properties
 ```
+
+## Accessing Non-Public Classes and Members
+As of FlatFiles 3.0, you can no longer map to non-public classes and members (aka., `internal`, `protected` or `private`) without taking additional steps. The simplest solution is to make your classes and members `public`. Alternatively, you can [disable optimizations](#Disabling%20Optimization) which will cause FlatFiles to use normal reflection, which should be able to access anything, at the cost of some runtime overhead.
+
+Another option is to grant FlatFiles access to your `internal` classes and members by adding the following line to you `Assembly.cs` file:
+
+```csharp
+[assembly: InternalsVisibleTo("FlatFiles.DynamicAssembly,PublicKey=00240000048000009400000006020000002400005253413100040000010001009b9e44f637b293021ec4d8625071e5fe1682eeb167c233b46314cca79bf2769606285d5d1225cba8ce1e75be9e8ab7251d17eaf2c3b00fde5eac50a0f7dc7fec2f70279ff71c72341ad2738661babfdc6792479f14fd64d841285644d5c09c2902e9467f574e0d369161caee632087c5d819c3c36f76622306b09a4f868230c1")]
+```
+
+Notice that this only grants access to `internal` types/members. You will still not be able to access `private` members.
+
+As a final option, you can use the `CustomMapping` method, passing delegates to read/write your members. Since the delegates are part of your project, they can access non-public members without trouble. There is almost no runtime overhead using `CustomMapping` instead of `Property`.
+
 
 ## DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.

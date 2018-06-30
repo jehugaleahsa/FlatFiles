@@ -1,3 +1,30 @@
+## 3.0.0 (2018-06-29)
+**Summary** - Introducing custom mapping support and more contextual information.
+
+### Enhancements
+* The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities.
+* All exceptions, events and custom mapping features now provide access to column, record and/or execution context.
+* Fewer restrictions on the number of environments FlatFiles can run.
+
+### Breaking Changes
+* The `CustomProperty` and `WriteOnlyProperty` methods have been superseded by the `CustomMapping` method, so they have been removed.
+* The `IProcessMetadata` interface has been replaced by the `IRecordContext` interface.
+* The `RecordNumber` property of `RecordProcessingException` has been replaced with the `Context` property.
+* The `ProcessingErrorEventArgs` class has been replaced by the `ExecutionErrorEventArgs` class.
+* The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
+
+Most significantly of all, previous versions of FlatFiles used `DynamicMethod` to generate code at runtime. A `DynamicMethod` can be configured to allow the generated code to access non-public classes and members from other assemblies. However, this additional access requires the code to be running in a trusted environment, meaning FlatFiles could not be used in a sandboxed environment.
+
+The new custom mapping functionality required the creation of types at runtime, so `DynamicMethod` was no longer an option. However, there is no means of granting dynamic types access to non-public classes/members in other assemblies. Going forward, FlatFiles will only be able to access public classes and members in your projects. If you need FlatFiles to access internal classes/members, you can add this line to you `Assembly.cs` file:
+
+```csharp
+[assembly: InternalsVisibleTo("FlatFiles.DynamicAssembly,PublicKey=00240000048000009400000006020000002400005253413100040000010001009b9e44f637b293021ec4d8625071e5fe1682eeb167c233b46314cca79bf2769606285d5d1225cba8ce1e75be9e8ab7251d17eaf2c3b00fde5eac50a0f7dc7fec2f70279ff71c72341ad2738661babfdc6792479f14fd64d841285644d5c09c2902e9467f574e0d369161caee632087c5d819c3c36f76622306b09a4f868230c1")]
+```
+
+Otherwise, you can disable runtime optimization by calling `OptimizeMapping(false)` on your mapping, which will cause FlatFiles to fallback on reflection which can access private members at the cost of runtime overhead. Another alternative is to pass a delegate that accesses the internal member to the `CustomMapping` method.
+
+Forcing users to add the `[InternalsVisibleTo]` attribute is in-line with what other .NET libraries involving runtime generation of types are doing (e.g., Moq and Castle.DynamicProxy). While this is may inconvenient to some users, it makes the library more portable. It also mean, FlatFiles no longer depends on the (System.Reflection.Emit.LightWeight)[https://www.nuget.org/packages/System.Reflection.Emit.Lightweight/] NuGet package which is now considered [obsolete](https://github.com/dotnet/source-build/issues/532). 
+
 ## 2.1.3 (2018-06-16)
 **Summary** - Use `ConfigureAwait(false)` for all async operations.
 
