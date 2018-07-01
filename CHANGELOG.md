@@ -1,15 +1,17 @@
 ## 3.0.0 (2018-06-29)
 **Summary** - Introducing custom mapping support and more contextual information.
 
-### Enhancements
+### New Features
 * The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities.
+
+### Enhancements
 * All exceptions, events and custom mapping features now provide access to column, record and/or execution context.
 * Fewer restrictions on the number of environments FlatFiles can run.
 
 ### Breaking Changes
 * The `CustomProperty` and `WriteOnlyProperty` methods have been superseded by the `CustomMapping` method, so they have been removed.
 * The `IProcessMetadata` interface has been replaced by the `IRecordContext` interface.
-* The `RecordNumber` property of `RecordProcessingException` has been replaced with the `Context` property.
+* The `RecordNumber` property of `RecordProcessingException` has been replaced with the `RecordContext` property.
 * The `ProcessingErrorEventArgs` class has been replaced by the `ExecutionErrorEventArgs` class.
 * The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
 * The `IColumnDefinition` interface methods `Parse` and `Format` now accept `IColumnContext` objects.
@@ -25,7 +27,7 @@ The new custom mapping functionality required the creation of types at runtime, 
 
 Otherwise, you can disable runtime optimization by calling `OptimizeMapping(false)` on your mapping, which will cause FlatFiles to fallback on reflection which can access private members at the cost of runtime overhead. Another alternative is to pass a delegate that accesses the internal member to the `CustomMapping` method.
 
-Forcing users to add the `[InternalsVisibleTo]` attribute is in-line with what other .NET libraries involving runtime generation of types are doing (e.g., Moq and Castle.DynamicProxy). While this is may be inconvenient to some users, it makes the library more portable. It also mean, FlatFiles no longer depends on the (System.Reflection.Emit.LightWeight)[https://www.nuget.org/packages/System.Reflection.Emit.Lightweight] NuGet package which is now considered [obsolete](https://github.com/dotnet/source-build/issues/532). 
+Forcing users to add the `[InternalsVisibleTo]` attribute is in-line with what other .NET libraries involving runtime generation of types are doing (e.g., Moq and Castle.DynamicProxy). While this is may be inconvenient to some users, it makes the library more portable. It also mean, FlatFiles no longer depends on the [System.Reflection.Emit.Lightweight](https://www.nuget.org/packages/System.Reflection.Emit.Lightweight) NuGet package which is now considered [obsolete](https://github.com/dotnet/source-build/issues/532). 
 
 ## 2.1.3 (2018-06-16)
 **Summary** - Use `ConfigureAwait(false)` for all async operations.
@@ -65,7 +67,7 @@ Several requests were made to support files containing multiple schemas. Especia
 In previous versions, records could be skipped using `Func` properties on the options object. A similar property existed for handling errors while processing files. However, the naming and usage was not obvious. Going forward, readers will expose events for registering callback methods which can be used to skip records. For example:
 
 ```csharp
-var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+var mapper = SeparatedValueTypeMapper.Define(() => new Person());
 // ...configure the type mapper
 var reader = mapper.GetReader(stringReader, options);
 // Register a handler that fires any time a record is extracted

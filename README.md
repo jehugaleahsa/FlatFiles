@@ -5,7 +5,7 @@ Reads and writes CSV, fixed-length and other flat file formats with a focus on s
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
 ## 3.0.0 Beta Testers Please!
-The next major release is here! View the [changelog](https://github.com/jehugaleahsa/FlatFiles/blob/master/CHANGELOG.md) to see what has changed -- there are several breaking changes. I am asking anyone who uses FlatFiles to please install the latest NuGet pre-release package and give it a try. I think you will find that, while you might need to make a few changes, the new code provides better access to metadata, supports more mapping scenerios and uses more consistent naming conventions. These changes also make FlatFiles available on more platforms and you may even see some performance improvements!
+The next major release is here! View the [changelog](https://github.com/jehugaleahsa/FlatFiles/blob/master/CHANGELOG.md) to see what has changed -- there are several breaking changes. I am asking anyone who uses FlatFiles to please install the latest NuGet pre-release package and give it a try. I think you will find that, while you might need to make a few changes, the new code provides better access to metadata, supports more mapping scenarios and uses more consistent naming conventions. These changes also make FlatFiles available on more platforms and you may even see some performance improvements!
 
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
@@ -135,43 +135,44 @@ mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
     IncludeSchema = true,
     IncludeFilteredRecords = true
-}).WithReader((p, v) => p.RecordNumber = (int)v);
+}).WithReader(p => p.RecordNumber);
 
 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
 ```
 
-Note the use of `CustomMapping` here.
-
 ### Write-Only
 I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!).
 
 ```csharp
-var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
-outputMapper.Property(x => x.Name, 10);
-outputMapper.Ignored(1);
-outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber")
-{
-    IncludeSchema = true
-}, 10).WithWriter((ctx, p) => ctx.RecordContext.PhysicalRecordNumber);
-outputMapper.Ignored(1);
-outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
+var mapper = FixedLengthTypeMapper.Define(() => new Person());
+mapper.Property(x => x.Name, 10);
+mapper.Ignored(1);
+// No need to define a reader or a writer - the underlying schema handles writing the metadata 
+mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10);
+mapper.Ignored(1);
+mapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 ```
 
 ### Creating your own metadata columns
-FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you must implement the method:
+FlatFiles provides the `MetadataColumn<T>` abstract base class to allow you to create your own metadata columns. To implement this interface, you must implement the methods:
 
 ```csharp
-object GetValue(IRecordContext context)
+T OnParse(IColumnContext context);
+
+string OnFormat(IColumnContext context);
 ```
 
-Within `IRecordContext`, the following information is currently provided:
+Within `IColumnContext`, the following information is currently provided:
 
-* `ExecutionContext` - Details about the current read/write operation
-    * `Schema` - The schema being used to parse the file.
-    * `Options` - The options passed to the reader/writer.
-* `PhysicalRecordNumber` - The actual number of records read from the file.
-* `LogicalRecordNumber` - The number of records that have not been skipped. *This count does not yet include the current record.*
+* `PhysicalIndex` - The index of the column in the file.
+* `LogicalIndex` - The index of the column, excluding ignored columns.
+* `RecordContext` - Details about the record this column pertains to.
+    * `PhysicalRecordNumber` - The actual number of records read from the file.
+    * `LogicalRecordNumber` - The number of records that have not been skipped. *This count does not yet include the current record.*
+    * `ExecutionContext` - Details about the current read/write operation.
+        * `Schema` - The schema being used to parse the file.
+        * `Options` - The options passed to the reader/writer.
 
 ## Skipping Records
 If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
