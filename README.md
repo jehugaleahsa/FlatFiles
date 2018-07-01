@@ -141,21 +141,17 @@ var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
 ```
 
-Note the use of `CustomMapping` here.
-
 ### Write-Only
 I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!).
 
 ```csharp
-var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
-outputMapper.Property(x => x.Name, 10);
-outputMapper.Ignored(1);
-outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber")
-{
-    IncludeSchema = true
-}, 10).WithWriter((ctx, p) => ctx.RecordContext.PhysicalRecordNumber);
-outputMapper.Ignored(1);
-outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
+var mapper = FixedLengthTypeMapper.Define(() => new Person());
+mapper.Property(x => x.Name, 10);
+mapper.Ignored(1);
+// No need to define a reader or a writer - the underlying schema handles writing the metadata 
+mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10);
+mapper.Ignored(1);
+mapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 ```
 
 ### Creating your own metadata columns
