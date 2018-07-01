@@ -386,10 +386,10 @@ As a final option, you can use the `CustomMapping` method, passing delegates to 
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 
 ```csharp
-DataTable customerTable = new DataTable("Customer");
-using (StreamReader streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
+var customerTable = new DataTable("Customer");
+using (var streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
 {
-    IReader reader = new SeparatedValueReader(streamReader, schema);
+    var reader = new SeparatedValueReader(streamReader, schema);
     customerTable.ReadFlatFile(reader);
 }
 ```
@@ -399,11 +399,11 @@ For low-level ADO.NET file reading, you can use the `FlatFileReader` class. It p
 
 ```csharp
 // The DataReader Approach
-FlatFileReader reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema);
-List<Customer> customers = new List<Customer>();
+var reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema));
+var customers = new List<Customer>();
 while (reader.Read())
 {
-    Customer customer = new Customer();
+    var customer = new Customer();
     customer.CustomerId = reader.GetInt32(0);
     customer.Name = reader.GetString(1);
     customer.Created = reader.GetDateTime(2);
