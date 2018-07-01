@@ -33,17 +33,22 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnProcessingException : FlatFileException
     {
+        internal ColumnProcessingException(IColumnDefinition definition, int position, object value, Exception innerException)
+            : base(GetErrorMessage(definition, position, value), innerException)
+        {
+            ColumnContext = null;
+            ColumnValue = value;
+        }
+
         internal ColumnProcessingException(IColumnContext context, object value, Exception innerException)
-            : base(GetErrorMessage(context, value), innerException)
+            : base(GetErrorMessage(context.ColumnDefinition, context.PhysicalIndex, value), innerException)
         {
             ColumnContext = context;
             ColumnValue = value;
         }
 
-        private static string GetErrorMessage(IColumnContext context, object value)
+        private static string GetErrorMessage(IColumnDefinition definition, int position, object value)
         {
-            var position = context.PhysicalIndex;
-            var definition = context.ColumnDefinition;
             var message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
             return message;
         }

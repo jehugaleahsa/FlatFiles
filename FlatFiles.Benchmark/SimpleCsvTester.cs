@@ -53,7 +53,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunFlatFiles()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);

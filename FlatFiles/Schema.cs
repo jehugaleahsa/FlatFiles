@@ -72,15 +72,16 @@ namespace FlatFiles
                 if (definition is IMetadataColumn)
                 {
                     var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
-                    var metadata = Parse(columnContext, definition, null);
+                    var metadata = Parse(columnContext, definition, destinationIndex, null);
                     parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                    var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
+                    var columnContext = isContextDisabled ? null : GetColumnContext(context, columnIndex, destinationIndex);
                     var rawValue = values[sourceIndex];
-                    var parsedValue = Parse(columnContext, definition, rawValue);
+                    var parsedValue = Parse(columnContext, definition, destinationIndex, rawValue);
                     parsedValues[destinationIndex] = parsedValue;
                     ++sourceIndex;
                     ++destinationIndex;
@@ -93,12 +94,16 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object Parse(IColumnContext columnContext, IColumnDefinition definition, string rawValue)
+        private object Parse(IColumnContext columnContext, IColumnDefinition definition, int position, string rawValue)
         {
             try
             {
                 object parsedValue = definition.Parse(columnContext, rawValue);
                 return parsedValue;
+            }
+            catch (Exception exception) when (columnContext == null)
+            {
+                throw new ColumnProcessingException(definition, position, rawValue, exception);
             }
             catch (Exception exception)
             {
@@ -121,15 +126,16 @@ namespace FlatFiles
                 if (definition is IMetadataColumn)
                 {
                     var columnContext = GetColumnContext(context, columnIndex, valueIndex);
-                    var formattedValue = Format(columnContext, definition, null);
+                    var formattedValue = Format(columnContext, definition, valueIndex, null);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                    var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
+                    var columnContext = isContextDisabled ? null : GetColumnContext(context, columnIndex, valueIndex);
                     var value = values[valueIndex];
-                    string formattedValue = Format(columnContext, definition, value);
+                    string formattedValue = Format(columnContext, definition, valueIndex, value);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
@@ -137,15 +143,19 @@ namespace FlatFiles
             return formattedValues;
         }
 
-        private static string Format(IColumnContext columnContext, IColumnDefinition definition, object value)
+        private static string Format(IColumnContext columnContext, IColumnDefinition definition, int position, object value)
         {
             try
             {
                 return definition.Format(columnContext, value);
             }
+            catch (Exception exception) when (columnContext == null)
+            {
+                throw new ColumnProcessingException(definition, position, value, exception);
+            }
             catch (Exception exception)
             {
-                throw new ColumnProcessingException(columnContext, value, exception);
+               throw new ColumnProcessingException(columnContext, value, exception);
             }
         }
 
