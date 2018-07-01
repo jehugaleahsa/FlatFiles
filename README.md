@@ -135,7 +135,7 @@ mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
     IncludeSchema = true,
     IncludeFilteredRecords = true
-}).WithReader((p, v) => p.RecordNumber = (int)v);
+}).WithReader(p => p.RecordNumber);
 
 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
