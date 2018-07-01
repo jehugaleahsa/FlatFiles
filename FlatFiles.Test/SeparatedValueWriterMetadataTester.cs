@@ -179,7 +179,7 @@ namespace FlatFiles.Test
             var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
             outputMapper.Ignored();
-            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }).WithWriter(p => p.RecordNumber);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true });
             outputMapper.Ignored();
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
