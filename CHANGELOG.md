@@ -65,7 +65,7 @@ Several requests were made to support files containing multiple schemas. Especia
 In previous versions, records could be skipped using `Func` properties on the options object. A similar property existed for handling errors while processing files. However, the naming and usage was not obvious. Going forward, readers will expose events for registering callback methods which can be used to skip records. For example:
 
 ```csharp
-var mapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+var mapper = SeparatedValueTypeMapper.Define(() => new Person());
 // ...configure the type mapper
 var reader = mapper.GetReader(stringReader, options);
 // Register a handler that fires any time a record is extracted
