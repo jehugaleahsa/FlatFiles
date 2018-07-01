@@ -155,19 +155,24 @@ mapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 ```
 
 ### Creating your own metadata columns
-FlatFiles provides the `IMetadataColumn` interface to allow you to create your own metadata columns. To implement this interface, you must implement the method:
+FlatFiles provides the `MetadataColumn<T>` abstract base class to allow you to create your own metadata columns. To implement this interface, you must implement the methods:
 
 ```csharp
-object GetValue(IRecordContext context)
+T OnParse(IColumnContext context);
+
+string OnFormat(IColumnContext context);
 ```
 
-Within `IRecordContext`, the following information is currently provided:
+Within `IColumnContext`, the following information is currently provided:
 
-* `ExecutionContext` - Details about the current read/write operation
-    * `Schema` - The schema being used to parse the file.
-    * `Options` - The options passed to the reader/writer.
-* `PhysicalRecordNumber` - The actual number of records read from the file.
-* `LogicalRecordNumber` - The number of records that have not been skipped. *This count does not yet include the current record.*
+* `PhysicalIndex` - The index of the column in the file.
+* `LogicalIndex` - The index of the column, excluding ignored columns.
+* `RecordContext` - Details about the record this column pertains to.
+    * `PhysicalRecordNumber` - The actual number of records read from the file.
+    * `LogicalRecordNumber` - The number of records that have not been skipped. *This count does not yet include the current record.*
+    * `ExecutionContext` - Details about the current read/write operation.
+        * `Schema` - The schema being used to parse the file.
+        * `Options` - The options passed to the reader/writer.
 
 ## Skipping Records
 If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
