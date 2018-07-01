@@ -1,8 +1,10 @@
 ## 3.0.0 (2018-06-29)
 **Summary** - Introducing custom mapping support and more contextual information.
 
-### Enhancements
+### New Features
 * The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities.
+
+### Enhancements
 * All exceptions, events and custom mapping features now provide access to column, record and/or execution context.
 * Fewer restrictions on the number of environments FlatFiles can run.
 
