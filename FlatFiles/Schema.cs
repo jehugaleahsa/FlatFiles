@@ -121,7 +121,7 @@ namespace FlatFiles
                 if (definition is IMetadataColumn)
                 {
                     var columnContext = GetColumnContext(context, columnIndex, valueIndex);
-                    var formattedValue = definition.Format(columnContext, null);
+                    var formattedValue = Format(columnContext, definition, null);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
@@ -129,12 +129,24 @@ namespace FlatFiles
                 {
                     var columnContext = GetColumnContext(context, columnIndex, valueIndex);
                     var value = values[valueIndex];
-                    var formattedValue = definition.Format(columnContext, value);
+                    string formattedValue = Format(columnContext, definition, value);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
             }
             return formattedValues;
+        }
+
+        private static string Format(IColumnContext columnContext, IColumnDefinition definition, object value)
+        {
+            try
+            {
+                return definition.Format(columnContext, value);
+            }
+            catch (Exception exception)
+            {
+                throw new ColumnProcessingException(columnContext, value, exception);
+            }
         }
 
         private ColumnContext GetColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)

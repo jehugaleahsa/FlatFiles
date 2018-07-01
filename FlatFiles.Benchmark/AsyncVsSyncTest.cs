@@ -12,7 +12,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public string SyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<SampleData>();
+            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -68,7 +68,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public async Task<string> AsyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<SampleData>();
+            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");

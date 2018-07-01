@@ -33,14 +33,14 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnProcessingException : FlatFileException
     {
-        internal ColumnProcessingException(IColumnContext context, string value, Exception innerException)
+        internal ColumnProcessingException(IColumnContext context, object value, Exception innerException)
             : base(GetErrorMessage(context, value), innerException)
         {
             ColumnContext = context;
             ColumnValue = value;
         }
 
-        private static string GetErrorMessage(IColumnContext context, string value)
+        private static string GetErrorMessage(IColumnContext context, object value)
         {
             var position = context.PhysicalIndex;
             var definition = context.ColumnDefinition;
@@ -56,7 +56,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public string ColumnValue { get; }
+        public object ColumnValue { get; }
     }
 
     /// <summary>
@@ -67,18 +67,18 @@ namespace FlatFiles
         internal RecordProcessingException(IRecordContext context, string message)
             : base(String.Format(null, message, context.PhysicalRecordNumber))
         {
-            Context = context;
+            RecordContext = context;
         }
 
         internal RecordProcessingException(IRecordContext context, string message, Exception innerException)
             : base(String.Format(null, message, context.PhysicalRecordNumber), innerException)
         {
-            Context = context;
+            RecordContext = context;
         }
 
         /// <summary>
         /// Gets the metadata for the record being processed when the error occurred.
         /// </summary>
-        public IRecordContext Context { get; }
+        public IRecordContext RecordContext { get; }
     }
 }

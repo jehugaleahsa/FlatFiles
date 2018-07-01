@@ -10,7 +10,7 @@ namespace FlatFiles
         internal ExecutionErrorEventArgs(RecordProcessingException exception)
         {
             Exception = exception;
-            RecordContext = exception.Context;
+            RecordContext = exception.RecordContext;
             if (exception.InnerException != null && exception.InnerException is ColumnProcessingException columnException)
             {
                 ColumnContext = columnException.ColumnContext;
@@ -31,7 +31,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public string ColumnValue { get; }
+        public object ColumnValue { get; }
 
         /// <summary>
         /// Gets the exception that was raised.

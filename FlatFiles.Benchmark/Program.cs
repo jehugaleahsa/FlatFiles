@@ -11,46 +11,46 @@ namespace FlatFiles.Benchmark
     {
         static void Main(string[] args)
         {
-            //var configuration = new ManualConfig()
+            var configuration = new ManualConfig()
+            {
+                KeepBenchmarkFiles = false
+            };
+            configuration.Add(StatisticColumn.Min);
+            configuration.Add(StatisticColumn.Max);
+            configuration.Add(DefaultConfig.Instance.GetColumnProviders().ToArray());
+            configuration.Add(DefaultConfig.Instance.GetLoggers().ToArray());
+            configuration.Add(DefaultConfig.Instance.GetDiagnosers().ToArray());
+            configuration.Add(DefaultConfig.Instance.GetAnalysers().ToArray());
+            configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
+            configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
+
+            BenchmarkRunner.Run<SimpleCsvTester>(configuration);
+
+            //var tester = new AsyncVsSyncTest();
+            //for (int i = 0; i != 10; ++i)
             //{
-            //    KeepBenchmarkFiles = false
-            //};
-            //configuration.Add(StatisticColumn.Min);
-            //configuration.Add(StatisticColumn.Max);
-            //configuration.Add(DefaultConfig.Instance.GetColumnProviders().ToArray());
-            //configuration.Add(DefaultConfig.Instance.GetLoggers().ToArray());
-            //configuration.Add(DefaultConfig.Instance.GetDiagnosers().ToArray());
-            //configuration.Add(DefaultConfig.Instance.GetAnalysers().ToArray());
-            //configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
-            //configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
+            //    tester.SyncTest();
+            //}
 
-            //BenchmarkRunner.Run<SimpleCsvTester>(configuration);
+            //var stopwatch = Stopwatch.StartNew();
+            //string syncResult = tester.SyncTest();
+            //stopwatch.Stop();
+            //Console.Out.WriteLine($"Sync Execution Time: {stopwatch.Elapsed}");
+            //Console.Out.WriteLine($"Sync Result Count: {syncResult.Length}");
 
-            var tester = new AsyncVsSyncTest();
-            for (int i = 0; i != 10; ++i)
-            {
-                tester.SyncTest();
-            }
+            //for (int i = 0; i != 10; ++i)
+            //{
+            //    tester.AsyncTest().Wait();
+            //}
 
-            var stopwatch = Stopwatch.StartNew();
-            string syncResult = tester.SyncTest();
-            stopwatch.Stop();
-            Console.Out.WriteLine($"Sync Execution Time: {stopwatch.Elapsed}");
-            Console.Out.WriteLine($"Sync Result Count: {syncResult.Length}");
+            //stopwatch.Restart();
+            //string asyncResult = tester.AsyncTest().Result;
+            //stopwatch.Stop();
+            //Console.Out.WriteLine($"Async Execution Time: {stopwatch.Elapsed}");
+            //Console.Out.WriteLine($"Async Result Count: {asyncResult.Length}");
 
-            for (int i = 0; i != 10; ++i)
-            {
-                tester.AsyncTest().Wait();
-            }
-
-            stopwatch.Restart();
-            string asyncResult = tester.AsyncTest().Result;
-            stopwatch.Stop();
-            Console.Out.WriteLine($"Async Execution Time: {stopwatch.Elapsed}");
-            Console.Out.WriteLine($"Async Result Count: {asyncResult.Length}");
-
-            //Console.Out.Write("Hit <enter> to exit...");
-            //Console.In.ReadLine();
+            Console.Out.Write("Hit <enter> to exit...");
+            Console.In.ReadLine();
         }
     }
 }

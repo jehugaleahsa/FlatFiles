@@ -14,14 +14,14 @@ namespace FlatFiles
         /// </summary>
         internal SeparatedValueRecordReadEventArgs(IRecordContext context, string[] values)
         {
-            Context = context;
+            RecordContext = context;
             Values = values;
         }
 
         /// <summary>
         /// Gets any metadata associated with the current read process.
         /// </summary>
-        public IRecordContext Context { get; }
+        public IRecordContext RecordContext { get; }
 
         /// <summary>
         /// Gets the unparsed record values read from the source file.

@@ -10,7 +10,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the metadata associated with the current read process.
         /// </summary>
-        IRecordContext Context { get; }
+        IRecordContext RecordContext { get; }
 
         /// <summary>
         /// Gets the parsed record values read from the source file.
