@@ -6,7 +6,7 @@ namespace FlatFiles.TypeMapping
     /// <summary>
     /// Determines if a column should be mapped to a property or field.
     /// </summary>
-    public interface IAutoMappingMatcher
+    public interface IAutoMapMatcher
     {
         /// <summary>
         /// Gets or sets whether to fallback on an exact name match if no other matcher is found.
@@ -25,15 +25,15 @@ namespace FlatFiles.TypeMapping
     /// <summary>
     /// Provides helper methods for creating auto-mapping matchers.
     /// </summary>
-    public sealed class AutoMappingMatcher : IAutoMappingMatcher
+    public sealed class AutoMapMatcher : IAutoMapMatcher
     {
         /// <summary>
         /// Gets the default auto-mapping matcher (case-insensitive name comparison).
         /// </summary>
-        public static readonly IAutoMappingMatcher Default = new DefaultAutoMappingMatcher();
+        public static readonly IAutoMapMatcher Default = new DefaultAutoMapMatcher();
         private readonly Func<IColumnDefinition, MemberInfo, bool> matcher;
 
-        private AutoMappingMatcher(Func<IColumnDefinition, MemberInfo, bool> matcher, bool useFallback)
+        private AutoMapMatcher(Func<IColumnDefinition, MemberInfo, bool> matcher, bool useFallback)
         {
             this.matcher = matcher;
             this.UseFallback = useFallback;
@@ -45,13 +45,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="matcher">A delegate that performs the auto-mapping matcher.</param>
         /// <param name="useFallback">Specifies whether to fallback on an exact name match if no other matcher is found.</param>
         /// <returns>An auto-mapping matcher.</returns>
-        public static IAutoMappingMatcher For(Func<IColumnDefinition, MemberInfo, bool> matcher, bool useFallback = true)
+        public static IAutoMapMatcher For(Func<IColumnDefinition, MemberInfo, bool> matcher, bool useFallback = true)
         {
             if (matcher == null)
             {
                 throw new ArgumentNullException(nameof(matcher));
             }
-            return new AutoMappingMatcher(matcher, useFallback);
+            return new AutoMapMatcher(matcher, useFallback);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace FlatFiles.TypeMapping
         }
     }
 
-    internal sealed class DefaultAutoMappingMatcher : IAutoMappingMatcher
+    internal sealed class DefaultAutoMapMatcher : IAutoMapMatcher
     {
         public bool UseFallback => true;
 

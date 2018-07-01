@@ -3,7 +3,7 @@
 
 ### New Features
 * The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities.
-* Automatic column-to-property mapping for delimited file formats, via `GetAutoMappedReader` methods.
+* Automatic column-to-property mapping for delimited file formats, via `GetAutoMappedReader` and `GetAutoMappedWriter` methods.
 
 ### Enhancements
 * All exceptions, events and custom mapping features now provide access to column, record and/or execution context.

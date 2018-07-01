@@ -201,4 +201,7 @@
   <data name="RecordSeparatorRequired" xml:space="preserve">
     <value>A record specifier must be used when selecting the schema dynamically.</value>
   </data>
+  <data name="NoAutoMapPropertyType" xml:space="preserve">
+    <value>Could not find an appropriate property mapping for the type of the column '{0}'.</value>
+  </data>
 </root>
