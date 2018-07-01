@@ -9,7 +9,7 @@
 ### Breaking Changes
 * The `CustomProperty` and `WriteOnlyProperty` methods have been superseded by the `CustomMapping` method, so they have been removed.
 * The `IProcessMetadata` interface has been replaced by the `IRecordContext` interface.
-* The `RecordNumber` property of `RecordProcessingException` has been replaced with the `Context` property.
+* The `RecordNumber` property of `RecordProcessingException` has been replaced with the `RecordContext` property.
 * The `ProcessingErrorEventArgs` class has been replaced by the `ExecutionErrorEventArgs` class.
 * The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
 * The `IColumnDefinition` interface methods `Parse` and `Format` now accept `IColumnContext` objects.
