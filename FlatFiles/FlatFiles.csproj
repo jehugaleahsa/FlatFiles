@@ -13,7 +13,7 @@
     <PackageReleaseNotes>Support for custom mapping and naming consistency.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>3.0.0.0-beta.2</Version>
+    <Version>3.0.0.0-beta.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
