@@ -168,6 +168,26 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public void RunFlatFiles_DeducedMapper()
+        {
+            var reader = new StringReader(data);
+            var csvReader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(reader);
+            var people = csvReader.ReadAll().ToArray();
+        }
+
+        [Benchmark]
+        public async Task RunFlatFiles_DeducedMapperAsync()
+        {
+            var reader = new StringReader(data);
+            var csvReader = await SeparatedValueTypeMapper.GetAutoMappedReaderAsync<Person>(reader);
+            var people = new List<Person>();
+            while (await csvReader.ReadAsync().ConfigureAwait(false))
+            {
+                people.Add(csvReader.Current);
+            }
+        }
+
+        [Benchmark]
         public void RunStringSplit()
         {
             var lines = data.Split(Environment.NewLine);

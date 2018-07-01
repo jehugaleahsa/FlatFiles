@@ -130,6 +130,11 @@ namespace FlatFiles
             return GetSchema();
         }
 
+        internal void SetSchema(SeparatedValueSchema schema)
+        {
+            metadata.ExecutionContext.Schema = schema;
+        }
+
         /// <summary>
         /// Gets the schema being used by the parser.
         /// </summary>

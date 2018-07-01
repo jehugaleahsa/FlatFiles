@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {
@@ -12,6 +14,43 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public static class SeparatedValueTypeMapper
     {
+        private static readonly Dictionary<Type, Func<string, IColumnDefinition>> columnLookup = new Dictionary<Type, Func<string, IColumnDefinition>>()
+        {
+            { typeof(bool), n => new BooleanColumn(n) },
+            { typeof(bool?), n => new BooleanColumn(n) },
+            { typeof(byte[]), n => new ByteArrayColumn(n) },
+            { typeof(byte), n => new ByteColumn(n) },
+            { typeof(byte?), n => new ByteColumn(n) },
+            { typeof(char[]), n => new CharArrayColumn(n) },
+            { typeof(char), n => new CharColumn(n) },
+            { typeof(char?), n => new CharColumn(n) },
+            { typeof(DateTime), n => new DateTimeColumn(n) },
+            { typeof(DateTime?), n => new DateTimeColumn(n) },
+            { typeof(decimal), n => new DecimalColumn(n) },
+            { typeof(decimal?), n => new DecimalColumn(n) },
+            { typeof(double), n => new DoubleColumn(n) },
+            { typeof(double?), n => new DoubleColumn(n) },
+            { typeof(Guid), n => new GuidColumn(n) },
+            { typeof(Guid?), n => new GuidColumn(n) },
+            { typeof(short), n => new Int16Column(n) },
+            { typeof(short?), n => new Int16Column(n) },
+            { typeof(int), n => new Int32Column(n) },
+            { typeof(int?), n => new Int32Column(n) },
+            { typeof(long), n => new Int64Column(n) },
+            { typeof(long?), n => new Int64Column(n) },
+            { typeof(sbyte), n => new SByteColumn(n) },
+            { typeof(sbyte?), n => new SByteColumn(n) },
+            { typeof(float), n => new SingleColumn(n) },
+            { typeof(float?), n => new SingleColumn(n) },
+            { typeof(string), n => new StringColumn(n) },
+            { typeof(ushort), n => new UInt16Column(n) },
+            { typeof(ushort?), n => new UInt16Column(n) },
+            { typeof(uint), n => new UInt32Column(n) },
+            { typeof(uint?), n => new UInt32Column(n) },
+            { typeof(ulong), n => new UInt64Column(n) },
+            { typeof(ulong?), n => new UInt64Column(n) }
+        };
+
         /// <summary>
         /// Creates a configuration object that can be used to map to and from an entity and a flat file record.
         /// </summary>
@@ -75,6 +114,137 @@ namespace FlatFiles.TypeMapping
             var mapperType = typeof(SeparatedValueTypeMapper<>).MakeGenericType(entityType);
             var mapper = Activator.CreateInstance(mapperType, factory);
             return (IDynamicSeparatedValueTypeMapper)mapper;
+        }
+
+        /// <summary>
+        /// Gets a reader whose column types are deduced by matching the entity property names and column names.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity to deduce the column types for.</typeparam>
+        /// <param name="reader">The text reader containing the schema and records.</param>
+        /// <param name="options">Options used to read the data.</param>
+        /// <param name="matcher">An object that can determine if a column should be mapped to a property.</param>
+        /// <returns>A reader object for iterating the parsed records.</returns>
+        /// <remarks>
+        /// The first line of the input file must contain the schema, whose column names must match the property
+        /// names in the provided entity type. The data for each column must be in a format that .NET can
+        /// parse without customization.
+        /// </remarks>
+        public static ITypedReader<TEntity> GetAutoMappedReader<TEntity>(TextReader reader, SeparatedValueOptions options = null, IAutoMappingMatcher matcher = null)
+            where TEntity : new()
+        {
+            var optionsCopy = options == null ? new SeparatedValueOptions() : options.Clone();
+            optionsCopy.IsFirstRecordSchema = true;
+            var recordReader = new SeparatedValueReader(reader, optionsCopy);
+            var schema = recordReader.GetSchema();
+            return GetDeducedReader<TEntity>(schema, recordReader, matcher);
+        }
+
+        /// <summary>
+        /// Gets a reader whose column types are deduced by matching the entity property names and column names.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity to deduce the column types for.</typeparam>
+        /// <param name="reader">The text reader containing the schema and records.</param>
+        /// <param name="options">Options used to read the data.</param>
+        /// <param name="matcher">An object that can determine if a column should be mapped to a property.</param>
+        /// <returns>A reader object for iterating the parsed records.</returns>
+        /// <remarks>
+        /// The first line of the input file must contain the schema, whose column names must match the property
+        /// names in the provided entity type. The data for each column must be in a format that .NET can
+        /// parse without customization.
+        /// </remarks>
+        public static async Task<ITypedReader<TEntity>> GetAutoMappedReaderAsync<TEntity>(TextReader reader, SeparatedValueOptions options = null, IAutoMappingMatcher matcher = null)
+            where TEntity : new()
+        {
+            var optionsCopy = options == null ? new SeparatedValueOptions() : options.Clone();
+            optionsCopy.IsFirstRecordSchema = true;
+            var recordReader = new SeparatedValueReader(reader, optionsCopy);
+            var schema = await recordReader.GetSchemaAsync();
+            return GetDeducedReader<TEntity>(schema, recordReader, matcher);
+        }
+
+        private static ITypedReader<TEntity> GetDeducedReader<TEntity>(SeparatedValueSchema schema, SeparatedValueReader reader, IAutoMappingMatcher matcher)
+            where TEntity : new()
+        {
+            var typedMapper = new SeparatedValueTypeMapper<TEntity>();
+            IDynamicSeparatedValueTypeMapper dynamicmapper = typedMapper;
+            foreach (var column in schema.ColumnDefinitions)
+            {
+                var contextParameter = Expression.Parameter(typeof(IColumnContext), "context");
+                var entityParameter = Expression.Parameter(typeof(object), "entity");
+                var valueParameter = Expression.Parameter(typeof(object), "value");
+                var memberExpression = GetMemberExpression(entityParameter, typeof(TEntity), column, matcher ?? AutoMappingMatcher.Default);
+                var body = Expression.Assign(memberExpression, Expression.Convert(valueParameter, memberExpression.Type));
+                var columnDefinition = GetColumnDefinition(memberExpression.Type, column.ColumnName);
+                var lambdaExpression = Expression.Lambda<Action<IColumnContext, object, object>>(body, contextParameter, entityParameter, valueParameter);
+                var compiledSetter = lambdaExpression.Compile();
+                dynamicmapper.CustomMapping(columnDefinition).WithReader(compiledSetter);
+            }
+            reader.SetSchema(typedMapper.GetSchema());
+            return typedMapper.GetReader(reader);
+        }
+
+        private static MemberExpression GetMemberExpression(ParameterExpression entityParameter, Type entityType, IColumnDefinition column, IAutoMappingMatcher matcher)
+        {
+            var propertyInfo = GetProperty(entityType, column, matcher);
+            if (propertyInfo != null)
+            {
+                if (!propertyInfo.CanWrite)
+                {
+                    throw new FlatFileException(String.Format(null, Resources.ReadOnlyProperty, column.ColumnName));
+                }
+                return Expression.Property(Expression.Convert(entityParameter, entityType), propertyInfo);
+            }
+            var fieldInfo = GetField(entityType, column, matcher);
+            if (fieldInfo != null)
+            {
+                return Expression.Field(Expression.Convert(entityParameter, entityType), fieldInfo);
+            }
+            throw new FlatFileException(Resources.BadPropertySelector);
+        }
+
+        private static PropertyInfo GetProperty(Type entityType, IColumnDefinition column, IAutoMappingMatcher matcher)
+        {
+            var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;                
+            var propertyInfos = entityType.GetTypeInfo().GetProperties(bindingFlags)
+                .Where(p => matcher.IsMatch(column, p))
+                .ToArray();
+            if (propertyInfos.Length > 1)
+            {
+                if (!matcher.UseFallback)
+                {
+                    return null;
+                }
+                // If there is more than one match, do an exact match
+                return propertyInfos.Where(i => i.Name == column.ColumnName).SingleOrDefault();
+            }
+            return propertyInfos.SingleOrDefault();
+        }
+
+        private static FieldInfo GetField(Type entityType, IColumnDefinition column, IAutoMappingMatcher matcher)
+        {
+            var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            var fieldInfos = entityType.GetTypeInfo().GetFields(bindingFlags)
+                .Where(p => matcher.IsMatch(column, p))
+                .ToArray();
+            if (fieldInfos.Length > 1)
+            {
+                if (!matcher.UseFallback)
+                {
+                    return null;
+                }
+                // If there is more than one match, do an exact match
+                return fieldInfos.Where(i => i.Name == column.ColumnName).SingleOrDefault();
+            }
+            return fieldInfos.SingleOrDefault();
+        }
+
+        private static IColumnDefinition GetColumnDefinition(Type type, string columnName)
+        {
+            if (columnLookup.TryGetValue(type, out var factory))
+            {
+                return factory(columnName);
+            }
+            throw new FlatFileException(Resources.WrongPropertyType); // FIXME
         }
     }
 
@@ -1144,6 +1314,11 @@ namespace FlatFiles.TypeMapping
             return GetTypedReader(separatedValueReader);
         }
 
+        internal ISeparatedValueTypedReader<TEntity> GetReader(SeparatedValueReader reader)
+        {
+            return GetTypedReader(reader);
+        }
+
         private SeparatedValueTypedReader<TEntity> GetTypedReader(SeparatedValueReader reader)
         {
             var mapper = new Mapper<TEntity>(lookup, GetCodeGenerator());
@@ -1351,6 +1526,8 @@ namespace FlatFiles.TypeMapping
             var member = GetMember<TEnum?>(memberName);
             return GetEnumMapping<TEnum>(member);
         }
+
+
 
         IIgnoredMapping IDynamicSeparatedValueTypeConfiguration.Ignored()
         {
