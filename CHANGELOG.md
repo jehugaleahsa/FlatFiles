@@ -2,8 +2,8 @@
 **Summary** - Introducing custom mapping support and more contextual information.
 
 ### New Features
-* The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities.
-* Automatic column-to-property mapping for delimited file formats, via `GetAutoMappedReader` and `GetAutoMappedWriter` methods.
+* The new type mapper method, `CustomMapping`, grants full control over the way values are mapped between raw `object[]` values and entities. See the [readme](https://github.com/jehugaleahsa/FlatFiles/blob/master/README.md#custom-mapping).
+* Automatic column-to-property mapping for delimited file formats, via `GetAutoMappedReader` and `GetAutoMappedWriter` methods. See the [readme](https://github.com/jehugaleahsa/FlatFiles/blob/master/README.md#automatic-mapping-for-delimited-files).
 
 ### Enhancements
 * All exceptions, events and custom mapping features now provide access to column, record and/or execution context.
@@ -16,7 +16,7 @@
 * The `ProcessingErrorEventArgs` class has been replaced by the `ExecutionErrorEventArgs` class.
 * The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
 * The `IColumnDefinition` interface methods `Parse` and `Format` now accept `IColumnContext` objects.
-* The `IMetadataColumn` interface no longer has the `GetValue` method. Use the `MetadataColumn` base class instead. 
+* The `IMetadataColumn` interface no longer has the `GetValue` method. Use the `MetadataColumn` base class instead. See the updated [readme](https://github.com/jehugaleahsa/FlatFiles/blob/master/README.md#metadata).
 
 Most significantly of all, previous versions of FlatFiles used `DynamicMethod` to generate code at runtime. A `DynamicMethod` can be configured to allow the generated code to access non-public classes and members from other assemblies. However, this additional access requires the code to be running in a trusted environment, meaning FlatFiles could not be used in a sandboxed environment.
 
@@ -28,7 +28,7 @@ The new custom mapping functionality required the creation of types at runtime, 
 
 Otherwise, you can disable runtime optimization by calling `OptimizeMapping(false)` on your mapping, which will cause FlatFiles to fallback on reflection which can access private members at the cost of runtime overhead. Another alternative is to pass a delegate that accesses the internal member to the `CustomMapping` method.
 
-Forcing users to add the `[InternalsVisibleTo]` attribute is in-line with what other .NET libraries involving runtime generation of types are doing (e.g., Moq and Castle.DynamicProxy). While this is may be inconvenient to some users, it makes the library more portable. It also mean, FlatFiles no longer depends on the [System.Reflection.Emit.Lightweight](https://www.nuget.org/packages/System.Reflection.Emit.Lightweight) NuGet package which is now considered [obsolete](https://github.com/dotnet/source-build/issues/532). 
+Forcing users to add the `[InternalsVisibleTo]` attribute is in-line with what other .NET libraries involving runtime generation of types are doing (e.g., Moq and Castle.DynamicProxy). While this is may be inconvenient to some users, it makes the library more portable. It also mean, FlatFiles no longer depends on the [System.Reflection.Emit.Lightweight](https://www.nuget.org/packages/System.Reflection.Emit.Lightweight) NuGet package which is now considered [obsolete](https://github.com/dotnet/source-build/issues/532). You can read more in the [readme](https://github.com/jehugaleahsa/FlatFiles/blob/master/README.md#accessing-non-public-classes-and-members).
 
 ## 2.1.3 (2018-06-16)
 **Summary** - Use `ConfigureAwait(false)` for all async operations.
