@@ -43,8 +43,8 @@ namespace FlatFiles.TypeMapping
         /// Gets a matcher for the given delegate.
         /// </summary>
         /// <param name="matcher">A delegate that performs the auto-mapping matcher.</param>
-        /// <param name="useFallback">Specifies whether to fallback on an exact name match if no other matcher is found.</param>
-        /// <returns>An auto-mapping matcher.</returns>
+        /// <param name="useFallback">Specifies whether to fallback on an exact name match if no matches are found.</param>
+        /// <returns>The generated matcher.</returns>
         public static IAutoMapMatcher For(Func<IColumnDefinition, MemberInfo, bool> matcher, bool useFallback = true)
         {
             if (matcher == null)
@@ -52,6 +52,21 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(matcher));
             }
             return new AutoMapMatcher(matcher, useFallback);
+        }
+
+        /// <summary>
+        /// Gets a matcher for the given name resolver.
+        /// </summary>
+        /// <param name="resolver">The name resolver used to generate the column names when writing.</param>
+        /// <param name="useFallback">Specifies whether to fallback on an exact name match if no matches are found.</param>
+        /// <returns>The generated matcher.</returns>
+        public static IAutoMapMatcher For(IAutoMapNameResolver resolver, bool useFallback = true)
+        {
+            if (resolver == null)
+            {
+                throw new ArgumentNullException(nameof(resolver));
+            }
+            return new AutoMapMatcher((column, member) => column.ColumnName == resolver.ResolveName(member), useFallback); 
         }
 
         /// <summary>

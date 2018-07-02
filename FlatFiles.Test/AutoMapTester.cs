@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FlatFiles.Test
 {
     [TestClass]
-    public class TypeDeductionTester
+    public class AutoMapTester
     {
         [TestMethod]
         public void ShouldDeduceSchemaForType()
@@ -58,6 +58,31 @@ namespace FlatFiles.Test
             }
 
             Assert.AreEqual(3, results.Count, "The wrong number of records were read.");
+            AssertEqual(expected, results, 0);
+            AssertEqual(expected, results, 1);
+            AssertEqual(expected, results, 2);
+        }
+
+        [TestMethod]
+        public void ShouldDeduceSchemaForType_ColumnNameCustomization()
+        {
+            var stringWriter = new StringWriter();
+            var nameResolver = AutoMapNameResolver.For(m => $"Prefix_{m.Name}_Postfix");
+            var writer = SeparatedValueTypeMapper.GetAutoMappedWriter<Person>(stringWriter, null, nameResolver);
+            var expected = new[]
+            {
+                new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 07, 01), IsActive = true, VisitCount = 1 },
+                new Person() { Id = 2, Name = "John", CreatedOn = new DateTime(2018, 07, 02), IsActive = false, VisitCount = null },
+                new Person() { Id = 3, Name = "Susan", CreatedOn = new DateTime(2018, 07, 03), IsActive = false, VisitCount = 10 }
+            };
+            writer.WriteAll(expected);
+            string output = stringWriter.ToString();
+
+            var stringReader = new StringReader(output);
+            var reader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(stringReader, null, AutoMapMatcher.For(nameResolver));
+            var results = reader.ReadAll().ToArray();
+
+            Assert.AreEqual(3, results.Length, "The wrong number of records were read.");
             AssertEqual(expected, results, 0);
             AssertEqual(expected, results, 1);
             AssertEqual(expected, results, 2);
