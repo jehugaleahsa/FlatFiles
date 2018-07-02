@@ -67,7 +67,7 @@ namespace FlatFiles.Test
         public void ShouldDeduceSchemaForType_ColumnNameCustomization()
         {
             var stringWriter = new StringWriter();
-            var nameResolver = AutoMapNameResolver.For(m => $"Prefix_{m.Name}_Postfix");
+            var nameResolver = AutoMapResolver.For(m => $"Prefix_{m.Name}_Postfix");
             var writer = SeparatedValueTypeMapper.GetAutoMappedWriter<Person>(stringWriter, null, nameResolver);
             var expected = new[]
             {

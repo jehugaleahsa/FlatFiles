@@ -60,13 +60,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="resolver">The name resolver used to generate the column names when writing.</param>
         /// <param name="useFallback">Specifies whether to fallback on an exact name match if no matches are found.</param>
         /// <returns>The generated matcher.</returns>
-        public static IAutoMapMatcher For(IAutoMapNameResolver resolver, bool useFallback = true)
+        public static IAutoMapMatcher For(IAutoMapResolver resolver, bool useFallback = true)
         {
             if (resolver == null)
             {
                 throw new ArgumentNullException(nameof(resolver));
             }
-            return new AutoMapMatcher((column, member) => column.ColumnName == resolver.ResolveName(member), useFallback); 
+            return new AutoMapMatcher((column, member) => column.ColumnName == resolver.GetName(member), useFallback); 
         }
 
         /// <summary>

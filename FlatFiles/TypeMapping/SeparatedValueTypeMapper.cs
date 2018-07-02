@@ -117,7 +117,7 @@ namespace FlatFiles.TypeMapping
         }
 
         /// <summary>
-        /// Gets a reader whose column types are deduced by matching the entity property names and column names.
+        /// Gets a reader whose column types are deduced by matching the entity property names to the column names.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity to deduce the column types for.</typeparam>
         /// <param name="reader">The text reader containing the schema and records.</param>
@@ -140,7 +140,7 @@ namespace FlatFiles.TypeMapping
         }
 
         /// <summary>
-        /// Gets a reader whose column types are deduced by matching the entity property names and column names.
+        /// Gets a reader whose column types are deduced by matching the entity property names to the column names.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity to deduce the column types for.</typeparam>
         /// <param name="reader">The text reader containing the schema and records.</param>
@@ -243,68 +243,73 @@ namespace FlatFiles.TypeMapping
         }
 
         /// <summary>
-        /// 
+        /// Gets a writer whose column types are deduced from the entity properties.
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="writer"></param>
-        /// <param name="options"></param>
-        /// <param name="resolver"></param>
-        /// <returns></returns>
-        public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions options = null, IAutoMapNameResolver resolver = null)
+        /// <typeparam name="TEntity">The type of the entity to deduce the column types for.</typeparam>
+        /// <param name="writer">The text writer to write the schema and records to.</param>
+        /// <param name="options">Options used to read the data.</param>
+        /// <param name="resolver">An object that will determine the name of the generated columns.</param>
+        /// <returns>A writer object for serializing entities.</returns>
+        /// <remarks>Unless options are provided, by default this method will write the schema before the first record.</remarks>
+        public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions options = null, IAutoMapResolver resolver = null)
         {
-            var optionsCopy = options == null ? new SeparatedValueOptions() : options.Clone();
-            optionsCopy.IsFirstRecordSchema = true;
+            var optionsCopy = options == null ? new SeparatedValueOptions() { IsFirstRecordSchema = true } : options.Clone();
             var entityType = typeof(TEntity);
             var typedMapper = Define(() => default(TEntity));
             var dynamicMapper = (IDynamicSeparatedValueTypeMapper)typedMapper;
-            var nameResolver = resolver ?? AutoMapNameResolver.Default;
+            var nameResolver = resolver ?? AutoMapResolver.Default;
 
             var context = Expression.Parameter(typeof(IColumnContext), "ctx");
             var entity = Expression.Parameter(typeof(object), "e");
 
-            var properties = GetProperties(entityType);
-            foreach (var property in properties)
+            var members = GetMembers(entityType, nameResolver);
+            foreach (var member in members)
             {
-                var columnName = nameResolver.ResolveName(property);
-                var column = GetColumnDefinition(property.PropertyType, columnName);
-                if (column == null)
+                var columnName = nameResolver.GetName(member);
+                if (String.IsNullOrWhiteSpace(columnName))
                 {
                     continue;
                 }
-                var body = Expression.Convert(Expression.Property(Expression.Convert(entity, entityType), property), typeof(object));
-                var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
-                var getter = lambda.Compile();
-                dynamicMapper.CustomMapping(column).WithWriter(getter);
-            }
-
-            var fields = GetFields(entityType);
-            foreach (var field in fields)
-            {
-                var columnName = nameResolver.ResolveName(field);
-                var column = GetColumnDefinition(field.FieldType, columnName);
-                if (column == null)
+                if (member is PropertyInfo property)
                 {
-                    continue;
+                    var column = GetColumnDefinition(property.PropertyType, columnName);
+                    if (column == null)
+                    {
+                        continue;
+                    }
+                    var body = Expression.Convert(Expression.Property(Expression.Convert(entity, entityType), property), typeof(object));
+                    var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
+                    var getter = lambda.Compile();
+                    dynamicMapper.CustomMapping(column).WithWriter(getter);
                 }
-                var body = Expression.Convert(Expression.Field(Expression.Convert(entity, entityType), field), typeof(object));
-                var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
-                var getter = lambda.Compile();
-                dynamicMapper.CustomMapping(column).WithWriter(getter);
+                else if (member is FieldInfo field)
+                {
+                    var column = GetColumnDefinition(field.FieldType, columnName);
+                    if (column == null)
+                    {
+                        continue;
+                    }
+                    var body = Expression.Convert(Expression.Field(Expression.Convert(entity, entityType), field), typeof(object));
+                    var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
+                    var getter = lambda.Compile();
+                    dynamicMapper.CustomMapping(column).WithWriter(getter);
+                }
             }
             
             return typedMapper.GetWriter(writer, optionsCopy);
         }
 
-        private static IEnumerable<PropertyInfo> GetProperties(Type entityType)
+        private static IEnumerable<MemberInfo> GetMembers(Type entityType, IAutoMapResolver resolver)
         {
-            var bindingFlags = BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public;
-            return entityType.GetTypeInfo().GetProperties(bindingFlags);
-        }
-
-        private static IEnumerable<FieldInfo> GetFields(Type entityType)
-        {
-            var bindingFlags = BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public;
-            return entityType.GetTypeInfo().GetFields(bindingFlags);
+            var bindingFlags = BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public;
+            var members = entityType.GetTypeInfo().GetMembers(bindingFlags)
+                .Where(m => m.MemberType == MemberTypes.Property || m.MemberType == MemberTypes.Field)
+                .Select((m, i) => (member: m, positions: (user: resolver.GetPosition(m), builtin: i)))
+                .Where(x => x.positions.user != -1)
+                .OrderBy(x => x.positions)
+                .Select(x => x.member)
+                .ToArray();
+            return members;
         }
 
         private static IColumnDefinition GetColumnDefinition(Type type, string columnName)
