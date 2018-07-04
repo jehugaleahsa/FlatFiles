@@ -107,7 +107,7 @@ namespace FlatFiles
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
         public static TEnum GetEnum<TEnum>(this IDataRecord record, int i)
-            where TEnum : struct
+            where TEnum : Enum
         {
             return GetValue<TEnum>(record, i, null);
         }
@@ -121,7 +121,7 @@ namespace FlatFiles
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
         public static TEnum GetEnum<TEnum>(this IDataRecord record, string name)
-            where TEnum : struct
+            where TEnum : Enum
         {
             int ordinal = record.GetOrdinal(name);
             return GetValue<TEnum>(record, ordinal, null);
@@ -137,9 +137,10 @@ namespace FlatFiles
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         public static TEnum GetEnum<T, TEnum>(this IDataRecord record, int i, Func<T, TEnum> mapper)
-            where TEnum : struct
+            where TEnum : Enum
         {
-            return getEnum(record, i, mapper);
+            T value = GetValue<T>(record, i, null);
+            return mapper(value);
         }
 
         /// <summary>
@@ -152,17 +153,10 @@ namespace FlatFiles
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         public static TEnum GetEnum<T, TEnum>(this IDataRecord record, string name, Func<T, TEnum> mapper)
-            where TEnum : struct
+            where TEnum : Enum
         {
             int ordinal = record.GetOrdinal(name);
-            return getEnum(record, ordinal, mapper);
-        }
-
-        private static TEnum getEnum<T, TEnum>(IDataRecord record, int i, Func<T, TEnum> mapper)
-            where TEnum : struct
-        {
-            T value = GetValue<T>(record, i, null);
-            return mapper(value);
+            return GetEnum(record, ordinal, mapper);
         }
 
 #endregion
@@ -1236,7 +1230,7 @@ namespace FlatFiles
         /// <param name="i">The zero-based column ordinal.</param>
         /// <param name="provider">A format provider for converting to the desired type.</param>
         /// <returns>The value.</returns>
-        public static T GetValue<T>(IDataRecord record, int i, IFormatProvider provider = null)
+        public static T GetValue<T>(this IDataRecord record, int i, IFormatProvider provider = null)
         {
             Type underlyingType = Nullable.GetUnderlyingType(typeof(T));
             Type type = underlyingType ?? typeof(T);

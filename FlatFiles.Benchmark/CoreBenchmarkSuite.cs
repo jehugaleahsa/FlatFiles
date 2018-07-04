@@ -123,6 +123,49 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public void RunFlatFiles_FlatFileDataReader_GetValue()
+        {
+            var reader = new StringReader(data);
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("FirstName"));
+            schema.AddColumn(new StringColumn("LastName"));
+            schema.AddColumn(new StringColumn("Age"));
+            schema.AddColumn(new StringColumn("Street1"));
+            schema.AddColumn(new StringColumn("Street2"));
+            schema.AddColumn(new StringColumn("City"));
+            schema.AddColumn(new StringColumn("State"));
+            schema.AddColumn(new StringColumn("Zip"));
+            schema.AddColumn(new StringColumn("FavoriteColor"));
+            schema.AddColumn(new StringColumn("FavoriteFood"));
+            schema.AddColumn(new StringColumn("FavoriteSport"));
+            schema.AddColumn(new StringColumn("CreatedOn"));
+            schema.AddColumn(new StringColumn("IsActive"));
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
+            {
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetValue<string>(0),
+                    LastName = dataReader.GetValue<string>(1),
+                    Age = dataReader.GetValue<int>(2),
+                    Street1 = dataReader.GetValue<string>(3),
+                    Street2 = dataReader.GetValue<string>(4),
+                    City = dataReader.GetValue<string>(5),
+                    State = dataReader.GetValue<string>(6),
+                    Zip = dataReader.GetValue<string>(7),
+                    FavoriteColor = dataReader.GetValue<string>(8),
+                    FavoriteFood = dataReader.GetValue<string>(9),
+                    FavoriteSport = dataReader.GetValue<string>(10),
+                    CreatedOn = dataReader.GetValue<DateTime?>(11),
+                    IsActive = dataReader.GetValue<bool>(12)
+                };
+                people.Add(person);
+            }
+        }
+
+        [Benchmark]
         public void RunFlatFiles_TypeMapper()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
