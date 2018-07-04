@@ -21,11 +21,7 @@ namespace FlatFiles
         /// <returns>The value of the column.</returns>
         public static bool GetBoolean(this IDataRecord record, string name)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return get(record, record.GetBoolean, name);
+            return Get(record, name, record.GetBoolean);
         }
 
         /// <summary>
@@ -36,11 +32,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static bool? GetNullableBoolean(this IDataRecord record, int i)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return getNullable(record, record.GetBoolean, i, null);
+            return GetNullable(record, i, record.GetBoolean, null);
         }
 
         /// <summary>
@@ -51,11 +43,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static bool? GetNullableBoolean(this IDataRecord record, string name)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return getNullable(record, record.GetBoolean, name, null);
+            return GetNullable(record, name, record.GetBoolean, null);
         }
 
         /// <summary>
@@ -67,11 +55,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static bool? GetNullableBoolean(this IDataRecord record, int i, bool? defaultValue)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return getNullable(record, record.GetBoolean, i, defaultValue);
+            return GetNullable(record, i, record.GetBoolean, defaultValue);
         }
 
         /// <summary>
@@ -83,11 +67,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static bool? GetNullableBoolean(this IDataRecord record, string name, bool? defaultValue)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return getNullable(record, record.GetBoolean, name, defaultValue);
+            return GetNullable(record, name, record.GetBoolean, defaultValue);
         }
 
         /// <summary>
@@ -99,11 +79,7 @@ namespace FlatFiles
         /// <returns>True if the column was a Boolean; otherwise, false.</returns>
         public static bool TryGetBoolean(this IDataRecord record, int i, out bool value)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -115,11 +91,7 @@ namespace FlatFiles
         /// <returns>True if the column was a Boolean; otherwise, false.</returns>
         public static bool TryGetBoolean(this IDataRecord record, string name, out bool value)
         {
-            if (record == null)
-            {
-                throw new ArgumentNullException("record");
-            }
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -129,42 +101,30 @@ namespace FlatFiles
         /// <summary>
         /// Maps the value of the column to the specified enumeration value.
         /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
         /// <typeparam name="TEnum">The type of the value to map to.</typeparam>
         /// <param name="record">The IDataRecord to get the value for.</param>
         /// <param name="i">The zero-based column ordinal.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
-        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, int i)
+        public static TEnum GetEnum<TEnum>(this IDataRecord record, int i)
             where TEnum : struct
         {
-            return getEnum<T, TEnum>(record, i, getByRepresentation<T, TEnum>);
+            return GetValue<TEnum>(record, i, null);
         }
 
         /// <summary>
         /// Maps the value of the column to the specified enumeration value.
         /// </summary>
-        /// <typeparam name="T">The type of the column.</typeparam>
         /// <typeparam name="TEnum">The type of the value to map to.</typeparam>
         /// <param name="record">The IDataRecord to get the value for.</param>
         /// <param name="name">The name of the column to find.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
         /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
-        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, string name)
+        public static TEnum GetEnum<TEnum>(this IDataRecord record, string name)
             where TEnum : struct
         {
             int ordinal = record.GetOrdinal(name);
-            return getEnum<T, TEnum>(record, ordinal, getByRepresentation<T, TEnum>);
-        }
-
-        private static TEnum getByRepresentation<T, TEnum>(T value)
-            where TEnum : struct
-        {
-            if (value is String)
-            {
-                return (TEnum)Enum.Parse(typeof(TEnum), (string)(object)value, true);
-            }
-            return (TEnum)Enum.ToObject(typeof(TEnum), value);
+            return GetValue<TEnum>(record, ordinal, null);
         }
 
         /// <summary>
@@ -179,7 +139,7 @@ namespace FlatFiles
         public static TEnum GetEnum<T, TEnum>(this IDataRecord record, int i, Func<T, TEnum> mapper)
             where TEnum : struct
         {
-            return getEnum<T, TEnum>(record, i, mapper);
+            return getEnum(record, i, mapper);
         }
 
         /// <summary>
@@ -201,7 +161,7 @@ namespace FlatFiles
         private static TEnum getEnum<T, TEnum>(IDataRecord record, int i, Func<T, TEnum> mapper)
             where TEnum : struct
         {
-            T value = getValue<T>(record, i, CultureInfo.CurrentCulture);
+            T value = GetValue<T>(record, i, null);
             return mapper(value);
         }
 
@@ -217,7 +177,7 @@ namespace FlatFiles
         /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
         public static byte GetByte(this IDataRecord record, string name)
         {
-            return get(record, record.GetByte, name);
+            return Get(record, name, record.GetByte);
         }
 
         /// <summary>
@@ -228,7 +188,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static byte? GetNullableByte(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetByte, i, null);
+            return GetNullable(record, i, record.GetByte, null);
         }
 
         /// <summary>
@@ -239,7 +199,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static byte? GetNullableByte(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetByte, name, null);
+            return GetNullable(record, name, record.GetByte, null);
         }
 
         /// <summary>
@@ -251,7 +211,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static byte? GetNullableByte(this IDataRecord record, int i, byte? defaultValue)
         {
-            return getNullable(record, record.GetByte, i, defaultValue);
+            return GetNullable(record, i, record.GetByte, defaultValue);
         }
 
         /// <summary>
@@ -264,7 +224,7 @@ namespace FlatFiles
         public static byte? GetNullableByte(this IDataRecord record, string name, byte? defaultValue)
         {
             int ordinal = record.GetOrdinal(name);
-            return getNullable(record, record.GetByte, ordinal, defaultValue);
+            return GetNullable(record, ordinal, record.GetByte, defaultValue);
         }
 
         /// <summary>
@@ -276,7 +236,7 @@ namespace FlatFiles
         /// <returns>True if the column was a byte; otherwise, false.</returns>
         public static bool TryGetByte(this IDataRecord record, int i, out byte value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -289,7 +249,7 @@ namespace FlatFiles
         public static bool TryGetByte(this IDataRecord record, string name, out byte value)
         {
             int ordinal = record.GetOrdinal(name);
-            return tryGet(record, ordinal, out value);
+            return TryGet(record, ordinal, out value);
         }
 
 #endregion
@@ -325,7 +285,7 @@ namespace FlatFiles
         /// <returns>The character value of the specified column.</returns>
         public static char GetChar(this IDataRecord record, string name)
         {
-            return get(record, record.GetChar, name);
+            return Get(record, name, record.GetChar);
         }
 
         /// <summary>
@@ -336,7 +296,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static char? GetNullableChar(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetChar, i, null);
+            return GetNullable(record, i, record.GetChar, null);
         }
 
         /// <summary>
@@ -347,7 +307,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static char? GetNullableChar(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetChar, name, null);
+            return GetNullable(record, name, record.GetChar, null);
         }
 
         /// <summary>
@@ -359,7 +319,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static char? GetNullableChar(this IDataRecord record, int i, char? defaultValue)
         {
-            return getNullable(record, record.GetChar, i, defaultValue);
+            return GetNullable(record, i, record.GetChar, defaultValue);
         }
 
         /// <summary>
@@ -371,7 +331,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static char? GetNullableChar(this IDataRecord record, string name, char? defaultValue)
         {
-            return getNullable(record, record.GetChar, name, defaultValue);
+            return GetNullable(record, name, record.GetChar, defaultValue);
         }
 
         /// <summary>
@@ -383,7 +343,7 @@ namespace FlatFiles
         /// <returns>True if the column was a char; otherwise, false.</returns>
         public static bool TryGetChar(this IDataRecord record, int i, out char value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -395,7 +355,7 @@ namespace FlatFiles
         /// <returns>True if the column was a char; otherwise, false.</returns>
         public static bool TryGetChar(this IDataRecord record, string name, out char value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -431,7 +391,7 @@ namespace FlatFiles
         /// <returns>An System.Data.IDataReader.</returns>
         public static IDataReader GetData(this IDataRecord record, string name)
         {
-            return get(record, record.GetData, name);
+            return Get(record, name, record.GetData);
         }
 
 #endregion
@@ -446,7 +406,7 @@ namespace FlatFiles
         /// <returns>The data type information for the specified field.</returns>
         public static string GetDataTypeName(this IDataRecord record, string name)
         {
-            return get(record, record.GetDataTypeName, name);
+            return Get(record, name, record.GetDataTypeName);
         }
 
 #endregion
@@ -461,7 +421,7 @@ namespace FlatFiles
         /// <returns>The DateTime value of the specified column.</returns>
         public static DateTime GetDateTime(this IDataRecord record, string name)
         {
-            return get(record, record.GetDateTime, name);
+            return Get(record, name, record.GetDateTime);
         }
 
         /// <summary>
@@ -472,7 +432,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static DateTime? GetNullableDateTime(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetDateTime, i, null);
+            return GetNullable(record, i, record.GetDateTime, null);
         }
 
         /// <summary>
@@ -483,7 +443,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static DateTime? GetNullableDateTime(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetDateTime, name, null);
+            return GetNullable(record, name, record.GetDateTime, null);
         }
 
         /// <summary>
@@ -495,7 +455,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static DateTime? GetNullableDateTime(this IDataRecord record, int i, DateTime? defaultValue)
         {
-            return getNullable(record, record.GetDateTime, i, defaultValue);
+            return GetNullable(record, i, record.GetDateTime, defaultValue);
         }
 
         /// <summary>
@@ -507,7 +467,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static DateTime? GetNullableDateTime(this IDataRecord record, string name, DateTime? defaultValue)
         {
-            return getNullable(record, record.GetDateTime, name, defaultValue);
+            return GetNullable(record, name, record.GetDateTime, defaultValue);
         }
 
         /// <summary>
@@ -519,7 +479,7 @@ namespace FlatFiles
         /// <returns>True if the column was a DateTime; otherwise, false.</returns>
         public static bool TryGetDateTime(this IDataRecord record, int i, out DateTime value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -531,7 +491,7 @@ namespace FlatFiles
         /// <returns>True if the column was a DateTime; otherwise, false.</returns>
         public static bool TryGetDateTime(this IDataRecord record, string name, out DateTime value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -546,7 +506,7 @@ namespace FlatFiles
         /// <returns>The decimal value of the specified column.</returns>
         public static decimal GetDecimal(this IDataRecord record, string name)
         {
-            return get(record, record.GetDecimal, name);
+            return Get(record, name, record.GetDecimal);
         }
 
         /// <summary>
@@ -557,7 +517,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static decimal? GetNullableDecimal(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetDecimal, i, null);
+            return GetNullable(record, i, record.GetDecimal, null);
         }
 
         /// <summary>
@@ -568,7 +528,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static decimal? GetNullableDecimal(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetDecimal, name, null);
+            return GetNullable(record, name, record.GetDecimal, null);
         }
 
         /// <summary>
@@ -580,7 +540,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static decimal? GetNullableDecimal(this IDataRecord record, int i, decimal? defaultValue)
         {
-            return getNullable(record, record.GetDecimal, i, defaultValue);
+            return GetNullable(record, i, record.GetDecimal, defaultValue);
         }
 
         /// <summary>
@@ -592,7 +552,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static decimal? GetNullableDecimal(this IDataRecord record, string name, decimal? defaultValue)
         {
-            return getNullable(record, record.GetDecimal, name, defaultValue);
+            return GetNullable(record, name, record.GetDecimal, defaultValue);
         }
 
         /// <summary>
@@ -604,7 +564,7 @@ namespace FlatFiles
         /// <returns>True if the column was a decimal; otherwise, false.</returns>
         public static bool TryGetDecimal(this IDataRecord record, int i, out decimal value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -616,7 +576,7 @@ namespace FlatFiles
         /// <returns>True if the column was a decimal; otherwise, false.</returns>
         public static bool TryGetDecimal(this IDataRecord record, string name, out decimal value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -631,7 +591,7 @@ namespace FlatFiles
         /// <returns>The double value of the specified column.</returns>
         public static double GetDouble(this IDataRecord record, string name)
         {
-            return get(record, record.GetDouble, name);
+            return Get(record, name, record.GetDouble);
         }
 
         /// <summary>
@@ -642,7 +602,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static double? GetNullableDouble(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetDouble, i, null);
+            return GetNullable(record, i, record.GetDouble, null);
         }
 
         /// <summary>
@@ -653,7 +613,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static double? GetNullableDouble(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetDouble, name, null);
+            return GetNullable(record, name, record.GetDouble, null);
         }
 
         /// <summary>
@@ -665,7 +625,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static double? GetNullableDouble(this IDataRecord record, int i, double? defaultValue)
         {
-            return getNullable(record, record.GetDouble, i, defaultValue);
+            return GetNullable(record, i, record.GetDouble, defaultValue);
         }
 
         /// <summary>
@@ -677,7 +637,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static double? GetNullableDouble(this IDataRecord record, string name, double? defaultValue)
         {
-            return getNullable(record, record.GetDouble, name, defaultValue);
+            return GetNullable(record, name, record.GetDouble, defaultValue);
         }
 
         /// <summary>
@@ -689,7 +649,7 @@ namespace FlatFiles
         /// <returns>True if the column was a double; otherwise, false.</returns>
         public static bool TryGetDouble(this IDataRecord record, int i, out double value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -701,7 +661,7 @@ namespace FlatFiles
         /// <returns>True if the column was a double; otherwise, false.</returns>
         public static bool TryGetDouble(this IDataRecord record, string name, out double value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -720,7 +680,7 @@ namespace FlatFiles
         /// </returns>
         public static Type GetFieldType(this IDataRecord record, string name)
         {
-            return get(record, record.GetFieldType, name);
+            return Get(record, name, record.GetFieldType);
         }
 
 #endregion
@@ -735,7 +695,7 @@ namespace FlatFiles
         /// <returns>The float value of the specified column.</returns>
         public static float GetFloat(this IDataRecord record, string name)
         {
-            return get(record, record.GetFloat, name);
+            return Get(record, name, record.GetFloat);
         }
 
         /// <summary>
@@ -746,7 +706,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static float? GetNullableFloat(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetFloat, i, null);
+            return GetNullable(record, i, record.GetFloat, null);
         }
 
         /// <summary>
@@ -757,7 +717,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static float? GetNullableFloat(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetFloat, name, null);
+            return GetNullable(record, name, record.GetFloat, null);
         }
 
         /// <summary>
@@ -769,7 +729,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static float? GetNullableFloat(this IDataRecord record, int i, float? defaultValue)
         {
-            return getNullable(record, record.GetFloat, i, defaultValue);
+            return GetNullable(record, i, record.GetFloat, defaultValue);
         }
 
         /// <summary>
@@ -781,7 +741,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static float? GetNullableFloat(this IDataRecord record, string name, float? defaultValue)
         {
-            return getNullable(record, record.GetFloat, name, defaultValue);
+            return GetNullable(record, name, record.GetFloat, defaultValue);
         }
 
         /// <summary>
@@ -793,7 +753,7 @@ namespace FlatFiles
         /// <returns>True if the column was a float; otherwise, false.</returns>
         public static bool TryGetFloat(this IDataRecord record, int i, out float value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -805,7 +765,7 @@ namespace FlatFiles
         /// <returns>True if the column was a float; otherwise, false.</returns>
         public static bool TryGetFloat(this IDataRecord record, string name, out float value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -820,7 +780,7 @@ namespace FlatFiles
         /// <returns>The Guid value of the specified column.</returns>
         public static Guid GetGuid(this IDataRecord record, string name)
         {
-            return get(record, record.GetGuid, name);
+            return Get(record, name, record.GetGuid);
         }
 
         /// <summary>
@@ -831,7 +791,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static Guid? GetNullableGuid(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetGuid, i, null);
+            return GetNullable(record, i, record.GetGuid, null);
         }
 
         /// <summary>
@@ -842,7 +802,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static Guid? GetNullableGuid(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetGuid, name, null);
+            return GetNullable(record, name, record.GetGuid, null);
         }
 
         /// <summary>
@@ -854,7 +814,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static Guid? GetNullableGuid(this IDataRecord record, int i, Guid? defaultValue)
         {
-            return getNullable(record, record.GetGuid, i, defaultValue);
+            return GetNullable(record, i, record.GetGuid, defaultValue);
         }
 
         /// <summary>
@@ -866,7 +826,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static Guid? GetNullableGuid(this IDataRecord record, string name, Guid? defaultValue)
         {
-            return getNullable(record, record.GetGuid, name, defaultValue);
+            return GetNullable(record, name, record.GetGuid, defaultValue);
         }
 
         /// <summary>
@@ -878,7 +838,7 @@ namespace FlatFiles
         /// <returns>True if the column was a Guid; otherwise, false.</returns>
         public static bool TryGetGuid(this IDataRecord record, int i, out Guid value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -890,7 +850,7 @@ namespace FlatFiles
         /// <returns>True if the column was a Guid; otherwise, false.</returns>
         public static bool TryGetGuid(this IDataRecord record, string name, out Guid value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -905,7 +865,7 @@ namespace FlatFiles
         /// <returns>The short value of the specified column.</returns>
         public static short GetInt16(this IDataRecord record, string name)
         {
-            return get(record, record.GetInt16, name);
+            return Get(record, name, record.GetInt16);
         }
 
         /// <summary>
@@ -916,7 +876,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static short? GetNullableInt16(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetInt16, i, null);
+            return GetNullable(record, i, record.GetInt16, null);
         }
 
         /// <summary>
@@ -927,7 +887,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static short? GetNullableInt16(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetInt16, name, null);
+            return GetNullable(record, name, record.GetInt16, null);
         }
 
         /// <summary>
@@ -939,7 +899,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static short? GetNullableInt16(this IDataRecord record, int i, short? defaultValue)
         {
-            return getNullable(record, record.GetInt16, i, defaultValue);
+            return GetNullable(record, i, record.GetInt16, defaultValue);
         }
 
         /// <summary>
@@ -951,7 +911,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static short? GetNullableInt16(this IDataRecord record, string name, short? defaultValue)
         {
-            return getNullable(record, record.GetInt16, name, defaultValue);
+            return GetNullable(record, name, record.GetInt16, defaultValue);
         }
 
         /// <summary>
@@ -963,7 +923,7 @@ namespace FlatFiles
         /// <returns>True if the column was a short; otherwise, false.</returns>
         public static bool TryGetInt16(this IDataRecord record, int i, out short value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -975,7 +935,7 @@ namespace FlatFiles
         /// <returns>True if the column was a short; otherwise, false.</returns>
         public static bool TryGetInt16(this IDataRecord record, string name, out short value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -990,7 +950,7 @@ namespace FlatFiles
         /// <returns>The int value of the specified column.</returns>
         public static int GetInt32(this IDataRecord record, string name)
         {
-            return get(record, record.GetInt32, name);
+            return Get(record, name, record.GetInt32);
         }
 
         /// <summary>
@@ -1001,7 +961,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static int? GetNullableInt32(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetInt32, i, null);
+            return GetNullable(record, i, record.GetInt32, null);
         }
 
         /// <summary>
@@ -1012,7 +972,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static int? GetNullableInt32(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetInt32, name, null);
+            return GetNullable(record, name, record.GetInt32, null);
         }
 
         /// <summary>
@@ -1024,7 +984,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static int? GetNullableInt32(this IDataRecord record, int i, int? defaultValue)
         {
-            return getNullable(record, record.GetInt32, i, defaultValue);
+            return GetNullable(record, i, record.GetInt32, defaultValue);
         }
 
         /// <summary>
@@ -1036,7 +996,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static int? GetNullableInt32(this IDataRecord record, string name, int? defaultValue)
         {
-            return getNullable(record, record.GetInt32, name, defaultValue);
+            return GetNullable(record, name, record.GetInt32, defaultValue);
         }
 
         /// <summary>
@@ -1048,7 +1008,7 @@ namespace FlatFiles
         /// <returns>True if the column was a int; otherwise, false.</returns>
         public static bool TryGetInt32(this IDataRecord record, int i, out int value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -1060,7 +1020,7 @@ namespace FlatFiles
         /// <returns>True if the column was a int; otherwise, false.</returns>
         public static bool TryGetInt32(this IDataRecord record, string name, out int value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -1075,7 +1035,7 @@ namespace FlatFiles
         /// <returns>The int value of the specified column.</returns>
         public static long GetInt64(this IDataRecord record, string name)
         {
-            return get(record, record.GetInt64, name);
+            return Get(record, name, record.GetInt64);
         }
 
         /// <summary>
@@ -1086,7 +1046,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static long? GetNullableInt64(this IDataRecord record, int i)
         {
-            return getNullable(record, record.GetInt64, i, null);
+            return GetNullable(record, i, record.GetInt64, null);
         }
 
         /// <summary>
@@ -1097,7 +1057,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static long? GetNullableInt64(this IDataRecord record, string name)
         {
-            return getNullable(record, record.GetInt64, name, null);
+            return GetNullable(record, name, record.GetInt64, null);
         }
 
         /// <summary>
@@ -1109,7 +1069,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static long? GetNullableInt64(this IDataRecord record, int i, long? defaultValue)
         {
-            return getNullable(record, record.GetInt64, i, defaultValue);
+            return GetNullable(record, i, record.GetInt64, defaultValue);
         }
 
         /// <summary>
@@ -1121,7 +1081,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static long? GetNullableInt64(this IDataRecord record, string name, long? defaultValue)
         {
-            return getNullable(record, record.GetInt64, name, defaultValue);
+            return GetNullable(record, name, record.GetInt64, defaultValue);
         }
 
         /// <summary>
@@ -1133,7 +1093,7 @@ namespace FlatFiles
         /// <returns>True if the column was a long; otherwise, false.</returns>
         public static bool TryGetInt64(this IDataRecord record, int i, out long value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -1145,7 +1105,7 @@ namespace FlatFiles
         /// <returns>True if the column was a long; otherwise, false.</returns>
         public static bool TryGetInt64(this IDataRecord record, string name, out long value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -1160,7 +1120,7 @@ namespace FlatFiles
         /// <returns>The int value of the specified column.</returns>
         public static string GetString(this IDataRecord record, string name)
         {
-            return get(record, record.GetString, name);
+            return Get(record, name, record.GetString);
         }
 
         /// <summary>
@@ -1171,7 +1131,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static string GetNullableString(this IDataRecord record, int i)
         {
-            return getNullableString(record, i, null);
+            return GetNullableString(record, i, null);
         }
 
         /// <summary>
@@ -1183,7 +1143,7 @@ namespace FlatFiles
         public static string GetNullableString(this IDataRecord record, string name)
         {
             int ordinal = record.GetOrdinal(name);
-            return getNullableString(record, ordinal, null);
+            return GetNullableString(record, ordinal, null);
         }
 
         /// <summary>
@@ -1195,7 +1155,11 @@ namespace FlatFiles
         /// <returns>The value of the column -or- the default value if the column is null.</returns>
         public static string GetNullableString(this IDataRecord record, int i, string defaultValue)
         {
-            return getNullableString(record, i, defaultValue);
+            if (record.IsDBNull(i))
+            {
+                return defaultValue;
+            }
+            return record.GetString(i);
         }
 
         /// <summary>
@@ -1208,16 +1172,7 @@ namespace FlatFiles
         public static string GetNullableString(this IDataRecord record, string name, string defaultValue)
         {
             int ordinal = record.GetOrdinal(name);
-            return getNullableString(record, ordinal, defaultValue);
-        }
-
-        private static string getNullableString(IDataRecord record, int i, string defaultValue)
-        {
-            if (record.IsDBNull(i))
-            {
-                return defaultValue;
-            }
-            return record.GetString(i);
+            return GetNullableString(record, ordinal, defaultValue);
         }
 
         /// <summary>
@@ -1229,7 +1184,7 @@ namespace FlatFiles
         /// <returns>True if the column was a string; otherwise, false.</returns>
         public static bool TryGetString(this IDataRecord record, int i, out string value)
         {
-            return tryGet(record, i, out value);
+            return TryGet(record, i, out value);
         }
 
         /// <summary>
@@ -1241,7 +1196,7 @@ namespace FlatFiles
         /// <returns>True if the column was a string; otherwise, false.</returns>
         public static bool TryGetString(this IDataRecord record, string name, out string value)
         {
-            return tryGet(record, name, out value);
+            return TryGet(record, name, out value);
         }
 
 #endregion
@@ -1256,49 +1211,7 @@ namespace FlatFiles
         /// <returns>The System.Object which will contain the field value upon return.</returns>
         public static object GetValue(this IDataRecord record, string name)
         {
-            return get(record, record.GetValue, name);
-        }
-
-        /// <summary>
-        /// Returns the value of the specified field.
-        /// </summary>
-        /// <typeparam name="T">The type of the field.</typeparam>
-        /// <param name="record">The IDataRecord to get the value for.</param>
-        /// <param name="i">The index of the field to find.</param>
-        /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, int i)
-        {
-            return getValue<T>(record, i, CultureInfo.CurrentCulture);
-        }
-
-        /// <summary>
-        /// Returns the value of the specified field.
-        /// </summary>
-        /// <typeparam name="T">The type of the field.</typeparam>
-        /// <param name="record">The IDataRecord to get the value for.</param>
-        /// <param name="name">The name of the field to find.</param>
-        /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, string name)
-        {
-            int ordinal = record.GetOrdinal(name);
-            return getValue<T>(record, ordinal, CultureInfo.CurrentCulture);
-        }
-
-        /// <summary>
-        /// Returns the value of the specified field.
-        /// </summary>
-        /// <typeparam name="T">The type of the field.</typeparam>
-        /// <param name="record">The IDataRecord to get the value for.</param>
-        /// <param name="i">The index of the field to find.</param>
-        /// <param name="provider">A format provider for converting to the desired type.</param>
-        /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, int i, IFormatProvider provider)
-        {
-            if (provider == null)
-            {
-                throw new ArgumentNullException("provider");
-            }
-            return getValue<T>(record, i, provider);
+            return Get(record, name, record.GetValue);
         }
 
         /// <summary>
@@ -1309,17 +1222,21 @@ namespace FlatFiles
         /// <param name="name">The name of the field to find.</param>
         /// <param name="provider">A format provider for converting to the desired type.</param>
         /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, string name, IFormatProvider provider)
+        public static T GetValue<T>(this IDataRecord record, string name, IFormatProvider provider = null)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException("provider");
-            }
             int ordinal = record.GetOrdinal(name);
-            return getValue<T>(record, ordinal, provider);
+            return GetValue<T>(record, ordinal, provider);
         }
 
-        private static T getValue<T>(IDataRecord record, int i, IFormatProvider provider)
+        /// <summary>
+        /// Returns the value of the specified field.
+        /// </summary>
+        /// <typeparam name="T">The type of the field.</typeparam>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <param name="provider">A format provider for converting to the desired type.</param>
+        /// <returns>The value.</returns>
+        public static T GetValue<T>(IDataRecord record, int i, IFormatProvider provider = null)
         {
             Type underlyingType = Nullable.GetUnderlyingType(typeof(T));
             Type type = underlyingType ?? typeof(T);
@@ -1378,7 +1295,7 @@ namespace FlatFiles
                 value = Convert.ChangeType(value, Enum.GetUnderlyingType(type));
                 if (Enum.IsDefined(type, value))
                 {
-                    return ToEnum(type, value);
+                    return Enum.ToObject(type, value);
                 }
             }
             catch
@@ -1399,9 +1316,9 @@ namespace FlatFiles
             }
         }
 
-        #endregion
+#endregion
 
-        #region GetValues
+#region GetValues
 
         /// <summary>
         /// Creates an array of objects with the column values of the current record.
@@ -1427,18 +1344,18 @@ namespace FlatFiles
         /// <returns>true if the specified field is set to null; otherwise, false.</returns>
         public static bool IsDBNull(this IDataRecord record, string name)
         {
-            return get(record, record.IsDBNull, name);
+            return Get(record, name, record.IsDBNull);
         }
 
-#endregion
+        #endregion
 
-        private static T get<T>(IDataRecord record, Func<int, T> getter, string name)
+        private static T Get<T>(IDataRecord record, string name, Func<int, T> getter)
         {
             int index = record.GetOrdinal(name);
             return getter(index);
         }
 
-        private static T? getNullable<T>(IDataRecord record, Func<int, T> getter, int index, T? defaultValue)
+        private static T? GetNullable<T>(IDataRecord record, int index, Func<int, T> getter, T? defaultValue)
             where T : struct
         {
             if (record.IsDBNull(index))
@@ -1451,18 +1368,18 @@ namespace FlatFiles
             }
         }
 
-        private static T? getNullable<T>(IDataRecord record, Func<int, T> getter, string name, T? defaultValue)
+        private static T? GetNullable<T>(IDataRecord record, string name, Func<int, T> getter, T? defaultValue)
             where T : struct
         {
             int index = record.GetOrdinal(name);
-            return getNullable<T>(record, getter, index, defaultValue);
+            return GetNullable<T>(record, index, getter, defaultValue);
         }
 
-        private static bool tryGet<T>(IDataRecord record, int i, out T value)
+        private static bool TryGet<T>(IDataRecord record, int i, out T value)
         {
             if (record.IsDBNull(i))
             {
-                value = default(T);
+                value = default;
                 return false;
             }
             object result = record.GetValue(i);
@@ -1473,15 +1390,15 @@ namespace FlatFiles
             }
             else
             {
-                value = default(T);
+                value = default;
                 return false;
             }
         }
 
-        private static bool tryGet<T>(IDataRecord record, string name, out T value)
+        private static bool TryGet<T>(IDataRecord record, string name, out T value)
         {
             int index = record.GetOrdinal(name);
-            return tryGet<T>(record, index, out value);
+            return TryGet<T>(record, index, out value);
         }
     }
 }
