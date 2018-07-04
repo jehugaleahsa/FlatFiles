@@ -1321,19 +1321,34 @@ namespace FlatFiles
 
         private static T getValue<T>(IDataRecord record, int i, IFormatProvider provider)
         {
-            Type type = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            Type underlyingType = Nullable.GetUnderlyingType(typeof(T));
+            Type type = underlyingType ?? typeof(T);
             if (record.IsDBNull(i))
             {
-                if (typeof(T).GetTypeInfo().IsValueType && typeof(T) == type)
+                if (type.IsValueType && underlyingType == null)
                 {
                     throw new InvalidCastException();
                 }
-                return default(T);
+                return default;
             }
             object value = record.GetValue(i);
-            if (value is IConvertible)
+            if (type != value.GetType())
             {
-                value = System.Convert.ChangeType(value, type, provider);
+                if (type == typeof(Guid))
+                {
+                    if (value is string stringValue)
+                    {
+                        value = Guid.Parse(stringValue);
+                    }
+                    else if (value is byte[] byteArray)
+                    {
+                        value = new Guid(byteArray);
+                    }
+                }
+                else if (value is IConvertible)
+                {
+                    value = Convert.ChangeType(value, type, provider);
+                }
             }
             return (T)value;
         }
