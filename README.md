@@ -408,15 +408,16 @@ For low-level ADO.NET file reading, you can use the `FlatFileDataReader` class. 
 // The DataReader Approach
 using (var fileReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv"))
 {
-    var reader = new FlatFileDataReader(new SeparatedValueReader(fileReader, schema));
+    var csvReader = new SeparatedValueReader(fileReader, schema);
+    var dataReader = new FlatFileDataReader(csvReader);
     var customers = new List<Customer>();
-    while (reader.Read())
+    while (dataReader.Read())
     {
         var customer = new Customer();
-        customer.CustomerId = reader.GetInt32(0);
-        customer.Name = reader.GetString(1);
-        customer.Created = reader.GetDateTime(2);
-        customer.AverageSales = reader.GetDouble(3);
+        customer.CustomerId = dataReader.GetInt32(0);
+        customer.Name = dataReader.GetString(1);
+        customer.Created = dataReader.GetDateTime(2);
+        customer.AverageSales = dataReader.GetDouble(3);
         customers.Add(customer);
     }
     return customers;
@@ -424,6 +425,10 @@ using (var fileReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv"))
 ```
 
 Usually in cases like this, it is just easier to use the type mappers. However, this could be useful if you are swapping out an actual database call with CSV data inside of a unit test.
+
+FlatFiles also provides helpful extension methods on the `IDataReader` interface to make it easier to extract data. It provides `GetNullable*` variants of the `IDataReader` methods, so you don't need to constantly call `IsDBNull`. There are also variants of each method accepting the column name rather than the ordinal position.
+
+There are also generic `GetValue<T>` methods that can deal with type conversions automatically for you. For example, anytime you read in a CSV file without providing the schema, FlatFiles assumes each column is a `string`. When calling `GetValue<int>("Id")` or `GetValue<DateTime?>("CreatedOn")`, FlatFiles will try to convert the values for you. This is extremely helpful when you don't want to provide (*or can't provide*) a schema but can still determine the column types. For example, when you know the column names and their types but their order could be different between runs.
 
 ## License
 This is free and unencumbered software released into the public domain.
