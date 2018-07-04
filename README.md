@@ -406,18 +406,21 @@ For low-level ADO.NET file reading, you can use the `FlatFileDataReader` class. 
 
 ```csharp
 // The DataReader Approach
-var reader = new FlatFileReader(new SeparatedValueReader(@"C:\path\to\file.csv", schema));
-var customers = new List<Customer>();
-while (reader.Read())
+using (var fileReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv"))
 {
-    var customer = new Customer();
-    customer.CustomerId = reader.GetInt32(0);
-    customer.Name = reader.GetString(1);
-    customer.Created = reader.GetDateTime(2);
-    customer.AverageSales = reader.GetDouble(3);
-    customers.Add(customer);
+    var reader = new FlatFileDataReader(new SeparatedValueReader(fileReader, schema));
+    var customers = new List<Customer>();
+    while (reader.Read())
+    {
+        var customer = new Customer();
+        customer.CustomerId = reader.GetInt32(0);
+        customer.Name = reader.GetString(1);
+        customer.Created = reader.GetDateTime(2);
+        customer.AverageSales = reader.GetDouble(3);
+        customers.Add(customer);
+    }
+    return customers;
 }
-return customers;
 ```
 
 Usually in cases like this, it is just easier to use the type mappers. However, this could be useful if you are swapping out an actual database call with CSV data inside of a unit test.
