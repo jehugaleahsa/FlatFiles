@@ -1336,14 +1336,11 @@ namespace FlatFiles
             {
                 if (type == typeof(Guid))
                 {
-                    if (value is string stringValue)
-                    {
-                        value = Guid.Parse(stringValue);
-                    }
-                    else if (value is byte[] byteArray)
-                    {
-                        value = new Guid(byteArray);
-                    }
+                    value = GetGuid(value);
+                }
+                else if (type.IsEnum)
+                {
+                    value = GetEnum(type, value);
                 }
                 else if (value is IConvertible)
                 {
@@ -1353,9 +1350,58 @@ namespace FlatFiles
             return (T)value;
         }
 
-#endregion
+        private static object GetGuid(object value)
+        {
+            if (value is string stringValue)
+            {
+                value = Guid.Parse(stringValue);
+            }
+            else if (value is byte[] byteArray)
+            {
+                value = new Guid(byteArray);
+            }
+            return value;
+        }
 
-#region GetValues
+        private static object GetEnum(Type type, object value)
+        {
+            try
+            {
+                if (type.GetCustomAttribute(typeof(FlagsAttribute)) != null)
+                {
+                    return ToEnum(type, value);
+                }
+                if (Enum.IsDefined(type, value))
+                {
+                    return ToEnum(type, value);
+                }
+                value = Convert.ChangeType(value, Enum.GetUnderlyingType(type));
+                if (Enum.IsDefined(type, value))
+                {
+                    return ToEnum(type, value);
+                }
+            }
+            catch
+            {
+            }
+            return value;
+        }
+
+        private static object ToEnum(Type type, object value)
+        {
+            if (value is string stringValue)
+            {
+                return Enum.Parse(type, stringValue);
+            }
+            else
+            {
+                return Enum.ToObject(type, value);
+            }
+        }
+
+        #endregion
+
+        #region GetValues
 
         /// <summary>
         /// Creates an array of objects with the column values of the current record.

@@ -16,15 +16,15 @@ namespace FlatFiles.Test
             FlatFileDataReader dataReader = GetFlatFileReaderWithDefaultSchema();
             var schema = dataReader.GetSchemaTable();
 
-            var expectedNames = new[] { "Id", "Name", "CreatedOn", "IsActive", "VisitCount", "UniqueId" };
+            var expectedNames = new[] { "Id", "Name", "CreatedOn", "IsActive", "VisitCount", "UniqueId", "FavoriteDay" };
             var actualNames = schema.Rows.Cast<DataRow>().Select(r => r.Field<string>(SchemaTableColumn.ColumnName)).ToArray();
             CollectionAssert.AreEqual(expectedNames, actualNames);
 
-            var expectedPositions = Enumerable.Range(0, 6).ToArray();
+            var expectedPositions = Enumerable.Range(0, 7).ToArray();
             var actualPositions = schema.Rows.Cast<DataRow>().Select(r => r.Field<int>(SchemaTableColumn.ColumnOrdinal)).ToArray();
             CollectionAssert.AreEqual(expectedPositions, actualPositions);
 
-            var expectedTypes = Enumerable.Repeat(typeof(string), 6).ToArray();
+            var expectedTypes = Enumerable.Repeat(typeof(string), 7).ToArray();
             var actualTypes = schema.Rows.Cast<DataRow>().Select(r => r.Field<Type>(SchemaTableColumn.DataType)).ToArray();
             CollectionAssert.AreEqual(expectedTypes, actualTypes);
         }
@@ -40,6 +40,7 @@ namespace FlatFiles.Test
             Assert.IsTrue(dataReader.GetValue<bool>("IsActive"), "The wrong 'IsActive' was retrieved for 'Bob'");
             Assert.AreEqual(10, dataReader.GetValue<int?>("VisitCount"), "The wrong 'VisitCount' was retrieved for 'Bob'.");
             Assert.AreEqual(new Guid("DC3A6AE3-00C8-4884-AC0F-F61EB769DFEB"), dataReader.GetValue<Guid?>("UniqueId"), "The wrong 'UniqueId' was retrieved for 'Bob'.");
+            Assert.AreEqual(DayOfWeek.Wednesday, dataReader.GetValue<DayOfWeek>("FavoriteDay"), "The wrong 'FavoriteDay' was retrieved for 'Bob'.");
 
             Assert.IsTrue(dataReader.Read(), "The second record could not be read.");
             Assert.AreEqual(2, dataReader.GetValue<int>("Id"), "The wrong 'Id' was retrieved for 'Susan'.");
@@ -48,15 +49,16 @@ namespace FlatFiles.Test
             Assert.IsFalse(dataReader.GetValue<bool>("IsActive"), "The wrong 'IsActive' was retrieved for 'Susan'");
             Assert.AreEqual(null, dataReader.GetValue<int?>("VisitCount"), "The wrong 'VisitCount' was retrieved for 'Susan'.");
             Assert.AreEqual(new Guid("{24C250EB-87C9-45DE-B01F-71A7754C6AAD}"), dataReader.GetValue<Guid?>("UniqueId"), "The wrong 'UniqueId' was retrieved for 'Susan'.");
+            Assert.AreEqual(DayOfWeek.Friday, dataReader.GetValue<DayOfWeek>("FavoriteDay"), "The wrong 'FavoriteDay' was retrieved for 'Susan'.");
 
             Assert.IsFalse(dataReader.Read(), "Too many records were read.");
         }
 
         private static FlatFileDataReader GetFlatFileReaderWithDefaultSchema()
         {
-            const string data = @"Id,Name,CreatedOn,IsActive,VisitCount,UniqueId
-1,Bob,2018-07-03,true,10,DC3A6AE3-00C8-4884-AC0F-F61EB769DFEB
-2,Susan,2018-07-04,false,,{24C250EB-87C9-45DE-B01F-71A7754C6AAD}
+            const string data = @"Id,Name,CreatedOn,IsActive,VisitCount,UniqueId,FavoriteDay
+1,Bob,2018-07-03,true,10,DC3A6AE3-00C8-4884-AC0F-F61EB769DFEB,Wednesday
+2,Susan,2018-07-04,false,,{24C250EB-87C9-45DE-B01F-71A7754C6AAD},5
 ";
             var reader = new StringReader(data);
             var csvReader = new SeparatedValueReader(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
