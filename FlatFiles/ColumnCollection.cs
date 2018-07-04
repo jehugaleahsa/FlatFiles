@@ -11,7 +11,7 @@ namespace FlatFiles
     public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
         private readonly List<IColumnDefinition> definitions = new List<IColumnDefinition>();
-        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
+        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new ColumnCollection.

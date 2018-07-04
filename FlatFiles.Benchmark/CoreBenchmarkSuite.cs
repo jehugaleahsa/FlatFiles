@@ -9,11 +9,12 @@ using FlatFiles.TypeMapping;
 
 namespace FlatFiles.Benchmark
 {
-    public class SimpleCsvTester
+    public class CoreBenchmarkSuite
     {
         private readonly string data;
+        private readonly string quotedData;
 
-        public SimpleCsvTester()
+        public CoreBenchmarkSuite()
         {
             string[] headers = new string[]
             {
@@ -26,32 +27,17 @@ namespace FlatFiles.Benchmark
             string header = String.Join(",", headers);
             string record = String.Join(",", values);
             data = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
-        }
 
-        [Benchmark]
-        public void RunCsvHelper()
-        {
-            StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() {  });
-            var people = csvReader.GetRecords<Person>().ToArray();
-        }
-
-        [Benchmark]
-        public async Task RunCsvHelperAsync()
-        {
-            StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
-            List<Person> people = new List<Person>();
-            await csvReader.ReadAsync().ConfigureAwait(false);
-            csvReader.ReadHeader();
-            while (await csvReader.ReadAsync().ConfigureAwait(false))
+            string[] quotedValues = new string[]
             {
-                people.Add(csvReader.GetRecord<Person>());
-            }
+                "Joe", "Smith", "29", "\"West Street Rd, Apt. 23\"", "ATTN: Will Smith", "Lexington", "DE", "001569", "Blue", "\"Cheese, and Crackers\"", "Soccer", "2017-01-01", "true"
+            };
+            string quotedRecord = String.Join(",", quotedValues);
+            quotedData = String.Join(Environment.NewLine, (new[] { header }).Concat(Enumerable.Repeat(0, 10000).Select(i => record)));
         }
 
         [Benchmark]
-        public void RunFlatFiles_FlatFileReader()
+        public void RunFlatFiles_FlatFileDataReader_ByPosition()
         {
             var reader = new StringReader(data);
             var schema = new SeparatedValueSchema();
@@ -94,7 +80,50 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles()
+        public void RunFlatFiles_FlatFileDataReader_ByName()
+        {
+            var reader = new StringReader(data);
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("FirstName"));
+            schema.AddColumn(new StringColumn("LastName"));
+            schema.AddColumn(new Int32Column("Age"));
+            schema.AddColumn(new StringColumn("Street1"));
+            schema.AddColumn(new StringColumn("Street2"));
+            schema.AddColumn(new StringColumn("City"));
+            schema.AddColumn(new StringColumn("State"));
+            schema.AddColumn(new StringColumn("Zip"));
+            schema.AddColumn(new StringColumn("FavoriteColor"));
+            schema.AddColumn(new StringColumn("FavoriteFood"));
+            schema.AddColumn(new StringColumn("FavoriteSport"));
+            schema.AddColumn(new DateTimeColumn("CreatedOn"));
+            schema.AddColumn(new BooleanColumn("IsActive"));
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
+            {
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetString("FirstName"),
+                    LastName = dataReader.GetString("LastName"),
+                    Age = dataReader.GetInt32("Age"),
+                    Street1 = dataReader.GetString("Street1"),
+                    Street2 = dataReader.GetString("Street2"),
+                    City = dataReader.GetString("City"),
+                    State = dataReader.GetString("State"),
+                    Zip = dataReader.GetString("Zip"),
+                    FavoriteColor = dataReader.GetString("FavoriteColor"),
+                    FavoriteFood = dataReader.GetString("FavoriteFood"),
+                    FavoriteSport = dataReader.GetString("FavoriteSport"),
+                    CreatedOn = dataReader.GetDateTime("CreatedOn"),
+                    IsActive = dataReader.GetBoolean("IsActive")
+                };
+                people.Add(person);
+            }
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_TypeMapper()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.Property(x => x.FirstName);
@@ -116,7 +145,7 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public async Task RunFlatFilesAsync()
+        public async Task RunFlatFiles_TypeMapper_Async()
         {
             var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
             mapper.Property(x => x.FirstName);
@@ -143,7 +172,51 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_Unoptimized()
+        public void RunFlatFiles_TypeMapper_Quoted()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.Property(x => x.FirstName);
+            mapper.Property(x => x.LastName);
+            mapper.Property(x => x.Age);
+            mapper.Property(x => x.Street1);
+            mapper.Property(x => x.Street2);
+            mapper.Property(x => x.City);
+            mapper.Property(x => x.State);
+            mapper.Property(x => x.Zip);
+            mapper.Property(x => x.FavoriteColor);
+            mapper.Property(x => x.FavoriteFood);
+            mapper.Property(x => x.FavoriteSport);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+
+            StringReader reader = new StringReader(quotedData);
+            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_TypeMapper_Fields()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new FieldPerson());
+            mapper.Property(x => x.FirstName);
+            mapper.Property(x => x.LastName);
+            mapper.Property(x => x.Age);
+            mapper.Property(x => x.Street1);
+            mapper.Property(x => x.Street2);
+            mapper.Property(x => x.City);
+            mapper.Property(x => x.State);
+            mapper.Property(x => x.Zip);
+            mapper.Property(x => x.FavoriteColor);
+            mapper.Property(x => x.FavoriteFood);
+            mapper.Property(x => x.FavoriteSport);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+
+            StringReader reader = new StringReader(data);
+            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_TypeMapper_Unoptimized()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.OptimizeMapping(false);
@@ -166,7 +239,7 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_CustomMapping()
+        public void RunFlatFiles_TypeMapper_CustomMapping()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.CustomMapping(new StringColumn("FirstName")).WithReader(p => p.FirstName);
@@ -188,7 +261,7 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_CustomMapping_Unoptimized()
+        public void RunFlatFiles_TypeMapper_CustomMapping_Unoptimized()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.OptimizeMapping(false);
@@ -211,7 +284,7 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_DeducedMapper()
+        public void RunFlatFiles_AutoMapped()
         {
             var reader = new StringReader(data);
             var csvReader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(reader);
@@ -219,7 +292,7 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public async Task RunFlatFiles_DeducedMapperAsync()
+        public async Task RunFlatFiles_AutoMapped_Async()
         {
             var reader = new StringReader(data);
             var csvReader = await SeparatedValueTypeMapper.GetAutoMappedReaderAsync<Person>(reader);
@@ -228,6 +301,36 @@ namespace FlatFiles.Benchmark
             {
                 people.Add(csvReader.Current);
             }
+        }
+
+        [Benchmark]
+        public void RunCsvHelper()
+        {
+            StringReader reader = new StringReader(data);
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
+            var people = csvReader.GetRecords<Person>().ToArray();
+        }
+
+        [Benchmark]
+        public async Task RunCsvHelper_Async()
+        {
+            StringReader reader = new StringReader(data);
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
+            List<Person> people = new List<Person>();
+            await csvReader.ReadAsync().ConfigureAwait(false);
+            csvReader.ReadHeader();
+            while (await csvReader.ReadAsync().ConfigureAwait(false))
+            {
+                people.Add(csvReader.GetRecord<Person>());
+            }
+        }
+
+        [Benchmark]
+        public void RunCsvHelper_Quoted()
+        {
+            StringReader reader = new StringReader(quotedData);
+            var csvReader = new CsvHelper.CsvReader(reader);
+            var people = csvReader.GetRecords<Person>().ToArray();
         }
 
         [Benchmark]
@@ -285,6 +388,23 @@ namespace FlatFiles.Benchmark
             public DateTime? CreatedOn { get; set; }
 
             public bool IsActive { get; set; }
+        }
+
+        public class FieldPerson
+        {
+            public string FirstName;
+            public string LastName;
+            public int Age;
+            public string Street1;
+            public string Street2;
+            public string City;
+            public string State;
+            public string Zip;
+            public string FavoriteColor;
+            public string FavoriteFood;
+            public string FavoriteSport;
+            public DateTime? CreatedOn;
+            public bool IsActive;
         }
     }
 }

@@ -14,8 +14,6 @@ namespace FlatFiles.Benchmark
             runBenchmarks();
 
             //runPerformanceMonitor();
-
-            //runPerformanceMonitorFlatFileReader();
         }
 
         private static void runBenchmarks()
@@ -33,7 +31,7 @@ namespace FlatFiles.Benchmark
             configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
             configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
 
-            BenchmarkRunner.Run<SimpleCsvTester>(configuration);
+            BenchmarkRunner.Run<CoreBenchmarkSuite>(configuration);
 
             Console.Out.Write("Hit <enter> to exit...");
             Console.In.ReadLine();
@@ -63,23 +61,6 @@ namespace FlatFiles.Benchmark
             stopwatch.Stop();
             Console.Out.WriteLine($"Async Execution Time: {stopwatch.Elapsed}");
             Console.Out.WriteLine($"Async Result Count: {asyncResult.Length}");
-        }
-
-        private static void runPerformanceMonitorFlatFileReader()
-        {
-            var tester = new SimpleCsvTester();
-            for (int i = 0; i != 10; ++i)
-            {
-                tester.RunFlatFiles_FlatFileReader();
-            }
-
-            var stopwatch = Stopwatch.StartNew();
-            for (int i = 0; i != 1000; ++i)
-            {
-                tester.RunFlatFiles_FlatFileReader();
-            }
-            stopwatch.Stop();
-            Console.Out.WriteLine($"Sync Execution Time: {stopwatch.Elapsed}");
         }
     }
 }
