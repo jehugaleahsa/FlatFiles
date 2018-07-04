@@ -401,8 +401,8 @@ using (var streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")
 }
 ```
 
-## FlatFileReader
-For low-level ADO.NET file reading, you can use the `FlatFileReader` class. It provides an `IDataReader` interface to the records in the file, making it compatible with other ADO.NET interfaces.
+## FlatFileDataReader
+For low-level ADO.NET file reading, you can use the `FlatFileDataReader` class. It provides an `IDataReader` interface to the records in the file, making it compatible with other ADO.NET interfaces.
 
 ```csharp
 // The DataReader Approach

@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET45||NETStandard20
 using System;
 using System.Data;
 
@@ -27,7 +27,7 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(reader));
             }
             table.Reset();
-            FlatFileReader fileReader = new FlatFileReader(reader);
+            FlatFileDataReader fileReader = new FlatFileDataReader(reader);
             table.Load(fileReader, LoadOption.OverwriteChanges);
         }
 

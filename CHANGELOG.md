@@ -8,6 +8,7 @@
 ### Enhancements
 * All exceptions, events and custom mapping features now provide access to column, record and/or execution context.
 * Fewer restrictions on the number of environments FlatFiles can run.
+* Support for ADO.NET utilities for .NET Standard 2.0 and above (`IDataReader`/`IDataRecord`).
 
 ### Breaking Changes
 * The `CustomProperty` and `WriteOnlyProperty` methods have been superseded by the `CustomMapping` method, so they have been removed.
@@ -17,6 +18,7 @@
 * The `IncludeFilteredRecords` property of `RecordNumberColumn` has been renamed to `IncludeSkippedRecords`.
 * The `IColumnDefinition` interface methods `Parse` and `Format` now accept `IColumnContext` objects.
 * The `IMetadataColumn` interface no longer has the `GetValue` method. Use the `MetadataColumn` base class instead. See the updated [readme](https://github.com/jehugaleahsa/FlatFiles/blob/master/README.md#metadata).
+* Rename `FlatFileReader` to `FlatFileDataReader`.
 
 Most significantly of all, previous versions of FlatFiles used `DynamicMethod` to generate code at runtime. A `DynamicMethod` can be configured to allow the generated code to access non-public classes and members from other assemblies. However, this additional access requires the code to be running in a trusted environment, meaning FlatFiles could not be used in a sandboxed environment.
 

@@ -98,11 +98,14 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name -or- -1 if the column is not found.</returns>
         public int GetOrdinal(string columnName)
         {
-            if (!ordinals.ContainsKey(columnName))
+            if (ordinals.TryGetValue(columnName, out int ordinal))
+            {
+                return ordinal;
+            }
+            else
             {
                 return -1;
             }
-            return ordinals[columnName];
         }
 
         /// <summary>

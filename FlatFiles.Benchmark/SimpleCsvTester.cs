@@ -51,6 +51,49 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public void RunFlatFiles_FlatFileReader()
+        {
+            var reader = new StringReader(data);
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("FirstName"));
+            schema.AddColumn(new StringColumn("LastName"));
+            schema.AddColumn(new Int32Column("Age"));
+            schema.AddColumn(new StringColumn("Street1"));
+            schema.AddColumn(new StringColumn("Street2"));
+            schema.AddColumn(new StringColumn("City"));
+            schema.AddColumn(new StringColumn("State"));
+            schema.AddColumn(new StringColumn("Zip"));
+            schema.AddColumn(new StringColumn("FavoriteColor"));
+            schema.AddColumn(new StringColumn("FavoriteFood"));
+            schema.AddColumn(new StringColumn("FavoriteSport"));
+            schema.AddColumn(new DateTimeColumn("CreatedOn"));
+            schema.AddColumn(new BooleanColumn("IsActive"));
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
+            {
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetString(0),
+                    LastName = dataReader.GetString(1),
+                    Age = dataReader.GetInt32(2),
+                    Street1 = dataReader.GetString(3),
+                    Street2 = dataReader.GetString(4),
+                    City = dataReader.GetString(5),
+                    State = dataReader.GetString(6),
+                    Zip = dataReader.GetString(7),
+                    FavoriteColor = dataReader.GetString(8),
+                    FavoriteFood = dataReader.GetString(9),
+                    FavoriteSport = dataReader.GetString(10),
+                    CreatedOn = dataReader.GetDateTime(11),
+                    IsActive = dataReader.GetBoolean(12)
+                };
+                people.Add(person);
+            }
+        }
+
+        [Benchmark]
         public void RunFlatFiles()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
