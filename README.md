@@ -141,7 +141,7 @@ mapper.Property(x => x.Name);
 mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
     IncludeSchema = true,
-    IncludeFilteredRecords = true
+    IncludeSkippedRecords = true
 }).WithReader(p => p.RecordNumber);
 
 var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
