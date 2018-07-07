@@ -66,7 +66,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(resolver));
             }
-            return new AutoMapMatcher((column, member) => column.ColumnName == resolver.GetName(member), useFallback); 
+            return new AutoMapMatcher((column, member) => column.ColumnName == resolver.GetColumnName(member), useFallback); 
         }
 
         /// <summary>

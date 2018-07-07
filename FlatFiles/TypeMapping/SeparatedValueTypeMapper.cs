@@ -265,7 +265,7 @@ namespace FlatFiles.TypeMapping
             var members = GetMembers(entityType, nameResolver);
             foreach (var member in members)
             {
-                var columnName = nameResolver.GetName(member);
+                var columnName = nameResolver.GetColumnName(member);
                 if (String.IsNullOrWhiteSpace(columnName))
                 {
                     continue;

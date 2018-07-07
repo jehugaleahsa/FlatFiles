@@ -20,7 +20,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="member">The member to generate the column name for.</param>
         /// <returns>The generated name.</returns>
-        string GetName(MemberInfo member);
+        string GetColumnName(MemberInfo member);
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="member">The member to generate the column name for.</param>
         /// <returns>The generated name -or- null to indicate the member should not be mapped.</returns>
-        public string GetName(MemberInfo member)
+        public string GetColumnName(MemberInfo member)
         {
             return nameResolver(member);
         }
@@ -85,7 +85,7 @@ namespace FlatFiles.TypeMapping
             return 0;
         }
 
-        public string GetName(MemberInfo member)
+        public string GetColumnName(MemberInfo member)
         {
             return member.Name;
         }
