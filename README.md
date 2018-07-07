@@ -4,9 +4,6 @@ Reads and writes CSV, fixed-length and other flat file formats with a focus on s
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
-## Version 3.0.0 on it's way!
-The next major release is here! You can preview version 3 by downloading the RC from NuGet. Check out the [changelog](https://github.com/jehugaleahsa/FlatFiles/blob/master/CHANGELOG.md) to see what has changed -- there are several breaking changes, so please read it carefully. Thanks to everyone for your feedback during the beta; I was able to squeeze in some great new features on top of what was already planned. I am really excited about this next release.
-
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
 
@@ -51,7 +48,7 @@ If your delimited file (CSV, TSV, etc.) has a schema with column names that matc
 
 By default, columns and properties are matched by name (case-insensitive). If you need more control over how columns and properties are matched, you can pass in your own `IAutoMapMatcher`. Given an `IColumnDefinition` and a `MemberInfo`, a matcher must determine whether the two map to one another. For convenience, you can also use the `AutoMapMatcher.For` method to pass a `Func<IColumnDefinition, MemberInfo, bool>` delegate rather than implement the interface.
 
-Similarly, use the `GetAutoMappedWriter` method to automatically write out a delimited file. Note that there's no way to control the column formatting. However, you can control the name and position of the columns by passing an `IAutoMapResolver`. The `IAutoMapResolver` interface provides the `GetPosition` and a `GetName` methods, both accepting a `MemberInfo`. For convenience, you can also use the `AutoMapResolver.For` method to pass delegates for determining the names/positions, rather than implement the interface. 
+Similarly, use the `GetAutoMappedWriter` method to automatically write out a delimited file. Note that there's no way to control the column formatting. However, you can control the name and position of the columns by passing an `IAutoMapResolver`. The `IAutoMapResolver` interface provides the `GetPosition` and a `GetColumnName` methods, both accepting a `MemberInfo`. For convenience, you can also use the `AutoMapResolver.For` method to pass delegates for determining the names/positions, rather than implement the interface. 
 
 ## Schemas
 Under the hood, type mapping internally defines a schema, giving each column a name, order and type in the flat file. You can get access to the schema by calling `GetSchema` on the mapper.
