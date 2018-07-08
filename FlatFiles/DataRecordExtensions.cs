@@ -79,6 +79,35 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Maps the value of the column to the specified enumeration value.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the value to map to.</typeparam>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column mapped to the enumeration value.</returns>
+        /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
+        public static TEnum? GetNullableEnum<TEnum>(this IDataRecord record, int i)
+            where TEnum : struct, Enum
+        {
+            return GetValue<TEnum?>(record, i, null);
+        }
+
+        /// <summary>
+        /// Maps the value of the column to the specified enumeration value.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the value to map to.</typeparam>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column mapped to the enumeration value.</returns>
+        /// <remarks>This method attempts to generate the enumeration by its name (case-insensitive) or numeric value.</remarks>
+        public static TEnum? GetNullableEnum<TEnum>(this IDataRecord record, string name)
+            where TEnum : struct, Enum
+        {
+            int ordinal = record.GetOrdinal(name);
+            return GetValue<TEnum?>(record, ordinal, null);
+        }
+
+        /// <summary>
         /// Maps the value of the column to an enumeration value.
         /// </summary>
         /// <typeparam name="T">The type of the column.</typeparam>
@@ -627,7 +656,7 @@ namespace FlatFiles
         /// <returns>The value of the column -or- null if the column is null.</returns>
         public static string GetNullableString(this IDataRecord record, int i)
         {
-            return GetNullableString(record, i);
+            return record.IsDBNull(i) ? null : record.GetString(i);
         }
 
         /// <summary>
