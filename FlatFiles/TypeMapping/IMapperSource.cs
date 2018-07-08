@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles.TypeMapping
+﻿namespace FlatFiles.TypeMapping
 {
     internal interface IMapperSource
     {

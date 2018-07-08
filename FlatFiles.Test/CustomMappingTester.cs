@@ -69,7 +69,7 @@ namespace FlatFiles.Test
             {
                 person.Name = (string)value;
             }).WithWriter(p => p.Name);
-            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader(p => p.CreatedOn).WithWriter(p => p.CreatedOn);;
+            mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader(p => p.CreatedOn).WithWriter(p => p.CreatedOn);
             mapper.CustomMapping(new DecimalColumn("Amount")).WithReader((ctx, person, value) =>
             {
                 person.Amount = value == null ? (decimal?)null : (decimal)value;

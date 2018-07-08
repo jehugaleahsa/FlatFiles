@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     ///  Specifies how FlatFiles should quote separated value file fields.

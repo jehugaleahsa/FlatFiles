@@ -64,7 +64,6 @@ namespace FlatFiles
         /// <returns>The parsed value.</returns>
         protected override int OnParse(IColumnContext context)
         {
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
             var recordNumber = GetRecordNumber(context);
             return recordNumber;
         }

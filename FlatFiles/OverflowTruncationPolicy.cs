@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Specifies how to truncate columns when the data exceeds to maximum width.

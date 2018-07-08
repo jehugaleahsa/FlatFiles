@@ -398,6 +398,7 @@ a weird row that should be skipped
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
+            Assert.IsNotNull(person);
             Assert.AreEqual(bob.Id, person.Id);
             Assert.AreEqual(bob.Name, person.Name);
             Assert.AreEqual(bob.Created, person.Created);
@@ -426,6 +427,7 @@ a weird row that should be skipped
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
+            Assert.IsNotNull(person);
             Assert.AreEqual(bob.Id, person.Id);
             Assert.AreEqual(bob.Name, person.Name);
             Assert.AreEqual(bob.Created, person.Created);
@@ -507,6 +509,7 @@ a weird row that should be skipped
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.IsNull(first.IsActive);
         }
 
@@ -525,6 +528,7 @@ a weird row that should be skipped
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.AreNotEqual(true, first.IsActive);
         }
 
@@ -543,6 +547,7 @@ a weird row that should be skipped
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.AreEqual(true, first.IsActive);
         }
 
@@ -577,7 +582,7 @@ a weird row that should be skipped
                 e.IsHandled = true;
             };
             var people = reader.ReadAll().ToArray();
-            Assert.AreEqual(2, people.Count());
+            Assert.AreEqual(2, people.Length);
             Assert.AreEqual(1, errorRecords.Count);
             Assert.AreEqual(2, errorRecords[0]);
         }
@@ -596,7 +601,7 @@ a weird row that should be skipped
             var options = new FixedLengthOptions() { HasRecordSeparator = true, RecordSeparator = null };
             var people = mapper.Read(stringReader, options).ToArray();
 
-            Assert.AreEqual(4, people.Count());
+            Assert.AreEqual(4, people.Length);
         }
     }
 }
