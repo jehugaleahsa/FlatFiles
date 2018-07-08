@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Holds information about the column currently being processed.
@@ -37,7 +35,6 @@ namespace FlatFiles
             get
             {
                 var schema = RecordContext.ExecutionContext.Schema;
-                var columns = schema.ColumnDefinitions;
                 IColumnDefinition definition = schema.ColumnDefinitions[PhysicalIndex];
                 return definition;
             }

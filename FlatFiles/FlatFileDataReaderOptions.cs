@@ -1,6 +1,4 @@
 ﻿#if NET45||NETStandard20
-using System;
-
 namespace FlatFiles
 {
     /// <summary>

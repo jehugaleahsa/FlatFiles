@@ -219,7 +219,7 @@ namespace FlatFiles.TypeMapping
                     return null;
                 }
                 // If there is more than one match, do an exact match
-                return propertyInfos.Where(i => i.Name == column.ColumnName).SingleOrDefault();
+                return propertyInfos.SingleOrDefault(i => i.Name == column.ColumnName);
             }
             return propertyInfos.SingleOrDefault();
         }
@@ -237,7 +237,7 @@ namespace FlatFiles.TypeMapping
                     return null;
                 }
                 // If there is more than one match, do an exact match
-                return fieldInfos.Where(i => i.Name == column.ColumnName).SingleOrDefault();
+                return fieldInfos.SingleOrDefault(i => i.Name == column.ColumnName);
             }
             return fieldInfos.SingleOrDefault();
         }

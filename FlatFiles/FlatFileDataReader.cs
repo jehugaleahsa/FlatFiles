@@ -248,6 +248,10 @@ namespace FlatFiles
         /// <returns>The number of chars copied to the buffer.</returns>
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
         {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
             var values = GetValues();
             var chars = (char[])values[i];
 #if NET45

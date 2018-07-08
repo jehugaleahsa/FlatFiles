@@ -350,7 +350,7 @@ namespace FlatFiles.Benchmark
         public void RunCsvHelper()
         {
             StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration());
             var people = csvReader.GetRecords<Person>().ToArray();
         }
 
@@ -358,7 +358,7 @@ namespace FlatFiles.Benchmark
         public async Task RunCsvHelper_Async()
         {
             StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration() { });
+            var csvReader = new CsvHelper.CsvReader(reader, new Configuration());
             List<Person> people = new List<Person>();
             await csvReader.ReadAsync().ConfigureAwait(false);
             csvReader.ReadHeader();

@@ -35,7 +35,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override sealed string Format(IColumnContext context, object value)
+        public sealed override string Format(IColumnContext context, object value)
         {
             return OnFormat(context);
         }
