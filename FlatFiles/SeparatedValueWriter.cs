@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -79,6 +80,20 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => recordWriter.Metadata.ColumnError += value;
+            remove => recordWriter.Metadata.ColumnError -= value;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
@@ -151,10 +166,21 @@ namespace FlatFiles
                 }
                 isSchemaWritten = true;
             }
-            recordWriter.WriteRecord(values);
-            recordWriter.WriteRecordSeparator();
-            ++recordWriter.Metadata.PhysicalRecordNumber;
-            ++recordWriter.Metadata.LogicalRecordNumber;
+            try
+            {
+                recordWriter.WriteRecord(values);
+                recordWriter.WriteRecordSeparator();
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
         }
 
         /// <summary>
@@ -178,10 +204,35 @@ namespace FlatFiles
                 }
                 isSchemaWritten = true;
             }
-            await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
-            await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-            ++recordWriter.Metadata.PhysicalRecordNumber;
-            ++recordWriter.Metadata.LogicalRecordNumber;
+            try
+            {
+                await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
+                await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
+        }
+
+        private void ProcessError(RecordProcessingException exception)
+        {
+            if (RecordError != null)
+            {
+                var args = new RecordErrorEventArgs(exception);
+                RecordError(this, args);
+                if (args.IsHandled)
+                {
+                    return;
+                }
+            }
+            throw exception;
         }
 
         IRecordContext IWriterWithMetadata.GetMetadata()

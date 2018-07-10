@@ -689,7 +689,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             StringReader stringReader = new StringReader(data);
             List<int> errorRecords = new List<int>();
             var reader = mapper.GetReader(stringReader);
-            reader.Error += (sender, e) =>
+            reader.RecordError += (sender, e) =>
             {
                 errorRecords.Add(e.RecordContext.PhysicalRecordNumber);
                 e.IsHandled = true;

@@ -41,7 +41,7 @@ namespace FlatFiles
             Metadata.ExecutionContext.Schema = GetSchema(values);
             if (Metadata.ExecutionContext.Schema != null && values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
+                throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
             var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
@@ -54,7 +54,7 @@ namespace FlatFiles
             Metadata.ExecutionContext.Schema = GetSchema(values);
             if (Metadata.ExecutionContext.Schema != null && values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
+                throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
             var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
@@ -153,7 +153,7 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
+            var names = getColumnNames();
             string joined = String.Join(Metadata.ExecutionContext.Options.Separator, names);
             writer.Write(joined);
         }
@@ -168,9 +168,21 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(d => Escape(d.ColumnName));
+            var names = getColumnNames();
             string joined = String.Join(Metadata.ExecutionContext.Options.Separator, names);
             await writer.WriteAsync(joined).ConfigureAwait(false);
+        }
+
+        private string[] getColumnNames()
+        {
+            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
+            string[] columnNames = new string[Metadata.ExecutionContext.Schema.ColumnDefinitions.Count];
+            for (int columnIndex = 0; columnIndex != columnNames.Length; ++columnIndex)
+            {
+                var columnName = definitions[columnIndex].ColumnName;
+                columnNames[columnIndex] = Escape(columnName);
+            }
+            return columnNames;
         }
 
         public void WriteRecordSeparator()

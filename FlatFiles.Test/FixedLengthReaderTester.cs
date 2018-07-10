@@ -576,7 +576,7 @@ a weird row that should be skipped
             StringReader stringReader = new StringReader(data);
             List<int> errorRecords = new List<int>();
             var reader = mapper.GetReader(stringReader);
-            reader.Error += (sender, e) =>
+            reader.RecordError += (sender, e) =>
             {
                 errorRecords.Add(e.RecordContext.PhysicalRecordNumber);
                 e.IsHandled = true;

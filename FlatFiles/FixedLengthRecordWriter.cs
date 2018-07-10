@@ -37,7 +37,7 @@ namespace FlatFiles
             Metadata.ExecutionContext.Schema = GetSchema(values);
             if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
+                throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
             string[] formattedColumns = FormatValues(values);
             FitWindows(formattedColumns);
@@ -52,7 +52,7 @@ namespace FlatFiles
             Metadata.ExecutionContext.Schema = GetSchema(values);
             if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
             {
-                throw new ArgumentException(Resources.WrongNumberOfValues, nameof(values));
+                throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
             var formattedColumns = FormatValues(values);
             FitWindows(formattedColumns);
@@ -74,9 +74,10 @@ namespace FlatFiles
 
         private void FitWindows(string[] values)
         {
+            var windows = Metadata.ExecutionContext.Schema.Windows;
             for (int index = 0; index != values.Length; ++index)
             {
-                var window = Metadata.ExecutionContext.Schema.Windows[index];
+                var window = windows[index];
                 values[index] = FitWidth(window, values[index]);
             }
         }
@@ -87,11 +88,14 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.ExecutionContext.Schema.Windows[i], v));
-            foreach (string column in fitted)
+            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
+            var windows = Metadata.ExecutionContext.Schema.Windows;
+            int columnCount = definitions.Count;
+            for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {
-                writer.Write(column);
+                string columnName = definitions[columnIndex].ColumnName;
+                string fittedValue = FitWidth(windows[columnIndex], columnName);
+                writer.Write(fittedValue);
             }
         }
 
@@ -101,11 +105,14 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = Metadata.ExecutionContext.Schema.ColumnDefinitions.Select(c => c.ColumnName);
-            var fitted = names.Select((v, i) => FitWidth(Metadata.ExecutionContext.Schema.Windows[i], v));
-            foreach (string column in fitted)
+            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
+            var windows = Metadata.ExecutionContext.Schema.Windows;
+            int columnCount = definitions.Count;
+            for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {
-                await writer.WriteAsync(column).ConfigureAwait(false);
+                string columnName = definitions[columnIndex].ColumnName;
+                string fittedValue = FitWidth(windows[columnIndex], columnName);
+                await writer.WriteAsync(fittedValue).ConfigureAwait(false);
             }
         }
 
@@ -123,13 +130,12 @@ namespace FlatFiles
             {
                 return GetPaddedValue(value, window);
             }
-
             return value;
         }
 
         private string GetTruncatedValue(string value, Window window)
         {
-            OverflowTruncationPolicy policy = window.TruncationPolicy ?? Metadata.ExecutionContext.Options.TruncationPolicy;
+            var policy = window.TruncationPolicy ?? Metadata.ExecutionContext.Options.TruncationPolicy;
             if (policy == OverflowTruncationPolicy.TruncateLeading)
             {
                 int start = value.Length - window.Width;  // take characters on the end
@@ -165,5 +171,6 @@ namespace FlatFiles
                 await writer.WriteAsync(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
             }
         }
+
     }
 }

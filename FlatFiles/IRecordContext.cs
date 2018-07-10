@@ -1,4 +1,6 @@
-﻿namespace FlatFiles
+﻿using System;
+
+namespace FlatFiles
 {
     /// <summary>
     /// Holds information about the record currently being processed.
@@ -43,8 +45,19 @@
         new ISeparatedValueExecutionContext ExecutionContext { get; }
     }
 
-    internal class FixedLengthRecordContext : IFixedLengthRecordContext
+    internal interface IRecoverableRecordContext : IRecordContext
     {
+        event EventHandler<ColumnErrorEventArgs> ColumnError;
+
+        bool HasHandler { get; }
+
+        void ProcessError(object sender, ColumnErrorEventArgs e);
+    }
+
+    internal class FixedLengthRecordContext : IFixedLengthRecordContext, IRecoverableRecordContext
+    {
+        public event EventHandler<ColumnErrorEventArgs> ColumnError;
+
         public FixedLengthExecutionContext ExecutionContext { get; set; }
 
         public int PhysicalRecordNumber { get; set; }
@@ -54,10 +67,19 @@
         IFixedLengthExecutionContext IFixedLengthRecordContext.ExecutionContext => ExecutionContext;
 
         IExecutionContext IRecordContext.ExecutionContext => ExecutionContext;
+
+        public bool HasHandler => ColumnError != null;
+
+        public void ProcessError(object sender, ColumnErrorEventArgs e)
+        {
+            ColumnError?.Invoke(sender, e);
+        }
     }
 
-    internal class SeparatedValueRecordContext : ISeparatedValueRecordContext
+    internal class SeparatedValueRecordContext : ISeparatedValueRecordContext, IRecoverableRecordContext
     {
+        public event EventHandler<ColumnErrorEventArgs> ColumnError;
+
         public SeparatedValueExecutionContext ExecutionContext { get; set; }
 
         public int PhysicalRecordNumber { get; set; }
@@ -67,14 +89,12 @@
         ISeparatedValueExecutionContext ISeparatedValueRecordContext.ExecutionContext => ExecutionContext;
 
         IExecutionContext IRecordContext.ExecutionContext => ExecutionContext;
-    }
 
-    internal class RecordContext : IRecordContext
-    {
-        public IExecutionContext ExecutionContext { get; set; }
+        public bool HasHandler => ColumnError != null;
 
-        public int PhysicalRecordNumber { get; set; }
-
-        public int LogicalRecordNumber { get; set; }
+        public void ProcessError(object sender, ColumnErrorEventArgs e)
+        {
+            ColumnError?.Invoke(sender, e);
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("birth_date") { InputFormat = "yyyyMMdd" })
                   .AddColumn(new Int32Column("weight"));
             string[] values = new string[] { "bob", "smith", "20120123", "185" };
-            var recordContext = new RecordContext()
+            var recordContext = new SeparatedValueRecordContext()
             {
                 ExecutionContext = new SeparatedValueExecutionContext()
                 {

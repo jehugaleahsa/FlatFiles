@@ -47,27 +47,5 @@ namespace FlatFiles
         /// Gets the total width of all columns.
         /// </summary>
         internal int TotalWidth { get; private set; }
-
-        /// <summary>
-        /// Parses the given values assuming that they are in the same order as the column definitions.
-        /// </summary>
-        /// <param name="context">The metadata for the record currently being processed.</param>
-        /// <param name="values">The values to parse.</param>
-        /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(IRecordContext context, string[] values)
-        {
-            return ParseValuesBase(context, values);
-        }
-
-        /// <summary>
-        /// Formats the given values assuming that they are in the same order as the column definitions.
-        /// </summary>
-        /// <param name="context">The metadata for the record currently being processed.</param>
-        /// <param name="values">The values to format.</param>
-        /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(IRecordContext context, object[] values)
-        {
-            return FormatValuesBase(context, values);
-        }
     }
 }

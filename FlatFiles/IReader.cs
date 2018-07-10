@@ -14,9 +14,14 @@ namespace FlatFiles
         event EventHandler<IRecordParsedEventArgs> RecordParsed;
 
         /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        event EventHandler<ColumnErrorEventArgs> ColumnError;
+
+        /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<ExecutionErrorEventArgs> Error;
+        event EventHandler<RecordErrorEventArgs> RecordError;
 
         /// <summary>
         /// Gets the schema being used by the parser to parse record values.

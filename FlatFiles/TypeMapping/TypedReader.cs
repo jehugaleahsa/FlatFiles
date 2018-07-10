@@ -13,7 +13,12 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<ExecutionErrorEventArgs> Error;
+        event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        event EventHandler<ColumnErrorEventArgs> ColumnError;
 
         /// <summary>
         /// Raised when a record is parsed.
@@ -112,10 +117,16 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordParsed -= value;
         }
 
-        public event EventHandler<ExecutionErrorEventArgs> Error
+        public event EventHandler<RecordErrorEventArgs> RecordError
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()
@@ -217,10 +228,16 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordParsed -= value;
         }
 
-        public event EventHandler<ExecutionErrorEventArgs> Error
+        public event EventHandler<RecordErrorEventArgs> RecordError
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()
@@ -333,10 +350,16 @@ namespace FlatFiles.TypeMapping
             remove => ((IReader)reader).RecordParsed -= value;
         }
 
-        public event EventHandler<ExecutionErrorEventArgs> Error
+        public event EventHandler<RecordErrorEventArgs> RecordError
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()

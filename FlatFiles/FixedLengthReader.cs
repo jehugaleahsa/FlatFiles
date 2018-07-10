@@ -93,7 +93,16 @@ namespace FlatFiles
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<ExecutionErrorEventArgs> Error;
+        public event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => metadata.ColumnError += value;
+            remove => metadata.ColumnError -= value;
+        }
 
         /// <summary>
         /// Gets the schema being used by the parser.
@@ -423,10 +432,10 @@ namespace FlatFiles
 
         private void ProcessError(RecordProcessingException exception)
         {
-            if (Error != null)
+            if (RecordError != null)
             {
-                var args = new ExecutionErrorEventArgs(exception);
-                Error(this, args);
+                var args = new RecordErrorEventArgs(exception);
+                RecordError(this, args);
                 if (args.IsHandled)
                 {
                     return;
