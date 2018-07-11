@@ -219,6 +219,42 @@ reader.RecordPartitioned += (sender, e) =>
 };
 ```
 
+## Error Handling
+The reader and writer classes support two events for handling errors: `RecordError` and `ColumnError`. The `ColumnError` event is raised whenever an error occurs while reading/writing a column; for example, when a value can't be parsed. In that case, an instance of `ColumnErrorEventArgs` will be sent to the listener(s), which provides access to the context (`ColumnContext`), the value that caused the error (`ColumnValue`) and the exception that was thrown (`Exception`).
+
+Furthermore, the `IsHandled` property can be set to `true` to inform FlatFiles that the exception should *not* be propagated. In that case, a value should be provided for the `Substitution` property. This property is an `object`, so it's important to make sure the substituted value is the same type as the column or a runtime error may occur.
+
+The following code could be used to detect issues with a file so that errors can be reported back to a user:
+
+```csharp
+public class ErrorDetail
+{
+    public int RecordNumber { get; set; }
+    public string ColumnName { get; set; }
+    public string ErrorValue { get; set; }
+    public string ErrorMessage { get; set; }
+} 
+//...
+var details = new List<ErrorDetail>();
+var csvReader = new SeparatedValueReader(textReader, schema);
+csvReader.ColumnError += (sender, e) =>
+{
+    var columnContext = e.ColumnContext;
+    var detail = new ErrorDetail()
+    {
+        RecordNumber = columnContext.RecordContext.PhysicalRecordNumber,
+        ColumnName = columnContext.ColumnDefinition.ColumnName,
+        ErrorValue = e.ColumnValue?.ToString(),
+        ErrorMessage = e.Exception.InnerException?.Message ?? e.Exception.Message
+    };
+    details.Add(detail);
+    e.IsHandled = true;
+    e.Substitution = null;  // May not work for non-nullable value types
+};
+```
+
+If a column-level exception is not handled, the exception propagates. This, along with other record-level errors, will cause the `RecordError` event to be raised. Listeners will be sent an instance of `RecordErrorEventArgs`, which provides access to the context (`RecordContext`) and the exception that was thrown (`Exception`). Similarly, it provides an `IsHandled` property, that when set to `true`, will prevent the exception from propagating. In the case of record-level errors, this causes the record to be skipped while reading or writing.
+
 ## Files containing multiple schemas
 Some flat file formats will contain multiple schemas. Often, data appears within "blocks" with a header and perhaps a footer. It can be extremely useful to parse each type of record using a different schema and return them in the same order they appear in the file.
 
