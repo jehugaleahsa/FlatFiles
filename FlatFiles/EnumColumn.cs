@@ -6,7 +6,7 @@ namespace FlatFiles
     /// Represents a column containing enumeration values.
     /// </summary>
     /// <typeparam name="TEnum">The type of the enumeration.</typeparam>
-    public class EnumColumn<TEnum> : ColumnDefinition
+    public sealed class EnumColumn<TEnum> : ColumnDefinition<TEnum>
     {
         private Func<string, TEnum> parser;
         private Func<TEnum, string> formatter;
@@ -33,11 +33,6 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(TEnum);
-
-        /// <summary>
         /// Gets or sets the parser used to convert string values into enumeration values.
         /// </summary>
         public Func<string, TEnum> Parser
@@ -61,16 +56,8 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The enum value that was parsed.</returns>
-        public override object Parse(IColumnContext context, string value)
+        protected override TEnum OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
             return parser(value);
         }
 
@@ -80,14 +67,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(IColumnContext context, object value)
+        protected override string OnFormat(IColumnContext context, TEnum value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-            TEnum actual = (TEnum)value;
-            return formatter(actual);
+            return formatter(value);
         }
     }
 }

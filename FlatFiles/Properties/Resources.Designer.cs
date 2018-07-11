@@ -11,8 +11,8 @@
 namespace FlatFiles.Properties {
     using System;
     using System.Reflection;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -62,11 +62,11 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable property &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable column &apos;{0}&apos;..
         /// </summary>
-        internal static string AssignNullToStruct {
+        internal static string AssignNullToNonNullable {
             get {
-                return ResourceManager.GetString("AssignNullToStruct", resourceCulture);
+                return ResourceManager.GetString("AssignNullToNonNullable", resourceCulture);
             }
         }
         

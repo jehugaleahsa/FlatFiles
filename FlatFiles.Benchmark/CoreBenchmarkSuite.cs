@@ -347,6 +347,18 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
+        public void RunFlatFiles_NoSchema()
+        {
+            var reader = new StringReader(data);
+            var csvReader = new SeparatedValueReader(reader);
+            var people = new List<object[]>();
+            while (csvReader.Read())
+            {
+                people.Add(csvReader.GetValues());
+            }
+        }
+
+        [Benchmark]
         public void RunCsvHelper()
         {
             StringReader reader = new StringReader(data);

@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column containing unsigned 32-bit integers.
     /// </summary>
-    public class UInt32Column : ColumnDefinition
+    public sealed class UInt32Column : ColumnDefinition<uint>
     {
         /// <inheritdoc />
         /// <summary>
@@ -18,12 +18,6 @@ namespace FlatFiles
             : base(columnName)
         {
         }
-
-        /// <inheritdoc />
-        /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(uint);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -47,18 +41,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed UInt32.</returns>
-        public override object Parse(IColumnContext context, string value)
+        protected override uint OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            value = TrimValue(value);
+            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
             return UInt32.Parse(value, NumberStyles, provider);
         }
 
@@ -69,20 +54,13 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(IColumnContext context, object value)
+        protected override string OnFormat(IColumnContext context, uint value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-
-            uint actual = (uint)value;
             if (OutputFormat == null)
             {
-                return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-
-            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

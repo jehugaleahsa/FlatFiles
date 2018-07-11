@@ -40,7 +40,7 @@ namespace FlatFiles
             ColumnValue = value;
         }
 
-        internal ColumnProcessingException(IColumnContext context, object value, Exception innerException)
+        internal ColumnProcessingException(IColumnContext context, object value, Exception innerException = null)
             : base(GetErrorMessage(context.ColumnDefinition, context.PhysicalIndex, value), innerException)
         {
             ColumnContext = context;

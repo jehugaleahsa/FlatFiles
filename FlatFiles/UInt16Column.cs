@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column containing unsigned 16-bit integers.
     /// </summary>
-    public class UInt16Column : ColumnDefinition
+    public sealed class UInt16Column : ColumnDefinition<ushort>
     {
         /// <summary>
         /// Initializes a new instance of an UInt16Column.
@@ -16,11 +16,6 @@ namespace FlatFiles
             : base(columnName)
         {
         }
-
-        /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(ushort);
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
@@ -43,18 +38,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed UInt16.</returns>
-        public override object Parse(IColumnContext context, string value)
+        protected override ushort OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            value = TrimValue(value);
+            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
             return UInt16.Parse(value, NumberStyles, provider);
         }
 
@@ -64,17 +50,13 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(IColumnContext context, object value)
+        protected override string OnFormat(IColumnContext context, ushort value)
         {
-            if (value == null)
+            if (OutputFormat == null)
             {
-                return NullHandler.GetNullRepresentation();
+                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-
-            ushort actual = (ushort)value;
-            return OutputFormat == null 
-                ? actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture) 
-                : actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

@@ -121,6 +121,11 @@ namespace FlatFiles
         public abstract Type ColumnType { get; }
 
         /// <summary>
+        /// Gets or sets whether nulls are allowed for the column.
+        /// </summary>
+        public bool IsNullable { get; set; } = true;
+
+        /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
@@ -133,7 +138,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="value">The value to trim.</param>
         /// <returns>The trimmed value.</returns>
-        protected string TrimValue(string value)
+        protected internal static string TrimValue(string value)
         {
             if (value == null)
             {
@@ -185,11 +190,21 @@ namespace FlatFiles
             }
             if (NullHandler.IsNullRepresentation(value))
             {
-                return null;
+                if (IsNullable)
+                {
+                    return null;
+                }
+                string message = String.Format(null, Resources.AssignNullToNonNullable, ColumnName);
+                throw new InvalidCastException(message);
             }
-            string trimmed = TrimValue(value);
+            string trimmed = IsTrimmed ? TrimValue(value) : value;
             return OnParse(context, trimmed);
         }
+
+        /// <summary>
+        /// Gets whether the value should be trimmed prior to parsing.
+        /// </summary>
+        protected virtual bool IsTrimmed => true;
 
         /// <summary>
         /// Parses the given value and returns the parsed object.

@@ -378,7 +378,7 @@ namespace FlatFiles
         {
             if (metadata.ExecutionContext.Schema == null)
             {
-                return rawValues;
+                return ParseWithoutSchema(rawValues);
             }
             try
             {
@@ -389,6 +389,20 @@ namespace FlatFiles
                 ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
                 return null;
             }
+        }
+
+        private object[] ParseWithoutSchema(string[] rawValues)
+        {
+            var results = new object[rawValues.Length];
+            bool preserveWhitespace = metadata.ExecutionContext.Options.PreserveWhiteSpace;
+            for (int columnIndex = 0; columnIndex != rawValues.Length; ++columnIndex)
+            {
+                var rawValue = rawValues[columnIndex];
+                var trimmed = preserveWhitespace ? rawValue : ColumnDefinition.TrimValue(rawValue);
+                var parsedValue = String.IsNullOrEmpty(trimmed) ? null : trimmed;
+                results[columnIndex] = parsedValue;
+            }
+            return results;
         }
 
         /// <summary>

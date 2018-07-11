@@ -16,7 +16,7 @@ namespace FlatFiles
         /// <exception cref="System.ArgumentNullException">The value is null.</exception>
         public ConstantNullHandler(string value)
         {
-            this.value = value ?? throw new ArgumentNullException(nameof(value));
+            this.value = value;
         }
 
         /// <summary>

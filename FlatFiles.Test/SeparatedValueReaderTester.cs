@@ -600,7 +600,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
             assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
             Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
-            assertValues(reader, "", "Blankman","", "SomeTown", "SD", "00298");
+            assertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
             Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
             assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
             Assert.IsFalse(reader.Read(), "Read too many records.");

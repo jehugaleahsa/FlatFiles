@@ -946,20 +946,20 @@ namespace FlatFiles.TypeMapping
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor)
         {
             var member = GetMember(accessor);
-            return GetBooleanMapping(member);
+            return GetBooleanMapping(member, false);
         }
 
         public IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetBooleanMapping(member);
+            return GetBooleanMapping(member, true);
         }
 
-        private IBooleanPropertyMapping GetBooleanMapping(IMemberAccessor member)
+        private IBooleanPropertyMapping GetBooleanMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                var column = new BooleanColumn(member.Name);
+                var column = new BooleanColumn(member.Name) { IsNullable = isNullable };
                 return new BooleanPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -982,20 +982,20 @@ namespace FlatFiles.TypeMapping
         public IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor)
         {
             var member = GetMember(accessor);
-            return GetByteMapping(member);
+            return GetByteMapping(member, false);
         }
 
         public IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetByteMapping(member);
+            return GetByteMapping(member, true);
         }
 
-        private IBytePropertyMapping GetByteMapping(IMemberAccessor member)
+        private IBytePropertyMapping GetByteMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                ByteColumn column = new ByteColumn(member.Name);
+                ByteColumn column = new ByteColumn(member.Name) { IsNullable = isNullable };
                 return new BytePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1003,20 +1003,20 @@ namespace FlatFiles.TypeMapping
         public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor)
         {
             var member = GetMember(accessor);
-            return GetSByteMapping(member);
+            return GetSByteMapping(member, false);
         }
 
         public ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetSByteMapping(member);
+            return GetSByteMapping(member, true);
         }
 
-        private ISBytePropertyMapping GetSByteMapping(IMemberAccessor member)
+        private ISBytePropertyMapping GetSByteMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                SByteColumn column = new SByteColumn(member.Name);
+                SByteColumn column = new SByteColumn(member.Name) { IsNullable = isNullable };
                 return new SBytePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1039,20 +1039,20 @@ namespace FlatFiles.TypeMapping
         public ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor)
         {
             var member = GetMember(accessor);
-            return GetCharMapping(member);
+            return GetCharMapping(member, false);
         }
 
         public ICharPropertyMapping Property(Expression<Func<TEntity, char?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetCharMapping(member);
+            return GetCharMapping(member, true);
         }
 
-        private ICharPropertyMapping GetCharMapping(IMemberAccessor member)
+        private ICharPropertyMapping GetCharMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                CharColumn column = new CharColumn(member.Name);
+                CharColumn column = new CharColumn(member.Name) { IsNullable = isNullable };
                 return new CharPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1060,20 +1060,20 @@ namespace FlatFiles.TypeMapping
         public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDateTimeMapping(member);
+            return GetDateTimeMapping(member, false);
         }
 
         public IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDateTimeMapping(member);
+            return GetDateTimeMapping(member, true);
         }
 
-        private IDateTimePropertyMapping GetDateTimeMapping(IMemberAccessor member)
+        private IDateTimePropertyMapping GetDateTimeMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DateTimeColumn column = new DateTimeColumn(member.Name);
+                DateTimeColumn column = new DateTimeColumn(member.Name) { IsNullable = isNullable };
                 return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1081,20 +1081,20 @@ namespace FlatFiles.TypeMapping
         public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDecimalMapping(member);
+            return GetDecimalMapping(member, false);
         }
 
         public IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDecimalMapping(member);
+            return GetDecimalMapping(member, true);
         }
 
-        private IDecimalPropertyMapping GetDecimalMapping(IMemberAccessor member)
+        private IDecimalPropertyMapping GetDecimalMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DecimalColumn column = new DecimalColumn(member.Name);
+                DecimalColumn column = new DecimalColumn(member.Name) { IsNullable = isNullable };
                 return new DecimalPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1102,20 +1102,20 @@ namespace FlatFiles.TypeMapping
         public IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDoubleMapping(member);
+            return GetDoubleMapping(member, false);
         }
 
         public IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetDoubleMapping(member);
+            return GetDoubleMapping(member, true);
         }
 
-        private IDoublePropertyMapping GetDoubleMapping(IMemberAccessor member)
+        private IDoublePropertyMapping GetDoubleMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DoubleColumn column = new DoubleColumn(member.Name);
+                DoubleColumn column = new DoubleColumn(member.Name) { IsNullable = isNullable };
                 return new DoublePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1123,20 +1123,20 @@ namespace FlatFiles.TypeMapping
         public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor)
         {
             var member = GetMember(accessor);
-            return GetGuidMapping(member);
+            return GetGuidMapping(member, false);
         }
 
         public IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetGuidMapping(member);
+            return GetGuidMapping(member, true);
         }
 
-        private IGuidPropertyMapping GetGuidMapping(IMemberAccessor member)
+        private IGuidPropertyMapping GetGuidMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                GuidColumn column = new GuidColumn(member.Name);
+                GuidColumn column = new GuidColumn(member.Name) { IsNullable = isNullable };
                 return new GuidPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1144,20 +1144,20 @@ namespace FlatFiles.TypeMapping
         public IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt16Mapping(member);
+            return GetInt16Mapping(member, false);
         }
 
         public IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt16Mapping(member);
+            return GetInt16Mapping(member, true);
         }
 
-        private IInt16PropertyMapping GetInt16Mapping(IMemberAccessor member)
+        private IInt16PropertyMapping GetInt16Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int16Column column = new Int16Column(member.Name);
+                Int16Column column = new Int16Column(member.Name) { IsNullable = isNullable };
                 return new Int16PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1165,20 +1165,20 @@ namespace FlatFiles.TypeMapping
         public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt16Mapping(member);
+            return GetUInt16Mapping(member, false);
         }
 
         public IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt16Mapping(member);
+            return GetUInt16Mapping(member, true);
         }
 
-        private IUInt16PropertyMapping GetUInt16Mapping(IMemberAccessor member)
+        private IUInt16PropertyMapping GetUInt16Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt16Column column = new UInt16Column(member.Name);
+                UInt16Column column = new UInt16Column(member.Name) { IsNullable = isNullable };
                 return new UInt16PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1186,20 +1186,20 @@ namespace FlatFiles.TypeMapping
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt32Mapping(member);
+            return GetInt32Mapping(member, false);
         }
 
         public IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt32Mapping(member);
+            return GetInt32Mapping(member, true);
         }
 
-        private IInt32PropertyMapping GetInt32Mapping(IMemberAccessor member)
+        private IInt32PropertyMapping GetInt32Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int32Column column = new Int32Column(member.Name);
+                Int32Column column = new Int32Column(member.Name) { IsNullable = isNullable };
                 return new Int32PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1207,20 +1207,20 @@ namespace FlatFiles.TypeMapping
         public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt32Mapping(member);
+            return GetUInt32Mapping(member, false);
         }
 
         public IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt32Mapping(member);
+            return GetUInt32Mapping(member, true);
         }
 
-        private IUInt32PropertyMapping GetUInt32Mapping(IMemberAccessor member)
+        private IUInt32PropertyMapping GetUInt32Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt32Column column = new UInt32Column(member.Name);
+                UInt32Column column = new UInt32Column(member.Name) { IsNullable = isNullable };
                 return new UInt32PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1228,20 +1228,20 @@ namespace FlatFiles.TypeMapping
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt64Mapping(member);
+            return GetInt64Mapping(member, false);
         }
 
         public IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetInt64Mapping(member);
+            return GetInt64Mapping(member, true);
         }
 
-        private IInt64PropertyMapping GetInt64Mapping(IMemberAccessor member)
+        private IInt64PropertyMapping GetInt64Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int64Column column = new Int64Column(member.Name);
+                Int64Column column = new Int64Column(member.Name) { IsNullable = isNullable };
                 return new Int64PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1249,20 +1249,20 @@ namespace FlatFiles.TypeMapping
         public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt64Mapping(member);
+            return GetUInt64Mapping(member, false);
         }
 
         public IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetUInt64Mapping(member);
+            return GetUInt64Mapping(member, true);
         }
 
-        private IUInt64PropertyMapping GetUInt64Mapping(IMemberAccessor member)
+        private IUInt64PropertyMapping GetUInt64Mapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt64Column column = new UInt64Column(member.Name);
+                UInt64Column column = new UInt64Column(member.Name) { IsNullable = isNullable };
                 return new UInt64PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1270,20 +1270,20 @@ namespace FlatFiles.TypeMapping
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor)
         {
             var member = GetMember(accessor);
-            return GetSingleMapping(member);
+            return GetSingleMapping(member, false);
         }
 
         public ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> accessor)
         {
             var member = GetMember(accessor);
-            return GetSingleMapping(member);
+            return GetSingleMapping(member, true);
         }
 
-        private ISinglePropertyMapping GetSingleMapping(IMemberAccessor member)
+        private ISinglePropertyMapping GetSingleMapping(IMemberAccessor member, bool isNullable)
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                SingleColumn column = new SingleColumn(member.Name);
+                SingleColumn column = new SingleColumn(member.Name) { IsNullable = isNullable };
                 return new SinglePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1329,22 +1329,22 @@ namespace FlatFiles.TypeMapping
             where TEnum : Enum
         {
             var member = GetMember(accessor);
-            return GetEnumMapping<TEnum>(member);
+            return GetEnumMapping<TEnum>(member, false);
         }
 
         public IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor)
             where TEnum : struct, Enum
         {
             var member = GetMember(accessor);
-            return GetEnumMapping<TEnum>(member);
+            return GetEnumMapping<TEnum>(member, true);
         }
 
-        private IEnumPropertyMapping<TEnum> GetEnumMapping<TEnum>(IMemberAccessor member)
+        private IEnumPropertyMapping<TEnum> GetEnumMapping<TEnum>(IMemberAccessor member, bool isNullable)
             where TEnum : Enum
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                var column = new EnumColumn<TEnum>(member.Name);
+                var column = new EnumColumn<TEnum>(member.Name) { IsNullable = isNullable };
                 return new EnumPropertyMapping<TEnum>(column, member, fileIndex, workIndex);
             });
         }
@@ -1478,7 +1478,7 @@ namespace FlatFiles.TypeMapping
         IBooleanPropertyMapping IDynamicSeparatedValueTypeConfiguration.BooleanProperty(string memberName)
         {
             var member = GetMember<bool?>(memberName);
-            return GetBooleanMapping(member);
+            return GetBooleanMapping(member, IsNullable(member));
         }
 
         IByteArrayPropertyMapping IDynamicSeparatedValueTypeConfiguration.ByteArrayProperty(string memberName)
@@ -1490,13 +1490,13 @@ namespace FlatFiles.TypeMapping
         IBytePropertyMapping IDynamicSeparatedValueTypeConfiguration.ByteProperty(string memberName)
         {
             var member = GetMember<byte?>(memberName);
-            return GetByteMapping(member);
+            return GetByteMapping(member, IsNullable(member));
         }
 
         ISBytePropertyMapping IDynamicSeparatedValueTypeConfiguration.SByteProperty(string memberName)
         {
             var member = GetMember<sbyte?>(memberName);
-            return GetSByteMapping(member);
+            return GetSByteMapping(member, IsNullable(member));
         }
 
         ICharArrayPropertyMapping IDynamicSeparatedValueTypeConfiguration.CharArrayProperty(string memberName)
@@ -1508,73 +1508,73 @@ namespace FlatFiles.TypeMapping
         ICharPropertyMapping IDynamicSeparatedValueTypeConfiguration.CharProperty(string memberName)
         {
             var member = GetMember<char?>(memberName);
-            return GetCharMapping(member);
+            return GetCharMapping(member, IsNullable(member));
         }
 
         IDateTimePropertyMapping IDynamicSeparatedValueTypeConfiguration.DateTimeProperty(string memberName)
         {
             var member = GetMember<DateTime?>(memberName);
-            return GetDateTimeMapping(member);
+            return GetDateTimeMapping(member, IsNullable(member));
         }
 
         IDecimalPropertyMapping IDynamicSeparatedValueTypeConfiguration.DecimalProperty(string memberName)
         {
             var member = GetMember<decimal?>(memberName);
-            return GetDecimalMapping(member);
+            return GetDecimalMapping(member, IsNullable(member));
         }
 
         IDoublePropertyMapping IDynamicSeparatedValueTypeConfiguration.DoubleProperty(string memberName)
         {
             var member = GetMember<double?>(memberName);
-            return GetDoubleMapping(member);
+            return GetDoubleMapping(member, IsNullable(member));
         }
 
         IGuidPropertyMapping IDynamicSeparatedValueTypeConfiguration.GuidProperty(string memberName)
         {
             var member = GetMember<Guid?>(memberName);
-            return GetGuidMapping(member);
+            return GetGuidMapping(member, IsNullable(member));
         }
 
         IInt16PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int16Property(string memberName)
         {
             var member = GetMember<short?>(memberName);
-            return GetInt16Mapping(member);
+            return GetInt16Mapping(member, IsNullable(member));
         }
 
         IUInt16PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt16Property(string memberName)
         {
             var member = GetMember<ushort?>(memberName);
-            return GetUInt16Mapping(member);
+            return GetUInt16Mapping(member, IsNullable(member));
         }
 
         IInt32PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int32Property(string memberName)
         {
             var member = GetMember<int?>(memberName);
-            return GetInt32Mapping(member);
+            return GetInt32Mapping(member, IsNullable(member));
         }
 
         IUInt32PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt32Property(string memberName)
         {
             var member = GetMember<uint?>(memberName);
-            return GetUInt32Mapping(member);
+            return GetUInt32Mapping(member, IsNullable(member));
         }
 
         IInt64PropertyMapping IDynamicSeparatedValueTypeConfiguration.Int64Property(string memberName)
         {
             var member = GetMember<long?>(memberName);
-            return GetInt64Mapping(member);
+            return GetInt64Mapping(member, IsNullable(member));
         }
 
         IUInt64PropertyMapping IDynamicSeparatedValueTypeConfiguration.UInt64Property(string memberName)
         {
             var member = GetMember<ulong?>(memberName);
-            return GetUInt64Mapping(member);
+            return GetUInt64Mapping(member, IsNullable(member));
         }
 
         ISinglePropertyMapping IDynamicSeparatedValueTypeConfiguration.SingleProperty(string memberName)
         {
             var member = GetMember<float?>(memberName);
-            return GetSingleMapping(member);
+            return GetSingleMapping(member, IsNullable(member));
         }
 
         IStringPropertyMapping IDynamicSeparatedValueTypeConfiguration.StringProperty(string memberName)
@@ -1598,7 +1598,7 @@ namespace FlatFiles.TypeMapping
         IEnumPropertyMapping<TEnum> IDynamicSeparatedValueTypeConfiguration.EnumProperty<TEnum>(string memberName)
         {
             var member = GetMember<TEnum?>(memberName);
-            return GetEnumMapping<TEnum>(member);
+            return GetEnumMapping<TEnum>(member, IsNullable(member));
         }
 
 
@@ -1617,6 +1617,15 @@ namespace FlatFiles.TypeMapping
         private static IMemberAccessor GetMember<TProp>(string memberName)
         {
             return MemberAccessorBuilder.GetMember<TEntity>(typeof(TProp), memberName);
+        }
+
+        private static bool IsNullable(IMemberAccessor accessor)
+        {
+            if (!accessor.Type.GetTypeInfo().IsValueType)
+            {
+                return true;
+            }
+            return Nullable.GetUnderlyingType(accessor.Type) != null;
         }
 
         IEnumerable<object> IDynamicSeparatedValueTypeMapper.Read(TextReader reader, SeparatedValueOptions options)

@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column of character values.
     /// </summary>
-    public class CharColumn : ColumnDefinition
+    public class CharColumn : ColumnDefinition<char>
     {
         /// <summary>
         /// Initializes a new instance of a CharColumn.
@@ -15,11 +15,6 @@ namespace FlatFiles
             : base(columnName)
         {
         }
-
-        /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(char);
 
         /// <summary>
         /// Gets or sets whether the parser should allow for trailing characters.
@@ -32,22 +27,12 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed char.</returns>
-        public override object Parse(IColumnContext context, string value)
+        protected override char OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-            value = TrimValue(value);
             if (AllowTrailing || value.Length == 1)
             {
                 return value[0];
             }
-
             throw new InvalidCastException();
         }
 
@@ -57,14 +42,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(IColumnContext context, object value)
+        protected override string OnFormat(IColumnContext context, char value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-            char actual = (char)value;
-            return actual.ToString();
+            return value.ToString();
         }
     }
 }

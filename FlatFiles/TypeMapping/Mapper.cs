@@ -56,14 +56,12 @@ namespace FlatFiles.TypeMapping
             var mappings = lookup.GetMappings();
             var memberMappings = GetReaderMemberMappings(mappings);
             var deserializer = codeGenerator.GetReader<TEntity>(memberMappings);
-            var nullChecker = GetNullChecker(memberMappings);
             var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
                 cachedReader = (recordContext, values) =>
                 {
                     var entity = factory();
-                    nullChecker(values);
                     deserializer(recordContext, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
@@ -79,36 +77,11 @@ namespace FlatFiles.TypeMapping
                 cachedReader = (recordContext, values) =>
                 {
                     var entity = factory();
-                    nullChecker(values);
                     deserializer(recordContext, entity, values);
                     return entity;
                 };
             }
             return cachedReader;
-        }
-
-        private Action<object[]> GetNullChecker(IMemberMapping[] memberMappings)
-        {
-            var nonNullLookup = memberMappings
-                .Where(m => m.Member != null)
-                .Where(m => !m.Member.Type.GetTypeInfo().IsClass)
-                .Where(m => Nullable.GetUnderlyingType(m.Member.Type) == null)
-                .ToDictionary(m => m.LogicalIndex);
-            if (nonNullLookup.Count == 0)
-            {
-                return values => { };
-            }
-            return values =>
-            {
-                for (int index = 0; index != values.Length; ++index)
-                {
-                    if (values[index] == null && nonNullLookup.TryGetValue(index, out var mapping))
-                    {
-                        string message = String.Format(null, Resources.AssignNullToStruct, mapping.Member.Name);
-                        throw new FlatFileException(message);
-                    }
-                }
-            };
         }
 
         Func<IRecordContext, object[], object> IMapper.GetReader()

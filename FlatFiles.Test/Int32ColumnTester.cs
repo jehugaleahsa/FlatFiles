@@ -71,5 +71,15 @@ namespace FlatFiles.Test
             int expected = -123;
             Assert.AreEqual(expected, actual);
         }
+
+        /// <summary>
+        /// An exception should be thrown if trying to parse a null when not nullable.
+        /// </summary>
+        [TestMethod]
+        public void TestParse_NotNullable_NullValue_Throws()
+        {
+            Int32Column column = new Int32Column("count") { IsNullable = false };
+            Assert.ThrowsException<InvalidCastException>(() => column.Parse(null, String.Empty));
+        }
     }
 }
