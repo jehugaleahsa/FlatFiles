@@ -34,6 +34,11 @@ namespace FlatFiles
         Type ColumnType { get; }
 
         /// <summary>
+        /// Gets whether nulls are allowed for the column.
+        /// </summary>
+        bool IsNullable { get; }
+
+        /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
@@ -76,7 +81,7 @@ namespace FlatFiles
         {
             IsIgnored = isIgnored;
             ColumnName = columnName;
-            nullHandler = DefaultNullHandler.Instance;
+            nullHandler = FlatFiles.NullHandler.Default;
         }
 
         /// <summary>
@@ -107,7 +112,7 @@ namespace FlatFiles
         public INullHandler NullHandler
         {
             get => nullHandler;
-            set => nullHandler = value ?? DefaultNullHandler.Instance;
+            set => nullHandler = value ?? FlatFiles.NullHandler.Default;
         }
 
         /// <summary>
@@ -140,11 +145,7 @@ namespace FlatFiles
         /// <returns>The trimmed value.</returns>
         protected internal static string TrimValue(string value)
         {
-            if (value == null)
-            {
-                return String.Empty;
-            }
-            return value.Trim();
+            return value?.Trim();
         }
 
         /// <summary>
@@ -188,14 +189,9 @@ namespace FlatFiles
             {
                 value = Preprocessor(value);
             }
-            if (NullHandler.IsNullRepresentation(value))
+            if (NullHandler.IsNullRepresentation(context, value))
             {
-                if (IsNullable)
-                {
-                    return null;
-                }
-                string message = String.Format(null, Resources.AssignNullToNonNullable, ColumnName);
-                throw new InvalidCastException(message);
+                return IsNullable ? null : NullHandler.GetNullSubstitute(context);
             }
             string trimmed = IsTrimmed ? TrimValue(value) : value;
             return OnParse(context, trimmed);
@@ -224,7 +220,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return NullHandler.GetNullRepresentation();
+                return NullHandler.GetNullRepresentation(context);
             }
             return OnFormat(context, (T)value);
         }

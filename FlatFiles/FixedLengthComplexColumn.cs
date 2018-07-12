@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
-    public class FixedLengthComplexColumn : ColumnDefinition
+    public sealed class FixedLengthComplexColumn : ColumnDefinition<object[]>
     {
         private readonly FixedLengthSchema schema;
 
@@ -24,11 +24,6 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(object[]);
-
-        /// <summary>
         /// Gets or sets the options used to read/write the records.
         /// </summary>
         public FixedLengthOptions Options { get; set; }
@@ -41,17 +36,8 @@ namespace FlatFiles
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        public override object Parse(IColumnContext context, string value)
+        protected override object[] OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-
             var stringReader = new StringReader(value);
             var reader = new FixedLengthReader(stringReader, schema, Options);
             if (reader.Read())
@@ -65,15 +51,10 @@ namespace FlatFiles
         /// Formats the given object array into an embedded record.
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
-        /// <param name="value">The object array containing the values of the embedded record.</param>
+        /// <param name="values">The object array containing the values of the embedded record.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        public override string Format(IColumnContext context, object value)
+        protected override string OnFormat(IColumnContext context, object[] values)
         {
-            var values = value as object[];
-            if (values == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
             var writer = new StringWriter();
             var recordWriter = new FixedLengthRecordWriter(writer, schema, Options ?? new FixedLengthOptions());
             recordWriter.WriteRecord(values);

@@ -78,8 +78,27 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_NotNullable_NullValue_Throws()
         {
-            Int32Column column = new Int32Column("count") { IsNullable = false };
+            Int32Column column = new Int32Column("count")
+            {
+                IsNullable = false,
+                NullHandler = NullHandler.Default.ThrowWhenNull()
+            };
             Assert.ThrowsException<InvalidCastException>(() => column.Parse(null, String.Empty));
+        }
+
+        /// <summary>
+        /// A replacement value should be provided when trying to parse a null when not nullable.
+        /// </summary>
+        [TestMethod]
+        public void TestParse_NotNullable_NullValue_DefaultProvided()
+        {
+            Int32Column column = new Int32Column("count")
+            {
+                IsNullable = false,
+                NullHandler = NullHandler.Default.SubstituteForNull(0)
+            };
+            int value = (int)column.Parse(null, String.Empty);
+            Assert.AreEqual(0, value, "A default was not provided.");
         }
     }
 }

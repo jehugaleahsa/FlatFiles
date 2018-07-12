@@ -62,7 +62,7 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable column &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable column..
         /// </summary>
         internal static string AssignNullToNonNullable {
             get {

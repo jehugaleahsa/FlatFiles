@@ -117,7 +117,7 @@ namespace FlatFiles.TypeMapping
 
         public IFixedLengthComplexPropertyMapping NullValue(string value)
         {
-            nullHandler = new ConstantNullHandler(value);
+            nullHandler = FlatFiles.NullHandler.ForValue(value);
             return this;
         }
 

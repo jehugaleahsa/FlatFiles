@@ -51,7 +51,7 @@ namespace FlatFiles.Test
 
         private static SeparatedValueSchema getSchema()
         {
-            var nullHandler = ConstantNullHandler.For("----");
+            var nullHandler = NullHandler.ForValue("----");
 
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("Name") { NullHandler = nullHandler });
@@ -65,7 +65,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldTreatConstantAsNull_TypeMapper()
         {
-            var nullHandler = ConstantNullHandler.For("----");
+            var nullHandler = NullHandler.ForValue("----");
             var mapper = SeparatedValueTypeMapper.Define<Product>();
             mapper.Property(p => p.Name).ColumnName("name").NullHandler(nullHandler);
             mapper.Property(p => p.Cost).ColumnName("cost").NullHandler(nullHandler).FormatProvider(CultureInfo.InvariantCulture);

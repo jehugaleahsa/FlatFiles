@@ -23,6 +23,8 @@ namespace FlatFiles.TypeMapping
 
         public bool IsIgnored => column.IsIgnored;
 
+        public bool IsNullable => true;
+
         public INullHandler NullHandler
         {
             get => column.NullHandler;

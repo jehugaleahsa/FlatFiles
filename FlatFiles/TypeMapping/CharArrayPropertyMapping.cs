@@ -57,7 +57,7 @@ namespace FlatFiles.TypeMapping
 
         public ICharArrayPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = FlatFiles.NullHandler.ForValue(value);
             return this;
         }
 

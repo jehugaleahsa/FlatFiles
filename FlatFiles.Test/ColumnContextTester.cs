@@ -147,6 +147,8 @@ namespace FlatFiles.Test
 
             public bool IsIgnored => columnDefinition.IsIgnored;
 
+            public bool IsNullable => columnDefinition.IsNullable;
+
             public INullHandler NullHandler
             {
                 get => columnDefinition.NullHandler;

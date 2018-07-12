@@ -83,7 +83,7 @@ namespace FlatFiles.TypeMapping
 
         public IBooleanPropertyMapping NullValue(string value)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            column.NullHandler = FlatFiles.NullHandler.ForValue(value);
             return this;
         }
 

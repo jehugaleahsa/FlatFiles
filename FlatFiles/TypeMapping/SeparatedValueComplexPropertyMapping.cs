@@ -118,7 +118,7 @@ namespace FlatFiles.TypeMapping
 
         public ISeparatedValueComplexPropertyMapping NullValue(string value)
         {
-            nullHandler = new ConstantNullHandler(value);
+            nullHandler = FlatFiles.NullHandler.ForValue(value);
             return this;
         }
 
