@@ -61,7 +61,7 @@ namespace FlatFiles
     public abstract class ColumnDefinition : IColumnDefinition
     {
         private string columnName;
-        private INullHandler nullHandler;
+        private INullHandler nullHandler = FlatFiles.NullHandler.Default;
 
         /// <summary>
         /// Initializes a new instance of a ColumnDefinition.
@@ -81,7 +81,6 @@ namespace FlatFiles
         {
             IsIgnored = isIgnored;
             ColumnName = columnName;
-            nullHandler = FlatFiles.NullHandler.Default;
         }
 
         /// <summary>
@@ -107,6 +106,11 @@ namespace FlatFiles
         public bool IsIgnored { get; }
 
         /// <summary>
+        /// Gets or sets whether nulls are allowed for the column.
+        /// </summary>
+        public bool IsNullable { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the null handler instance used to interpret null values.
         /// </summary>
         public INullHandler NullHandler
@@ -124,11 +128,6 @@ namespace FlatFiles
         /// Gets the type of the values in the column.
         /// </summary>
         public abstract Type ColumnType { get; }
-
-        /// <summary>
-        /// Gets or sets whether nulls are allowed for the column.
-        /// </summary>
-        public bool IsNullable { get; set; } = true;
 
         /// <summary>
         /// Parses the given value and returns the parsed object.
@@ -189,9 +188,9 @@ namespace FlatFiles
             {
                 value = Preprocessor(value);
             }
-            if (NullHandler.IsNullRepresentation(context, value))
+            if (NullHandler.IsNullValue(context, value))
             {
-                return IsNullable ? null : NullHandler.GetNullSubstitute(context);
+                return IsNullable ? null : NullHandler.GetDefaultValue(context);
             }
             string trimmed = IsTrimmed ? TrimValue(value) : value;
             return OnParse(context, trimmed);
@@ -220,7 +219,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return NullHandler.GetNullRepresentation(context);
+                return NullHandler.GetNullValue(context);
             }
             return OnFormat(context, (T)value);
         }

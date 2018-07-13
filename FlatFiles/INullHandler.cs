@@ -14,21 +14,21 @@ namespace FlatFiles
         /// <param name="context">The column context.</param>
         /// <param name="value">The value to inspect.</param>
         /// <returns>True if the value represents null; otherwise, false.</returns>
-        bool IsNullRepresentation(IColumnContext context, string value);
+        bool IsNullValue(IColumnContext context, string value);
 
         /// <summary>
         /// Gets the value used to represent null when writing to a flat file.
         /// </summary>
         /// <param name="context">The column context.</param>
         /// <returns>The string used to represent null in the flat file.</returns>
-        string GetNullRepresentation(IColumnContext context);
+        string GetNullValue(IColumnContext context);
 
         /// <summary>
-        /// Gets the value to use as the substitute when null is encountered on an non-nullable type.
+        /// Gets the value to use as the substitute when null is encountered on an non-nullable column.
         /// </summary>
         /// <param name="context">The column context.</param>
         /// <returns>The substitute value.</returns>
-        object GetNullSubstitute(IColumnContext context);
+        object GetDefaultValue(IColumnContext context);
     }
 
     /// <summary>
@@ -41,36 +41,12 @@ namespace FlatFiles
         /// </summary>
         /// <param name="value">The constant used to represent null in the flat file.</param>
         /// <returns>An object for configuring how nulls are handled.</returns>
-        public static NullHandlerBuilder ForValue(string value)
-        {
-            return new NullHandlerBuilder((ctx, v) => v == null || v == value, ctx => value);
-        }
+        public static NullHandlerBuilder ForValue(string value) => new NullHandlerBuilder((ctx, v) => v == null || v == value, ctx => value);
 
         /// <summary>
         /// Creates a new <see cref="INullHandler"/> that treats solid whitespace as null.
         /// </summary>
-        public static NullHandlerBuilder Default => new NullHandlerBuilder(IsNullRepresentation, GetNullRepresentation);
-
-        /// <summary>
-        /// Gets whether the given string should be interpreted as null.
-        /// </summary>
-        /// <param name="context">The column context.</param>
-        /// <param name="value">The value to inspect.</param>
-        /// <returns>True if the value represents null; otherwise, false.</returns>
-        private static bool IsNullRepresentation(IColumnContext context, string value)
-        {
-            return String.IsNullOrWhiteSpace(value);
-        }
-
-        /// <summary>
-        /// Gets the value used to represent null when writing to a flat file.
-        /// </summary>
-        /// <param name="context">The column context.</param>
-        /// <returns>The string used to represent null in the flat file.</returns>
-        private static string GetNullRepresentation(IColumnContext context)
-        {
-            return null;
-        }
+        public static NullHandlerBuilder Default => new NullHandlerBuilder((ctx, v) => String.IsNullOrWhiteSpace(v), ctx => null);
     }
 
     /// <summary>
@@ -88,16 +64,17 @@ namespace FlatFiles
         {
             this.isNullRepresentation = isNullRepresentation;
             this.getNullRepresentation = getNullRepresentation;
-            getNullSubstitute = GetNullSubstitute;
+            ThrowIfNull();
         }
 
         /// <summary>
         /// Configures the <see cref="INullHandler"/> to throw an exception when nulls are encountered on non-nullable columns.
+        /// This is the default action.
         /// </summary>
         /// <returns>The generated null handler.</returns>
-        public INullHandler ThrowWhenNull()
+        public INullHandler ThrowIfNull()
         {
-            getNullSubstitute = GetNullSubstitute;
+            getNullSubstitute = ctx => throw new InvalidCastException(Resources.AssignNullToNonNullable);
             return this;
         }
 
@@ -105,7 +82,7 @@ namespace FlatFiles
         /// Configures the <see cref="INullHandler"/> to return a substitute value when nulls are encountered on non-nullable columns.
         /// </summary>
         /// <returns>The generated null handler.</returns>
-        public INullHandler SubstituteForNull(object value)
+        public INullHandler UseDefault(object value)
         {
             getNullSubstitute = ctx => value;
             return this;
@@ -115,26 +92,16 @@ namespace FlatFiles
         /// Configures the <see cref="INullHandler"/> to return a substitute value when nulls are encountered on non-nullable columns.
         /// </summary>
         /// <returns>The generated null handler.</returns>
-        public INullHandler SubstituteForNull(Func<IColumnContext, object> factory)
+        public INullHandler UseDefault(Func<IColumnContext, object> factory)
         {
             getNullSubstitute = factory ?? throw new ArgumentNullException(nameof(factory));
             return this;
         }
 
-        string INullHandler.GetNullRepresentation(IColumnContext context) => getNullRepresentation(context);
+        string INullHandler.GetNullValue(IColumnContext context) => getNullRepresentation(context);
 
-        object INullHandler.GetNullSubstitute(IColumnContext context) => getNullSubstitute(context);
+        object INullHandler.GetDefaultValue(IColumnContext context) => getNullSubstitute(context);
 
-        bool INullHandler.IsNullRepresentation(IColumnContext context, string value) => isNullRepresentation(context, value);
-
-        /// <summary>
-        /// By default, an exception is thrown when a null is encountered for a non-nullable column.
-        /// </summary>
-        /// <param name="context">The column context.</param>
-        /// <returns>Nothing.</returns>
-        private static object GetNullSubstitute(IColumnContext context)
-        {
-            throw new InvalidCastException(Resources.AssignNullToNonNullable);
-        }
+        bool INullHandler.IsNullValue(IColumnContext context, string value) => isNullRepresentation(context, value);
     }
 }

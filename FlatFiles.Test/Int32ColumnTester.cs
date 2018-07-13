@@ -81,7 +81,7 @@ namespace FlatFiles.Test
             Int32Column column = new Int32Column("count")
             {
                 IsNullable = false,
-                NullHandler = NullHandler.Default.ThrowWhenNull()
+                NullHandler = NullHandler.Default.ThrowIfNull()
             };
             Assert.ThrowsException<InvalidCastException>(() => column.Parse(null, String.Empty));
         }
@@ -95,7 +95,7 @@ namespace FlatFiles.Test
             Int32Column column = new Int32Column("count")
             {
                 IsNullable = false,
-                NullHandler = NullHandler.Default.SubstituteForNull(0)
+                NullHandler = NullHandler.Default.UseDefault(0)
             };
             int value = (int)column.Parse(null, String.Empty);
             Assert.AreEqual(0, value, "A default was not provided.");
