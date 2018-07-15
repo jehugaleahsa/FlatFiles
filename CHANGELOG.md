@@ -1,3 +1,9 @@
+## 4.2.0 (2018-07-15)
+**Summary** - Expose `DateTimeOffset` and `TimeSpan` accessors on `FlatFileDataReader`.
+
+### New Features
+* Expose `DateTimeOffset` and `TimeSpan` accessors on `FlatFileDataReader`.
+
 ## 4.1.0 (2018-07-15)
 **Summary** - Support for `TimeSpan` columns and properties.
 
