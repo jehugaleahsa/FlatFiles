@@ -26,6 +26,8 @@ namespace FlatFiles.TypeMapping
             { typeof(char?), n => new CharColumn(n) },
             { typeof(DateTime), n => new DateTimeColumn(n) },
             { typeof(DateTime?), n => new DateTimeColumn(n) },
+            { typeof(DateTimeOffset), n => new DateTimeOffsetColumn(n) },
+            { typeof(DateTimeOffset?), n => new DateTimeOffsetColumn(n) },
             { typeof(decimal), n => new DecimalColumn(n) },
             { typeof(decimal?), n => new DecimalColumn(n) },
             { typeof(double), n => new DoubleColumn(n) },
@@ -423,6 +425,20 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset>> accessor);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset?>> accessor);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor);
 
         /// <summary>
@@ -735,6 +751,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="memberName">The name of the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IDateTimePropertyMapping DateTimeProperty(string memberName);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping DateTimeOffsetProperty(string memberName);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -1075,6 +1098,27 @@ namespace FlatFiles.TypeMapping
             {
                 DateTimeColumn column = new DateTimeColumn(member.Name) { IsNullable = isNullable };
                 return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
+            });
+        }
+
+        public IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset>> accessor)
+        {
+            var member = GetMember(accessor);
+            return GetDateTimeOffsetMapping(member, false);
+        }
+
+        public IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset?>> accessor)
+        {
+            var member = GetMember(accessor);
+            return GetDateTimeOffsetMapping(member, true);
+        }
+
+        private IDateTimeOffsetPropertyMapping GetDateTimeOffsetMapping(IMemberAccessor member, bool isNullable)
+        {
+            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            {
+                var column = new DateTimeOffsetColumn(member.Name) { IsNullable = isNullable };
+                return new DateTimeOffsetPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
 
@@ -1515,6 +1559,12 @@ namespace FlatFiles.TypeMapping
         {
             var member = GetMember<DateTime?>(memberName);
             return GetDateTimeMapping(member, IsNullable(member));
+        }
+
+        IDateTimeOffsetPropertyMapping IDynamicSeparatedValueTypeConfiguration.DateTimeOffsetProperty(string memberName)
+        {
+            var member = GetMember<DateTimeOffset?>(memberName);
+            return GetDateTimeOffsetMapping(member, IsNullable(member));
         }
 
         IDecimalPropertyMapping IDynamicSeparatedValueTypeConfiguration.DecimalProperty(string memberName)

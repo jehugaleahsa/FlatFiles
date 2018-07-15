@@ -193,6 +193,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset>> accessor, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset?>> accessor, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor, Window window);
 
         /// <summary>
@@ -537,6 +553,14 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IDateTimePropertyMapping DateTimeProperty(string memberName, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        IDateTimeOffsetPropertyMapping DateTimeOffsetProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -906,6 +930,29 @@ namespace FlatFiles.TypeMapping
             {
                 DateTimeColumn column = new DateTimeColumn(member.Name) { IsNullable = isNullable };
                 return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
+            });
+            windowLookup[mapping] = window;
+            return mapping;
+        }
+
+        public IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset>> accessor, Window window)
+        {
+            var member = GetMember(accessor);
+            return GetDateTimeOffsetMapping(member, window, false);
+        }
+
+        public IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset?>> accessor, Window window)
+        {
+            var member = GetMember(accessor);
+            return GetDateTimeOffsetMapping(member, window, true);
+        }
+
+        private IDateTimeOffsetPropertyMapping GetDateTimeOffsetMapping(IMemberAccessor member, Window window, bool isNullable)
+        {
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            {
+                var column = new DateTimeOffsetColumn(member.Name) { IsNullable = isNullable };
+                return new DateTimeOffsetPropertyMapping(column, member, fileIndex, workIndex);
             });
             windowLookup[mapping] = window;
             return mapping;
@@ -1374,6 +1421,12 @@ namespace FlatFiles.TypeMapping
         {
             var member = GetMember<DateTime?>(memberName);
             return GetDateTimeMapping(member, window, IsNullable(member));
+        }
+
+        IDateTimeOffsetPropertyMapping IDynamicFixedLengthTypeConfiguration.DateTimeOffsetProperty(string memberName, Window window)
+        {
+            var member = GetMember<DateTimeOffset?>(memberName);
+            return GetDateTimeOffsetMapping(member, window, IsNullable(member));
         }
 
         IDecimalPropertyMapping IDynamicFixedLengthTypeConfiguration.DecimalProperty(string memberName, Window window)

@@ -35,26 +35,22 @@ namespace FlatFiles
         /// <inheritdoc />
         protected override DateTimeOffset OnParse(IColumnContext context, string value)
         {
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-
+            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
             if (InputFormat == null)
             {
                 return DateTimeOffset.Parse(value, provider);
             }
-
             return DateTimeOffset.ParseExact(value, InputFormat, provider);
         }
 
         /// <inheritdoc />
         protected override string OnFormat(IColumnContext context, DateTimeOffset value)
         {
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
-
+            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
             if (OutputFormat == null)
             {
                 return value.ToString(provider);
             }
-
             return value.ToString(OutputFormat, provider);
         }
     }
