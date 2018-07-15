@@ -7,9 +7,29 @@ using System.Globalization;
 namespace FlatFiles
 {
     /// <summary>
+    /// Provides access to the column values within each row for a <see cref="FlatFileDataReader"/>.
+    /// </summary>
+    public interface IFlatFileDataRecord : IDataRecord
+    {
+        /// <summary>
+        /// Gets the DateTime value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The DateTime value at the given index.</returns>
+        DateTimeOffset GetDateTimeOffset(int i);
+
+        /// <summary>
+        /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The string at the given index.</returns>
+        TimeSpan GetTimeSpan(int i);
+    }
+
+    /// <summary>
     /// Provides an ADO.NET adapter (IDataReader) for a flat file reader.
     /// </summary>
-    public sealed class FlatFileDataReader : IDataReader
+    public sealed class FlatFileDataReader : IDataReader, IFlatFileDataRecord
     {
         private ISchema schema;  // cached
         private object[] values; // cached
@@ -290,6 +310,17 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the DateTime value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The DateTime value at the given index.</returns>
+        public DateTimeOffset GetDateTimeOffset(int i)
+        {
+            var values = GetValues();
+            return (DateTimeOffset)values[i];
+        }
+
+        /// <summary>
         /// Gets the decimal value from the current record at the given index.
         /// </summary>
         /// <param name="i">The index of the value.</param>
@@ -413,6 +444,17 @@ namespace FlatFiles
                 throw new InvalidCastException();
             }
             return value;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The string at the given index.</returns>
+        public TimeSpan GetTimeSpan(int i)
+        {
+            var values = GetValues();
+            return (TimeSpan)values[i];
         }
 
         /// <summary>

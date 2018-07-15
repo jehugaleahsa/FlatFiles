@@ -357,6 +357,43 @@ namespace FlatFiles
 
 #endregion
 
+#region GetDateTime
+
+        /// <summary>
+        /// Gets the DateTime value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The DateTime value of the specified column.</returns>
+        public static DateTimeOffset GetDateTimeOffset(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetDateTimeOffset);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime -or- the specified default value if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- the default value if the column is null.</returns>
+        public static DateTimeOffset? GetNullableDateTimeOffset(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetDateTimeOffset);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime -or- the specified default value if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- the default value if the column is null.</returns>
+        public static DateTimeOffset? GetNullableDateTimeOffset(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetDateTimeOffset);
+        }
+
+#endregion
+
 #region GetDecimal
 
         /// <summary>
@@ -669,6 +706,43 @@ namespace FlatFiles
         {
             int ordinal = record.GetOrdinal(name);
             return GetNullableString(record, ordinal);
+        }
+
+#endregion
+
+#region GetDateTime
+
+        /// <summary>
+        /// Gets the DateTime value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The DateTime value of the specified column.</returns>
+        public static TimeSpan GetTimeSpan(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetTimeSpan);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime -or- the specified default value if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- the default value if the column is null.</returns>
+        public static TimeSpan? GetNullableTimeSpan(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetTimeSpan);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a DateTime -or- the specified default value if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- the default value if the column is null.</returns>
+        public static TimeSpan? GetNullableTimeSpan(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetTimeSpan);
         }
 
 #endregion
