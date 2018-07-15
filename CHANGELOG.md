@@ -1,3 +1,9 @@
+## 4.1.0 (2018-07-15)
+**Summary** - Support for `TimeSpan` columns and properties.
+
+### New Features
+* Support for `TimeSpan` columns and properties. Ability to treat days, hours, minutes, seconds, milliseconds or ticks as `TimeSpan`.
+
 ## 4.0.0 (2018-07-15)
 **Summary** - Column-level error handling and further support for nulls.
 
