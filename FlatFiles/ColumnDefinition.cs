@@ -219,7 +219,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return NullHandler.GetNullValue(context);
+                return NullHandler.FormatNull(context);
             }
             return OnFormat(context, (T)value);
         }

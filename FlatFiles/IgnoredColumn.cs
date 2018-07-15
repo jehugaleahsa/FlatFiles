@@ -49,7 +49,7 @@ namespace FlatFiles
         /// <returns>A null.</returns>
         public override string Format(IColumnContext context, object value)
         {
-            return NullHandler.GetNullValue(context);
+            return NullHandler.FormatNull(context);
         }
     }
 }
