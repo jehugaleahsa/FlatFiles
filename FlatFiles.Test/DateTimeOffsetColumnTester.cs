@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FlatFiles.Test
 {
     /// <summary>
-    /// Tests the DateTimeColumn class.
+    /// Tests the DateTimeOffsetColumn class.
     /// </summary>
     [TestClass]
     public class DateTimeOffsetColumnTester
@@ -26,7 +26,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestCtor_NameBlank_Throws()
         {
-            Assert.ThrowsException<ArgumentException>(() => new DateTimeColumn("    "));
+            Assert.ThrowsException<ArgumentException>(() => new DateTimeOffsetColumn("    "));
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestCtor_SetsName_Trimmed()
         {
-            DateTimeColumn column = new DateTimeColumn(" Name   ");
+            DateTimeOffsetColumn column = new DateTimeOffsetColumn(" Name   ");
             Assert.AreEqual("Name", column.ColumnName);
         }
 
@@ -119,7 +119,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParse_ValueBlank_NullReturned()
         {
-            DateTimeColumn column = new DateTimeColumn("created");
+            DateTimeOffsetColumn column = new DateTimeOffsetColumn("created");
             DateTime? actual = (DateTime?)column.Parse(null, "    ");
             DateTime? expected = null;
             Assert.AreEqual(expected, actual);
@@ -133,7 +133,7 @@ namespace FlatFiles.Test
         {
             int preprocessorCallCount = 0;
 
-            DateTimeColumn column = new DateTimeColumn("created");
+            DateTimeOffsetColumn column = new DateTimeOffsetColumn("created");
             column.Preprocessor = (value) => { preprocessorCallCount++; return value; };
 
             DateTime? actual = (DateTime?)column.Parse(null, "    ");

@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column of DateTime values.
     /// </summary>
-    public class DateTimeOffsetColumn : ColumnDefinition<DateTimeOffset>
+    public sealed class DateTimeOffsetColumn : ColumnDefinition<DateTimeOffset>
     {
         /// <summary>
         /// Initializes a new instance of a DateTimeOffsetColumn.

@@ -45,6 +45,8 @@ namespace FlatFiles.TypeMapping
             { typeof(float), n => new SingleColumn(n) },
             { typeof(float?), n => new SingleColumn(n) },
             { typeof(string), n => new StringColumn(n) },
+            { typeof(TimeSpan), n => new TimeSpanColumn(n) },
+            { typeof(TimeSpan?), n => new TimeSpanColumn(n) },
             { typeof(ushort), n => new UInt16Column(n) },
             { typeof(ushort?), n => new UInt16Column(n) },
             { typeof(uint), n => new UInt32Column(n) },
@@ -495,6 +497,20 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan>> accessor);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan?>> accessor);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor);
 
         /// <summary>
@@ -835,6 +851,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="memberName">The name of the property to map.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IStringPropertyMapping StringProperty(string memberName);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping TimeSpanProperty(string memberName);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -1203,6 +1226,27 @@ namespace FlatFiles.TypeMapping
             {
                 Int16Column column = new Int16Column(member.Name) { IsNullable = isNullable };
                 return new Int16PropertyMapping(column, member, fileIndex, workIndex);
+            });
+        }
+
+        public ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan>> accessor)
+        {
+            var member = GetMember(accessor);
+            return GetTimeSpanMapping(member, false);
+        }
+
+        public ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan?>> accessor)
+        {
+            var member = GetMember(accessor);
+            return GetTimeSpanMapping(member, true);
+        }
+
+        private ITimeSpanPropertyMapping GetTimeSpanMapping(IMemberAccessor member, bool isNullable)
+        {
+            return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            {
+                var column = new TimeSpanColumn(member.Name) { IsNullable = isNullable };
+                return new TimeSpanPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
 
@@ -1631,6 +1675,12 @@ namespace FlatFiles.TypeMapping
         {
             var member = GetMember<string>(memberName);
             return GetStringMapping(member);
+        }
+
+        ITimeSpanPropertyMapping IDynamicSeparatedValueTypeConfiguration.TimeSpanProperty(string memberName)
+        {
+            var member = GetMember<TimeSpan>(memberName);
+            return GetTimeSpanMapping(member, IsNullable(member));
         }
 
         ISeparatedValueComplexPropertyMapping IDynamicSeparatedValueTypeConfiguration.ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper)

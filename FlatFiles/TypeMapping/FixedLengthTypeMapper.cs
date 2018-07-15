@@ -273,6 +273,22 @@ namespace FlatFiles.TypeMapping
         /// <param name="accessor">An expression that returns the property to map.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan>> accessor, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan?>> accessor, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="accessor">An expression that returns the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
         IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor, Window window);
 
         /// <summary>
@@ -649,6 +665,14 @@ namespace FlatFiles.TypeMapping
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
         IStringPropertyMapping StringProperty(string memberName, Window window);
+
+        /// <summary>
+        /// Associates the property with the type mapper and returns an object for configuration.
+        /// </summary>
+        /// <param name="memberName">The name of the property to map.</param>
+        /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
+        /// <returns>An object to configure the property mapping.</returns>
+        ITimeSpanPropertyMapping TimeSpanProperty(string memberName, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.
@@ -1045,6 +1069,29 @@ namespace FlatFiles.TypeMapping
             {
                 Int16Column column = new Int16Column(member.Name) { IsNullable = isNullable };
                 return new Int16PropertyMapping(column, member, fileIndex, workIndex);
+            });
+            windowLookup[mapping] = window;
+            return mapping;
+        }
+
+        public ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan>> accessor, Window window)
+        {
+            var member = GetMember(accessor);
+            return GetTimeSpanMapping(member, window, false);
+        }
+
+        public ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan?>> accessor, Window window)
+        {
+            var member = GetMember(accessor);
+            return GetTimeSpanMapping(member, window, true);
+        }
+
+        private ITimeSpanPropertyMapping GetTimeSpanMapping(IMemberAccessor member, Window window, bool isNullable)
+        {
+            var mapping = lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
+            {
+                var column = new TimeSpanColumn(member.Name) { IsNullable = isNullable };
+                return new TimeSpanPropertyMapping(column, member, fileIndex, workIndex);
             });
             windowLookup[mapping] = window;
             return mapping;
@@ -1493,6 +1540,12 @@ namespace FlatFiles.TypeMapping
         {
             var member = GetMember<string>(memberName);
             return GetStringMapping(member, window);
+        }
+
+        ITimeSpanPropertyMapping IDynamicFixedLengthTypeConfiguration.TimeSpanProperty(string memberName, Window window)
+        {
+            var member = GetMember<TimeSpan>(memberName);
+            return GetTimeSpanMapping(member, window, IsNullable(member));
         }
 
         ISeparatedValueComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper, Window window)

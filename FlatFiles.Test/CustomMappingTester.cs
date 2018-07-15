@@ -373,5 +373,23 @@ namespace FlatFiles.Test
 
             public Geolocation Coordinates { get; set; }
         }
+
+        [TestMethod]
+        public void ShouldConvertLongToTimeSpan()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Session());
+            mapper.CustomMapping(new Int64Column("Duration")).WithReader((s, d) => s.Duration = TimeSpan.FromSeconds((long)d));
+
+            var reader = new StringReader($"{24 * 60 * 60}"); // 24 hours
+            var csvReader = mapper.GetReader(reader);
+            Assert.IsTrue(csvReader.Read(), "The first record was not read.");
+            Assert.AreEqual(TimeSpan.FromDays(1), csvReader.Current.Duration, "The wrong duration was read.");
+            Assert.IsFalse(csvReader.Read(), "Too many records were read.");
+        }
+
+        internal class Session
+        {
+            public TimeSpan Duration { get; set; }
+        }
     }
 }
