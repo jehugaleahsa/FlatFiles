@@ -100,19 +100,46 @@ By default, FlatFiles assumes there is a separator string/character between each
 If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, the first record in the file will be skipped when reading. Unlike the `SeparatedValueReader`, you must *always provide a schema for fixed-length files*, since the width of the columns cannot be determined from the file format. When writing, a header will be written to the file upon writing the first record.
 
 ## Handling Nulls
-By default, FlatFiles will treat blank or empty strings as `null`. If `null`s are represented differently in your file, you can pass a custom `INullHandler` to the schema. If it is a fixed value, you can use the `ConstantNullHandler` class.
+Each column can be marked as "nullable", using the `IsNullable` property. By default, all columns are nullable, meaning `null` is considered a valid value. Setting `IsNullable` to `false` will cause FlatFiles to throw an exception whenever a `null` is encountered.
+
+Type mappers will automatically configure columns to be nullable based on the type of the property. If you need to support nulls, make sure you use nullable types for your properties, for example `int?` instead of `int`.
+
+### Default Values
+When working with non-nullable columns, you can specify a default value to use whenever a `null` is encountered, rather than throw an exception. You simply set a custom `IDefaultValue` on the column. The `DefaultValue` class provides helper methods for generating default values. For example:
 
 ```csharp
-DateTimeColumn dtColumn = new DateTimeColumn("created") { NullHandler = ConstantNullHandler.For("NULL") };
+column.DefaultValue = DefaultValue.Use(0);
 ```
 
-Or, if you are using Type Mappers, you can simply use the `NullValue` or `NullHandler` methods.
+Or, if you are using type mappings, you can simply use the `DefaultValue` method:
 
 ```csharp
-mapper.Property(c => c.Created).ColumnName("created").NullValue("NULL");
+mapper.Property(c => c.Amount)
+    .ColumnName("amount")
+    .DefaultValue(DefaultValue.Use(0));
 ```
 
-You can implement the `INullHandler` interface if you need to support something more complex.
+### Null Formatters
+By default, FlatFiles will treat blank or empty strings as `null`. If nulls are represented differently in your file, you can set a custom `INullFormatter` on the column. If it is a fixed value, you can use the `NullFormatter.ForValue` method.
+
+```csharp
+var dateColumn = new DateTimeColumn("created") 
+{
+    NullFormatter = NullFormatter.ForValue("NULL") 
+};
+```
+
+Or, if you are using type mappers, you can simply use the `NullFormatter` method:
+
+```csharp
+mapper.Property(c => c.Created)
+    .ColumnName("created")
+    .NullFormatter(NullFormatter.ForValue("NULL"));
+```
+
+You can implement the `INullFormatter` interface if you need to support something more complex.
+
+
 
 ## Ignored Fields
 Most of the time, we don't have control over the flat file we're working with. This usually leads to columns that our code just doesn't care about. Both type mappers and schemas expect columns to be listed in the order they appear in the document. For type mappers, this would mean defining properties in your classes that you'd never use (e.g., Ignored1, Ignored2, etc.). Another common problem with fixed-length files is that they will separate fields with pipes (`|`), or other characters, even though they are fixed-length.

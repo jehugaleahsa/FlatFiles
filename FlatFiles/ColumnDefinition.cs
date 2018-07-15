@@ -19,9 +19,19 @@ namespace FlatFiles
         bool IsIgnored { get; }
 
         /// <summary>
-        /// Gets or sets the null handler instance used to interpret null values.
+        /// Gets whether nulls are allowed for the column.
         /// </summary>
-        INullHandler NullHandler { get; set; }
+        bool IsNullable { get; }
+
+        /// <summary>
+        /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
+        /// </summary>
+        IDefaultValue DefaultValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the null formatter instance used to read/write null values.
+        /// </summary>
+        INullFormatter NullFormatter { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to preprocess input before trying to parse it.
@@ -32,11 +42,6 @@ namespace FlatFiles
         /// Gets the type of the values in the column.
         /// </summary>
         Type ColumnType { get; }
-
-        /// <summary>
-        /// Gets whether nulls are allowed for the column.
-        /// </summary>
-        bool IsNullable { get; }
 
         /// <summary>
         /// Parses the given value and returns the parsed object.
@@ -61,7 +66,8 @@ namespace FlatFiles
     public abstract class ColumnDefinition : IColumnDefinition
     {
         private string columnName;
-        private INullHandler nullHandler = FlatFiles.NullHandler.Default;
+        private INullFormatter nullHandler = FlatFiles.NullFormatter.Default;
+        private IDefaultValue defaultValue = FlatFiles.DefaultValue.Disabled();
 
         /// <summary>
         /// Initializes a new instance of a ColumnDefinition.
@@ -111,12 +117,21 @@ namespace FlatFiles
         public bool IsNullable { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the null handler instance used to interpret null values.
+        /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
         /// </summary>
-        public INullHandler NullHandler
+        public IDefaultValue DefaultValue
+        {
+            get => defaultValue;
+            set => defaultValue = value ?? FlatFiles.DefaultValue.Disabled();
+        }
+
+        /// <summary>
+        /// Gets or sets the null formatter instance used to read/write null values.
+        /// </summary>
+        public INullFormatter NullFormatter
         {
             get => nullHandler;
-            set => nullHandler = value ?? FlatFiles.NullHandler.Default;
+            set => nullHandler = value ?? FlatFiles.NullFormatter.Default;
         }
 
         /// <summary>
@@ -188,9 +203,13 @@ namespace FlatFiles
             {
                 value = Preprocessor(value);
             }
-            if (NullHandler.IsNullValue(context, value))
+            if (NullFormatter.IsNullValue(context, value))
             {
-                return IsNullable ? null : NullHandler.GetDefaultValue(context);
+                if (IsNullable)
+                {
+                    return null;
+                }
+                return DefaultValue.GetDefaultValue(context);  // Should we check for the expected type?
             }
             string trimmed = IsTrimmed ? TrimValue(value) : value;
             return OnParse(context, trimmed);
@@ -219,7 +238,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return NullHandler.FormatNull(context);
+                return NullFormatter.FormatNull(context);
             }
             return OnFormat(context, (T)value);
         }

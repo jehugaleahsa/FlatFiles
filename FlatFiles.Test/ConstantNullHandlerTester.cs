@@ -51,13 +51,13 @@ namespace FlatFiles.Test
 
         private static SeparatedValueSchema getSchema()
         {
-            var nullHandler = NullHandler.ForValue("----");
+            var nullHandler = NullFormatter.ForValue("----");
 
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("Name") { NullHandler = nullHandler });
-            schema.AddColumn(new DecimalColumn("Cost") { NullHandler = nullHandler, FormatProvider = CultureInfo.InvariantCulture });
-            schema.AddColumn(new SingleColumn("Available") { NullHandler = nullHandler });
-            schema.AddColumn(new StringColumn("Vendor") { NullHandler = nullHandler });
+            schema.AddColumn(new StringColumn("Name") { NullFormatter = nullHandler });
+            schema.AddColumn(new DecimalColumn("Cost") { NullFormatter = nullHandler, FormatProvider = CultureInfo.InvariantCulture });
+            schema.AddColumn(new SingleColumn("Available") { NullFormatter = nullHandler });
+            schema.AddColumn(new StringColumn("Vendor") { NullFormatter = nullHandler });
 
             return schema;
         }
@@ -65,12 +65,12 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldTreatConstantAsNull_TypeMapper()
         {
-            var nullHandler = NullHandler.ForValue("----");
+            var nullHandler = NullFormatter.ForValue("----");
             var mapper = SeparatedValueTypeMapper.Define<Product>();
-            mapper.Property(p => p.Name).ColumnName("name").NullHandler(nullHandler);
-            mapper.Property(p => p.Cost).ColumnName("cost").NullHandler(nullHandler).FormatProvider(CultureInfo.InvariantCulture);
-            mapper.Property(p => p.Available).ColumnName("available").NullHandler(nullHandler);
-            mapper.Property(p => p.Vendor).ColumnName("vendor").NullHandler(nullHandler);
+            mapper.Property(p => p.Name).ColumnName("name").NullFormatter(nullHandler);
+            mapper.Property(p => p.Cost).ColumnName("cost").NullFormatter(nullHandler).FormatProvider(CultureInfo.InvariantCulture);
+            mapper.Property(p => p.Available).ColumnName("available").NullFormatter(nullHandler);
+            mapper.Property(p => p.Vendor).ColumnName("vendor").NullFormatter(nullHandler);
 
             string content = "----,5.12,----,apple" + Environment.NewLine;
             StringReader stringReader = new StringReader(content);

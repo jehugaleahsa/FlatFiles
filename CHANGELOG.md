@@ -1,3 +1,22 @@
+## 4.0.0 (2018-07-15)
+**Summary** - Column-level error handling and further support for nulls.
+
+### New Features
+* Errors can now be inspected at the column-level using the `ColumnError` events. 
+* Columns can be marked at nullable or not using the `IsNullable` property.
+* A default value can be returned when nulls are encountered when `IsNullable = false`.
+* Support for `DateTimeOffset` columns and properties.
+
+### Breaking Changes
+* The `Error` event of the `IReader` and `ITypedReader` interfaces were renamed to `RecordError`.
+* `INullHandler` renamed to `INullFormatter`. Related properties renamed, as well.
+
+## 3.0.1 (2018-07-08)
+**Summary** - The `DataRecordExtensions.GetNullableString` calling itself recursively.
+
+### Bug Fixes
+* The `DataRecordExtensions.GetNullableString` method was calling itself, causing a `StackOverflowException`.
+
 ## 3.0.0 (2018-06-29)
 **Summary** - Introducing custom mapping support and more contextual information.
 

@@ -149,10 +149,16 @@ namespace FlatFiles.Test
 
             public bool IsNullable => columnDefinition.IsNullable;
 
-            public INullHandler NullHandler
+            public IDefaultValue DefaultValue
             {
-                get => columnDefinition.NullHandler;
-                set => columnDefinition.NullHandler = value;
+                get => columnDefinition.DefaultValue;
+                set => columnDefinition.DefaultValue = value;
+            }
+
+            public INullFormatter NullFormatter
+            {
+                get => columnDefinition.NullFormatter;
+                set => columnDefinition.NullFormatter = value;
             }
 
             public Func<string, string> Preprocessor

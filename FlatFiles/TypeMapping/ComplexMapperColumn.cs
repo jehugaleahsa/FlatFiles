@@ -25,10 +25,16 @@ namespace FlatFiles.TypeMapping
 
         public bool IsNullable => true;
 
-        public INullHandler NullHandler
+        public IDefaultValue DefaultValue
         {
-            get => column.NullHandler;
-            set => column.NullHandler = value;
+            get => column.DefaultValue;
+            set => column.DefaultValue = value;
+        }
+
+        public INullFormatter NullFormatter
+        {
+            get => column.NullFormatter;
+            set => column.NullFormatter = value;
         }
 
         public Func<string, string> Preprocessor

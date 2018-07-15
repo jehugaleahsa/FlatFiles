@@ -394,7 +394,7 @@ namespace FlatFiles.Test
             string source = " \t\n\r ";
             StringReader stringReader = new StringReader(source);
             SeparatedValueSchema schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("a") { Trim = false, NullHandler = NullHandler.ForValue(null) });
+            schema.AddColumn(new StringColumn("a") { Trim = false, NullFormatter = NullFormatter.ForValue(null) });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
