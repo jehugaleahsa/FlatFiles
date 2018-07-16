@@ -11,6 +11,31 @@ FlatFiles focuses on schema configuration, allowing you to very clearly define t
 
 FlatFiles makes it easy to work with flat files in many different ways. It supports type mappers for directly reading and writing with data objects. It even has support for `DataTable`s and `IDataReader` if you need to interface with ADO.NET classes. If you really want to, you can read and write values using raw `object` arrays.
 
+## Table of Contents
+* [Overview](#overview)
+* [Type Mappers](#type-mappers)
+    * [Auto-mapping](#auto-mapping)
+* [Schemas](#schemas)
+* [Delimited Files](#delimited-files)
+* [Fixed Length Files](#fixed-length-files)
+* [Handling Nulls](#handling-nulls)
+    * [Default Values](#default-values)
+    * [Null Formatters](#null-formatters)
+* [Ignored Fields](#ignored-fields)
+* [Metadata](#metadata)
+    * [Writing metadata](#writing-metadata)
+    * [Create your own metadata](#creating-your-own-metadata-columns)
+* [Skipping Records](#skipping-records)
+* [Error Handling](#error-handling)
+* [Files Containing Multiple Schemas](#files-containing-multiple-schemas)
+* [Custom Mapping](#custom-mapping)
+* [Runtime Mapping](#runtime-mapping)
+* [Disabling Optimization](#disabling-optimization)
+* [Non-Public Classes and Members](#non-public-classes-and-members)
+* [ADO.NET DataTables](#ado.net-datatables)
+* [FlatFileDataReader](#flatfiledatareader)
+* [License](#license)
+
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
 
@@ -43,7 +68,7 @@ using (var writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
 
 *Note* I was able to customize the `OutputFormat` of properties that were previously configured. The first time `Property` is called on a property, FlatFiles assumes it's the next column to appear in the flat file. However, subsequent configuration on the property doesn't change the order of the columns or reset any other settings.
 
-### Automatic mapping for delimited files
+### Auto-mapping
 If your delimited file (CSV, TSV, etc.) has a schema with column names that match your class's property names, you can use the `GetAutoMappedReader` method as a shortcut. This method will read the schema from your file and map the columns to the properties automatically, returning a reader for retrieving the data. It's important to note that you cannot customize the parsing behavior of any of the columns, at which point you are better off explicitly defining the schema. Fortunately, FlatFiles uses pretty liberal parsing out-of-the-box, so most common formats will work.
 
 By default, columns and properties are matched by name (case-insensitive). If you need more control over how columns and properties are matched, you can pass in your own `IAutoMapMatcher`. Given an `IColumnDefinition` and a `MemberInfo`, a matcher must determine whether the two map to one another. For convenience, you can also use the `AutoMapMatcher.For` method to pass a `Func<IColumnDefinition, MemberInfo, bool>` delegate rather than implement the interface.
@@ -77,7 +102,7 @@ The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, e
 
 *Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the [Ignored Fields](#Ignored%20Fields) section below to learn about ways to to handle this.
 
-## Separated Value Files (CSV, TSV, etc.)
+## Delimited Files
 If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you want to use the `SeparatedValueTypeMapper`. Internally, the mapper uses the `SeparatedValueReader` and `SeparatedValueWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as a `StreamReader` or a `StringReader`, and write data to a `TextWriter`, such as a `StreamWriter` or a `StringWriter`. Internally, the mapper will build a `SeparatedValueSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `SeparatedValueOptions` object that allows you to customize the read/write behavior to suit your needs.
 
 Within separated value files, fields can be surrounded with double quotes (`"`). This way they can include the separator within the field. You can override the "quote" character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string/character that separates your fields. A comma (`,`) is the default separator; you'd obviously want to change this to tab (`\t`) for a TSV file.
@@ -155,7 +180,7 @@ It is often useful to incorporate metadata with the records you are reading from
 
 Currently, the only out-of-the-box metadata column is `RecordNumberColumn`; however, it's really easy to create your own custom metadata columns (more on that below).
 
-The `RecordNumberColumn` class provides options for controlling how the record number is generated. The `IncludeSchema` property indicates whether the schema or header row should be included in the count. The `IncludeSkippedRecords` property specifies whether to count records that are [skipped](#Skipping_Records).
+The `RecordNumberColumn` class provides options for controlling how the record number is generated. The `IncludeSchema` property indicates whether the schema or header row should be included in the count. The `IncludeSkippedRecords` property specifies whether to count records that are [skipped](#skipping-records).
 
 By default, `RecordNumberColumn` will only count records that are actually returned, starting from `1`, then `2`, `3`, `4`, `5` and so on. If you count the schema, records will always start at `2`. Including the schema and skipped records is what you probably want if you're trying to simulate line number. The only time the record # wouldn't be the same as the line # is if a record spanned multiple lines. Here's an example showing how to capture this *pseudo* line number:
 
@@ -172,7 +197,7 @@ var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
 ```
 
-### Write-Only
+### Writing metadata
 I've not yet come up with a reason why you'd want to write out metadata, but I provide support for it anyway (feel free to provide me an example!).
 
 ```csharp
@@ -282,7 +307,7 @@ csvReader.ColumnError += (sender, e) =>
 
 If a column-level exception is not handled, the exception propagates. This, along with other record-level errors, will cause the `RecordError` event to be raised. Listeners will be sent an instance of `RecordErrorEventArgs`, which provides access to the context (`RecordContext`) and the exception that was thrown (`Exception`). Similarly, it provides an `IsHandled` property, that when set to `true`, will prevent the exception from propagating. In the case of record-level errors, this causes the record to be skipped while reading or writing.
 
-## Files containing multiple schemas
+## Files Containing Multiple Schemas
 Some flat file formats will contain multiple schemas. Often, data appears within "blocks" with a header and perhaps a footer. It can be extremely useful to parse each type of record using a different schema and return them in the same order they appear in the file.
 
 FlatFiles provides support for these file formats using the `SchemaSelector` and `TypeMapperSelector` classes. Once you define the schemas or type mappers, you can register them with the selector.
@@ -409,7 +434,7 @@ In benchmarks, using `CustomMapping` is only slightly slower than using `Propert
 
 There are versions of `WithReader` and `WithWriter` that provide contextual information (`IColumnContext`), so you can access metadata while reading and writing. The `WithWriter` method also provides an overload passing along the underlying array being written to, so you can write to multiple columns simultaneously or inspect previously serialized values.
 
-## Runtime Types and Support for Other Programming Languages
+## Runtime Mapping
 Even if you don't know the type of a class at compile time, it can still be beneficial to use the type mappers to populate these objects from a file. Or, if you are working in a language without support for expression trees, you'll be glad to know FlatFiles provides an alternative way to configure type mappers.
 
 The code below illustrates how you could define a mapper for a type that is only known at runtime:
@@ -435,7 +460,7 @@ mapper.Property(x => x.Name);
 mapper.OptimizeMapping(false);  // Use normal reflection to get and set properties
 ```
 
-## Accessing Non-Public Classes and Members
+## Non-Public Classes and Members
 As of FlatFiles 3.0, you can no longer map to non-public classes and members (aka., `internal`, `protected` or `private`) without taking additional steps. The simplest solution is to make your classes and members `public`. Alternatively, you can [disable optimizations](#Disabling%20Optimization) which will cause FlatFiles to use normal reflection, which should be able to access anything, at the cost of some runtime overhead.
 
 Another option is to grant FlatFiles access to your `internal` classes and members by adding the following line to you `Assembly.cs` file:
@@ -449,7 +474,7 @@ Notice that this only grants access to `internal` types/members. You will still 
 As a final option, you can use the `CustomMapping` method, passing delegates to read/write your members. Since the delegates are part of your project, they can access non-public members without trouble. There is almost no runtime overhead using `CustomMapping` instead of `Property`.
 
 
-## DataTables
+## ADO.NET DataTables
 If you are using `DataTable`s, you can read and write to a `DataTable` using the `ReadFlatFile` and `WriteFlatFile` extension methods. Just pass the corresponding reader or writer object.
 
 ```csharp
