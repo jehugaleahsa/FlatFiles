@@ -32,7 +32,7 @@ FlatFiles makes it easy to work with flat files in many different ways. It suppo
 * [Runtime Mapping](#runtime-mapping)
 * [Disabling Optimization](#disabling-optimization)
 * [Non-Public Classes and Members](#non-public-classes-and-members)
-* [ADO.NET DataTables](#ado.net-datatables)
+* [ADO.NET DataTables](#adonet-datatables)
 * [FlatFileDataReader](#flatfiledatareader)
 * [License](#license)
 
