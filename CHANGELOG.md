@@ -1,3 +1,20 @@
+## 4.3.0 (2018-07-16)
+**Summary** - Further ADO.NET support.
+
+## New Features
+* Expose `sbyte`, `ushort`, `uint` and `ulong` accessors on `FlatFileDataReader`.
+* Modify `DataTableExtensions.ReadFlatFile` to support merging into a table with an existing schema and data.
+* Improve use cases and performance of `DataTableExtensions.WriteFlatFile`.
+
+## Bug Fixes
+* The `DataTableExtensions.WriteFlatFile` method threw an exception for schemas including ignored columns.
+
+I wanted to make sure `FlatFileDataReader` can be used to retrieve data of any built-in .NET type.
+
+The `ReadFlatFile` and `WriteFlatFile` extension methods were previously very limited. When reading, `Reset` would be called on the `DataTable`, wiping out any schema and data, which may not be desired/expected. Going forward, `ReadFlatFile` will attempt to reuse an existing schema and upsert the data. For that reason, additional overloads are now provided to match overloads of the [DataTable.Load](https://docs.microsoft.com/en-us/dotnet/api/system.data.datatable.load?view=netframework-4.7.2) method.
+
+Old versions of `WriteFlatFile` were inefficient, repeatedly getting and setting row values using column names, rather than indexes. Furthermore, now the same underlying array is used to hold values between writes, so an entire file can be written using a single array allocation, improving performance dramatically. Most importantly, the previous version of this method threw errors when schemas included ignored columns.
+
 ## 4.2.0 (2018-07-15)
 **Summary** - Expose `DateTimeOffset` and `TimeSpan` accessors on `FlatFileDataReader`.
 

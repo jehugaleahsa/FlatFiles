@@ -10,7 +10,7 @@ namespace FlatFiles
     /// </summary>
     public static class DataRecordExtensions
     {
-#region GetBoolean
+        #region GetBoolean
 
         /// <summary>
         /// Gets the value of the specified column as a Boolean.
@@ -45,9 +45,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetBoolean);
         }
 
-#endregion
+        #endregion
 
-#region GetEnum
+        #region GetEnum
 
         /// <summary>
         /// Maps the value of the column to the specified enumeration value.
@@ -209,9 +209,9 @@ namespace FlatFiles
             return GetNullable(record, ordinal, record.GetByte);
         }
 
-#endregion
+        #endregion
 
-#region GetBytes
+        #region GetBytes
 
         /// <summary>
         /// Reads a stream of bytes from the specified column offset into the buffer
@@ -230,9 +230,9 @@ namespace FlatFiles
             return record.GetBytes(ordinal, fieldOffset, buffer, bufferoffset, length);
         }
 
-#endregion
+        #endregion
 
-#region GetChar
+        #region GetChar
 
         /// <summary>
         /// Gets the character value of the specified column.
@@ -267,9 +267,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetChar);
         }
 
-#endregion
+        #endregion
 
-#region GetChars
+        #region GetChars
 
         /// <summary>
         /// Reads a stream of characters from the specified column offset into the buffer
@@ -288,9 +288,9 @@ namespace FlatFiles
             return record.GetChars(ordinal, fieldoffset, buffer, bufferoffset, length);
         }
 
-#endregion
+        #endregion
 
-#region GetData
+        #region GetData
 
         /// <summary>
         /// Returns an System.Data.IDataReader for the specified column name.
@@ -303,9 +303,9 @@ namespace FlatFiles
             return Get(record, name, record.GetData);
         }
 
-#endregion
+        #endregion
 
-#region GetDataTypeName
+        #region GetDataTypeName
 
         /// <summary>
         /// Gets the data type information for the specified field.
@@ -318,9 +318,9 @@ namespace FlatFiles
             return Get(record, name, record.GetDataTypeName);
         }
 
-#endregion
+        #endregion
 
-#region GetDateTime
+        #region GetDateTime
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -355,9 +355,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDateTime);
         }
 
-#endregion
+        #endregion
 
-#region GetDateTime
+        #region GetDateTimeOffset
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -392,9 +392,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDateTimeOffset);
         }
 
-#endregion
+        #endregion
 
-#region GetDecimal
+        #region GetDecimal
 
         /// <summary>
         /// Gets the decimal value of the specified column.
@@ -429,9 +429,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDecimal);
         }
 
-#endregion
+        #endregion
 
-#region GetDouble
+        #region GetDouble
 
         /// <summary>
         /// Gets the double value of the specified column.
@@ -466,9 +466,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDouble);
         }
 
-#endregion
+        #endregion
 
-#region GetFieldType
+        #region GetFieldType
 
         /// <summary>
         /// Gets the System.Type information corresponding to the type of System.Object
@@ -485,9 +485,9 @@ namespace FlatFiles
             return Get(record, name, record.GetFieldType);
         }
 
-#endregion
+        #endregion
 
-#region GetFloat
+        #region GetFloat
 
         /// <summary>
         /// Gets the float value of the specified column.
@@ -522,9 +522,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetFloat);
         }
 
-#endregion
+        #endregion
 
-#region GetGuid
+        #region GetGuid
 
         /// <summary>
         /// Gets the Guid value of the specified column.
@@ -559,9 +559,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetGuid);
         }
 
-#endregion
+        #endregion
 
-#region GetInt16
+        #region GetInt16
 
         /// <summary>
         /// Gets the short value of the specified column.
@@ -596,9 +596,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt16);
         }
 
-#endregion
+        #endregion
 
-#region GetInt32
+        #region GetInt32
 
         /// <summary>
         /// Gets the int value of the specified column.
@@ -633,16 +633,16 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt32);
         }
 
-#endregion
+        #endregion
 
-#region GetInt64
+        #region GetInt64
 
         /// <summary>
         /// Gets the long value of the specified column.
         /// </summary>
         /// <param name="record">The IDataRecord to get the value for.</param>
         /// <param name="name">The name of the column to find.</param>
-        /// <returns>The int value of the specified column.</returns>
+        /// <returns>The long value of the specified column.</returns>
         public static long GetInt64(this IDataRecord record, string name)
         {
             return Get(record, name, record.GetInt64);
@@ -670,9 +670,46 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt64);
         }
 
-#endregion
+        #endregion
 
-#region GetString
+        #region GetSByte
+
+        /// <summary>
+        /// Gets the sbyte value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The sbyte value of the specified column.</returns>
+        public static sbyte GetSByte(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetSByte);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a sbyte -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static sbyte? GetNullableSByte(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetSByte);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a sbyte -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static sbyte? GetNullableSByte(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetSByte);
+        }
+
+        #endregion
+
+        #region GetString
 
         /// <summary>
         /// Gets the string value of the specified column.
@@ -708,9 +745,9 @@ namespace FlatFiles
             return GetNullableString(record, ordinal);
         }
 
-#endregion
+        #endregion
 
-#region GetDateTime
+        #region GetTimeSpan
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -745,9 +782,120 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetTimeSpan);
         }
 
-#endregion
+        #endregion
 
-#region GetValue
+        #region GetUInt16
+
+        /// <summary>
+        /// Gets the ushort value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The ushort value of the specified column.</returns>
+        public static ushort GetUInt16(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetUInt16);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a ushort -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static ushort? GetNullableUInt16(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetUInt16);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a ushort -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static ushort? GetNullableUInt16(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetUInt16);
+        }
+
+        #endregion
+
+        #region GetUInt32
+
+        /// <summary>
+        /// Gets the uint value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The uint value of the specified column.</returns>
+        public static uint GetUInt32(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetUInt32);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a uint -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static uint? GetNullableUInt32(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetUInt32);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a uint -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static uint? GetNullableUInt32(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetUInt32);
+        }
+
+        #endregion
+
+        #region GetUInt64
+
+        /// <summary>
+        /// Gets the ulong value of the specified column.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The ulong value of the specified column.</returns>
+        public static ulong GetUInt64(this IFlatFileDataRecord record, string name)
+        {
+            return Get(record, name, record.GetUInt64);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a ulong -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="i">The zero-based column ordinal.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static ulong? GetNullableUInt64(this IFlatFileDataRecord record, int i)
+        {
+            return GetNullable(record, i, record.GetUInt64);
+        }
+
+        /// <summary>
+        /// Gets the value of the specified column as a ulong -or- null if the column is null.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the value for.</param>
+        /// <param name="name">The name of the column to find.</param>
+        /// <returns>The value of the column -or- null if the column is null.</returns>
+        public static ulong? GetNullableUInt64(this IFlatFileDataRecord record, string name)
+        {
+            return GetNullable(record, name, record.GetUInt64);
+        }
+
+        #endregion
+
+        #region GetValue
 
         /// <summary>
         /// Return the value of the specified field.
@@ -862,9 +1010,9 @@ namespace FlatFiles
             }
         }
 
-#endregion
+        #endregion
 
-#region GetValues
+        #region GetValues
 
         /// <summary>
         /// Creates an array of objects with the column values of the current record.
@@ -878,9 +1026,9 @@ namespace FlatFiles
             return values;
         }
 
-#endregion
+        #endregion
 
-#region IsDBNull
+        #region IsDBNull
 
         /// <summary>
         /// Return whether the specified field is set to null.

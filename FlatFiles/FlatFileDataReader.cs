@@ -19,11 +19,39 @@ namespace FlatFiles
         DateTimeOffset GetDateTimeOffset(int i);
 
         /// <summary>
+        /// Gets the sbyte value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The sbyte value at the given index.</returns>
+        sbyte GetSByte(int i);
+
+        /// <summary>
         /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
         /// </summary>
         /// <param name="i">The index of the value.</param>
         /// <returns>The string at the given index.</returns>
         TimeSpan GetTimeSpan(int i);
+
+        /// <summary>
+        /// Gets the unsigned short value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned short value at the given index.</returns>
+        ushort GetUInt16(int i);
+
+        /// <summary>
+        /// Gets the unsigned int value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned int value at the given index.</returns>
+        uint GetUInt32(int i);
+
+        /// <summary>
+        /// Gets the unsigned long value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned long value at the given index.</returns>
+        ulong GetUInt64(int i);
     }
 
     /// <summary>
@@ -431,6 +459,17 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets the sbyte value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The sbyte value at the given index.</returns>
+        public sbyte GetSByte(int i)
+        {
+            var values = GetValues();
+            return (sbyte)values[i];
+        }
+
+        /// <summary>
         /// Gets the string from the current record at the given index.
         /// </summary>
         /// <param name="i">The index of the value.</param>
@@ -455,6 +494,39 @@ namespace FlatFiles
         {
             var values = GetValues();
             return (TimeSpan)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned short value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned short value at the given index.</returns>
+        public ushort GetUInt16(int i)
+        {
+            var values = GetValues();
+            return (ushort)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned int value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned int value at the given index.</returns>
+        public uint GetUInt32(int i)
+        {
+            var values = GetValues();
+            return (uint)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned long value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned long value at the given index.</returns>
+        public ulong GetUInt64(int i)
+        {
+            var values = GetValues();
+            return (ulong)values[i];
         }
 
         /// <summary>
