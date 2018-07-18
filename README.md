@@ -4,6 +4,8 @@ Reads and writes CSV, fixed-length and other flat file formats with a focus on s
 
 Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 
+You can check out all of the awesome enhancements and new features in the [CHANGELOG](https://github.com/jehugaleahsa/FlatFiles/blob/master/CHANGELOG.md). 
+
 ## Overview
 A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
 
