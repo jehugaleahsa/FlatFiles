@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
     /// <summary>
     /// Builds textual representations of data by separating fields with a delimiter.
     /// </summary>
-    public sealed class SeparatedValueWriter : IWriter
+    public sealed class SeparatedValueWriter : IWriter, IWriterWithMetadata
     {
         private readonly SeparatedValueRecordWriter recordWriter;
         private bool isSchemaWritten;
@@ -79,12 +80,26 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => recordWriter.Metadata.ColumnError += value;
+            remove => recordWriter.Metadata.ColumnError -= value;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
         public SeparatedValueSchema GetSchema()
         {
-            return recordWriter.Metadata.Schema;
+            return recordWriter.Metadata.ExecutionContext.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -102,11 +117,11 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.Schema != null)
+            if (recordWriter.Metadata.ExecutionContext.Schema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
-                ++recordWriter.Metadata.RecordCount;
+                ++recordWriter.Metadata.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -121,11 +136,11 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.Schema != null)
+            if (recordWriter.Metadata.ExecutionContext.Schema != null)
             {
                 await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                ++recordWriter.Metadata.RecordCount;
+                ++recordWriter.Metadata.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -143,18 +158,29 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.Options.IsFirstRecordSchema && recordWriter.Metadata.Schema != null)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
-                    ++recordWriter.Metadata.RecordCount;
+                    ++recordWriter.Metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
-            recordWriter.WriteRecord(values);
-            recordWriter.WriteRecordSeparator();
-            ++recordWriter.Metadata.RecordCount;
-            ++recordWriter.Metadata.LogicalRecordCount;
+            try
+            {
+                recordWriter.WriteRecord(values);
+                recordWriter.WriteRecordSeparator();
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
         }
 
         /// <summary>
@@ -170,18 +196,48 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.Options.IsFirstRecordSchema && recordWriter.Metadata.Schema != null)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                    ++recordWriter.Metadata.RecordCount;
+                    ++recordWriter.Metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
-            await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
-            await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-            ++recordWriter.Metadata.RecordCount;
-            ++recordWriter.Metadata.LogicalRecordCount;
+            try
+            {
+                await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
+                await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
+        }
+
+        private void ProcessError(RecordProcessingException exception)
+        {
+            if (RecordError != null)
+            {
+                var args = new RecordErrorEventArgs(exception);
+                RecordError(this, args);
+                if (args.IsHandled)
+                {
+                    return;
+                }
+            }
+            throw exception;
+        }
+
+        IRecordContext IWriterWithMetadata.GetMetadata()
+        {
+            return recordWriter.Metadata;
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
     /// <summary>
     /// Builds textual representations of data by giving each field a fixed width.
     /// </summary>
-    public sealed class FixedLengthWriter : IWriter
+    public sealed class FixedLengthWriter : IWriter, IWriterWithMetadata
     {
         private readonly FixedLengthRecordWriter recordWriter;
         private bool isSchemaWritten;
@@ -63,12 +64,26 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => recordWriter.Metadata.ColumnError += value;
+            remove => recordWriter.Metadata.ColumnError -= value;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return recordWriter.Metadata.Schema;
+            return recordWriter.Metadata.ExecutionContext.Schema;
         }
 
         ISchema IWriter.GetSchema()
@@ -88,7 +103,7 @@ namespace FlatFiles
             }
             recordWriter.WriteSchema();
             recordWriter.WriteRecordSeparator();
-            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.PhysicalRecordNumber;
             isSchemaWritten = true;
         }
 
@@ -104,7 +119,7 @@ namespace FlatFiles
             }
             await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
             await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-            ++recordWriter.Metadata.RecordCount;
+            ++recordWriter.Metadata.PhysicalRecordNumber;
             isSchemaWritten = true;
         }
 
@@ -121,18 +136,29 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordHeader)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
-                    ++recordWriter.Metadata.RecordCount;
+                    ++recordWriter.Metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
-            recordWriter.WriteRecord(values);
-            recordWriter.WriteRecordSeparator();
-            ++recordWriter.Metadata.RecordCount;
-            ++recordWriter.Metadata.LogicalRecordCount;
+            try
+            {
+                recordWriter.WriteRecord(values);
+                recordWriter.WriteRecordSeparator();
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
         }
 
         /// <summary>
@@ -148,18 +174,48 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.Options.IsFirstRecordHeader)
+                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordHeader)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                    ++recordWriter.Metadata.RecordCount;
+                    ++recordWriter.Metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
-            await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
-            await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-            ++recordWriter.Metadata.RecordCount;
-            ++recordWriter.Metadata.LogicalRecordCount;
+            try
+            {
+                await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
+                await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
+                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++recordWriter.Metadata.LogicalRecordNumber;
+            }
+            catch (RecordProcessingException exception)
+            {
+                ProcessError(exception);
+            }
+            catch (FlatFileException exception)
+            {
+                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+            }
+        }
+
+        private void ProcessError(RecordProcessingException exception)
+        {
+            if (RecordError != null)
+            {
+                var args = new RecordErrorEventArgs(exception);
+                RecordError(this, args);
+                if (args.IsHandled)
+                {
+                    return;
+                }
+            }
+            throw exception;
+        }
+
+        IRecordContext IWriterWithMetadata.GetMetadata()
+        {
+            return recordWriter.Metadata;
         }
     }
 }

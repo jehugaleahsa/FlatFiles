@@ -12,9 +12,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_SchemaNotCounted()
         {
-            var outputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"));
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber"))
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -28,7 +30,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
-            var inputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var inputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name);
             inputMapper.Property(x => x.RecordNumber);
             inputMapper.Property(x => x.CreatedOn).InputFormat("MM/dd/yyyy");
@@ -50,12 +52,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_SchemaCounted()
         {
-            var outputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            });
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true })
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -69,7 +70,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
-            var inputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var inputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name);
             inputMapper.Property(x => x.RecordNumber);
             inputMapper.Property(x => x.CreatedOn).InputFormat("MM/dd/yyyy");
@@ -91,12 +92,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_NoSchema_SchemaNotCounted()
         {
-            var outputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = false
-            });
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false })
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -110,7 +110,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
-            var inputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var inputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name);
             inputMapper.Property(x => x.RecordNumber);
             inputMapper.Property(x => x.CreatedOn).InputFormat("MM/dd/yyyy");
@@ -132,13 +132,12 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_WithIgnoredColumn()
         {
-            var outputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
             outputMapper.Ignored();
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            });
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true })
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Ignored();
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
@@ -153,7 +152,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
-            var inputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var inputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name);
             inputMapper.Ignored();
             inputMapper.Property(x => x.RecordNumber);
@@ -177,13 +176,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WriteOnlyColumn_WithIgnoredColumn()
         {
-            var outputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var outputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name);
             outputMapper.Ignored();
-            outputMapper.WriteOnlyProperty("RecordNumber", new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            });
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true });
             outputMapper.Ignored();
             outputMapper.Property(x => x.CreatedOn).OutputFormat("MM/dd/yyyy");
 
@@ -198,7 +194,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
-            var inputMapper = new SeparatedValueTypeMapper<Person>(() => new Person());
+            var inputMapper = SeparatedValueTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name);
             inputMapper.Ignored();
             inputMapper.Property(x => x.RecordNumber);

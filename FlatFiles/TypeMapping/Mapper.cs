@@ -9,26 +9,26 @@ namespace FlatFiles.TypeMapping
     {
         IMemberAccessor Member { get; }
 
-        int WorkCount { get; }
+        int LogicalCount { get; }
 
-        Func<object[], object> GetReader();
+        Func<IRecordContext, object[], object> GetReader();
 
-        Action<object, object[]> GetWriter();
+        Action<IRecordContext, object, object[]> GetWriter();
     }
 
     internal interface IMapper<TEntity>: IMapper
     {
-        new Func<object[], TEntity> GetReader();
+        new Func<IRecordContext, object[], TEntity> GetReader();
 
-        new Action<TEntity, object[]> GetWriter();
+        new Action<IRecordContext, TEntity, object[]> GetWriter();
     }
 
     internal class Mapper<TEntity> : IMapper<TEntity>
     {
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
-        private Func<object[], TEntity> cachedReader;
-        private Action<TEntity, object[]> cachedWriter;
+        private Func<IRecordContext, object[], TEntity> cachedReader;
+        private Action<IRecordContext, TEntity, object[]> cachedWriter;
 
         public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator)
             : this(lookup, codeGenerator, null)
@@ -44,9 +44,9 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
-        public int WorkCount => lookup.WorkCount;
+        public int LogicalCount => lookup.LogicalCount;
 
-        public Func<object[], TEntity> GetReader()
+        public Func<IRecordContext, object[], TEntity> GetReader()
         {
             if (cachedReader != null)
             {
@@ -54,21 +54,19 @@ namespace FlatFiles.TypeMapping
             }
             var factory = lookup.GetFactory<TEntity>() ?? codeGenerator.GetFactory<TEntity>();
             var mappings = lookup.GetMappings();
-            var memberMappings = GetMemberMappings(mappings);
-            var setter = codeGenerator.GetReader<TEntity>(memberMappings);
-            var nullChecker = GetNullChecker(memberMappings);
+            var memberMappings = GetReaderMemberMappings(mappings);
+            var deserializer = codeGenerator.GetReader<TEntity>(memberMappings);
             var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
-                cachedReader = values =>
+                cachedReader = (recordContext, values) =>
                 {
                     var entity = factory();
-                    nullChecker(values);
-                    setter(entity, values);
+                    deserializer(recordContext, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
                         var nestedReader = nestedMapper.GetReader();
-                        var result = nestedReader(values);
+                        var result = nestedReader(recordContext, values);
                         nestedMapper.Member.SetValue(entity, result);
                     }
                     return entity;
@@ -76,87 +74,72 @@ namespace FlatFiles.TypeMapping
             }
             else
             {
-                cachedReader = values =>
+                cachedReader = (recordContext, values) =>
                 {
                     var entity = factory();
-                    nullChecker(values);
-                    setter(entity, values);
+                    deserializer(recordContext, entity, values);
                     return entity;
                 };
             }
             return cachedReader;
         }
 
-        private Action<object[]> GetNullChecker(IMemberMapping[] memberMappings)
-        {
-            var nonNullLookup = memberMappings
-                .Where(m => !m.Member.Type.GetTypeInfo().IsClass)
-                .Where(m => Nullable.GetUnderlyingType(m.Member.Type) == null)
-                .ToDictionary(m => m.WorkIndex);
-            if (nonNullLookup.Count == 0)
-            {
-                return values => { };
-            }
-            return values =>
-            {
-                for (int index = 0; index != values.Length; ++index)
-                {
-                    if (values[index] == null && nonNullLookup.TryGetValue(index, out var mapping))
-                    {
-                        string message = String.Format(null, Resources.AssignNullToStruct, mapping.Member.Name);
-                        throw new FlatFileException(message);
-                    }
-                }
-            };
-        }
-
-        Func<object[], object> IMapper.GetReader()
+        Func<IRecordContext, object[], object> IMapper.GetReader()
         {
             var reader = GetReader();
-            return values => reader(values);
+            return (metadata, values) => reader(metadata, values);
         }
 
-        public Action<TEntity, object[]> GetWriter()
+        public Action<IRecordContext, TEntity, object[]> GetWriter()
         {
             if (cachedWriter != null)
             {
                 return cachedWriter;
             }
             var mappings = lookup.GetMappings();
-            var memberMappings = GetMemberMappings(mappings);
-            var getter = codeGenerator.GetWriter<TEntity>(memberMappings);
+            var memberMappings = GetWriterMemberMappings(mappings);
+            var serializer = codeGenerator.GetWriter<TEntity>(memberMappings);
             var nestedMappers = GetNestedMappers(mappings);
             if (nestedMappers.Any())
             {
-                cachedWriter = (entity, values) =>
+                cachedWriter = (metadata, entity, values) =>
                 {
-                    getter(entity, values);
+                    serializer(metadata, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
                         var nested = nestedMapper.Member.GetValue(entity);
                         var writer = nestedMapper.GetWriter();
-                        writer(nested, values);
+                        writer(metadata, nested, values);
                     }
                 };
             }
             else
             {
-                cachedWriter = getter;
+                cachedWriter = serializer;
             }
             return cachedWriter;
         }
 
-        Action<object, object[]> IMapper.GetWriter()
+        Action<IRecordContext, object, object[]> IMapper.GetWriter()
         {
             var writer = GetWriter();
-            return (entity, values) => writer((TEntity)entity, values);
+            return (metadata, entity, values) => writer(metadata, (TEntity)entity, values);
         }
 
-        private IMemberMapping[] GetMemberMappings(IMemberMapping[] mappings)
+        private IMemberMapping[] GetReaderMemberMappings(IMemberMapping[] mappings)
         {
             var memberMappings = mappings
-                .Where(m => m.Member != null)
-                .Where(m => Member?.Name == m.Member.ParentAccessor?.Name)
+                .Where(m => m.Member != null || m.Reader != null)
+                .Where(m => Member?.Name == m.Member?.ParentAccessor?.Name)
+                .ToArray();
+            return memberMappings;
+        }
+
+        private IMemberMapping[] GetWriterMemberMappings(IMemberMapping[] mappings)
+        {
+            var memberMappings = mappings
+                .Where(m => m.Member != null || m.Writer != null)
+                .Where(m => Member?.Name == m.Member?.ParentAccessor?.Name)
                 .ToArray();
             return memberMappings;
         }

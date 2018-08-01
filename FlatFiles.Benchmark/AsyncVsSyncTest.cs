@@ -12,7 +12,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public string SyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<SampleData>();
+            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -35,7 +35,9 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
+            mapper.CustomMapping(new GeoLocationColumn("GeoLocation"))
+                .WithReader((d, v) => d.GeoLocation = (GeoLocation)v)
+                .WithWriter(d => d.GeoLocation);
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
@@ -66,7 +68,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public async Task<string> AsyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<SampleData>();
+            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -89,7 +91,9 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.Stratification2).ColumnName("Stratification2");
             mapper.Property(x => x.StratificationCategory3).ColumnName("StratificationCategory3");
             mapper.Property(x => x.Stratification3).ColumnName("Stratification3");
-            mapper.CustomProperty(x => x.GeoLocation, new GeoLocationColumn("GeoLocation"));
+            mapper.CustomMapping(new GeoLocationColumn("GeoLocation"))
+                .WithReader((d, v) => d.GeoLocation = (GeoLocation)v)
+                .WithWriter(d => d.GeoLocation);
             mapper.Property(x => x.ResponseId).ColumnName("ResponseID");
             mapper.Property(x => x.LocationId).ColumnName("LocationID");
             mapper.Property(x => x.TopicId).ColumnName("TopicID");
@@ -133,7 +137,7 @@ namespace FlatFiles.Benchmark
             //return textWriter.ToString();
         }
 
-        private class SampleData
+        public class SampleData
         {
             public int YearStart { get; set; }
 
@@ -204,7 +208,7 @@ namespace FlatFiles.Benchmark
             public string StratificationId3 { get; set; }
         }
 
-        private class GeoLocation
+        public class GeoLocation
         {
             public decimal Latitude { get; set; }
 
@@ -216,19 +220,19 @@ namespace FlatFiles.Benchmark
             }
         }
 
-        private class GeoLocationColumn : ColumnDefinition<GeoLocation>
+        public class GeoLocationColumn : ColumnDefinition<GeoLocation>
         {
             public GeoLocationColumn(string columnName)
                 : base(columnName)
             {
             }
 
-            protected override string OnFormat(GeoLocation value)
+            protected override string OnFormat(IColumnContext context, GeoLocation value)
             {
                 return value.ToString();
             }
 
-            protected override GeoLocation OnParse(string value)
+            protected override GeoLocation OnParse(IColumnContext context, string value)
             {
                 string[] parts = value.Substring(1, value.Length - 2).Split(',', 2);
                 var result = new GeoLocation()

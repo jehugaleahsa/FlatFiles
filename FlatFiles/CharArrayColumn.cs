@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column of a char[] values.
     /// </summary>
-    public class CharArrayColumn : ColumnDefinition
+    public sealed class CharArrayColumn : ColumnDefinition<char[]>
     {
         /// <summary>
         /// Initializes a new instance instance of a CharArrayColumn.
@@ -17,42 +17,35 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Gets the type of the values in the column.
+        /// Gets or sets whether the value should be trimmed.
         /// </summary>
-        public override Type ColumnType => typeof(char[]);
+        public bool Trim { get; set; } = true;
 
         /// <summary>
         /// Parses the given value as a char array.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed char array.</returns>
-        public override object Parse(string value)
+        protected override char[] OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-            value = TrimValue(value);
             return value.ToCharArray();
         }
 
         /// <summary>
+        /// Gets whether the value should be trimmed prior to parsing.
+        /// </summary>
+        protected override bool IsTrimmed { get => Trim; }
+
+        /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        protected override string OnFormat(IColumnContext context, char[] value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-            char[] actual = (char[])value;
-            return new String(actual);
+            return new String(value);
         }
     }
 }

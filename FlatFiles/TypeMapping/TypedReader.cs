@@ -11,6 +11,21 @@ namespace FlatFiles.TypeMapping
     public interface ITypedReader<out TEntity>
     {
         /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        event EventHandler<ColumnErrorEventArgs> ColumnError;
+
+        /// <summary>
+        /// Raised when a record is parsed.
+        /// </summary>
+        event EventHandler<IRecordParsedEventArgs> RecordParsed;
+
+        /// <summary>
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
@@ -58,9 +73,9 @@ namespace FlatFiles.TypeMapping
         event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
 
         /// <summary>
-        /// Raised when an error occurs while processing a record.
+        /// Raised after a record is parsed.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        new event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed;
     }
 
     /// <summary>
@@ -80,20 +95,38 @@ namespace FlatFiles.TypeMapping
         event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
 
         /// <summary>
-        /// Raised when an error occurs while processing a record.
+        /// Raised after a record is parsed.
         /// </summary>
-        event EventHandler<ProcessingErrorEventArgs> Error;
+        new event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed;
     }
 
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
-        private readonly IReader reader;
-        private readonly Func<object[], TEntity> deserializer;
+        private readonly IReaderWithMetadata reader;
+        private readonly Func<IRecordContext, object[], TEntity> deserializer;
 
-        protected TypedReader(IReader reader, IMapper<TEntity> mapper)
+        protected TypedReader(IReaderWithMetadata reader, IMapper<TEntity> mapper)
         {
             this.reader = reader;
             deserializer = mapper.GetReader();
+        }
+
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<TEntity>.RecordParsed
+        {
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
+        }
+
+        public event EventHandler<RecordErrorEventArgs> RecordError
+        {
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()
@@ -107,8 +140,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = deserializer(values);
+            SetCurrent();
             return true;
         }
 
@@ -118,9 +150,15 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = deserializer(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            var recordContext = reader.GetMetadata();
+            Current = deserializer(recordContext, values);
         }
 
         public bool Skip()
@@ -152,25 +190,25 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordRead -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
         }
     }
 
     internal sealed class MultiplexingSeparatedValueTypedReader : ISeparatedValueTypedReader<object>
     {
         private readonly SeparatedValueReader reader;
-        private readonly SeparatedValueTypeMapperSelector selector;
 
-        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader, SeparatedValueTypeMapperSelector selector)
+        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader)
         {
             this.reader = reader;
-            this.selector = selector;
         }
 
         public object Current { get; private set; }
+
+        public Func<IRecordContext, object[], object> Deserializer { get; set; }
 
         public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
         {
@@ -178,10 +216,28 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordRead -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => ((IReader)reader).RecordParsed += value;
+            remove => ((IReader)reader).RecordParsed -= value;
+        }
+
+        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
+        {
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
+        }
+
+        public event EventHandler<RecordErrorEventArgs> RecordError
+        {
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()
@@ -195,8 +251,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            SetCurrent();
             return true;
         }
 
@@ -206,9 +261,16 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            IReaderWithMetadata metadataReader = reader;
+            var recordContext = metadataReader.GetMetadata();
+            Current = Deserializer(recordContext, values);
         }
 
         public bool Skip()
@@ -244,25 +306,25 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordPartitioned -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
         }
     }
 
     internal sealed class MultiplexingFixedLengthTypedReader : IFixedLengthTypedReader<object>
     {
         private readonly FixedLengthReader reader;
-        private readonly FixedLengthTypeMapperSelector selector;
 
-        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader, FixedLengthTypeMapperSelector selector)
+        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader)
         {
             this.reader = reader;
-            this.selector = selector;
         }
 
         public object Current { get; private set; }
+
+        public Func<IRecordContext, object[], object> Deserializer { get; set; }
 
         public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
         {
@@ -276,10 +338,28 @@ namespace FlatFiles.TypeMapping
             remove => reader.RecordPartitioned -= value;
         }
 
-        public event EventHandler<ProcessingErrorEventArgs> Error
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
         {
-            add => reader.Error += value;
-            remove => reader.Error -= value;
+            add => reader.RecordParsed += value;
+            remove => reader.RecordParsed -= value;
+        }
+
+        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
+        {
+            add => ((IReader)reader).RecordParsed += value;
+            remove => ((IReader)reader).RecordParsed -= value;
+        }
+
+        public event EventHandler<RecordErrorEventArgs> RecordError
+        {
+            add => reader.RecordError += value;
+            remove => reader.RecordError -= value;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => reader.ColumnError += value;
+            remove => reader.ColumnError -= value;
         }
 
         public ISchema GetSchema()
@@ -293,8 +373,7 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            SetCurrent();
             return true;
         }
 
@@ -304,9 +383,16 @@ namespace FlatFiles.TypeMapping
             {
                 return false;
             }
-            object[] values = reader.GetValues();
-            Current = selector.Reader(values);
+            SetCurrent();
             return true;
+        }
+
+        private void SetCurrent()
+        {
+            var values = reader.GetValues();
+            IReaderWithMetadata metadataReader = reader;
+            var recordContext = metadataReader.GetMetadata();
+            Current = Deserializer(recordContext, values);
         }
 
         public bool Skip()

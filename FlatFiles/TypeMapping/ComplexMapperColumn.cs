@@ -5,16 +5,16 @@ namespace FlatFiles.TypeMapping
     internal class ComplexMapperColumn<TEntity> : IColumnDefinition
     {
         private readonly IColumnDefinition column;
-        private readonly Func<object[], TEntity> reader;
-        private readonly Action<TEntity, object[]> writer;
-        private readonly int workCount;
+        private readonly Func<IRecordContext, object[], TEntity> reader;
+        private readonly Action<IRecordContext, TEntity, object[]> writer;
+        private readonly int logicalCount;
 
         public ComplexMapperColumn(IColumnDefinition column, IMapper<TEntity> mapper)
         {
             this.column = column;
             reader = mapper.GetReader();
             writer = mapper.GetWriter();
-            workCount = mapper.WorkCount;
+            logicalCount = mapper.LogicalCount;
         }
 
         public string ColumnName => column.ColumnName;
@@ -23,10 +23,18 @@ namespace FlatFiles.TypeMapping
 
         public bool IsIgnored => column.IsIgnored;
 
-        public INullHandler NullHandler
+        public bool IsNullable => true;
+
+        public IDefaultValue DefaultValue
         {
-            get => column.NullHandler;
-            set => column.NullHandler = value;
+            get => column.DefaultValue;
+            set => column.DefaultValue = value;
+        }
+
+        public INullFormatter NullFormatter
+        {
+            get => column.NullFormatter;
+            set => column.NullFormatter = value;
         }
 
         public Func<string, string> Preprocessor
@@ -35,19 +43,19 @@ namespace FlatFiles.TypeMapping
             set => column.Preprocessor = value;
         }
 
-        public object Parse(string value)
+        public object Parse(IColumnContext context, string value)
         {
-            object parsed = column.Parse(value);
+            object parsed = column.Parse(context, value);
             object[] values = parsed as object[];
-            TEntity result = reader(values);
+            TEntity result = reader(null, values);
             return result;
         }
 
-        public string Format(object value)
+        public string Format(IColumnContext context, object value)
         {
-            object[] values = new object[workCount];
-            writer((TEntity)value, values);
-            string formatted = column.Format(values);
+            object[] values = new object[logicalCount];
+            writer(null, (TEntity)value, values);
+            string formatted = column.Format(context, values);
             return formatted;
         }
     }

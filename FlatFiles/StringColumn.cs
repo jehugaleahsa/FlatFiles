@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column containing strings.
     /// </summary>
-    public class StringColumn : ColumnDefinition
+    public sealed class StringColumn : ColumnDefinition<string>
     {
         /// <summary>
         /// Initializes a new instance of a StringColumnDefinition.
@@ -29,38 +29,28 @@ namespace FlatFiles
         /// <summary>
         /// Returns the given value trimmed.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to trim.</param>
         /// <returns>The value trimmed.</returns>
-        public override object Parse(string value)
+        protected override string OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (Trim && value != null)
-            {
-                value = TrimValue(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
             return value;
         }
 
         /// <summary>
+        /// Gets whether the value should be trimmed prior to parsing.
+        /// </summary>
+        protected override bool IsTrimmed => Trim;
+
+        /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        protected override string OnFormat(IColumnContext context, string value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-            string actual = (string)value;
-            return actual;
+            return value;
         }
     }
 }

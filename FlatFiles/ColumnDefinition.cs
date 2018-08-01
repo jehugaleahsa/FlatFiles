@@ -19,9 +19,19 @@ namespace FlatFiles
         bool IsIgnored { get; }
 
         /// <summary>
-        /// Gets or sets the null handler instance used to interpret null values.
+        /// Gets whether nulls are allowed for the column.
         /// </summary>
-        INullHandler NullHandler { get; set; }
+        bool IsNullable { get; }
+
+        /// <summary>
+        /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
+        /// </summary>
+        IDefaultValue DefaultValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the null formatter instance used to read/write null values.
+        /// </summary>
+        INullFormatter NullFormatter { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to preprocess input before trying to parse it.
@@ -36,16 +46,18 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        object Parse(string value);
+        object Parse(IColumnContext context, string value);
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        string Format(object value);
+        string Format(IColumnContext context, object value);
     }
 
     /// <summary>
@@ -54,7 +66,8 @@ namespace FlatFiles
     public abstract class ColumnDefinition : IColumnDefinition
     {
         private string columnName;
-        private INullHandler nullHandler;
+        private INullFormatter nullHandler = FlatFiles.NullFormatter.Default;
+        private IDefaultValue defaultValue = FlatFiles.DefaultValue.Disabled();
 
         /// <summary>
         /// Initializes a new instance of a ColumnDefinition.
@@ -74,7 +87,6 @@ namespace FlatFiles
         {
             IsIgnored = isIgnored;
             ColumnName = columnName;
-            nullHandler = DefaultNullHandler.Instance;
         }
 
         /// <summary>
@@ -100,12 +112,26 @@ namespace FlatFiles
         public bool IsIgnored { get; }
 
         /// <summary>
-        /// Gets or sets the null handler instance used to interpret null values.
+        /// Gets or sets whether nulls are allowed for the column.
         /// </summary>
-        public INullHandler NullHandler
+        public bool IsNullable { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
+        /// </summary>
+        public IDefaultValue DefaultValue
+        {
+            get => defaultValue;
+            set => defaultValue = value ?? FlatFiles.DefaultValue.Disabled();
+        }
+
+        /// <summary>
+        /// Gets or sets the null formatter instance used to read/write null values.
+        /// </summary>
+        public INullFormatter NullFormatter
         {
             get => nullHandler;
-            set => nullHandler = value ?? DefaultNullHandler.Instance;
+            set => nullHandler = value ?? FlatFiles.NullFormatter.Default;
         }
 
         /// <summary>
@@ -121,30 +147,28 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public abstract object Parse(string value);
+        public abstract object Parse(IColumnContext context, string value);
 
         /// <summary>
         /// Removes any leading or trailing whitespace from the value.
         /// </summary>
         /// <param name="value">The value to trim.</param>
         /// <returns>The trimmed value.</returns>
-        protected string TrimValue(string value)
+        protected internal static string TrimValue(string value)
         {
-            if (value == null)
-            {
-                return String.Empty;
-            }
-            return value.Trim();
+            return value?.Trim();
         }
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public abstract string Format(object value);
+        public abstract string Format(IColumnContext context, object value);
     }
 
     /// <summary>
@@ -170,48 +194,61 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public override object Parse(string value)
+        public override object Parse(IColumnContext context, string value)
         {
             if (Preprocessor != null)
             {
                 value = Preprocessor(value);
             }
-            if (NullHandler.IsNullRepresentation(value))
+            if (NullFormatter.IsNullValue(context, value))
             {
-                return null;
+                if (IsNullable)
+                {
+                    return null;
+                }
+                return DefaultValue.GetDefaultValue(context);  // Should we check for the expected type?
             }
-            string trimmed = TrimValue(value);
-            return OnParse(trimmed);
+            string trimmed = IsTrimmed ? TrimValue(value) : value;
+            return OnParse(context, trimmed);
         }
+
+        /// <summary>
+        /// Gets whether the value should be trimmed prior to parsing.
+        /// </summary>
+        protected virtual bool IsTrimmed => true;
 
         /// <summary>
         /// Parses the given value and returns the parsed object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        protected abstract T OnParse(string value);
+        protected abstract T OnParse(IColumnContext context, string value);
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        public override string Format(IColumnContext context, object value)
         {
             if (value == null)
             {
-                return NullHandler.GetNullRepresentation();
+                return NullFormatter.FormatNull(context);
             }
-            return OnFormat((T)value);
+            return OnFormat(context, (T)value);
         }
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected abstract string OnFormat(T value);
+        protected abstract string OnFormat(IColumnContext context, T value);
     }
 }

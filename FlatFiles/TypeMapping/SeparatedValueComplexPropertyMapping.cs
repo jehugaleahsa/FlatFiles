@@ -23,19 +23,20 @@ namespace FlatFiles.TypeMapping
         ISeparatedValueComplexPropertyMapping WithOptions(SeparatedValueOptions options);
 
         /// <summary>
-        /// Sets the value to treat as null.
+        /// Sets what value(s) are treated as null.
         /// </summary>
-        /// <param name="value">The value to treat as null.</param>
+        /// <param name="formatter">The formatter to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        ISeparatedValueComplexPropertyMapping NullValue(string value);
+        /// <remarks>Passing null will cause the default formatter to be used.</remarks>
+        ISeparatedValueComplexPropertyMapping NullFormatter(INullFormatter formatter);
 
         /// <summary>
-        /// Sets a custom handler for nulls.
+        /// Sets the default value to use when a null is encountered on a non-null property.
         /// </summary>
-        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <param name="defaultValue">The default value to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        /// <remarks>Setting the handler to null with use the default handler.</remarks>
-        ISeparatedValueComplexPropertyMapping NullHandler(INullHandler handler);
+        /// <remarks>Passing null will cause an exception to be thrown for unexpected nulls.</remarks>
+        ISeparatedValueComplexPropertyMapping DefaultValue(IDefaultValue defaultValue);
 
         /// <summary>
         /// Sets a function to preprocess in the input before parsing it.
@@ -50,16 +51,21 @@ namespace FlatFiles.TypeMapping
         private readonly ISeparatedValueTypeMapper<TEntity> mapper;
         private string columnName;
         private SeparatedValueOptions options;
-        private INullHandler nullHandler;
+        private INullFormatter nullFormatter;
+        private IDefaultValue defaultValue;
         private Func<string, string> preprocessor;
 
-        public SeparatedValueComplexPropertyMapping(ISeparatedValueTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
+        public SeparatedValueComplexPropertyMapping(
+            ISeparatedValueTypeMapper<TEntity> mapper, 
+            IMemberAccessor member, 
+            int physicalIndex, 
+            int logicalIndex)
         {
             this.mapper = mapper;
             Member = member;
             columnName = member.Name;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -70,7 +76,8 @@ namespace FlatFiles.TypeMapping
                 SeparatedValueComplexColumn column = new SeparatedValueComplexColumn(columnName, schema)
                 {
                     Options = options,
-                    NullHandler = nullHandler,
+                    NullFormatter = nullFormatter,
+                    DefaultValue = defaultValue,
                     Preprocessor = preprocessor
                 };
 
@@ -82,9 +89,13 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
-        public int FileIndex { get; }
+        public Action<IColumnContext, object, object> Reader => null;
 
-        public int WorkIndex { get; }
+        public Action<IColumnContext, object, object[]> Writer => null;
+
+        public int PhysicalIndex { get; }
+
+        public int LogicalIndex { get; }
 
         public ISeparatedValueComplexPropertyMapping ColumnName(string name)
         {
@@ -102,15 +113,15 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public ISeparatedValueComplexPropertyMapping NullHandler(INullHandler handler)
+        public ISeparatedValueComplexPropertyMapping NullFormatter(INullFormatter formatter)
         {
-            nullHandler = handler;
+            nullFormatter = formatter;
             return this;
         }
 
-        public ISeparatedValueComplexPropertyMapping NullValue(string value)
+        public ISeparatedValueComplexPropertyMapping DefaultValue(IDefaultValue defaultValue)
         {
-            nullHandler = new ConstantNullHandler(value);
+            this.defaultValue = defaultValue;
             return this;
         }
 

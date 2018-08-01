@@ -1,30 +1,93 @@
-﻿#if NET45
+﻿#if NET45||NETStandard20
 using System;
 using System.Data;
+using System.Data.Common;
+using System.Globalization;
 
 namespace FlatFiles
 {
     /// <summary>
-    /// Reads records from a flat file.
+    /// Provides access to the column values within each row for a <see cref="FlatFileDataReader"/>.
     /// </summary>
-    public sealed class FlatFileReader : IDataReader
+    public interface IFlatFileDataRecord : IDataRecord
     {
-        private readonly IReader parser;
+        /// <summary>
+        /// Gets the DateTime value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The DateTime value at the given index.</returns>
+        DateTimeOffset GetDateTimeOffset(int i);
+
+        /// <summary>
+        /// Gets the sbyte value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The sbyte value at the given index.</returns>
+        sbyte GetSByte(int i);
+
+        /// <summary>
+        /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The string at the given index.</returns>
+        TimeSpan GetTimeSpan(int i);
+
+        /// <summary>
+        /// Gets the unsigned short value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned short value at the given index.</returns>
+        ushort GetUInt16(int i);
+
+        /// <summary>
+        /// Gets the unsigned int value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned int value at the given index.</returns>
+        uint GetUInt32(int i);
+
+        /// <summary>
+        /// Gets the unsigned long value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned long value at the given index.</returns>
+        ulong GetUInt64(int i);
+    }
+
+    /// <summary>
+    /// Provides an ADO.NET adapter (IDataReader) for a flat file reader.
+    /// </summary>
+    public sealed class FlatFileDataReader : IDataReader, IFlatFileDataRecord
+    {
+        private ISchema schema;  // cached
+        private object[] values; // cached
 
         /// <summary>
         /// Initializes a new instance of a FlatFileParser.
         /// </summary>
         /// <param name="reader">The reader to use to parse the underlying file.</param>
+        /// <param name="options">The options to use to control how the file is read.</param>
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
-        public FlatFileReader(IReader reader)
+        public FlatFileDataReader(IReader reader, FlatFileDataReaderOptions options = null)
         {
-            parser = reader ?? throw new ArgumentNullException(nameof(parser));
+            Reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            Options = options ?? new FlatFileDataReaderOptions();
         }
+
+        /// <summary>
+        /// Gets the underlying FlatFile reader.
+        /// </summary>
+        public IReader Reader { get; }
+
+        /// <summary>
+        /// Gets the data reader options.
+        /// </summary>
+        public FlatFileDataReaderOptions Options { get; }
 
         /// <summary>
         /// Finalizes the FlatFileReader.
         /// </summary>
-        ~FlatFileReader()
+        ~FlatFileDataReader()
         {
             dispose(false);
         }
@@ -59,42 +122,11 @@ namespace FlatFiles
         /// <returns>The Schema DataTable.</returns>
         public DataTable GetSchemaTable()
         {
-            ISchema schema = parser.GetSchema();
-            DataTable schemaTable = new DataTable();
-            schemaTable.Columns.AddRange(new DataColumn[] 
-            {
-                new DataColumn("AllowDBNull", typeof(Boolean)),
-                new DataColumn("BaseCatalogName", typeof(String)),
-                new DataColumn("BaseColumnName", typeof(String)),
-                new DataColumn("BaseSchemaName", typeof(String)),
-                new DataColumn("BaseServerName", typeof(String)),
-                new DataColumn("BaseTableName", typeof(String)),
-                new DataColumn("ColumnName", typeof(String)),
-                new DataColumn("ColumnOrdinal", typeof(Int32)),
-                new DataColumn("ColumnSize", typeof(Int32)),
-                new DataColumn("DataTypeName", typeof(String)),
-                new DataColumn("IsAliased", typeof(Boolean)),
-                new DataColumn("IsAutoIncrement", typeof(Boolean)),
-                new DataColumn("IsColumnSet", typeof(Boolean)),
-                new DataColumn("IsExpression", typeof(Boolean)),
-                new DataColumn("IsHidden", typeof(Boolean)),
-                new DataColumn("IsIdentity", typeof(Boolean)),
-                new DataColumn("IsKey", typeof(Boolean)),
-                new DataColumn("IsLong", typeof(Boolean)),
-                new DataColumn("IsReadOnly", typeof(Boolean)),
-                new DataColumn("IsRowVersion", typeof(Boolean)),
-                new DataColumn("IsUnique", typeof(Boolean)),
-                new DataColumn("NumericPrecision", typeof(Int32)),
-                new DataColumn("NumericScale", typeof(Int32)),
-                new DataColumn("ProviderType", typeof(Type)),
-                new DataColumn("UdtAssemblyQualifiedName", typeof(String)),
-                new DataColumn("XmlSchemaCollectionDatabase", typeof(String)),
-                new DataColumn("XmlSchemaCollectionName", typeof(String)),
-                new DataColumn("XmlSchemaCollectionOwningSchema", typeof(String)),
-            });
+            var schema = GetSchema();
+            var schemaTable = GetEmptySchemaDataTable(schema);
             for (int index = 0; index != schema.ColumnDefinitions.Count; ++index)
             {
-                IColumnDefinition column = schema.ColumnDefinitions[index];
+                var column = schema.ColumnDefinitions[index];
                 object[] values = new object[]
                 {
                     true,  // AllowDBNull
@@ -106,6 +138,7 @@ namespace FlatFiles
                     column.ColumnName,  // ColumnName
                     index,  // ColumnOrdinal
                     Int32.MaxValue,  // ColumnSize
+                    column.ColumnType, // DataType
                     column.ColumnType.Name,  // DataTypeName
                     false,  // IsAliased
                     false,  // IsAutoIncrement
@@ -120,15 +153,47 @@ namespace FlatFiles
                     false,  // IsUnique
                     255,  // NumericPrecision
                     255,  // NumericScale
-                    column.ColumnType,  // ProviderType
-                    null,  // UdtAssemblyQualifiedName
-                    null,  // XmlSchemaCollectionDatabase
-                    null,  // XmlSchemaCollectionName
-                    null,  // XmlSchemaCollectionOwningSchema
+                    column.ColumnType  // ProviderType
                 };
                 schemaTable.Rows.Add(values);
             }
             schemaTable.AcceptChanges();
+            return schemaTable;
+        }
+
+        private static DataTable GetEmptySchemaDataTable(ISchema schema)
+        {
+            DataTable schemaTable = new DataTable();
+            schemaTable.Locale = CultureInfo.InvariantCulture;
+            schemaTable.MinimumCapacity = schema.ColumnDefinitions.Count;
+            schemaTable.Columns.AddRange(new[]
+            {
+                new DataColumn(SchemaTableColumn.AllowDBNull, typeof(Boolean)),
+                new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(String)),
+                new DataColumn(SchemaTableColumn.BaseColumnName, typeof(String)),
+                new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(String)),
+                new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(String)),
+                new DataColumn(SchemaTableColumn.BaseTableName, typeof(String)),
+                new DataColumn(SchemaTableColumn.ColumnName, typeof(String)),
+                new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(Int32)),
+                new DataColumn(SchemaTableColumn.ColumnSize, typeof(Int32)),
+                new DataColumn(SchemaTableColumn.DataType, typeof(Type)),
+                new DataColumn("DataTypeName", typeof(String)),
+                new DataColumn(SchemaTableColumn.IsAliased, typeof(Boolean)),
+                new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(Boolean)),
+                new DataColumn("IsColumnSet", typeof(Boolean)),
+                new DataColumn(SchemaTableColumn.IsExpression, typeof(Boolean)),
+                new DataColumn(SchemaTableOptionalColumn.IsHidden, typeof(Boolean)),
+                new DataColumn("IsIdentity", typeof(Boolean)),
+                new DataColumn(SchemaTableColumn.IsKey, typeof(Boolean)),
+                new DataColumn(SchemaTableColumn.IsLong, typeof(Boolean)),
+                new DataColumn(SchemaTableOptionalColumn.IsReadOnly, typeof(Boolean)),
+                new DataColumn(SchemaTableOptionalColumn.IsRowVersion, typeof(Boolean)),
+                new DataColumn(SchemaTableColumn.IsUnique, typeof(Boolean)),
+                new DataColumn(SchemaTableColumn.NumericPrecision, typeof(Int32)),
+                new DataColumn(SchemaTableColumn.NumericScale, typeof(Int32)),
+                new DataColumn(SchemaTableColumn.ProviderType, typeof(Type))
+            });
             return schemaTable;
         }
 
@@ -148,7 +213,15 @@ namespace FlatFiles
         /// <returns>True if there was another record; otherwise, false.</returns>
         public bool Read()
         {
-            return parser.Read();
+            if (Reader.Read())
+            {
+                values = null;  // reset cache
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         int IDataReader.RecordsAffected => 0;
@@ -156,14 +229,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of fields in the current record.
         /// </summary>
-        public int FieldCount
-        {
-            get 
-            {
-                ISchema schema = parser.GetSchema();
-                return schema.ColumnDefinitions.Count;
-            }
-        }
+        public int FieldCount => GetSchema().ColumnDefinitions.Count;
 
         /// <summary>
         /// Gets the boolean value from the current record at the given index.
@@ -172,7 +238,7 @@ namespace FlatFiles
         /// <returns>The boolean value at the given index.</returns>
         public bool GetBoolean(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return (bool)values[i];
         }
 
@@ -183,7 +249,7 @@ namespace FlatFiles
         /// <returns>The byte value at the given index.</returns>
         public byte GetByte(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return (byte)values[i];
         }
 
@@ -198,9 +264,13 @@ namespace FlatFiles
         /// <returns>The number of bytes copied to the buffer.</returns>
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
-            object[] values = parser.GetValues();
-            byte[] bytes = (byte[])values[i];
+            var values = GetValues();
+            var bytes = (byte[])values[i];
+#if NET45
             Array.Copy(bytes, fieldOffset, buffer, bufferoffset, length);
+#else
+            Array.Copy(bytes, (int)fieldOffset, buffer, bufferoffset, length);
+#endif
             return Math.Min(bytes.Length - fieldOffset, length);
         }
 
@@ -211,7 +281,7 @@ namespace FlatFiles
         /// <returns>The char value at the given index.</returns>
         public char GetChar(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return (char)values[i];
         }
 
@@ -226,9 +296,17 @@ namespace FlatFiles
         /// <returns>The number of chars copied to the buffer.</returns>
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
         {
-            object[] values = parser.GetValues();
-            char[] chars = (char[])values[i];
-            Array.Copy(chars, fieldoffset, buffer, bufferoffset, length);
+            if (buffer == null)
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
+            var values = GetValues();
+            var chars = (char[])values[i];
+#if NET45
+            Array.Copy(buffer, fieldoffset, buffer, bufferoffset, length);
+#else
+            Array.Copy(buffer, (int)fieldoffset, buffer, bufferoffset, length);
+#endif
             return Math.Min(chars.Length - fieldoffset, length);
         }
 
@@ -244,7 +322,7 @@ namespace FlatFiles
         /// <returns>The type name.</returns>
         public string GetDataTypeName(int i)
         {
-            ISchema schema = parser.GetSchema();
+            var schema = GetSchema();
             return schema.ColumnDefinitions[i].ColumnType.Name;
         }
 
@@ -255,8 +333,19 @@ namespace FlatFiles
         /// <returns>The DateTime value at the given index.</returns>
         public DateTime GetDateTime(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return (DateTime)values[i];
+        }
+
+        /// <summary>
+        /// Gets the DateTime value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The DateTime value at the given index.</returns>
+        public DateTimeOffset GetDateTimeOffset(int i)
+        {
+            var values = GetValues();
+            return (DateTimeOffset)values[i];
         }
 
         /// <summary>
@@ -266,8 +355,8 @@ namespace FlatFiles
         /// <returns>The decimal value at the given index.</returns>
         public decimal GetDecimal(int i)
         {
-            object[] values = parser.GetValues();
-            return (Decimal)values[i];
+            var values = GetValues();
+            return (decimal)values[i];
         }
 
         /// <summary>
@@ -277,8 +366,8 @@ namespace FlatFiles
         /// <returns>The double value at the given index.</returns>
         public double GetDouble(int i)
         {
-            object[] values = parser.GetValues();
-            return (Double)values[i];
+            var values = GetValues();
+            return (double)values[i];
         }
 
         /// <summary>
@@ -288,7 +377,7 @@ namespace FlatFiles
         /// <returns>The type of the value at the given index.</returns>
         public Type GetFieldType(int i)
         {
-            ISchema schema = parser.GetSchema();
+            var schema = GetSchema();
             return schema.ColumnDefinitions[i].ColumnType;
         }
 
@@ -299,8 +388,8 @@ namespace FlatFiles
         /// <returns>The float value at the given index.</returns>
         public float GetFloat(int i)
         {
-            object[] values = parser.GetValues();
-            return (Single)values[i];
+            var values = GetValues();
+            return (float)values[i];
         }
 
         /// <summary>
@@ -310,7 +399,7 @@ namespace FlatFiles
         /// <returns>The GUID at the given index.</returns>
         public Guid GetGuid(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return (Guid)values[i];
         }
 
@@ -321,8 +410,8 @@ namespace FlatFiles
         /// <returns>The short value at the given index.</returns>
         public short GetInt16(int i)
         {
-            object[] values = parser.GetValues();
-            return (Int16)values[i];
+            var values = GetValues();
+            return (short)values[i];
         }
 
         /// <summary>
@@ -332,8 +421,8 @@ namespace FlatFiles
         /// <returns>The int value at the given index.</returns>
         public int GetInt32(int i)
         {
-            object[] values = parser.GetValues();
-            return (Int32)values[i];
+            var values = GetValues();
+            return (int)values[i];
         }
 
         /// <summary>
@@ -343,8 +432,8 @@ namespace FlatFiles
         /// <returns>The long value at the given index.</returns>
         public long GetInt64(int i)
         {
-            object[] values = parser.GetValues();
-            return (Int64)values[i];
+            var values = GetValues();
+            return (long)values[i];
         }
 
         /// <summary>
@@ -354,7 +443,7 @@ namespace FlatFiles
         /// <returns>The name of the column at the given index.</returns>
         public string GetName(int i)
         {
-            ISchema schema = parser.GetSchema();
+            var schema = GetSchema();
             return schema.ColumnDefinitions[i].ColumnName;
         }
 
@@ -365,8 +454,19 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name.</returns>
         public int GetOrdinal(string name)
         {
-            ISchema schema = parser.GetSchema();
+            var schema = GetSchema();
             return schema.GetOrdinal(name);
+        }
+
+        /// <summary>
+        /// Gets the sbyte value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The sbyte value at the given index.</returns>
+        public sbyte GetSByte(int i)
+        {
+            var values = GetValues();
+            return (sbyte)values[i];
         }
 
         /// <summary>
@@ -376,13 +476,57 @@ namespace FlatFiles
         /// <returns>The string at the given index.</returns>
         public string GetString(int i)
         {
-            object[] values = parser.GetValues();
-            string value = (string)values[i];
-            if (values == null)
+            var values = GetValues();
+            var value = (string)values[i];
+            if (value == null && !Options.IsNullStringAllowed)
             {
                 throw new InvalidCastException();
             }
             return value;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The string at the given index.</returns>
+        public TimeSpan GetTimeSpan(int i)
+        {
+            var values = GetValues();
+            return (TimeSpan)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned short value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned short value at the given index.</returns>
+        public ushort GetUInt16(int i)
+        {
+            var values = GetValues();
+            return (ushort)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned int value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned int value at the given index.</returns>
+        public uint GetUInt32(int i)
+        {
+            var values = GetValues();
+            return (uint)values[i];
+        }
+
+        /// <summary>
+        /// Gets the unsigned long value from the current record at the given index.
+        /// </summary>
+        /// <param name="i">The index of the value.</param>
+        /// <returns>The unsigned long value at the given index.</returns>
+        public ulong GetUInt64(int i)
+        {
+            var values = GetValues();
+            return (ulong)values[i];
         }
 
         /// <summary>
@@ -392,9 +536,9 @@ namespace FlatFiles
         /// <returns>The value as an object at the given index.</returns>
         public object GetValue(int i)
         {
-            object[] values = parser.GetValues();
-            object value = values[i];
-            if (value == null)
+            var values = GetValues();
+            var value = values[i];
+            if (value == null && Options.IsDBNullReturned)
             {
                 value = DBNull.Value;
             }
@@ -408,14 +552,17 @@ namespace FlatFiles
         /// <returns>The number of values copied to the given array.</returns>
         public int GetValues(object[] values)
         {
-            object[] sources = parser.GetValues();
-            int length = Math.Min(sources.Length, values.Length);
+            var sources = GetValues();
+            var length = Math.Min(sources.Length, values.Length);
             Array.Copy(sources, values, length);
-            for (int index = 0; index != length; ++index)
+            if (Options.IsDBNullReturned)
             {
-                if (values[index] == null)
+                for (int index = 0; index != length; ++index)
                 {
-                    values[index] = DBNull.Value;
+                    if (values[index] == null)
+                    {
+                        values[index] = DBNull.Value;
+                    }
                 }
             }
             return length;
@@ -428,7 +575,7 @@ namespace FlatFiles
         /// <returns>True if the value is null; otherwise, false.</returns>
         public bool IsDBNull(int i)
         {
-            object[] values = parser.GetValues();
+            var values = GetValues();
             return values[i] == null;
         }
 
@@ -441,15 +588,9 @@ namespace FlatFiles
         {
             get 
             {  
-                ISchema schema = parser.GetSchema();
-                int index = schema.GetOrdinal(name);
-                object[] values = parser.GetValues();
-                object value = values[index];
-                if (value == null)
-                {
-                    value = DBNull.Value;
-                }
-                return value;
+                var schema = GetSchema();
+                var index = schema.GetOrdinal(name);
+                return GetValue(index);
             }
         }
 
@@ -460,16 +601,25 @@ namespace FlatFiles
         /// <returns>The value at the given index.</returns>
         public object this[int i]
         {
-            get
+            get { return GetValue(i); }
+        }
+
+        private ISchema GetSchema()
+        {
+            if (schema == null)
             {
-                object[] values = parser.GetValues();
-                object value = values[i];
-                if (value == null)
-                {
-                    value = DBNull.Value;
-                }
-                return value;
+                schema = Reader.GetSchema();
             }
+            return schema;
+        }
+
+        private object[] GetValues()
+        {
+            if (values == null)
+            {
+                values = Reader.GetValues();
+            }
+            return values;
         }
     }
 }

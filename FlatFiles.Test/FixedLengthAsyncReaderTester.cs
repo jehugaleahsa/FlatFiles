@@ -74,7 +74,7 @@ namespace FlatFiles.Test
             {
                 people.Add(reader.Current);
             }
-            Assert.AreEqual(2, people.Count());
+            Assert.AreEqual(2, people.Count);
             var person1 = people.First();
             Assert.AreEqual(bob.Id, person1.Id);
             Assert.AreEqual(bob.Name, person1.Name);
@@ -82,7 +82,7 @@ namespace FlatFiles.Test
             Assert.AreEqual(true, person1.IsActive);
         }
 
-        private class Person
+        internal class Person
         {
             public int Id { get; set; }
 

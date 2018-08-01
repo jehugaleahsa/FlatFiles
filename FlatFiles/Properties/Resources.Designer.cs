@@ -8,16 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.CodeDom.Compiler;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
-
 namespace FlatFiles.Properties {
+    using System;
+    using System.Reflection;
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -25,27 +20,27 @@ namespace FlatFiles.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
-    [DebuggerNonUserCode()]
-    [CompilerGenerated()]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
         
-        private static ResourceManager resourceMan;
+        private static global::System.Resources.ResourceManager resourceMan;
         
-        private static CultureInfo resourceCulture;
+        private static global::System.Globalization.CultureInfo resourceCulture;
         
-        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resources() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        internal static ResourceManager ResourceManager {
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
-                if (ReferenceEquals(resourceMan, null)) {
-                    ResourceManager temp = new ResourceManager("FlatFiles.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                if (object.ReferenceEquals(resourceMan, null)) {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FlatFiles.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -56,8 +51,8 @@ namespace FlatFiles.Properties {
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        internal static CultureInfo Culture {
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -67,11 +62,11 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable property &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Encountered a null when assigning to the non-nullable column..
         /// </summary>
-        internal static string AssignNullToStruct {
+        internal static string AssignNullToNonNullable {
             get {
-                return ResourceManager.GetString("AssignNullToStruct", resourceCulture);
+                return ResourceManager.GetString("AssignNullToNonNullable", resourceCulture);
             }
         }
         
@@ -189,6 +184,15 @@ namespace FlatFiles.Properties {
         internal static string MissingMatcher {
             get {
                 return ResourceManager.GetString("MissingMatcher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find an appropriate property mapping for the type of the column &apos;{0}&apos;..
+        /// </summary>
+        internal static string NoAutoMapPropertyType {
+            get {
+                return ResourceManager.GetString("NoAutoMapPropertyType", resourceCulture);
             }
         }
         

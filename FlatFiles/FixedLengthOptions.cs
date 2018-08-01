@@ -84,6 +84,11 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Gets or sets whether column-level metadata should be disabled for non-metadata columns.
+        /// </summary>
+        public bool IsColumnContextDisabled { get; set; }
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

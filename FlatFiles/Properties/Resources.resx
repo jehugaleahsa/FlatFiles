@@ -192,13 +192,16 @@
   <data name="WriteOnlyProperty" xml:space="preserve">
     <value>Cannot write values from the {0} property because it is write-only.</value>
   </data>
-  <data name="AssignNullToStruct" xml:space="preserve">
-    <value>Encountered a null when assigning to the non-nullable property '{0}'.</value>
+  <data name="AssignNullToNonNullable" xml:space="preserve">
+    <value>Encountered a null when assigning to the non-nullable column.</value>
   </data>
   <data name="MissingMatcher" xml:space="preserve">
     <value>No schema was found for the given record.</value>
   </data>
   <data name="RecordSeparatorRequired" xml:space="preserve">
     <value>A record specifier must be used when selecting the schema dynamically.</value>
+  </data>
+  <data name="NoAutoMapPropertyType" xml:space="preserve">
+    <value>Could not find an appropriate property mapping for the type of the column '{0}'.</value>
   </data>
 </root>

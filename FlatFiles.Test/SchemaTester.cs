@@ -43,7 +43,15 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("birth_date") { InputFormat = "yyyyMMdd" })
                   .AddColumn(new Int32Column("weight"));
             string[] values = new string[] { "bob", "smith", "20120123", "185" };
-            object[] parsed = schema.ParseValues(null, values);
+            var recordContext = new SeparatedValueRecordContext()
+            {
+                ExecutionContext = new SeparatedValueExecutionContext()
+                {
+                    Schema = schema,
+                    Options = new SeparatedValueOptions()
+                }
+            };
+            object[] parsed = schema.ParseValues(recordContext, values);
             object[] expected = new object[] { "bob", "smith", new DateTime(2012, 1, 23), 185 };
             CollectionAssert.AreEqual(expected, parsed);
         }

@@ -37,19 +37,20 @@ namespace FlatFiles.TypeMapping
         IUInt32PropertyMapping OutputFormat(string format);
 
         /// <summary>
-        /// Sets the value to treat as null.
+        /// Sets what value(s) are treated as null.
         /// </summary>
-        /// <param name="value">The value to treat as null.</param>
+        /// <param name="formatter">The formatter to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        IUInt32PropertyMapping NullValue(string value);
+        /// <remarks>Passing null will cause the default formatter to be used.</remarks>
+        IUInt32PropertyMapping NullFormatter(INullFormatter formatter);
 
         /// <summary>
-        /// Sets a custom handler for nulls.
+        /// Sets the default value to use when a null is encountered on a non-null property.
         /// </summary>
-        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <param name="defaultValue">The default value to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        /// <remarks>Setting the handler to null with use the default handler.</remarks>
-        IUInt32PropertyMapping NullHandler(INullHandler handler);
+        /// <remarks>Passing null will cause an exception to be thrown for unexpected nulls.</remarks>
+        IUInt32PropertyMapping DefaultValue(IDefaultValue defaultValue);
 
         /// <summary>
         /// Sets a function to preprocess in the input before parsing it.
@@ -63,12 +64,12 @@ namespace FlatFiles.TypeMapping
     {
         private readonly UInt32Column column;
 
-        public UInt32PropertyMapping(UInt32Column column, IMemberAccessor member, int fileIndex, int workIndex)
+        public UInt32PropertyMapping(UInt32Column column, IMemberAccessor member, int physicalIndex, int logicalIndex)
         {
             this.column = column;
             Member = member;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IUInt32PropertyMapping ColumnName(string name)
@@ -95,15 +96,15 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public IUInt32PropertyMapping NullValue(string value)
+        public IUInt32PropertyMapping NullFormatter(INullFormatter formatter)
         {
-            column.NullHandler = new ConstantNullHandler(value);
+            column.NullFormatter = formatter;
             return this;
         }
 
-        public IUInt32PropertyMapping NullHandler(INullHandler handler)
+        public IUInt32PropertyMapping DefaultValue(IDefaultValue defaultValue)
         {
-            column.NullHandler = handler;
+            column.DefaultValue = defaultValue;
             return this;
         }
 
@@ -115,10 +116,14 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
+        public Action<IColumnContext, object, object> Reader => null;
+
+        public Action<IColumnContext, object, object[]> Writer => null;
+
         public IColumnDefinition ColumnDefinition => column;
 
-        public int FileIndex { get; }
+        public int PhysicalIndex { get; }
 
-        public int WorkIndex { get; }
+        public int LogicalIndex { get; }
     }
 }

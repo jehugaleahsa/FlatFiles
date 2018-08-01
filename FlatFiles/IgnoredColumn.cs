@@ -33,9 +33,10 @@ namespace FlatFiles
         /// <summary>
         /// Ignores the values that was parsed from the document.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value that was parsed from the document.</param>
         /// <returns>A null.</returns>
-        public override object Parse(string value)
+        public override object Parse(IColumnContext context, string value)
         {
             return null;
         }
@@ -43,11 +44,12 @@ namespace FlatFiles
         /// <summary>
         /// Returns null so nothing is written to the document.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value that needs written to the document.</param>
         /// <returns>A null.</returns>
-        public override string Format(object value)
+        public override string Format(IColumnContext context, object value)
         {
-            return NullHandler.GetNullRepresentation();
+            return NullFormatter.FormatNull(context);
         }
     }
 }

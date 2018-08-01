@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles", "FlatFiles\Flat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Test", "FlatFiles.Test\FlatFiles.Test.csproj", "{17584620-5396-46CD-94C6-7C97A9BBCAA2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Test.DotNet45", "FlatFiles.Test.DotNet45\FlatFiles.Test.DotNet45.csproj", "{03712D30-1E10-4895-ADB9-FA23828FD821}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlatFiles.Benchmark", "FlatFiles.Benchmark\FlatFiles.Benchmark.csproj", "{9AB09163-E81D-4969-B5B1-7F90D2183A12}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17584620-5396-46CD-94C6-7C97A9BBCAA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03712D30-1E10-4895-ADB9-FA23828FD821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03712D30-1E10-4895-ADB9-FA23828FD821}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03712D30-1E10-4895-ADB9-FA23828FD821}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03712D30-1E10-4895-ADB9-FA23828FD821}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9AB09163-E81D-4969-B5B1-7F90D2183A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9AB09163-E81D-4969-B5B1-7F90D2183A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AB09163-E81D-4969-B5B1-7F90D2183A12}.Release|Any CPU.ActiveCfg = Release|Any CPU

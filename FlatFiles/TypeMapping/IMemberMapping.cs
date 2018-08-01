@@ -13,18 +13,28 @@ namespace FlatFiles.TypeMapping
         IMemberAccessor Member { get; }
 
         /// <summary>
+        /// Gets a custom reader to use when populating entities.
+        /// </summary>
+        Action<IColumnContext, object, object> Reader { get; }
+
+        /// <summary>
+        /// Gets a custom writer to use when writing entities.
+        /// </summary>
+        Action<IColumnContext, object, object[]> Writer { get; }
+
+        /// <summary>
         /// Gets the column that is mapped to. 
         /// </summary>
         IColumnDefinition ColumnDefinition { get; }
 
         /// <summary>
-        /// Gets the column index that this member corresponds to when reading data.
+        /// Gets the index of the column as it appears in the file.
         /// </summary>
-        int FileIndex { get; }
+        int PhysicalIndex { get; }
 
         /// <summary>
-        /// Gets the column index that this member corresponds to when writing data.
+        /// Gets the index of the column, excluding ignored columns.
         /// </summary>
-        int WorkIndex { get; }
+        int LogicalIndex { get; }
     }
 }

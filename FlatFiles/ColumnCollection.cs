@@ -11,7 +11,7 @@ namespace FlatFiles
     public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
         private readonly List<IColumnDefinition> definitions = new List<IColumnDefinition>();
-        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
+        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new ColumnCollection.
@@ -98,11 +98,14 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name -or- -1 if the column is not found.</returns>
         public int GetOrdinal(string columnName)
         {
-            if (!ordinals.ContainsKey(columnName))
+            if (ordinals.TryGetValue(columnName, out int ordinal))
+            {
+                return ordinal;
+            }
+            else
             {
                 return -1;
             }
-            return ordinals[columnName];
         }
 
         /// <summary>
@@ -117,6 +120,28 @@ namespace FlatFiles
         IEnumerator IEnumerable.GetEnumerator()
         {
             return definitions.GetEnumerator();
+        }
+
+        internal int GetPhysicalIndex(IColumnDefinition definition)
+        {
+            return definitions.IndexOf(definition);
+        }
+
+        internal int GetLogicalIndex(IColumnDefinition definition)
+        {
+            for (int index = 0, logicalIndex = 0; index != definitions.Count; ++index)
+            {
+                var current = definitions[index];
+                if (current == definition)
+                {
+                    return logicalIndex;
+                }
+                if (!current.IsIgnored)
+                {
+                    ++logicalIndex;
+                }
+            }
+            return -1;
         }
     }
 }

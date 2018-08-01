@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.6;net451</TargetFrameworks>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
     <Copyright>Copyright @ 2016</Copyright>
@@ -10,14 +10,18 @@
     <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Use ConfigureAwait(false) everywhere.</PackageReleaseNotes>
+    <PackageReleaseNotes>Expose sbyte, ushort, uint and ulong accessors on FlatFileDataReader. Expand DataTable functionality.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>2.1.3.0</Version>
+    <Version>4.3.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);NETStandard20</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,6 +35,22 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard1.6|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.6\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net451|AnyCPU'">
+    <DocumentationFile>bin\Debug\net451\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net451|AnyCPU'">
+    <DocumentationFile>bin\Release\net451\FlatFiles.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -49,12 +69,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

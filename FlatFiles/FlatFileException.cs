@@ -33,35 +33,35 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnProcessingException : FlatFileException
     {
-        internal ColumnProcessingException(ISchema schema, IColumnDefinition definition, string value, Exception innerException)
-            : base(GetErrorMessage(schema, definition, value), innerException)
+        internal ColumnProcessingException(IColumnDefinition definition, int position, object value, Exception innerException)
+            : base(GetErrorMessage(definition, position, value), innerException)
         {
-            Schema = schema;
-            ColumnDefinition = definition;
+            ColumnContext = null;
             ColumnValue = value;
         }
 
-        private static string GetErrorMessage(ISchema schema, IColumnDefinition definition, string value)
+        internal ColumnProcessingException(IColumnContext context, object value, Exception innerException = null)
+            : base(GetErrorMessage(context.ColumnDefinition, context.PhysicalIndex, value), innerException)
         {
-            int position = schema.GetOrdinal(definition.ColumnName);
-            string message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
+            ColumnContext = context;
+            ColumnValue = value;
+        }
+
+        private static string GetErrorMessage(IColumnDefinition definition, int position, object value)
+        {
+            var message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
             return message;
         }
 
         /// <summary>
         /// Gets the schema that was being used to parse when the error occurred.
         /// </summary>
-        public ISchema Schema { get; }
-
-        /// <summary>
-        /// Gets the column that was being used to parse when the error occurred.
-        /// </summary>
-        public IColumnDefinition ColumnDefinition { get; }
+        public IColumnContext ColumnContext { get; internal set; }
 
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public string ColumnValue { get; }
+        public object ColumnValue { get; }
     }
 
     /// <summary>
@@ -69,21 +69,21 @@ namespace FlatFiles
     /// </summary>
     public sealed class RecordProcessingException : FlatFileException
     {
-        internal RecordProcessingException(int recordNumber, string message)
-            : base(String.Format(null, message, recordNumber))
+        internal RecordProcessingException(IRecordContext context, string message)
+            : base(String.Format(null, message, context.PhysicalRecordNumber))
         {
-            RecordNumber = recordNumber;
+            RecordContext = context;
         }
 
-        internal RecordProcessingException(int recordNumber, string message, Exception innerException)
-            : base(String.Format(null, message, recordNumber), innerException)
+        internal RecordProcessingException(IRecordContext context, string message, Exception innerException)
+            : base(String.Format(null, message, context.PhysicalRecordNumber), innerException)
         {
-            RecordNumber = recordNumber;
+            RecordContext = context;
         }
 
         /// <summary>
-        /// Gets the index of the record that was being parsed when the error occurred.
+        /// Gets the metadata for the record being processed when the error occurred.
         /// </summary>
-        public int RecordNumber { get; }
+        public IRecordContext RecordContext { get; }
     }
 }

@@ -60,27 +60,28 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given values assuming that they are in the same order as the column definitions.
         /// </summary>
-        /// <param name="metadata">The current metadata for the process.</param>
+        /// <param name="context">The metadata for the current record being processed.</param>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        protected object[] ParseValuesBase(IProcessMetadata metadata, string[] values)
+        internal object[] ParseValues(IRecoverableRecordContext context, string[] values)
         {
             object[] parsedValues = new object[ColumnDefinitions.PhysicalCount];
             for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
-                IColumnDefinition definition = ColumnDefinitions[columnIndex];
-                if (definition is IMetadataColumn metaColumn)
+                var definition = ColumnDefinitions[columnIndex];
+                if (definition is IMetadataColumn)
                 {
-                    object value = metaColumn.GetValue(metadata);
-                    parsedValues[destinationIndex] = value;
+                    var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                    var metadata = ParseWithContext(columnContext, null);
+                    parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    string rawValue = values[sourceIndex];
-                    ++sourceIndex;
-                    object parsedValue = Parse(definition, rawValue);
+                    var rawValue = values[sourceIndex];
+                    var parsedValue = ParseValue(context, columnIndex, destinationIndex, rawValue);
                     parsedValues[destinationIndex] = parsedValue;
+                    ++sourceIndex;
                     ++destinationIndex;
                 }
                 else
@@ -91,47 +92,146 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object Parse(IColumnDefinition definition, string rawValue)
+        private object ParseValue(IRecoverableRecordContext context, int columnIndex, int destinationIndex, string rawValue)
+        {
+            var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
+            if (isContextDisabled)
+            {
+                var definition = ColumnDefinitions[columnIndex];
+                return ParseWithoutContext(definition, destinationIndex, rawValue);
+            }
+            else
+            {
+                var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                return ParseWithContext(columnContext, rawValue);
+            }
+        }
+
+        private object ParseWithContext(IColumnContext columnContext, string rawValue)
         {
             try
             {
-                object parsedValue = definition.Parse(rawValue);
+                var definition = columnContext.ColumnDefinition;
+                object parsedValue = definition.Parse(columnContext, rawValue);
                 return parsedValue;
             }
             catch (Exception exception)
             {
-                throw new ColumnProcessingException(this, definition, rawValue, exception);
+                var columnException = new ColumnProcessingException(columnContext, rawValue, exception);
+                if (columnContext.RecordContext is IRecoverableRecordContext recordContext && recordContext.HasHandler)
+                {
+                    var e = new ColumnErrorEventArgs(columnException);
+                    recordContext.ProcessError(this, e);
+                    if (e.IsHandled)
+                    {
+                        return e.Substitution;
+                    }
+                }
+                throw columnException;
+            }
+        }
+
+        private static object ParseWithoutContext(IColumnDefinition definition, int position, string rawValue)
+        {
+            try
+            {
+                object parsedValue = definition.Parse(null, rawValue);
+                return parsedValue;
+            }
+            catch (Exception exception)
+            {
+                throw new ColumnProcessingException(definition, position, rawValue, exception);
             }
         }
 
         /// <summary>
         /// Formats the given values assuming that they are in the same order as the column definitions.
         /// </summary>
-        /// <param name="metadata">The current metadata for the process.</param>
+        /// <param name="context">The metadata for the record currently being processed.</param>
         /// <param name="values">The values to format.</param>
         /// <returns>The formatted values.</returns>
-        protected string[] FormatValuesBase(IProcessMetadata metadata, object[] values)
+        internal string[] FormatValues(IRecoverableRecordContext context, object[] values)
         {
             string[] formattedValues = new string[ColumnDefinitions.Count];
             for (int columnIndex = 0, valueIndex = 0; columnIndex != ColumnDefinitions.Count; ++columnIndex)
             {
                 IColumnDefinition definition = ColumnDefinitions[columnIndex];
-                if (definition is IMetadataColumn metaColumn)
+                if (definition is IMetadataColumn)
                 {
-                    object value = metaColumn.GetValue(metadata);
-                    string formattedValue = definition.Format(value);
+                    var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                    var formattedValue = FormatWithContext(columnContext, null);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
                 else if (!definition.IsIgnored)
                 {
-                    object value = values[valueIndex];
-                    string formattedValue = definition.Format(value);
+                    var value = values[valueIndex];
+                    var formattedValue = FormatValue(context, columnIndex, valueIndex, value);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
                 }
             }
             return formattedValues;
+        }
+
+        private string FormatValue(IRecoverableRecordContext context, int columnIndex, int valueIndex, object value)
+        {
+            var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
+            if (isContextDisabled)
+            {
+                var definition = ColumnDefinitions[columnIndex];
+                return FormatWithoutContext(definition, valueIndex, value);
+            }
+            else
+            {
+                var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                return FormatWithContext(columnContext, value);
+            }
+        }
+
+        private string FormatWithContext(IColumnContext columnContext, object value)
+        {
+            try
+            {
+                var definition = columnContext.ColumnDefinition;
+                return definition.Format(columnContext, value);
+            }
+            catch (Exception exception)
+            {
+                var columnException = new ColumnProcessingException(columnContext, value, exception);
+                if (columnContext.RecordContext is IRecoverableRecordContext recordContext && recordContext.HasHandler)
+                {
+                    var e = new ColumnErrorEventArgs(columnException);
+                    recordContext.ProcessError(this, e);
+                    if (e.IsHandled)
+                    {
+                        return (string)e.Substitution;
+                    }
+                }
+                throw columnException;
+            }
+        }
+
+        private static string FormatWithoutContext(IColumnDefinition definition, int position, object value)
+        {
+            try
+            {
+                return definition.Format(null, value);
+            }
+            catch (Exception exception)
+            {
+                throw new ColumnProcessingException(definition, position, value, exception);
+            }
+        }
+
+        private ColumnContext GetColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)
+        {
+            return new ColumnContext()
+            {
+                RecordContext = context,
+                PhysicalIndex = physicalIndex,
+                LogicalIndex = logicalIndex
+            };
         }
     }
 }

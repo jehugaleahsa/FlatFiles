@@ -11,6 +11,17 @@ namespace FlatFiles.TypeMapping
     public interface ITypedWriter<TEntity>
     {
         /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        event EventHandler<ColumnErrorEventArgs> ColumnError;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        event EventHandler<RecordErrorEventArgs> RecordError;
+
+
+        /// <summary>
         /// Gets the schema being used by the writer to write record values.
         /// </summary>
         /// <returns>The schema being used by the writer.</returns>
@@ -31,16 +42,35 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class TypedWriter<TEntity> : ITypedWriter<TEntity>
     {
-        private readonly IWriter writer;
-        private readonly Action<TEntity, object[]> serializer;
-        private readonly int workCount;
+        private readonly IWriterWithMetadata writer;
+        private readonly Action<IRecordContext, TEntity, object[]> serializer;
+        private readonly int logicalCount;
 
-        public TypedWriter(IWriter writer, IMapper<TEntity> mapper)
+        public TypedWriter(IWriterWithMetadata writer, IMapper<TEntity> mapper)
         {
             this.writer = writer;
             serializer = mapper.GetWriter();
-            workCount = mapper.WorkCount;
+            logicalCount = mapper.LogicalCount;
         }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => writer.ColumnError += value;
+            remove => writer.ColumnError -= value;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<RecordErrorEventArgs> RecordError
+        {
+            add => writer.RecordError += value;
+            remove => writer.RecordError -= value;
+        }
+
 
         public ISchema GetSchema()
         {
@@ -49,33 +79,57 @@ namespace FlatFiles.TypeMapping
 
         public void Write(TEntity entity)
         {
-            var values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             writer.Write(values);
         }
 
         public async Task WriteAsync(TEntity entity)
         {
-            var values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             await writer.WriteAsync(values).ConfigureAwait(false);
+        }
+
+        private object[] Serialize(TEntity entity)
+        {
+            var values = new object[logicalCount];
+            var recordContext = writer.GetMetadata();
+            serializer(recordContext, entity, values);
+            return values;
         }
     }
 
     internal interface ITypeMapperInjector
     {
-        (int, Action<object, object[]>) SetMatcher(object entity);
+        (ISchema, int, Action<IRecordContext, object, object[]>) SetMatcher(object entity);
     }
 
     internal sealed class MultiplexingTypedWriter : ITypedWriter<object>
     {
-        private readonly IWriter writer;
+        private readonly IWriterWithMetadata writer;
         private readonly ITypeMapperInjector injector;
 
-        public MultiplexingTypedWriter(IWriter writer, ITypeMapperInjector injector)
+        public MultiplexingTypedWriter(IWriterWithMetadata writer, ITypeMapperInjector injector)
         {
             this.writer = writer;
             this.injector = injector;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => writer.ColumnError += value;
+            remove => writer.ColumnError -= value;
+        }
+
+        /// <summary>
+        /// Raised when an error occurs while processing a record.
+        /// </summary>
+        public event EventHandler<RecordErrorEventArgs> RecordError
+        {
+            add => writer.RecordError += value;
+            remove => writer.RecordError -= value;
         }
 
         public ISchema GetSchema()
@@ -85,18 +139,24 @@ namespace FlatFiles.TypeMapping
 
         public void Write(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
-            object[] values = new object[workCount];
-            serializer(entity, values);
+            var values = Serialize(entity);
             writer.Write(values);
         }
 
         public async Task WriteAsync(object entity)
         {
-            (int workCount, Action<object, object[]> serializer) = injector.SetMatcher(entity);
-            object[] values = new object[workCount];
-            serializer(entity, values);
+            object[] values = Serialize(entity);
             await writer.WriteAsync(values).ConfigureAwait(false);
+        }
+
+        private object[] Serialize(object entity)
+        {
+            var (schema, logicalCount, serializer) = injector.SetMatcher(entity);
+            var values = new object[logicalCount];
+            IWriterWithMetadata metadataWriter = writer;
+            var recordContext = metadataWriter.GetMetadata();
+            serializer(recordContext, entity, values);
+            return values;
         }
     }
 

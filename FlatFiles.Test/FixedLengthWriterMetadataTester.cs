@@ -12,9 +12,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_SchemaNotCounted()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber"), 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -28,7 +30,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Property(x => x.RecordNumber, 10);
             inputMapper.Property(x => x.CreatedOn, 10).InputFormat("MM/dd/yyyy");
@@ -50,12 +52,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_SchemaCounted()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            }, 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10)
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -69,7 +70,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Property(x => x.RecordNumber, 10);
             inputMapper.Property(x => x.CreatedOn, 10).InputFormat("MM/dd/yyyy");
@@ -91,12 +92,11 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_NoSchema_SchemaNotCounted()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = false
-            }, 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false }, 10)
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
             var people = new[]
@@ -110,7 +110,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Property(x => x.RecordNumber, 10);
             inputMapper.Property(x => x.CreatedOn, 10).InputFormat("MM/dd/yyyy");
@@ -132,13 +132,12 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WithSchema_WithIgnoredColumns()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
             outputMapper.Ignored(1);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            }, 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10)
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Ignored(1);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
@@ -153,7 +152,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Ignored(1);
             inputMapper.Property(x => x.RecordNumber, 10);
@@ -177,13 +176,12 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_NoRecordSeparator_ValidRecordCounts()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
             outputMapper.Ignored(1);
-            outputMapper.CustomProperty(x => x.RecordNumber, new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            }, 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10)
+                .WithReader((p, v) => p.RecordNumber = (int)v)
+                .WithWriter(p => p.RecordNumber);
             outputMapper.Ignored(1);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
@@ -202,7 +200,7 @@ namespace FlatFiles.Test
             });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Ignored(1);
             inputMapper.Property(x => x.RecordNumber, 10);
@@ -230,13 +228,10 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestWriter_WriteOnlyColumn_WithIgnoredColumn()
         {
-            var outputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var outputMapper = FixedLengthTypeMapper.Define(() => new Person());
             outputMapper.Property(x => x.Name, 10);
             outputMapper.Ignored(1);
-            outputMapper.WriteOnlyProperty("RecordNumber", new RecordNumberColumn("RecordNumber")
-            {
-                IncludeSchema = true
-            }, 10);
+            outputMapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true }, 10).WithWriter((ctx, p) => ctx.RecordContext.PhysicalRecordNumber);
             outputMapper.Ignored(1);
             outputMapper.Property(x => x.CreatedOn, 10).OutputFormat("MM/dd/yyyy");
 
@@ -251,7 +246,7 @@ namespace FlatFiles.Test
             outputMapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
-            var inputMapper = new FixedLengthTypeMapper<Person>(() => new Person());
+            var inputMapper = FixedLengthTypeMapper.Define(() => new Person());
             inputMapper.Property(x => x.Name, 10);
             inputMapper.Ignored(1);
             inputMapper.Property(x => x.RecordNumber, 10);

@@ -260,7 +260,7 @@ This is not a real record
             Assert.IsFalse(parser.Read(), "There should not be any more records.");
         }
 
-        private class Person
+        internal class Person
         {
             public int Id { get; set; }
 
@@ -358,7 +358,6 @@ This is not a real record
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
             Assert.IsTrue(parser.Read(), "The record could not be read.");
             Assert.AreEqual(parser.GetSchema().ColumnDefinitions.Count, parser.GetValues().Length);
-            ;
         }
 
         /// <summary>
@@ -489,7 +488,7 @@ This is not a real record
 
             //---- Assert ------------------------------------------------------
             Assert.IsTrue(result);
-            Assert.AreEqual(schema.ColumnDefinitions.Count, testee.GetValues().Count());
+            Assert.AreEqual(schema.ColumnDefinitions.Count, testee.GetValues().Length);
         }
 
         /// <summary>
@@ -514,6 +513,7 @@ This is not a real record
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
+            Assert.IsNotNull(person);
             Assert.AreEqual(bob.Id, person.Id);
             Assert.AreEqual(bob.Name, person.Name);
             Assert.AreEqual(bob.Created, person.Created);
@@ -541,6 +541,7 @@ This is not a real record
             var people = mapper.Read(stringReader, options).ToArray();
             Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
+            Assert.IsNotNull(person);
             Assert.AreEqual(bob.Id, person.Id);
             Assert.AreEqual(bob.Name, person.Name);
             Assert.AreEqual(bob.Created, person.Created);
@@ -569,6 +570,7 @@ This is not a real record
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var person = people.SingleOrDefault();
+            Assert.IsNotNull(person);
             Assert.AreEqual(bob.Id, person.Id);
             Assert.AreEqual(bob.Name, person.Name);
             Assert.AreEqual(bob.Created, person.Created);
@@ -598,7 +600,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
             assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
             Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
-            assertValues(reader, "", "Blankman","", "SomeTown", "SD", "00298");
+            assertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
             Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
             assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
             Assert.IsFalse(reader.Read(), "Read too many records.");
@@ -631,6 +633,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.IsNull(first.IsActive);
         }
 
@@ -649,6 +652,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.AreNotEqual(true, first.IsActive);
         }
 
@@ -667,6 +671,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var people = mapper.Read(stringReader).ToArray();
             Assert.AreEqual(1, people.Length);
             var first = people.SingleOrDefault();
+            Assert.IsNotNull(first);
             Assert.AreEqual(true, first.IsActive);
         }
 
@@ -684,13 +689,13 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             StringReader stringReader = new StringReader(data);
             List<int> errorRecords = new List<int>();
             var reader = mapper.GetReader(stringReader);
-            reader.Error += (sender, e) =>
+            reader.RecordError += (sender, e) =>
             {
-                errorRecords.Add(e.RecordNumber);
+                errorRecords.Add(e.RecordContext.PhysicalRecordNumber);
                 e.IsHandled = true;
             };
             var people = reader.ReadAll().ToArray();
-            Assert.AreEqual(2, people.Count());
+            Assert.AreEqual(2, people.Length);
             Assert.AreEqual(1, errorRecords.Count);
             Assert.AreEqual(2, errorRecords[0]);
         }
@@ -716,7 +721,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             }
         }
 
-        private class ClassWithDate
+        internal class ClassWithDate
         {
             public DateTime DateTime { get; set; }
         }

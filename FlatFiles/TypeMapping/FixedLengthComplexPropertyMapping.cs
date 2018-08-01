@@ -23,19 +23,20 @@ namespace FlatFiles.TypeMapping
         IFixedLengthComplexPropertyMapping WithOptions(FixedLengthOptions options);
 
         /// <summary>
-        /// Sets the value to treat as null.
+        /// Sets what value(s) are treated as null.
         /// </summary>
-        /// <param name="value">The value to treat as null.</param>
+        /// <param name="formatter">The formatter to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        IFixedLengthComplexPropertyMapping NullValue(string value);
+        /// <remarks>Passing null will cause the default formatter to be used.</remarks>
+        IFixedLengthComplexPropertyMapping NullFormatter(INullFormatter formatter);
 
         /// <summary>
-        /// Sets a custom handler for nulls.
+        /// Sets the default value to use when a null is encountered on a non-null property.
         /// </summary>
-        /// <param name="handler">The handler to use to recognize nulls.</param>
+        /// <param name="defaultValue">The default value to use.</param>
         /// <returns>The property mapping for further configuration.</returns>
-        /// <remarks>Setting the handler to null with use the default handler.</remarks>
-        IFixedLengthComplexPropertyMapping NullHandler(INullHandler handler);
+        /// <remarks>Passing null will cause an exception to be thrown for unexpected nulls.</remarks>
+        IFixedLengthComplexPropertyMapping DefaultValue(IDefaultValue defaultValue);
 
         /// <summary>
         /// Sets a function to preprocess in the input before parsing it.
@@ -50,16 +51,21 @@ namespace FlatFiles.TypeMapping
         private readonly IFixedLengthTypeMapper<TEntity> mapper;
         private string columnName;
         private FixedLengthOptions options;
-        private INullHandler nullHandler;
+        private INullFormatter nullFormatter;
+        private IDefaultValue defaultValue;
         private Func<string, string> preprocessor;
 
-        public FixedLengthComplexPropertyMapping(IFixedLengthTypeMapper<TEntity> mapper, IMemberAccessor member, int fileIndex, int workIndex)
+        public FixedLengthComplexPropertyMapping(
+            IFixedLengthTypeMapper<TEntity> mapper, 
+            IMemberAccessor member, 
+            int physicalIndex, 
+            int logicalIndex)
         {
             this.mapper = mapper;
             Member = member;
             columnName = member.Name;
-            FileIndex = fileIndex;
-            WorkIndex = workIndex;
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
         public IColumnDefinition ColumnDefinition
@@ -70,7 +76,8 @@ namespace FlatFiles.TypeMapping
                 FixedLengthComplexColumn column = new FixedLengthComplexColumn(columnName, schema)
                 {
                     Options = options,
-                    NullHandler = nullHandler,
+                    NullFormatter = nullFormatter,
+                    DefaultValue = defaultValue,
                     Preprocessor = preprocessor
                 };
                 var mapperSource = (IMapperSource<TEntity>)mapper;
@@ -81,9 +88,13 @@ namespace FlatFiles.TypeMapping
 
         public IMemberAccessor Member { get; }
 
-        public int FileIndex { get; }
+        public Action<IColumnContext, object, object> Reader => null;
 
-        public int WorkIndex { get; }
+        public Action<IColumnContext, object, object[]> Writer => null;
+
+        public int PhysicalIndex { get; }
+
+        public int LogicalIndex { get; }
 
         public IFixedLengthComplexPropertyMapping ColumnName(string name)
         {
@@ -101,15 +112,15 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
-        public IFixedLengthComplexPropertyMapping NullHandler(INullHandler handler)
+        public IFixedLengthComplexPropertyMapping NullFormatter(INullFormatter formatter)
         {
-            nullHandler = handler;
+            nullFormatter = formatter;
             return this;
         }
 
-        public IFixedLengthComplexPropertyMapping NullValue(string value)
+        public IFixedLengthComplexPropertyMapping DefaultValue(IDefaultValue defaultValue)
         {
-            nullHandler = new ConstantNullHandler(value);
+            this.defaultValue = defaultValue;
             return this;
         }
 

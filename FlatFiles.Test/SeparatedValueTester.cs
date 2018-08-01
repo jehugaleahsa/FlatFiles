@@ -142,7 +142,7 @@ namespace FlatFiles.Test
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { String.Empty, String.Empty },
+                new object[] { null, null },
             };
             assertRecords(expected, reader);
         }
@@ -156,8 +156,8 @@ namespace FlatFiles.Test
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { String.Empty, String.Empty, String.Empty },
-                new object[] { String.Empty, String.Empty, String.Empty },
+                new object[] { null, null, null },
+                new object[] { null, null, null },
             };
             assertRecords(expected, reader);
         }
@@ -171,7 +171,7 @@ namespace FlatFiles.Test
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { String.Empty },
+                new object[] { null },
             };
             assertRecords(expected, reader);
         }
@@ -185,8 +185,8 @@ namespace FlatFiles.Test
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { String.Empty },
-                new object[] { String.Empty },
+                new object[] { null },
+                new object[] { null },
             };
             assertRecords(expected, reader);
         }
@@ -210,8 +210,10 @@ namespace FlatFiles.Test
         {
             string source = " a";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { " a" }
@@ -238,8 +240,11 @@ namespace FlatFiles.Test
         {
             string source = "  a, \t\n  b";
             StringReader stringReader = new StringReader(source);
+            //SeparatedValueSchema schema = new SeparatedValueSchema();
+            //schema.AddColumn(new StringColumn("a") { Trim = false });
+            //schema.AddColumn(new StringColumn("b") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, /*schema,*/ options);
             object[][] expected = new object[][]
             {
                 new object[] { "  a", " \t\n  b" }
@@ -266,8 +271,10 @@ namespace FlatFiles.Test
         {
             string source = "a ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { "a " }
@@ -294,8 +301,11 @@ namespace FlatFiles.Test
         {
             string source = "a  ,b \t\n  ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
+            schema.AddColumn(new StringColumn("b") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { "a  ", "b \t\n  " }
@@ -322,8 +332,10 @@ namespace FlatFiles.Test
         {
             string source = " a ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { " a " }
@@ -350,8 +362,11 @@ namespace FlatFiles.Test
         {
             string source = "  a  , \t\n  b \t\n  ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
+            schema.AddColumn(new StringColumn("b") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { "  a  ", " \t\n  b \t\n  " }
@@ -368,7 +383,7 @@ namespace FlatFiles.Test
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { String.Empty }
+                new object[] { null }
             };
             assertRecords(expected, reader);
         }
@@ -378,8 +393,10 @@ namespace FlatFiles.Test
         {
             string source = " \t\n\r ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false, NullFormatter = NullFormatter.ForValue(null) });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { " \t\n\r " }
@@ -406,8 +423,10 @@ namespace FlatFiles.Test
         {
             string source = " a b ";
             StringReader stringReader = new StringReader(source);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
             SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { " a b " }
@@ -485,7 +504,9 @@ namespace FlatFiles.Test
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("a") { Trim = false });
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema, options);
             object[][] expected = new object[][]
             {
                 new object[] { " a  " }
@@ -632,7 +653,7 @@ When he's not traveling, he's at home with his lovely wife, children and leather
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
             object[][] expected = new object[][]
             {
-                new object[] { "26087","C Country C","","1","3","7","Randy E","(555) 555-5500","","P.O.Box 60,","","","Woodsland","CA","56281","","","","0292315c-0daa-df11-9397-0019b9e7d4cd","","0","8713cbdd-fb50-dc11-a545-000423c05bf1","40","79527","","False" }
+                new object[] { "26087","C Country C",null,"1","3","7","Randy E","(555) 555-5500",null,"P.O.Box 60,",null,null,"Woodsland","CA","56281",null,null,null,"0292315c-0daa-df11-9397-0019b9e7d4cd",null,"0","8713cbdd-fb50-dc11-a545-000423c05bf1","40","79527",null,"False" }
             };
             assertRecords(expected, reader);
         }
@@ -651,18 +672,7 @@ When he's not traveling, he's at home with his lovely wife, children and leather
 
         private static void assertRecord(object[] expected, object[] actual, int record)
         {
-            Assert.AreEqual(expected.Length, actual.Length);
-            for (int index = 0; index != expected.Length; ++index)
-            {
-                assertToken(expected[index], actual[index], index);
-            }
-        }
-
-        private static void assertToken(object expected, object actual, int column)
-        {
-            Type expectedType = expected.GetType();
-            Assert.IsInstanceOfType(actual, expectedType);
-            Assert.AreEqual(expected, actual);
+            CollectionAssert.AreEqual(expected, actual);
         }
     }
 }

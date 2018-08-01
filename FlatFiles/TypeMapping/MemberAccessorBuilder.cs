@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using FlatFiles.Properties;
@@ -95,6 +96,94 @@ namespace FlatFiles.TypeMapping
             }
 
             throw new ArgumentException(Resources.BadPropertySelector, nameof(expression));
+        }
+
+        public static ConstructorInfo GetConstructor<TEntity>(params Type[] parameterTypes)
+        {
+            var bindingFlags = BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            var query = from constructor in typeof(TEntity).GetTypeInfo().GetConstructors(bindingFlags)
+                        let parameters = constructor.GetParameters()
+                        where parameters.Length == parameterTypes.Length
+                        let actualParameterTypes = parameters.Select(p => p.ParameterType).ToArray()
+                        where HaveMatchingTypes(parameterTypes, actualParameterTypes)
+                        select constructor;
+            var constructors = query.ToArray();
+            return constructors.Length == 1 ? constructors[0] : null;
+        }
+
+        private static bool HaveMatchingTypes(Type[] expected, Type[] actual)
+        {
+            for (int index = 0; index != expected.Length; ++index)
+            {
+                if (expected[index] != actual[index])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static PropertyInfo GetProperty<TEntity, TProp>(Expression<Func<TEntity, TProp>> accessor)
+        {
+            var memberInfo = GetMemberInfo(accessor);
+            if (!(memberInfo is PropertyInfo propertyInfo))
+            {
+                return null;
+            }
+            if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            {
+                return null;
+            }
+            return propertyInfo;
+        }
+
+        public static FieldInfo GetField<TEntity, TValue>(Expression<Func<TEntity, TValue>> accessor)
+        {
+            var memberInfo = GetMemberInfo(accessor);
+            if (!(memberInfo is FieldInfo fieldInfo))
+            {
+                return null;
+            }
+            if (!fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            {
+                return null;
+            }
+            return fieldInfo;
+        }
+
+        public static MemberInfo GetMemberInfo<TEntity, TValue>(Expression<Func<TEntity, TValue>> accessor)
+        {
+            if (!(accessor.Body is MemberExpression member))
+            {
+                return null;
+            }
+            return member.Member;
+        }
+
+        public static MethodInfo GetMethod<TEntity, TReturn>(Expression<Func<TEntity, TReturn>> accessor)
+        {
+            if (!(accessor.Body is MethodCallExpression method))
+            {
+                return null;
+            }
+            if (!method.Method.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            {
+                return null;
+            }
+            return method.Method;
+        }
+
+        public static MethodInfo GetMethod<TEntity>(Expression<Action<TEntity>> accessor)
+        {
+            if (!(accessor.Body is MethodCallExpression method))
+            {
+                return null;
+            }
+            if (!method.Method.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity)))
+            {
+                return null;
+            }
+            return method.Method;
         }
     }
 }

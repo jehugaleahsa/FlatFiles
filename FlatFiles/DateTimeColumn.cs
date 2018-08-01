@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column of DateTime values.
     /// </summary>
-    public class DateTimeColumn : ColumnDefinition
+    public sealed class DateTimeColumn : ColumnDefinition<DateTime>
     {
         /// <summary>
         /// Initializes a new instance of a DateTimeColumn.
@@ -16,11 +16,6 @@ namespace FlatFiles
             : base(columnName)
         {
         }
-
-        /// <summary>
-        /// Gets the type of the values in the column.
-        /// </summary>
-        public override Type ColumnType => typeof(DateTime);
 
         /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
@@ -40,45 +35,32 @@ namespace FlatFiles
         /// <summary>
         /// Parses the given value and returns a DateTime instance.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed DateTime instance.</returns>
-        public override object Parse(string value)
+        protected override DateTime OnParse(IColumnContext context, string value)
         {
-            if (Preprocessor != null)
-            {
-                value = Preprocessor(value);
-            }
-            if (NullHandler.IsNullRepresentation(value))
-            {
-                return null;
-            }
-            IFormatProvider provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
             if (InputFormat == null)
             {
                 return DateTime.Parse(value, provider);
             }
-
             return DateTime.ParseExact(value, InputFormat, provider);
         }
 
         /// <summary>
         /// Formats the given object.
         /// </summary>
+        /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(object value)
+        protected override string OnFormat(IColumnContext context, DateTime value)
         {
-            if (value == null)
-            {
-                return NullHandler.GetNullRepresentation();
-            }
-            DateTime actual = (DateTime)value;
             if (OutputFormat == null)
             {
-                return actual.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
             }
-
-            return actual.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
         }
     }
 }

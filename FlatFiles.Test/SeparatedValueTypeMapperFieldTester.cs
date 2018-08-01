@@ -35,7 +35,7 @@ namespace FlatFiles.Test
             Assert.AreEqual(bob.Created, person.Created);
         }
 
-        private class Person
+        internal class Person
         {
             public int Id;
 

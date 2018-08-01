@@ -8,11 +8,11 @@ namespace FlatFiles
     /// <summary>
     /// Extracts records from a file that has value in fixed-length columns.
     /// </summary>
-    public sealed class FixedLengthReader : IReader
+    public sealed class FixedLengthReader : IReader, IReaderWithMetadata
     {
         private readonly FixedLengthRecordParser parser;
         private readonly FixedLengthSchemaSelector schemaSelector;
-        private readonly Metadata metadata;
+        private readonly FixedLengthRecordContext metadata;
         private object[] values;
         private bool endOfFile;
         private bool hasError;
@@ -59,10 +59,13 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
-            metadata = new Metadata()
+            metadata = new FixedLengthRecordContext()
             {
-                Schema = schema,
-                Options = options.Clone()
+                ExecutionContext = new FixedLengthExecutionContext()
+                {
+                    Schema = schema,
+                    Options = options.Clone()
+                }
             };
         }
 
@@ -77,9 +80,29 @@ namespace FlatFiles
         public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
 
         /// <summary>
+        /// Raised after a record is parsed.
+        /// </summary>
+        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed;
+
+        event EventHandler<IRecordParsedEventArgs> IReader.RecordParsed
+        {
+            add => RecordParsed += (sender, e) => value(sender, e);
+            remove => RecordParsed -= (sender, e) => value(sender, e);
+        }
+
+        /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<ProcessingErrorEventArgs> Error;
+        public event EventHandler<RecordErrorEventArgs> RecordError;
+
+        /// <summary>
+        /// Raised when an error occurs while processing a column.
+        /// </summary>
+        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        {
+            add => metadata.ColumnError += value;
+            remove => metadata.ColumnError -= value;
+        }
 
         /// <summary>
         /// Gets the schema being used by the parser.
@@ -87,7 +110,7 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public FixedLengthSchema GetSchema()
         {
-            return metadata.Schema;
+            return metadata.ExecutionContext.Schema;
         } 
 
         ISchema IReader.GetSchema()
@@ -101,12 +124,12 @@ namespace FlatFiles
         /// <returns>The schema being used by the parser.</returns>
         public Task<FixedLengthSchema> GetSchemaAsync()
         {
-            return Task.FromResult(metadata.Schema);
+            return Task.FromResult(metadata.ExecutionContext.Schema);
         }
 
         Task<ISchema> IReader.GetSchemaAsync()
         {
-            return Task.FromResult<ISchema>(metadata.Schema);
+            return Task.FromResult<ISchema>(metadata.ExecutionContext.Schema);
         }
 
         /// <summary>
@@ -128,7 +151,7 @@ namespace FlatFiles
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++metadata.LogicalRecordNumber;
                 return true;
             }
             catch (FlatFileException)
@@ -140,7 +163,7 @@ namespace FlatFiles
 
         private void HandleHeader()
         {
-            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
+            if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
                 skip();
             }
@@ -148,30 +171,31 @@ namespace FlatFiles
 
         private object[] ParsePartitions()
         {
-            var (schema, rawValues) = PartitionWithFilter();
+            var rawValues = PartitionWithFilter();
             while (rawValues != null)
             {
-                var values = ParseValues(schema, rawValues);
+                var values = ParseValues(rawValues);
                 if (values != null)
                 {
+                    RecordParsed?.Invoke(this, new FixedLengthRecordParsedEventArgs(metadata, values));
                     return values;
                 }
-                (schema, rawValues) = PartitionWithFilter();
+                rawValues = PartitionWithFilter();
             }
             return null;
         }
 
-        private (FixedLengthSchema, string[]) PartitionWithFilter()
+        private string[] PartitionWithFilter()
         {
             var record = ReadWithFilter();
-            var (schema, rawValues) = PartitionRecord(record);
+            var rawValues = PartitionRecord(record);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 record = ReadWithFilter();
                 GetSchema(record);
-                (schema, rawValues) = PartitionRecord(record);
+                rawValues = PartitionRecord(record);
             }
-            return (schema, rawValues);
+            return rawValues;
         }
 
         private string ReadWithFilter()
@@ -203,7 +227,7 @@ namespace FlatFiles
                     return false;
                 }
 
-                ++metadata.LogicalRecordCount;
+                ++metadata.LogicalRecordNumber;
                 return true;
             }
             catch (FlatFileException)
@@ -215,7 +239,7 @@ namespace FlatFiles
 
         private async Task HandleHeaderAsync()
         {
-            if (metadata.RecordCount == 0 && metadata.Options.IsFirstRecordHeader)
+            if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
                 await skipAsync().ConfigureAwait(false);
             }
@@ -223,42 +247,29 @@ namespace FlatFiles
 
         private async Task<object[]> ParsePartitionsAsync()
         {
-            var (schema, rawValues) = await PartitionWithFilterAsync().ConfigureAwait(false);
+            var rawValues = await PartitionWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                var values = ParseValues(schema, rawValues);
+                var values = ParseValues(rawValues);
                 if (values != null)
                 {
                     return values;
                 }
-                (schema, rawValues) = await PartitionWithFilterAsync().ConfigureAwait(false);
+                rawValues = await PartitionWithFilterAsync().ConfigureAwait(false);
             }
             return null;
         }
 
-        private async ValueTask<(FixedLengthSchema, string[])> PartitionWithFilterAsync()
+        private async ValueTask<string[]> PartitionWithFilterAsync()
         {
             var record = await ReadWithFilterAsync().ConfigureAwait(false);
-            var (schema, rawValues) = PartitionRecord(record);
+            var rawValues = PartitionRecord(record);
             while (rawValues != null && IsSkipped(rawValues))
             {
                 record = await ReadWithFilterAsync().ConfigureAwait(false);
-                (schema, rawValues) = PartitionRecord(record);
+                rawValues = PartitionRecord(record);
             }
-            return (schema, rawValues);
-        }
-
-        private FixedLengthSchema GetSchema(string record)
-        {
-            if (record == null)
-            {
-                return null;
-            }
-            if (schemaSelector == null)
-            {
-                return metadata.Schema;
-            }
-            return schemaSelector.GetSchema(record);
+            return rawValues;
         }
 
         private bool IsSkipped(string[] values)
@@ -267,7 +278,7 @@ namespace FlatFiles
             {
                 return false;
             }
-            var e = new FixedLengthRecordPartitionedEventArgs(values);
+            var e = new FixedLengthRecordPartitionedEventArgs(metadata, values);
             RecordPartitioned(this, e);
             return e.IsSkipped;
         }
@@ -293,22 +304,15 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private object[] ParseValues(FixedLengthSchema schema, string[] rawValues)
+        private object[] ParseValues(string[] rawValues)
         {
             try
             {
-                var metadata = schemaSelector == null ? this.metadata : new Metadata
-                {
-                    Schema = schema,
-                    Options = this.metadata.Options,
-                    RecordCount = this.metadata.RecordCount,
-                    LogicalRecordCount = this.metadata.LogicalRecordCount
-                };
-                return schema.ParseValues(metadata, rawValues);
+                return metadata.ExecutionContext.Schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
                 return null;
             }
         }
@@ -355,38 +359,51 @@ namespace FlatFiles
             return record != null;
         }
 
-        private (FixedLengthSchema schema, string[]) PartitionRecord(string record)
+        private string[] PartitionRecord(string record)
         {
-            var schema = GetSchema(record);
-            if (schema == null)
+            metadata.ExecutionContext.Schema = GetSchema(record);
+            if (metadata.ExecutionContext.Schema == null)
             {
-                return (null, null);
+                return null;
             }
-            if (record.Length < schema.TotalWidth)
+            if (record.Length < metadata.ExecutionContext.Schema.TotalWidth)
             {
-                ProcessError(new RecordProcessingException(metadata.RecordCount, Resources.FixedLengthRecordTooShort));
-                return (null, null);
+                ProcessError(new RecordProcessingException(metadata, Resources.FixedLengthRecordTooShort));
+                return null;
             }
-            var windows = schema.Windows;
-            var values = new string[windows.Count - schema.ColumnDefinitions.MetadataCount];
+            var windows = metadata.ExecutionContext.Schema.Windows;
+            var values = new string[windows.Count - metadata.ExecutionContext.Schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
             for (int index = 0; index != values.Length;)
             {
-                var definition = schema.ColumnDefinitions[index];
+                var definition = metadata.ExecutionContext.Schema.ColumnDefinitions[index];
                 if (!(definition is IMetadataColumn))
                 {
                     Window window = windows[index];
                     string value = record.Substring(offset, window.Width);
-                    var alignment = window.Alignment ?? metadata.Options.Alignment;
+                    var alignment = window.Alignment ?? metadata.ExecutionContext.Options.Alignment;
                     value = alignment == FixedAlignment.LeftAligned 
-                        ? value.TrimEnd(window.FillCharacter ?? metadata.Options.FillCharacter) 
-                        : value.TrimStart(window.FillCharacter ?? metadata.Options.FillCharacter);
+                        ? value.TrimEnd(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter) 
+                        : value.TrimStart(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter);
                     values[index] = value;
                     ++index;
                     offset += window.Width;
                 }
             }
-            return (schema, values);
+            return values;
+        }
+
+        private FixedLengthSchema GetSchema(string record)
+        {
+            if (record == null)
+            {
+                return null;
+            }
+            if (schemaSelector == null)
+            {
+                return metadata.ExecutionContext.Schema;
+            }
+            return schemaSelector.GetSchema(record);
         }
 
         private string ReadNextRecord()
@@ -397,7 +414,7 @@ namespace FlatFiles
                 return null;
             }
             var record = parser.ReadRecord();
-            ++metadata.RecordCount;
+            ++metadata.PhysicalRecordNumber;
             return record;
         }
 
@@ -409,16 +426,16 @@ namespace FlatFiles
                 return null;
             }
             var record = await parser.ReadRecordAsync().ConfigureAwait(false);
-            ++metadata.RecordCount;
+            ++metadata.PhysicalRecordNumber;
             return record;
         }
 
         private void ProcessError(RecordProcessingException exception)
         {
-            if (Error != null)
+            if (RecordError != null)
             {
-                var args = new ProcessingErrorEventArgs(exception);
-                Error(this, args);
+                var args = new RecordErrorEventArgs(exception);
+                RecordError(this, args);
                 if (args.IsHandled)
                 {
                     return;
@@ -437,7 +454,7 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
-            if (metadata.RecordCount == 0)
+            if (metadata.PhysicalRecordNumber == 0)
             {
                 throw new InvalidOperationException(Resources.ReadNotCalled);
             }
@@ -450,19 +467,9 @@ namespace FlatFiles
             return copy;
         }
 
-        private class Metadata : IProcessMetadata
+        IRecordContext IReaderWithMetadata.GetMetadata()
         {
-            public FixedLengthSchema Schema { get; internal set; }
-
-            ISchema IProcessMetadata.Schema => Schema;
-
-            public FixedLengthOptions Options { get; internal set; }
-
-            IOptions IProcessMetadata.Options => Options;
-
-            public int RecordCount { get; internal set; }
-
-            public int LogicalRecordCount { get; internal set; }
+            return metadata;
         }
     }
 }
