@@ -1,12 +1,12 @@
 ## 4.3.0 (2018-07-16)
 **Summary** - Further ADO.NET support.
 
-## New Features
+### New Features
 * Expose `sbyte`, `ushort`, `uint` and `ulong` accessors on `FlatFileDataReader`.
 * Modify `DataTableExtensions.ReadFlatFile` to support merging into a table with an existing schema and data.
 * Improve use cases and performance of `DataTableExtensions.WriteFlatFile`.
 
-## Bug Fixes
+### Bug Fixes
 * The `DataTableExtensions.WriteFlatFile` method threw an exception for schemas including ignored columns.
 
 I wanted to make sure `FlatFileDataReader` can be used to retrieve data of any built-in .NET type.
