@@ -1,3 +1,6 @@
+## 4.3.1 (2018-09-25)
+**Summary** - Handle `DBNull.Value` when writing out a `DataTable` to a file, treating it as `null`.
+
 ## 4.3.0 (2018-07-16)
 **Summary** - Further ADO.NET support.
 
