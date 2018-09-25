@@ -10,10 +10,10 @@
     <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Expose sbyte, ushort, uint and ulong accessors on FlatFileDataReader. Expand DataTable functionality.</PackageReleaseNotes>
+    <PackageReleaseNotes>DataTableExtensions.WriteFlatFile: Output blanks for DbNull.Value.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.3.0.0</Version>
+    <Version>4.3.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -26,7 +26,7 @@
 
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
-    <PackageIconUrl>http://github.com/jehugaleahsa/FlatFiles/blob/master/icon.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/icon.png</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">

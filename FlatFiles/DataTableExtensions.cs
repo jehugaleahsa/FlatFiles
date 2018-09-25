@@ -29,7 +29,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(reader));
             }
-            FlatFileDataReader fileReader = new FlatFileDataReader(reader);
+            var fileReader = new FlatFileDataReader(reader);
             table.Load(fileReader, loadOption, errorHandler);
         }
 
@@ -50,12 +50,12 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(writer));
             }
-            ISchema schema = writer.GetSchema();
+            var schema = writer.GetSchema();
             var columnIndexes = schema.ColumnDefinitions
                 .Where(c => !c.IsIgnored)
                 .Select(c => table.Columns.IndexOf(c.ColumnName))
                 .ToArray();
-            object[] values = new object[columnIndexes.Length];
+            var values = new object[columnIndexes.Length];
             foreach (DataRow row in table.Rows)
             {
                 for (int index = 0; index != values.Length; ++index)
@@ -63,7 +63,7 @@ namespace FlatFiles
                     int columnIndex = columnIndexes[index];
                     if (columnIndex != -1)
                     {
-                        values[index] = row[columnIndex];
+                        values[index] = row.IsNull(columnIndex) ? null : row[columnIndex];
                     }
                 }
                 writer.Write(values);

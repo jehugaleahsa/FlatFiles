@@ -320,6 +320,7 @@ namespace FlatFiles.Test
             DataRow bobRow = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
             DataRow johnRow = table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
             DataRow susanRow = table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
+            DataRow nullRow = table.Rows.Add(new object[] { 4, null, null, null });
 
             var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             var stringWriter = new StringWriter();
@@ -337,6 +338,7 @@ namespace FlatFiles.Test
 1,Bob,07/16/2018,12.34
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56
+4,,,
 ", output);
         }
 
