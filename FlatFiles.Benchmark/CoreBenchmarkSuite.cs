@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,20 +41,7 @@ namespace FlatFiles.Benchmark
         public void RunFlatFiles_FlatFileDataReader_ByPosition()
         {
             var reader = new StringReader(data);
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("FirstName"));
-            schema.AddColumn(new StringColumn("LastName"));
-            schema.AddColumn(new Int32Column("Age"));
-            schema.AddColumn(new StringColumn("Street1"));
-            schema.AddColumn(new StringColumn("Street2"));
-            schema.AddColumn(new StringColumn("City"));
-            schema.AddColumn(new StringColumn("State"));
-            schema.AddColumn(new StringColumn("Zip"));
-            schema.AddColumn(new StringColumn("FavoriteColor"));
-            schema.AddColumn(new StringColumn("FavoriteFood"));
-            schema.AddColumn(new StringColumn("FavoriteSport"));
-            schema.AddColumn(new DateTimeColumn("CreatedOn"));
-            schema.AddColumn(new BooleanColumn("IsActive"));
+            var schema = GetSchema();
             var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
@@ -83,20 +71,7 @@ namespace FlatFiles.Benchmark
         public void RunFlatFiles_FlatFileDataReader_ByName()
         {
             var reader = new StringReader(data);
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("FirstName"));
-            schema.AddColumn(new StringColumn("LastName"));
-            schema.AddColumn(new Int32Column("Age"));
-            schema.AddColumn(new StringColumn("Street1"));
-            schema.AddColumn(new StringColumn("Street2"));
-            schema.AddColumn(new StringColumn("City"));
-            schema.AddColumn(new StringColumn("State"));
-            schema.AddColumn(new StringColumn("Zip"));
-            schema.AddColumn(new StringColumn("FavoriteColor"));
-            schema.AddColumn(new StringColumn("FavoriteFood"));
-            schema.AddColumn(new StringColumn("FavoriteSport"));
-            schema.AddColumn(new DateTimeColumn("CreatedOn"));
-            schema.AddColumn(new BooleanColumn("IsActive"));
+            var schema = GetSchema();
             var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
@@ -126,20 +101,7 @@ namespace FlatFiles.Benchmark
         public void RunFlatFiles_FlatFileDataReader_GetValue()
         {
             var reader = new StringReader(data);
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("FirstName"));
-            schema.AddColumn(new StringColumn("LastName"));
-            schema.AddColumn(new StringColumn("Age"));
-            schema.AddColumn(new StringColumn("Street1"));
-            schema.AddColumn(new StringColumn("Street2"));
-            schema.AddColumn(new StringColumn("City"));
-            schema.AddColumn(new StringColumn("State"));
-            schema.AddColumn(new StringColumn("Zip"));
-            schema.AddColumn(new StringColumn("FavoriteColor"));
-            schema.AddColumn(new StringColumn("FavoriteFood"));
-            schema.AddColumn(new StringColumn("FavoriteSport"));
-            schema.AddColumn(new StringColumn("CreatedOn"));
-            schema.AddColumn(new StringColumn("IsActive"));
+            var schema = GetSchema();
             var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
@@ -163,6 +125,35 @@ namespace FlatFiles.Benchmark
                 };
                 people.Add(person);
             }
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_DataTable()
+        {
+            var reader = new StringReader(data);
+            var schema = GetSchema();
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataTable = new DataTable();
+            dataTable.ReadFlatFile(csvReader);
+        }
+
+        private static SeparatedValueSchema GetSchema()
+        {
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("FirstName"));
+            schema.AddColumn(new StringColumn("LastName"));
+            schema.AddColumn(new Int32Column("Age"));
+            schema.AddColumn(new StringColumn("Street1"));
+            schema.AddColumn(new StringColumn("Street2"));
+            schema.AddColumn(new StringColumn("City"));
+            schema.AddColumn(new StringColumn("State"));
+            schema.AddColumn(new StringColumn("Zip"));
+            schema.AddColumn(new StringColumn("FavoriteColor"));
+            schema.AddColumn(new StringColumn("FavoriteFood"));
+            schema.AddColumn(new StringColumn("FavoriteSport"));
+            schema.AddColumn(new DateTimeColumn("CreatedOn"));
+            schema.AddColumn(new BooleanColumn("IsActive"));
+            return schema;
         }
 
         [Benchmark]
