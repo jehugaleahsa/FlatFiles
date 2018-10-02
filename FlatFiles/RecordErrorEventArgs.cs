@@ -22,7 +22,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the exception that was thrown.
         /// </summary>
-        public Exception Exception { get; }
+        public Exception Exception => exception;
 
         /// <summary>
         /// Gets or sets whether the parser should attempt to continue reading/writing.

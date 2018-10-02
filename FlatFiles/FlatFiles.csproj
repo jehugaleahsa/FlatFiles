@@ -10,10 +10,10 @@
     <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>DataTableExtensions.WriteFlatFile: Output blanks for DbNull.Value.</PackageReleaseNotes>
+    <PackageReleaseNotes>RecordErrorEventArgs.Exception always null.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.3.1.1</Version>
+    <Version>4.3.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -27,6 +27,8 @@
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <PackageIconUrl>https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/icon.png</PackageIconUrl>
+    <AssemblyVersion>4.3.2.0</AssemblyVersion>
+    <FileVersion>4.3.2.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
