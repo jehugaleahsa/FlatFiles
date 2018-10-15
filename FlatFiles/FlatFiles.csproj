@@ -6,14 +6,14 @@
     <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
     <Copyright>Copyright @ 2016</Copyright>
     <PackageLicenseUrl>https://github.com/jehugaleahsa/FlatFiles/blob/master/UNLICENSE.txt</PackageLicenseUrl>
-    <PackageProjectUrl>http://github.com/jehugaleahsa/FlatFiles</PackageProjectUrl>
-    <RepositoryUrl>http://github.com/jehugaleahsa/FlatFiles</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jehugaleahsa/FlatFiles</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>RecordErrorEventArgs.Exception always null.</PackageReleaseNotes>
+    <PackageReleaseNotes>FixedLengthReader not reading records with metadata.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.3.2</Version>
+    <Version>4.3.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -27,8 +27,8 @@
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <PackageIconUrl>https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/icon.png</PackageIconUrl>
-    <AssemblyVersion>4.3.2.0</AssemblyVersion>
-    <FileVersion>4.3.2.0</FileVersion>
+    <AssemblyVersion>4.3.3.0</AssemblyVersion>
+    <FileVersion>4.3.3.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">

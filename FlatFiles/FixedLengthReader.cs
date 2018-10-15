@@ -374,19 +374,19 @@ namespace FlatFiles
             var windows = metadata.ExecutionContext.Schema.Windows;
             var values = new string[windows.Count - metadata.ExecutionContext.Schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
-            for (int index = 0; index != values.Length;)
+            for (int valueIndex = 0, columnIndex = 0; valueIndex != values.Length; ++columnIndex)
             {
-                var definition = metadata.ExecutionContext.Schema.ColumnDefinitions[index];
+                var definition = metadata.ExecutionContext.Schema.ColumnDefinitions[columnIndex];
                 if (!(definition is IMetadataColumn))
                 {
-                    Window window = windows[index];
+                    Window window = windows[columnIndex];
                     string value = record.Substring(offset, window.Width);
                     var alignment = window.Alignment ?? metadata.ExecutionContext.Options.Alignment;
                     value = alignment == FixedAlignment.LeftAligned 
                         ? value.TrimEnd(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter) 
                         : value.TrimStart(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter);
-                    values[index] = value;
-                    ++index;
+                    values[valueIndex] = value;
+                    ++valueIndex;
                     offset += window.Width;
                 }
             }

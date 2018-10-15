@@ -1,3 +1,9 @@
+## 4.3.3 (2018-10-15)
+**Summary** - The `FixedLengthReader` class would loop indefinitely when partitioning a record whenever there was a metadata column.
+
+### Bug Fixes
+The `FixedLengthReader` class would loop indefinitely when partitioning a record whenever there was a metadata column. In this situation, the same index was being used to iterate over the columns/windows and to store the partitioned values in the value array. However, metadata columns are skipped so the index was not being incremented. The solution was to introduce a separate index for the columns/windows and the value array.
+
 ## 4.3.2 (2018-09-25)
 **Summary** - The `RecordErrorEventArgs.Exception` property is always `null`.
 

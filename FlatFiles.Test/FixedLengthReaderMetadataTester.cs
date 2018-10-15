@@ -364,6 +364,30 @@ namespace FlatFiles.Test
             Assert.AreEqual(2, results[1].RecordNumber);
         }
 
+        [TestMethod]
+        public void TestFixedLengthReader_MetadataColumn_IgnoresLength()
+        {
+            var schema = new FixedLengthSchema()
+              .AddColumn(new RecordNumberColumn("RecordNumber"), 10)
+              .AddColumn(new Int16Column("RecordType"), 2)
+              .AddColumn(new StringColumn("Data"), 6);
+
+            const string output = @"30header
+31detail
+39footer
+";
+            var stringReader = new StringReader(output);
+            var reader = new FixedLengthReader(stringReader, schema);
+
+            Assert.IsTrue(reader.Read(), "The header record could not be read.");
+            CollectionAssert.AreEqual(new object[] { 1, (short)30, "header" }, reader.GetValues(), "The header data is wrong.");
+            Assert.IsTrue(reader.Read(), "The detail record could not be read.");
+            CollectionAssert.AreEqual(new object[] { 2, (short)31, "detail" }, reader.GetValues(), "The detail data is wrong.");
+            Assert.IsTrue(reader.Read(), "The footer record could not be read.");
+            CollectionAssert.AreEqual(new object[] { 3, (short)39, "footer" }, reader.GetValues(), "The footer data is wrong.");
+            Assert.IsFalse(reader.Read(), "Read too many records");
+        }
+
         public class Person
         {
             public string Name { get; set; }
