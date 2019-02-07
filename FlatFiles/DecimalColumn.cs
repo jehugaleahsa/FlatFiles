@@ -33,6 +33,12 @@ namespace FlatFiles
         public string OutputFormat { get; set; }
 
         /// <summary>
+        /// if informed, removes a decimal point from the string.
+        /// </summary>
+        /// <example> 19.99 to (1999) </example>
+        public int? DecimalPlaces { get; set; }
+
+        /// <summary>
         /// Parses the given value, returning a Decimal.
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
@@ -41,7 +47,7 @@ namespace FlatFiles
         protected override decimal OnParse(IColumnContext context, string value)
         {
             var provider = FormatProvider ?? CultureInfo.CurrentCulture;
-            return Decimal.Parse(value, NumberStyles, provider);
+            return Decimal.Parse(value, NumberStyles, provider) / (DecimalPlaces.HasValue ? DecimalPlaces.Value * 10 : 1);
         }
 
         /// <summary>
@@ -52,6 +58,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext context, decimal value)
         {
+            value = value * (DecimalPlaces.HasValue ? DecimalPlaces.Value * 10 : 1);
             if (OutputFormat == null)
             {
                 return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
