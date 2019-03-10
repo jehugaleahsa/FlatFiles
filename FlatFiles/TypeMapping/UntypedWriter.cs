@@ -30,6 +30,8 @@ namespace FlatFiles.TypeMapping
             remove => writer.RecordError -= value;
         }
 
+        public IWriter Writer => writer.Writer;
+
         public ISchema GetSchema()
         {
             return writer.GetSchema();

@@ -26,6 +26,11 @@ namespace FlatFiles.TypeMapping
         event EventHandler<IRecordParsedEventArgs> RecordParsed;
 
         /// <summary>
+        /// Gets the underlying reader.
+        /// </summary>
+        IReader Reader { get; }
+
+        /// <summary>
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
@@ -129,6 +134,8 @@ namespace FlatFiles.TypeMapping
             remove => reader.ColumnError -= value;
         }
 
+        public IReader Reader => reader;
+
         public ISchema GetSchema()
         {
             return reader.GetSchema();
@@ -205,6 +212,8 @@ namespace FlatFiles.TypeMapping
         {
             this.reader = reader;
         }
+
+        public IReader Reader => reader;
 
         public object Current { get; private set; }
 
@@ -321,6 +330,8 @@ namespace FlatFiles.TypeMapping
         {
             this.reader = reader;
         }
+
+        public IReader Reader => reader;
 
         public object Current { get; private set; }
 

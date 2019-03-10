@@ -172,5 +172,14 @@ namespace FlatFiles
             }
         }
 
+        public void WriteRaw(String data)
+        {
+            writer.Write(data);
+        }
+
+        public Task WriteRawAsync(String data)
+        {
+            return writer.WriteAsync(data);
+        }
     }
 }

@@ -221,6 +221,36 @@ namespace FlatFiles
             }
         }
 
+        /// <summary>
+        /// Write the given data directly to the output. By default, this will
+        /// not include a newline.
+        /// </summary>
+        /// <param name="data">The data to write to the output.</param>
+        /// <param name="writeRecordSeparator">Indicates whether a newline should be written after the data.</param>
+        public void WriteRaw(String data, bool writeRecordSeparator = false)
+        {
+            recordWriter.WriteRaw(data);
+            if (writeRecordSeparator)
+            {
+                recordWriter.WriteRecordSeparator();
+            }
+        }
+
+        /// <summary>
+        /// Write the given data directly to the output. By default, this will
+        /// not include a newline.
+        /// </summary>
+        /// <param name="data">The data to write to the output.</param>
+        /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
+        public async Task WriteRawAsync(String data, bool writeRecordSeparator = false)
+        {
+            await recordWriter.WriteRawAsync(data);
+            if (writeRecordSeparator)
+            {
+                await recordWriter.WriteRecordSeparatorAsync();
+            }
+        }
+
         private void ProcessError(RecordProcessingException exception)
         {
             if (RecordError != null)

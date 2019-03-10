@@ -1,3 +1,11 @@
+## 4.3.4 (2019-03-10)
+**Summary** - This release allows directly writing arbitrary text to the underlying `TextWriter`, for those who need it.
+
+### New Features
+* The `IWriter` interface now exposes `WriteRaw` and `WriteRawAsync` methods.
+    * This is implemented by the `SeparatedValueWriter` and `FixedLengthWriter`.
+* The `TypedReader` and `TypedWriter` classes now allow directly accessing the underlying `IReader` and `IWriter` objects.
+
 ## 4.3.3 (2018-10-15)
 **Summary** - The `FixedLengthReader` class would loop indefinitely when partitioning a record whenever there was a metadata column.
 

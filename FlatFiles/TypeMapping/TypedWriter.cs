@@ -11,6 +11,11 @@ namespace FlatFiles.TypeMapping
     public interface ITypedWriter<TEntity>
     {
         /// <summary>
+        /// Gets the underlying writer.
+        /// </summary>
+        IWriter Writer { get; }
+
+        /// <summary>
         /// Raised when an error occurs while processing a column.
         /// </summary>
         event EventHandler<ColumnErrorEventArgs> ColumnError;
@@ -70,6 +75,8 @@ namespace FlatFiles.TypeMapping
             add => writer.RecordError += value;
             remove => writer.RecordError -= value;
         }
+
+        public IWriter Writer => writer;
 
 
         public ISchema GetSchema()
@@ -131,6 +138,8 @@ namespace FlatFiles.TypeMapping
             add => writer.RecordError += value;
             remove => writer.RecordError -= value;
         }
+
+        public IWriter Writer => writer;
 
         public ISchema GetSchema()
         {
