@@ -20,7 +20,7 @@ namespace FlatFiles.Benchmark
         {
             var configuration = new ManualConfig()
             {
-                KeepBenchmarkFiles = false
+                Options = ConfigOptions.KeepBenchmarkFiles
             };
             configuration.Add(StatisticColumn.Min);
             configuration.Add(StatisticColumn.Max);

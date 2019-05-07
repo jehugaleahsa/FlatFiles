@@ -152,10 +152,59 @@ namespace FlatFiles.Test
             Assert.IsFalse(reader.Read());
         }
 
-        private SeparatedValueTypeMapperSelector getTypeMapperSelector()
+        [TestMethod]
+        public void TestTypeMapper_ReadThreeTypes_WithMetadataRecord()
+        {
+            StringWriter stringWriter = new StringWriter();
+            var injector = getTypeMapperInjector();
+            var writer = injector.GetWriter(stringWriter);
+            writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
+            writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
+            writer.Write(new DataRecord { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
+            writer.Write(new FooterRecord { TotalAmount = 46.9m, AverageAmount = 23.45m, IsCriteriaMet = true });
+            string output = stringWriter.ToString();
+            Assert.AreEqual(@"First Batch,2
+1,Bob Smith,20180604,12.34
+2,Jane Doe,20180605,34.56
+46.9,23.45,True
+", output);
+
+            var selector = getTypeMapperSelector(true);
+            var stringReader = new StringReader(output);
+            var reader = selector.GetReader(stringReader);
+
+            Assert.IsTrue(reader.Read(), "The header record could not be read.");
+            Assert.IsInstanceOfType(reader.Current, typeof(HeaderRecord));
+            Assert.AreEqual("First Batch", ((HeaderRecord)reader.Current).BatchName);
+            Assert.AreEqual(2, ((HeaderRecord)reader.Current).RecordCount);
+
+            Assert.IsTrue(reader.Read(), "The first data record could not be read.");
+            Assert.IsInstanceOfType(reader.Current, typeof(DataRecord));
+            Assert.AreEqual(1, ((DataRecord)reader.Current).Id);
+            Assert.AreEqual("Bob Smith", ((DataRecord)reader.Current).Name);
+            Assert.AreEqual(new DateTime(2018, 6, 4), ((DataRecord)reader.Current).CreatedOn);
+            Assert.AreEqual(12.34m, ((DataRecord)reader.Current).TotalAmount);
+
+            Assert.IsTrue(reader.Read(), "The second data record could not be read.");
+            Assert.IsInstanceOfType(reader.Current, typeof(DataRecord));
+            Assert.AreEqual(2, ((DataRecord)reader.Current).Id);
+            Assert.AreEqual("Jane Doe", ((DataRecord)reader.Current).Name);
+            Assert.AreEqual(new DateTime(2018, 6, 5), ((DataRecord)reader.Current).CreatedOn);
+            Assert.AreEqual(34.56m, ((DataRecord)reader.Current).TotalAmount);
+
+            Assert.IsTrue(reader.Read(), "The footer record could not be read.");
+            Assert.IsInstanceOfType(reader.Current, typeof(FooterRecord));
+            Assert.AreEqual(46.9m, ((FooterRecord)reader.Current).TotalAmount);
+            Assert.AreEqual(23.45m, ((FooterRecord)reader.Current).AverageAmount);
+            Assert.IsTrue(((FooterRecord)reader.Current).IsCriteriaMet);
+
+            Assert.IsFalse(reader.Read());
+        }
+
+        private SeparatedValueTypeMapperSelector getTypeMapperSelector(bool hasMetadata = false)
         {
             var selector = new SeparatedValueTypeMapperSelector();
-            selector.WithDefault(getRecordTypeMapper());
+            selector.WithDefault(getRecordTypeMapper(hasMetadata));
             selector.When(x => x.Length == 2).Use(getHeaderTypeMapper());
             selector.When(x => x.Length == 3).Use(getFooterTypeMapper());
             return selector;
@@ -178,13 +227,21 @@ namespace FlatFiles.Test
             return mapper;
         }
 
-        private static ISeparatedValueTypeMapper<DataRecord> getRecordTypeMapper()
+        private static ISeparatedValueTypeMapper<DataRecord> getRecordTypeMapper(bool hasMetadata = false)
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new DataRecord());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
             mapper.Property(x => x.CreatedOn).InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(x => x.TotalAmount);
+            if (hasMetadata)
+            {
+                mapper.CustomMapping(new RecordNumberColumn("row_num")
+                {
+                    IncludeSchema = true,
+                    IncludeSkippedRecords = true
+                }).WithReader(r => r.RecordNumber);
+            }
             return mapper;
         }
 
@@ -222,6 +279,8 @@ namespace FlatFiles.Test
             public DateTime? CreatedOn { get; set; }
 
             public decimal TotalAmount { get; set; }
+
+            public int? RecordNumber { get; set; }
         }
     }
 }
