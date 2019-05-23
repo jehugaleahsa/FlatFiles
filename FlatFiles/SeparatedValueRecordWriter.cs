@@ -115,6 +115,10 @@ namespace FlatFiles
             {
                 return true;
             }
+            if (Metadata.ExecutionContext.Options.QuoteBehavior == QuoteBehavior.Never)
+            {
+                return false;
+            }
             // Don't escape empty strings.
             if (value == String.Empty)
             {

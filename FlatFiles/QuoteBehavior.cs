@@ -12,6 +12,10 @@
         /// <summary>
         /// FlatFiles will put quotes around all values.
         /// </summary>
-        AlwaysQuote = 1
+        AlwaysQuote = 1,
+        /// <summary>
+        /// FlatFiles will never put quotes around values.
+        /// </summary>
+        Never = 2
     }
 }
