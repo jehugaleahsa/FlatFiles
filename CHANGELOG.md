@@ -1,3 +1,21 @@
+## 4.4.0 (2019-05-25)
+** Summary ** - Allow pre- and post- parsing and formatting on columns. Allow specifying a global `IFormatProvider` in `IOptions`.
+
+### New Features
+* The `IOptions` interface now has a `IFormatProvider FormatProvider` property. If provided, all columns will automatically use this `IFormatProvider` as their default.
+    * The `IFormatProvider` specified on a `IColumnDefinition` will override what is specified in `IOptions`.
+    * If no `IFormatProvider` is found at either level, FlatFiles defaults to `CultureInfo.CurrentInfo`, as before.
+* The `IColumnDefinition` interface now exposes four new properties:
+    * OnParsing - Fires before attempting to parse the `string` value; the logical successor to `Preprocessor`. 
+    * OnParsed - Fires after parsing the column, providing access to the parsed `object`.
+    * OnFormatting - Fires before formatting the column, providing access to the `object`.
+    * OnFormatted - Fires after formatting the column, providing access to the generated `string`.
+
+Unlike `Preprocessor`, each of the new properties have the type `Func<IColumnContext, T, T>`, providing access to the column context.
+
+### Deprecated
+Since `Preprocessor` and `OnParsing` are effectively redundant, `Preprocessor` has been marked deprecated. Please upgrade any existing code to use `OnParsing` instead. The `Preprocessor` property will be removed in the next major release (a.k.a., v5.0).
+
 ## 4.3.4 (2019-03-10)
 **Summary** - This release allows directly writing arbitrary text to the underlying `TextWriter`, for those who need it.
 

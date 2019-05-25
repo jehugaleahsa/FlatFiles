@@ -70,6 +70,11 @@ namespace FlatFiles
         public bool IsColumnContextDisabled { get; set; }
 
         /// <summary>
+        /// Gets or sets the global, default format provider.
+        /// </summary>
+        public IFormatProvider FormatProvider { get; set; }
+
+        /// <summary>
         /// Duplicates the options.
         /// </summary>
         /// <returns>The new options.</returns>

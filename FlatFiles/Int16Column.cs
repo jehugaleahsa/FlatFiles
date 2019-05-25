@@ -40,7 +40,7 @@ namespace FlatFiles
         /// <returns>The parsed Int16.</returns>
         protected override short OnParse(IColumnContext context, string value)
         {
-            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = GetFormatProvider(context, FormatProvider);
             return Int16.Parse(value, NumberStyles, provider);
         }
 
@@ -52,11 +52,12 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext context, short value)
         {
+            var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)
             {
-                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return value.ToString(provider);
             }
-            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, provider);
         }
     }
 }

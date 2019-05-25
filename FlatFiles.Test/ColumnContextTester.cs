@@ -129,7 +129,7 @@ namespace FlatFiles.Test
 
         internal class IndexTrackingColumn : IColumnDefinition
         {
-            private readonly IColumnDefinition columnDefinition;
+            private readonly IColumnDefinition column;
             private readonly List<int> physicalIndexes;
             private readonly List<int> logicalIndexes;
 
@@ -138,49 +138,74 @@ namespace FlatFiles.Test
                 List<int> physicalIndexes,
                 List<int> logicalIndexes)
             {
-                this.columnDefinition = columnDefinition;
+                this.column = columnDefinition;
                 this.physicalIndexes = physicalIndexes;
                 this.logicalIndexes = logicalIndexes;
             }
 
-            public string ColumnName => columnDefinition.ColumnName;
+            public string ColumnName => column.ColumnName;
 
-            public bool IsIgnored => columnDefinition.IsIgnored;
+            public bool IsIgnored => column.IsIgnored;
 
-            public bool IsNullable => columnDefinition.IsNullable;
+            public bool IsNullable => column.IsNullable;
 
             public IDefaultValue DefaultValue
             {
-                get => columnDefinition.DefaultValue;
-                set => columnDefinition.DefaultValue = value;
+                get => column.DefaultValue;
+                set => column.DefaultValue = value;
             }
 
             public INullFormatter NullFormatter
             {
-                get => columnDefinition.NullFormatter;
-                set => columnDefinition.NullFormatter = value;
+                get => column.NullFormatter;
+                set => column.NullFormatter = value;
             }
 
+            [Obsolete]
             public Func<string, string> Preprocessor
             {
-                get => columnDefinition.Preprocessor;
-                set => columnDefinition.Preprocessor = value;
+                get => column.Preprocessor;
+                set => column.Preprocessor = value;
             }
 
-            public Type ColumnType => columnDefinition.ColumnType;
+            public Func<IColumnContext, string, string> OnParsing
+            {
+                get => column.OnParsing;
+                set => column.OnParsing = value;
+            }
+
+            public Func<IColumnContext, object, object> OnParsed
+            {
+                get => column.OnParsed;
+                set => column.OnParsed = value;
+            }
+
+            public Func<IColumnContext, object, object> OnFormatting
+            {
+                get => column.OnFormatting;
+                set => column.OnFormatting = value;
+            }
+
+            public Func<IColumnContext, string, string> OnFormatted
+            {
+                get => column.OnFormatted;
+                set => column.OnFormatted = value;
+            }
+
+            public Type ColumnType => column.ColumnType;
 
             public string Format(IColumnContext context, object value)
             {
                 physicalIndexes.Add(context.PhysicalIndex);
                 logicalIndexes.Add(context.LogicalIndex);
-                return columnDefinition.Format(context, value);
+                return column.Format(context, value);
             }
 
             public object Parse(IColumnContext context, string value)
             {
                 physicalIndexes.Add(context.PhysicalIndex);
                 logicalIndexes.Add(context.LogicalIndex);
-                return columnDefinition.Parse(context, value);
+                return column.Parse(context, value);
             }
         }
     }

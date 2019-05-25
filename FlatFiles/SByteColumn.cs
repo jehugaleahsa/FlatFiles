@@ -40,7 +40,7 @@ namespace FlatFiles
         /// <returns>The parsed signed byte value.</returns>
         protected override sbyte OnParse(IColumnContext context, string value)
         {
-            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = GetFormatProvider(context, FormatProvider);
             return SByte.Parse(value, NumberStyles, provider);
         }
 
@@ -52,11 +52,12 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext context, sbyte value)
         {
+            var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)
             {
-                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return value.ToString(provider);
             }
-            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, provider);
         }
     }
 }

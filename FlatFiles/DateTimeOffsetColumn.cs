@@ -35,7 +35,7 @@ namespace FlatFiles
         /// <inheritdoc />
         protected override DateTimeOffset OnParse(IColumnContext context, string value)
         {
-            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = GetFormatProvider(context, FormatProvider);
             if (InputFormat == null)
             {
                 return DateTimeOffset.Parse(value, provider);
@@ -46,7 +46,7 @@ namespace FlatFiles
         /// <inheritdoc />
         protected override string OnFormat(IColumnContext context, DateTimeOffset value)
         {
-            var provider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)
             {
                 return value.ToString(provider);

@@ -125,12 +125,12 @@ namespace FlatFiles
         /// <inheritdoc />
         protected override TimeSpan OnParse(IColumnContext context, string value)
         {
-            var formatProvider = FormatProvider ?? CultureInfo.CurrentCulture;
+            var provider = GetFormatProvider(context, FormatProvider);
             if (InputFormat == null)
             {
-                return TimeSpan.Parse(value, formatProvider);
+                return TimeSpan.Parse(value, provider);
             }
-            return TimeSpan.ParseExact(value, InputFormat, formatProvider);
+            return TimeSpan.ParseExact(value, InputFormat, provider);
         }
 
         /// <inheritdoc />
@@ -140,7 +140,7 @@ namespace FlatFiles
             {
                 return value.ToString();
             }
-            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, GetFormatProvider(context, FormatProvider));
         }
     }
 }

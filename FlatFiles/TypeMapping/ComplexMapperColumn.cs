@@ -37,10 +37,35 @@ namespace FlatFiles.TypeMapping
             set => column.NullFormatter = value;
         }
 
+        [Obsolete]
         public Func<string, string> Preprocessor
         {
             get => column.Preprocessor;
             set => column.Preprocessor = value;
+        }
+
+        public Func<IColumnContext, string, string> OnParsing
+        {
+            get => column.OnParsing;
+            set => column.OnParsing = value;
+        }
+
+        public Func<IColumnContext, object, object> OnParsed
+        {
+            get => column.OnParsed;
+            set => column.OnParsed = value;
+        }
+
+        public Func<IColumnContext, object, object> OnFormatting
+        {
+            get => column.OnFormatting;
+            set => column.OnFormatting = value;
+        }
+
+        public Func<IColumnContext, string, string> OnFormatted
+        {
+            get => column.OnFormatted;
+            set => column.OnFormatted = value;
         }
 
         public object Parse(IColumnContext context, string value)

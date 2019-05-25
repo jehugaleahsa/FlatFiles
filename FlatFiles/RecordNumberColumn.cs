@@ -50,11 +50,12 @@ namespace FlatFiles
         protected override string OnFormat(IColumnContext context)
         {
             var recordNumber = GetRecordNumber(context);
+            var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)
             {
-                return recordNumber.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return recordNumber.ToString(provider);
             }
-            return recordNumber.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return recordNumber.ToString(OutputFormat, provider);
         }
 
         /// <summary>

@@ -56,11 +56,12 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext context, DateTime value)
         {
+            var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)
             {
-                return value.ToString(FormatProvider ?? CultureInfo.CurrentCulture);
+                return value.ToString(provider);
             }
-            return value.ToString(OutputFormat, FormatProvider ?? CultureInfo.CurrentCulture);
+            return value.ToString(OutputFormat, provider);
         }
     }
 }

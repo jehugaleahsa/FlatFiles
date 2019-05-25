@@ -10,10 +10,10 @@
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>FixedLengthReader not reading records with metadata.</PackageReleaseNotes>
+    <PackageReleaseNotes>Support pre- and post-parsing and formatting operations. Support overriding IFormatProvider globally in IOptions.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.3.4</Version>
+    <Version>4.4.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -27,8 +27,8 @@
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <PackageIconUrl>https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/icon.png</PackageIconUrl>
-    <AssemblyVersion>4.3.4.0</AssemblyVersion>
-    <FileVersion>4.3.4.0</FileVersion>
+    <AssemblyVersion>4.4.0.0</AssemblyVersion>
+    <FileVersion>4.4.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
