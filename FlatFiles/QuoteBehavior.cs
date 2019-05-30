@@ -16,6 +16,7 @@
         /// <summary>
         /// FlatFiles will never put quotes around values.
         /// </summary>
+        /// <remarks>This can result in the generation of invalid files.</remarks>
         Never = 2
     }
 }

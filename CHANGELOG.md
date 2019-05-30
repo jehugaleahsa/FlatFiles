@@ -1,3 +1,10 @@
+## 4.5.0 (2019-05-29)
+**Summary** - Disable wrapping delimited values in quotes.
+
+### New Features
+* The `QuoteBehavior` enum now supports a `Never` option, to disable quotes within delimited files. This is set on the `SeparatedValueOptions.QuoteBehavior` property.
+    * *NOTE - This can allow the generation of invalid delimited files if they contain the separator token*
+
 ## 4.4.0 (2019-05-25)
 **Summary** - Allow pre- and post- parsing and formatting on columns. Allow specifying a global `IFormatProvider` in `IOptions`.
 

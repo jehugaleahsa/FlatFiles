@@ -7,11 +7,11 @@ Download using NuGet: [FlatFiles](http://nuget.org/packages/FlatFiles)
 You can check out all of the awesome enhancements and new features in the [CHANGELOG](https://github.com/jehugaleahsa/FlatFiles/blob/master/CHANGELOG.md). 
 
 ## Overview
-A lot of us still need to work with flat files (e.g. CSV, fixed-length, etc.) either because we're interfacing with older systems or because we're running one-time migration scripts. As common as these legacy file formats are, it's surprising there's nothing built-in to .NET for handling them. Worse, it seems like each system has its own little quirks. People have a pretty easy time reading most flat file formats but we as developers spend an enormous amount of time tweaking our code to handle every oddball edge case.
+Plain-text formats primarily come in two variations: delimited (CSV, TSV, etc.) and fixed-width. FlatFiles comes with support for working with both formats. Unlike most other libraries, FlatFiles puts a focus on schema definition. You build and pass a schema to a reader or writer and it will use the schema to extract or write out your values.
 
-FlatFiles focuses on schema configuration, allowing you to very clearly define the schema of your file, whether reading or writing. It gives complete control over the way dates, numbers, enums, etc. are interpreted in your files. This means less time chasing down edge cases and dealing with conversion issues.
+A schema is defined by specifying what data columns are in your file. A column has a name, a type and an ordinal position in the file. The order matches whatever order you add the columns to the schema, so you're left just specifying the name and the type. Beyond that, you have a lot of control over the parsing/formatting behavior when reading and writing, respectively. Most of the time, the out-of-the-box options will *just work*, too. But when you need that level of extra control, you don't have to bend over backward to work around the API, like with many other libraries. FlatFiles was designed to make handling oddball edge cases either.
 
-FlatFiles makes it easy to work with flat files in many different ways. It supports type mappers for directly reading and writing with data objects. It even has support for `DataTable`s and `IDataReader` if you need to interface with ADO.NET classes. If you really want to, you can read and write values using raw `object` arrays.
+If you are working with data classes, defining schemas is even easier. You can use the type mappers to map your properties directly. This saves you from having to specify column names or types, since both can be derived from the property. For those working with ADO.NET, there's even support for `DataTable`s and `IDataReader`. If you really want to, you can read and write values using raw `object[]`.
 
 ## Table of Contents
 * [Overview](#overview)
@@ -41,6 +41,13 @@ FlatFiles makes it easy to work with flat files in many different ways. It suppo
 ## Type Mappers
 Using the type mappers, you can directly read file contents into your classes:
 
+```csv
+customer_id,name,created,avg_sales
+1,bob,20120321,12.34
+2,Susan,20130108,13.88
+3,Tom,20180519,88.23
+```
+
 ```csharp
 var mapper = SeparatedValueTypeMapper.Define<Customer>();
 mapper.Property(c => c.CustomerId).ColumnName("customer_id");
@@ -49,13 +56,14 @@ mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
 using (var reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
 {
-    var customers = mapper.Read(reader).ToList();
+    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+    var customers = mapper.Read(reader, options).ToList();
 }
 ```
 
 To define the schema when working with type mappers, call `Property` in the order that the fields appear in the file. The type of the column is determined by the type of the mapped property. Each property configuration provides options for controlling the way FlatFiles handles strings, numbers, date/times, GUIDs, enums and more. Once the properties are configured, you can call `Read` or `Write` on the type mapper.
 
-*Note* The `Read` method only retrieves records from the underlying file on-demand. To bring the entire file into memory at once, just call `ToList` or `ToArray`, or loop over the records inside of a `foreach`.
+*Note* The `Read` method only retrieves records from the underlying file on-demand. To bring the entire file into memory at once, just call `ToList` or `ToArray`, or loop over the records inside of a `foreach`. This is good news for people working with enormous files!
 
 Writing to a file is just as easily:
 
@@ -64,7 +72,8 @@ mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).OutputFormat("N2");
 using (var writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
 {
-    mapper.Write(writer, customers);
+    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+    mapper.Write(writer, customers, options);
 }
 ```
 
