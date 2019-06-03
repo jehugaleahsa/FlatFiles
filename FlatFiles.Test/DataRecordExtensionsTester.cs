@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Linq;
 using FlatFiles.TypeMapping;
@@ -68,6 +69,17 @@ namespace FlatFiles.Test
             Assert.IsFalse(dataReader.Read(), "Too many records were read.");
         }
 
+
+        [TestMethod]
+        public void TestGetValues_DbNullToNull()
+        {
+            var record = new MockDataRecord();
+            var values = record.GetValues();
+
+            Assert.AreEqual(6, values.Length);
+            Assert.AreEqual(null, values[2]);
+        }
+
         private static SeparatedValueSchema GetSchema()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new NullableValues());
@@ -110,6 +122,142 @@ namespace FlatFiles.Test
             public Guid? GuidValue { get; set; }
 
             public DayOfWeek? EnumValue { get; set; }
+        }
+
+        private class MockDataRecord : IDataRecord
+        {
+            private readonly object[] _values =
+            {
+                0, DateTime.UnixEpoch, DBNull.Value, 3.14159, 3.14159m, "A String"
+            };
+
+            public bool GetBoolean(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public byte GetByte(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+            {
+                throw new NotImplementedException();
+            }
+
+            public char GetChar(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IDataReader GetData(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetDataTypeName(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public DateTime GetDateTime(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public decimal GetDecimal(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public double GetDouble(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Type GetFieldType(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public float GetFloat(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Guid GetGuid(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public short GetInt16(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int GetInt32(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public long GetInt64(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetName(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int GetOrdinal(string name)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetString(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object GetValue(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int GetValues(object[] values)
+            {
+                int i;
+                for (i = 0; i < values.Length && i < _values.Length; i++)
+                {
+                    values[i] = _values[i];
+                }
+
+                return i;
+            }
+
+            public bool IsDBNull(int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int FieldCount => _values.Length;
+
+            public object this[int i]
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public object this[string name]
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
     }
 }
