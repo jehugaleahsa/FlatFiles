@@ -87,7 +87,7 @@ namespace FlatFiles.Test
             DateTimeColumn column = new DateTimeColumn("created")
             {
                 InputFormat = "d",
-                FormatProvider = CultureInfo.CurrentCulture
+                FormatProvider = CultureInfo.InvariantCulture
             };
             DateTime actual = (DateTime)column.Parse(null, "1/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
