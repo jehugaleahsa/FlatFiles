@@ -322,7 +322,12 @@ namespace FlatFiles.Test
             DataRow susanRow = table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
             DataRow nullRow = table.Rows.Add(new object[] { 4, null, null, null });
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true,
+                RecordSeparator = "\r\n",
+                FormatProvider = CultureInfo.InvariantCulture
+            };
             var stringWriter = new StringWriter();
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -421,7 +426,12 @@ namespace FlatFiles.Test
             DataRow johnRow = table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
             DataRow susanRow = table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true,
+                RecordSeparator = "\r\n",
+                FormatProvider = CultureInfo.InvariantCulture
+            };
             var stringWriter = new StringWriter();
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new IgnoredColumn("i0"));
