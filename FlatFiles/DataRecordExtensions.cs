@@ -1023,6 +1023,13 @@ namespace FlatFiles
         {
             var values = new object[record.FieldCount];
             record.GetValues(values);
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i] == DBNull.Value)
+                {
+                    values[i] = null;
+                }
+            }
             return values;
         }
 
