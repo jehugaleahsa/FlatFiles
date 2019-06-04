@@ -89,7 +89,7 @@ namespace FlatFiles.Test
                 InputFormat = "d",
                 FormatProvider = CultureInfo.InvariantCulture
             };
-            DateTime actual = (DateTime)column.Parse(null, "1/19/2013");
+            DateTime actual = (DateTime)column.Parse(null, "01/19/2013");
             DateTime expected = new DateTime(2013, 1, 19);
             Assert.AreEqual(expected, actual);
         }

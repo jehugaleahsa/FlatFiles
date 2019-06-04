@@ -1,3 +1,14 @@
+## 4.6.0 (2019-06-03)
+**Summary** - Support replacing `DBNull` with `null` when calling `GetValues` on an `IDataRecord`.
+
+### New Features
+When working with ADO.NET classes, you often have to deal with `null`s by checking for instances of `DBNull`. Most of the time, this involves calling `IDataRecord.IsDBNull()` or comparing values to `DBNull.Value`. The `DataRecordExtensions` class provides a lot of convenience methods, like `GetNullableString`, that save you from having to distinguish between `null` and `DBNull` all the time. The `FlatFileDataReader` and `DataTableExtensions` classes also provide a lot of features/options surrounding `null` handling. One area where this was overlooked was in the `DataRecordExtensions.GetValues` method.
+
+It was decided that `object[] GetValues()` *(extension)* and `int GetValues(object[])` *(built-in)* should have similar semantics, so instead an optional parameter was added: `replaceDBNulls` that allows specifying whether `DBNull`s should be replaced in the destination array or not (defaults to keeping `DBNull`s). An additional extension: `int GetValues(object[], bool)` was added to provide similar semantics for the built-in method.
+
+### Other
+There were also some tests failing due to culture-specific date formatting. Those unit tests were updated to format dates in a culture-insensitive way.
+
 ## 4.5.0 (2019-05-29)
 **Summary** - Disable wrapping delimited values in quotes.
 

@@ -1018,19 +1018,36 @@ namespace FlatFiles
         /// Creates an array of objects with the column values of the current record.
         /// </summary>
         /// <param name="record">The IDataRecord to get the values for.</param>
+        /// <param name="replaceDBNulls">Indicates whether DBNull instances should be replaced with nulls.</param>
         /// <returns>An array of objects with the column values of the current record.</returns>
-        public static object[] GetValues(this IDataRecord record)
+        public static object[] GetValues(this IDataRecord record, bool replaceDBNulls = false)
         {
             var values = new object[record.FieldCount];
-            record.GetValues(values);
-            for (int i = 0; i < values.Length; i++)
+            record.GetValues(values, replaceDBNulls);
+            return values;
+        }
+
+        /// <summary>
+        /// Populates an array of objects with the column values of the current record.
+        /// </summary>
+        /// <param name="record">The IDataRecord to get the values for.</param>
+        /// <param name="values">The array to store the values in.</param>
+        /// <param name="replaceDBNulls">Indicates whether DBNull instances should be replaced with nulls.</param>
+        /// <returns>The number of objects copied to the array.</returns>
+        public static int GetValues(this IDataRecord record, object[] values, bool replaceDBNulls)
+        {
+            int result = record.GetValues(values);
+            if (replaceDBNulls)
             {
-                if (values[i] == DBNull.Value)
+                for (int index = 0; index != result; ++index)
                 {
-                    values[i] = null;
+                    if (values[index] == DBNull.Value)
+                    {
+                        values[index] = null;
+                    }
                 }
             }
-            return values;
+            return result;
         }
 
         #endregion
