@@ -197,11 +197,11 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             StringReader textReader = new StringReader(data);
-            var people = new List<Person>();
             var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            while (await reader.ReadAsync().ConfigureAwait(false))
+            var people = new List<Person>();
+            await foreach (var person in reader.ReadAllAsync().ConfigureAwait(false))
             {
-                people.Add(reader.Current);
+                people.Add(person);
             }
         }
 

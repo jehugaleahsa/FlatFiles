@@ -1,4 +1,4 @@
-﻿#if NET45||NETStandard20
+﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
 using System;
 using System.Data;
 using System.Reflection;
@@ -10,7 +10,7 @@ namespace FlatFiles
     /// </summary>
     public static class DataRecordExtensions
     {
-        #region GetBoolean
+#region GetBoolean
 
         /// <summary>
         /// Gets the value of the specified column as a Boolean.
@@ -45,9 +45,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetBoolean);
         }
 
-        #endregion
+#endregion
 
-        #region GetEnum
+#region GetEnum
 
         /// <summary>
         /// Maps the value of the column to the specified enumeration value.
@@ -171,9 +171,9 @@ namespace FlatFiles
             return GetNullableEnum(record, ordinal, mapper);
         }
 
-        #endregion
+#endregion
 
-        #region GetByte
+#region GetByte
 
         /// <summary>
         /// Gets the 8-bit unsigned integer value of the specified column.
@@ -209,9 +209,9 @@ namespace FlatFiles
             return GetNullable(record, ordinal, record.GetByte);
         }
 
-        #endregion
+#endregion
 
-        #region GetBytes
+#region GetBytes
 
         /// <summary>
         /// Reads a stream of bytes from the specified column offset into the buffer
@@ -230,9 +230,9 @@ namespace FlatFiles
             return record.GetBytes(ordinal, fieldOffset, buffer, bufferoffset, length);
         }
 
-        #endregion
+#endregion
 
-        #region GetChar
+#region GetChar
 
         /// <summary>
         /// Gets the character value of the specified column.
@@ -267,9 +267,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetChar);
         }
 
-        #endregion
+#endregion
 
-        #region GetChars
+#region GetChars
 
         /// <summary>
         /// Reads a stream of characters from the specified column offset into the buffer
@@ -288,9 +288,9 @@ namespace FlatFiles
             return record.GetChars(ordinal, fieldoffset, buffer, bufferoffset, length);
         }
 
-        #endregion
+#endregion
 
-        #region GetData
+#region GetData
 
         /// <summary>
         /// Returns an System.Data.IDataReader for the specified column name.
@@ -303,9 +303,9 @@ namespace FlatFiles
             return Get(record, name, record.GetData);
         }
 
-        #endregion
+#endregion
 
-        #region GetDataTypeName
+#region GetDataTypeName
 
         /// <summary>
         /// Gets the data type information for the specified field.
@@ -318,9 +318,9 @@ namespace FlatFiles
             return Get(record, name, record.GetDataTypeName);
         }
 
-        #endregion
+#endregion
 
-        #region GetDateTime
+#region GetDateTime
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -355,9 +355,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDateTime);
         }
 
-        #endregion
+#endregion
 
-        #region GetDateTimeOffset
+#region GetDateTimeOffset
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -392,9 +392,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDateTimeOffset);
         }
 
-        #endregion
+#endregion
 
-        #region GetDecimal
+#region GetDecimal
 
         /// <summary>
         /// Gets the decimal value of the specified column.
@@ -429,9 +429,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDecimal);
         }
 
-        #endregion
+#endregion
 
-        #region GetDouble
+#region GetDouble
 
         /// <summary>
         /// Gets the double value of the specified column.
@@ -466,9 +466,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetDouble);
         }
 
-        #endregion
+#endregion
 
-        #region GetFieldType
+#region GetFieldType
 
         /// <summary>
         /// Gets the System.Type information corresponding to the type of System.Object
@@ -485,9 +485,9 @@ namespace FlatFiles
             return Get(record, name, record.GetFieldType);
         }
 
-        #endregion
+#endregion
 
-        #region GetFloat
+#region GetFloat
 
         /// <summary>
         /// Gets the float value of the specified column.
@@ -522,9 +522,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetFloat);
         }
 
-        #endregion
+#endregion
 
-        #region GetGuid
+#region GetGuid
 
         /// <summary>
         /// Gets the Guid value of the specified column.
@@ -559,9 +559,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetGuid);
         }
 
-        #endregion
+#endregion
 
-        #region GetInt16
+#region GetInt16
 
         /// <summary>
         /// Gets the short value of the specified column.
@@ -596,9 +596,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt16);
         }
 
-        #endregion
+#endregion
 
-        #region GetInt32
+#region GetInt32
 
         /// <summary>
         /// Gets the int value of the specified column.
@@ -633,9 +633,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt32);
         }
 
-        #endregion
+#endregion
 
-        #region GetInt64
+#region GetInt64
 
         /// <summary>
         /// Gets the long value of the specified column.
@@ -670,9 +670,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetInt64);
         }
 
-        #endregion
+#endregion
 
-        #region GetSByte
+#region GetSByte
 
         /// <summary>
         /// Gets the sbyte value of the specified column.
@@ -707,9 +707,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetSByte);
         }
 
-        #endregion
+#endregion
 
-        #region GetString
+#region GetString
 
         /// <summary>
         /// Gets the string value of the specified column.
@@ -745,9 +745,9 @@ namespace FlatFiles
             return GetNullableString(record, ordinal);
         }
 
-        #endregion
+#endregion
 
-        #region GetTimeSpan
+#region GetTimeSpan
 
         /// <summary>
         /// Gets the DateTime value of the specified column.
@@ -782,9 +782,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetTimeSpan);
         }
 
-        #endregion
+#endregion
 
-        #region GetUInt16
+#region GetUInt16
 
         /// <summary>
         /// Gets the ushort value of the specified column.
@@ -819,9 +819,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetUInt16);
         }
 
-        #endregion
+#endregion
 
-        #region GetUInt32
+#region GetUInt32
 
         /// <summary>
         /// Gets the uint value of the specified column.
@@ -856,9 +856,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetUInt32);
         }
 
-        #endregion
+#endregion
 
-        #region GetUInt64
+#region GetUInt64
 
         /// <summary>
         /// Gets the ulong value of the specified column.
@@ -893,9 +893,9 @@ namespace FlatFiles
             return GetNullable(record, name, record.GetUInt64);
         }
 
-        #endregion
+#endregion
 
-        #region GetValue
+#region GetValue
 
         /// <summary>
         /// Return the value of the specified field.
@@ -1010,9 +1010,9 @@ namespace FlatFiles
             }
         }
 
-        #endregion
+#endregion
 
-        #region GetValues
+#region GetValues
 
         /// <summary>
         /// Creates an array of objects with the column values of the current record.
@@ -1050,9 +1050,9 @@ namespace FlatFiles
             return result;
         }
 
-        #endregion
+#endregion
 
-        #region IsDBNull
+#region IsDBNull
 
         /// <summary>
         /// Return whether the specified field is set to null.
@@ -1065,7 +1065,7 @@ namespace FlatFiles
             return Get(record, name, record.IsDBNull);
         }
 
-        #endregion
+#endregion
 
         private static T Get<T>(IDataRecord record, string name, Func<int, T> getter)
         {

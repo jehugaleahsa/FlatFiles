@@ -437,5 +437,24 @@ namespace FlatFiles.TypeMapping
                 yield return entity;
             }
         }
+
+#if NETCOREAPP3_0
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static async IAsyncEnumerable<TEntity> ReadAllAsync<TEntity>(this ITypedReader<TEntity> reader)
+        {
+            while (await reader.ReadAsync())
+            {
+                var entity = reader.Current;
+                yield return entity;
+            }
+        }
+
+#endif
     }
 }
