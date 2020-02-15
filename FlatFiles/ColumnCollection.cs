@@ -21,6 +21,18 @@ namespace FlatFiles
         }
 
         /// <summary>
+        /// Initializes a new ColumnCollection by copying another.
+        /// </summary>
+        /// <param name="other">The ColumnCollection to copy.</param>
+        internal ColumnCollection(ColumnCollection other)
+        {
+            foreach (IColumnDefinition definition in other.definitions)
+            {
+                addColumn(definition);
+            }
+        }
+
+        /// <summary>
         /// Gets the column definition at the given index.
         /// </summary>
         /// <param name="index">The index of the column definition to get.</param>

@@ -9,6 +9,8 @@ namespace FlatFiles
     public sealed class FixedLengthSchema : Schema
     {
         private readonly List<Window> windows = new List<Window>();
+        private ColumnCollection cachedColumns;
+        private IColumnDefinition trailing;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchema.
@@ -29,13 +31,44 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(window));
             }
-            AddColumnBase(definition);
-            windows.Add(window);
-            if (!(definition is IMetadataColumn))
+            if (window == Window.Trailing)
             {
-                TotalWidth += window.Width;
+                trailing = definition;
             }
+            else
+            {
+                AddColumnBase(definition);
+                windows.Add(window);
+                if (!(definition is IMetadataColumn))
+                {
+                    TotalWidth += window.Width;
+                }
+            }
+            cachedColumns = null;
             return this;
+        }
+
+        /// <inheritdoc />
+        public override ColumnCollection ColumnDefinitions
+        {
+            get
+            {
+                if (trailing == null)
+                {
+                    return base.ColumnDefinitions;
+                }
+                else if (cachedColumns == null)
+                {
+                    ColumnCollection copy = new ColumnCollection(base.ColumnDefinitions);
+                    copy.AddColumn(trailing);
+                    this.cachedColumns = copy;
+                    return copy;
+                }
+                else
+                {
+                    return cachedColumns;
+                }
+            }
         }
 
         /// <summary>

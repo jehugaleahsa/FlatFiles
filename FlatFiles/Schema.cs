@@ -35,7 +35,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
-        public ColumnCollection ColumnDefinitions { get; } = new ColumnCollection();
+        public virtual ColumnCollection ColumnDefinitions { get; } = new ColumnCollection();
 
         /// <summary>
         /// Gets the index of the column with the given name.

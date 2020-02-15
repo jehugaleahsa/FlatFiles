@@ -361,33 +361,43 @@ namespace FlatFiles
 
         private string[] PartitionRecord(string record)
         {
-            metadata.ExecutionContext.Schema = GetSchema(record);
-            if (metadata.ExecutionContext.Schema == null)
+            var schema = GetSchema(record);
+            metadata.ExecutionContext.Schema = schema;
+            if (schema == null)
             {
                 return null;
             }
-            if (record.Length < metadata.ExecutionContext.Schema.TotalWidth)
+            if (record.Length < schema.TotalWidth)
             {
                 ProcessError(new RecordProcessingException(metadata, Resources.FixedLengthRecordTooShort));
                 return null;
             }
-            var windows = metadata.ExecutionContext.Schema.Windows;
-            var values = new string[windows.Count - metadata.ExecutionContext.Schema.ColumnDefinitions.MetadataCount];
+            var windows = schema.Windows;
+            var values = new string[schema.ColumnDefinitions.Count - schema.ColumnDefinitions.MetadataCount];
             int offset = 0;
             for (int valueIndex = 0, columnIndex = 0; valueIndex != values.Length; ++columnIndex)
             {
-                var definition = metadata.ExecutionContext.Schema.ColumnDefinitions[columnIndex];
+                var definition = schema.ColumnDefinitions[columnIndex];
                 if (!(definition is IMetadataColumn))
                 {
-                    Window window = windows[columnIndex];
-                    string value = record.Substring(offset, window.Width);
-                    var alignment = window.Alignment ?? metadata.ExecutionContext.Options.Alignment;
-                    value = alignment == FixedAlignment.LeftAligned 
-                        ? value.TrimEnd(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter) 
-                        : value.TrimStart(window.FillCharacter ?? metadata.ExecutionContext.Options.FillCharacter);
+                    Window window = columnIndex < windows.Count ? windows[columnIndex] : null;
+                    string value;
+                    if (window == null)
+                    {
+                        value = record.Substring(offset);
+                    }
+                    else
+                    {
+                        value = record.Substring(offset, window.Width);
+                        var options = metadata.ExecutionContext.Options;
+                        var alignment = window.Alignment ?? options.Alignment;
+                        value = alignment == FixedAlignment.LeftAligned
+                            ? value.TrimEnd(window.FillCharacter ?? options.FillCharacter)
+                            : value.TrimStart(window.FillCharacter ?? options.FillCharacter);
+                        offset += window.Width;
+                    }
                     values[valueIndex] = value;
                     ++valueIndex;
-                    offset += window.Width;
                 }
             }
             return values;

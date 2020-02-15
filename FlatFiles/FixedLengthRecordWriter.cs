@@ -77,8 +77,16 @@ namespace FlatFiles
             var windows = Metadata.ExecutionContext.Schema.Windows;
             for (int index = 0; index != values.Length; ++index)
             {
-                var window = windows[index];
-                values[index] = FitWidth(window, values[index]);
+                string value = values[index];
+                if (index < windows.Count)
+                {
+                    var window = windows[index];
+                    values[index] = FitWidth(window, value);
+                }
+                else
+                {
+                    values[index] = value ?? String.Empty;
+                }
             }
         }
 

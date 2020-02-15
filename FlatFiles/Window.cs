@@ -8,8 +8,22 @@ namespace FlatFiles
     /// </summary>
     public class Window
     {
+        /// <summary>
+        /// Acts as an indicator that the column or property should capture any data
+        /// at the end of a record, past the last window.
+        /// </summary>
+        public static readonly Window Trailing = new Window();
+
         private FixedAlignment? alignment;
         private OverflowTruncationPolicy? truncationPolicy;
+
+        /// <summary>
+        /// Initializes a new instance of a Window representing the trailing data in a record.
+        /// </summary>
+        private Window()
+        {
+            Width = -1;
+        }
 
         /// <summary>
         /// Initializes a new instance of a Window.

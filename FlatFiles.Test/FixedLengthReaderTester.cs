@@ -603,5 +603,90 @@ a weird row that should be skipped
 
             Assert.AreEqual(4, people.Length);
         }
+
+        [TestMethod]
+        public void TestReaderWriter_TrailingText_RoundTripsExtra()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.RightAligned })
+                  .AddColumn(new StringColumn("extra"), Window.Trailing);
+
+            const string lines = @"       123                Bob Smith 4/21/2017This
+        -1                Jay Smith 8/14/2017is
+       234                Jay Smith 5/21/2017extra
+";
+
+            StringReader stringReader = new StringReader(lines);
+            FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
+
+            List<object[]> records = new List<object[]>()
+            {
+                AssertExtra(parser, "This"),
+                AssertExtra(parser, "is"),
+                AssertExtra(parser, "extra")
+            };
+            Assert.IsFalse(parser.Read());
+
+            StringWriter stringWriter = new StringWriter();
+            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema);
+            foreach (object[] record in records)
+            {
+                writer.Write(record);
+            }
+
+            string formatted = stringWriter.ToString();
+            Assert.AreEqual(lines, formatted, "The records did not round-trip.");
+        }
+
+        private static object[] AssertExtra(FixedLengthReader reader, String expected)
+        {
+            Assert.IsTrue(reader.Read(), "Could not read the next record.");
+            object[] values = reader.GetValues();
+            FixedLengthSchema schema = reader.GetSchema();
+            Assert.AreEqual(schema.ColumnDefinitions.Count, values.Length, "The wrong number of values were parsed.");
+            object value = values[schema.ColumnDefinitions.Count - 1];
+            Assert.AreEqual(expected, value, "The wrong extra value was found for the record.");
+            return values;
+        }
+
+        [TestMethod]
+        public void TestTypeMapper_TrailingText_RoundTripsExtra()
+        {
+            var mapper = new FixedLengthTypeMapper<ExtraPerson>(() => new ExtraPerson());
+            mapper.Property(p => p.Id, new Window(10) { Alignment = FixedAlignment.RightAligned })
+                .ColumnName("id");
+            mapper.Property(p => p.Name, new Window(25) { Alignment = FixedAlignment.RightAligned })
+                .ColumnName("name");
+            mapper.Property(p => p.Created, new Window(10) { Alignment = FixedAlignment.RightAligned })
+                .ColumnName("created")
+                .InputFormat("M/d/yyyy")
+                .OutputFormat("M/d/yyyy");
+            mapper.Property(p => p.Extra, Window.Trailing).ColumnName("extra");
+
+            const string lines = @"       123                Bob Smith 4/21/2017This
+        -1                Jay Smith 8/14/2017is
+       234                Jay Smith 5/21/2017extra
+";
+
+            StringReader stringReader = new StringReader(lines);
+            List<ExtraPerson> people = mapper.Read(stringReader).ToList();
+            Assert.AreEqual(3, people.Count, "The wrong number of records were read.");
+            Assert.AreEqual("This", people[0].Extra);
+            Assert.AreEqual("is", people[1].Extra);
+            Assert.AreEqual("extra", people[2].Extra);
+
+            StringWriter stringWriter = new StringWriter();
+            mapper.Write(stringWriter, people);
+
+            string formatted = stringWriter.ToString();
+            Assert.AreEqual(lines, formatted, "The records did not round-trip.");
+        }
+
+        internal class ExtraPerson : Person
+        {
+            public String Extra { get; set; }
+        }
     }
 }
