@@ -10,17 +10,17 @@
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Support capturing trailing text after last fixed-length window.</PackageReleaseNotes>
+    <PackageReleaseNotes>Avoid memory leaks by creating new dynamic assemblies each time.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.7.0</Version>
+    <Version>4.8.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <PackageIconUrl>https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/icon.png</PackageIconUrl>
-    <AssemblyVersion>4.7.0.0</AssemblyVersion>
-    <FileVersion>4.7.0.0</FileVersion>
+    <AssemblyVersion>4.8.0.0</AssemblyVersion>
+    <FileVersion>4.8.0.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 

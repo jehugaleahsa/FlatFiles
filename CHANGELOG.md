@@ -1,3 +1,8 @@
+## 4.8.0 (2020-09-17)
+**Summary** - Avoid memory leaks by creating new dynamic assemblies each time.
+
+I was not sure how much of a runtime impact creating a new dynamic assembly would be and so I was trying to optimize the code by storing the `AssemblyBuilder`/`ModuleBuilder` in a static variable. However, I had no mechanism in place to prevent generating duplicate types/methods each time a reader/writer was created, so over time the same emitted code was being added to the dynamic assembly over and over again; a.k.a., a memory leak. At first I tried to implement some sort of caching but then realize that it was almost impossible to uniquely identify a type/column mapping configuration without looking at every property on every mapping. I decided to try creating new assemblies each and every time and that I ran a benchmark. There was no discernable difference in performance, so I think eliminating the premature optimization is the right approach.
+
 ## 4.7.0 (2020-02-15)
 **Summary** - Support capturing trailing text after last fixed-length window.
 
