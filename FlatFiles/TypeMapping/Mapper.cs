@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
-using FlatFiles.Properties;
 
 namespace FlatFiles.TypeMapping
 {

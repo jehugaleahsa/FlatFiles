@@ -83,11 +83,11 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class EmitCodeGenerator : ICodeGenerator
     {
-        private static readonly AssemblyBuilder assemblyBuilder;
-        private static readonly ModuleBuilder moduleBuilder;
-        private static readonly ConcurrentDictionary<string, int> nameLookup = new ConcurrentDictionary<string, int>();
-        
-        static EmitCodeGenerator()
+        private readonly ConcurrentDictionary<string, int> nameLookup = new ConcurrentDictionary<string, int>();
+        private readonly AssemblyBuilder assemblyBuilder;
+        private readonly ModuleBuilder moduleBuilder;
+
+        public EmitCodeGenerator()
         {
             var assemblyName = new AssemblyName("FlatFiles.DynamicAssembly");
             var flatFilesAssembly = typeof(ICodeGenerator).GetTypeInfo().Assembly;
@@ -96,11 +96,11 @@ namespace FlatFiles.TypeMapping
             assemblyName.SetPublicKey(publicKey);
             var publicKeyToken = flatFilesAssemblyName.GetPublicKeyToken();
             assemblyName.SetPublicKeyToken(publicKeyToken);
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("FlatFiles_DynamicModule");
         }
 
-        private static string GetUniqueTypeName(string name)
+        private string GetUniqueTypeName(string name)
         {
             int id = nameLookup.AddOrUpdate(name, 0, (_, old) => old + 1);
             return $"{name}_{id}";
@@ -120,8 +120,8 @@ namespace FlatFiles.TypeMapping
             var generator = methodBuilder.GetILGenerator();
             generator.Emit(OpCodes.Newobj, constructorInfo);
             generator.Emit(OpCodes.Ret);
-            var type = typeBuilder.CreateTypeInfo();
-            var createInfo = type.GetMethod(methodBuilder.Name);
+            var typeInfo = typeBuilder.CreateTypeInfo();
+            var createInfo = typeInfo.GetMethod(methodBuilder.Name);
             return (Func<TEntity>)createInfo.CreateDelegate(typeof(Func<TEntity>));
         }
 
@@ -160,8 +160,7 @@ namespace FlatFiles.TypeMapping
             var typeInfo = typeBuilder.CreateTypeInfo();
             var instance = Activator.CreateInstance(typeInfo.AsType(), (object)mappings);
             var readInfo = typeInfo.GetMethod(methodBuilder.Name);
-            var reader = (Action<IRecordContext, TEntity, object[]>)readInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
-            return reader;
+            return (Action<IRecordContext, TEntity, object[]>)readInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
         }
 
         private static void EmitMemberRead(ILGenerator generator, IMemberMapping mapping)
@@ -291,8 +290,7 @@ namespace FlatFiles.TypeMapping
             var typeInfo = typeBuilder.CreateTypeInfo();
             var instance = Activator.CreateInstance(typeInfo.AsType(), (object)mappings);
             var writeMethodInfo = typeInfo.GetMethod(methodBuilder.Name);
-            var writer = (Action<IRecordContext, TEntity, object[]>)writeMethodInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
-            return writer;
+            return (Action<IRecordContext, TEntity, object[]>)writeMethodInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
         }
 
         private static void EmitMemberWrite(ILGenerator generator, IMemberMapping mapping)
