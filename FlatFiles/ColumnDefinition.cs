@@ -159,6 +159,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets a function used to preprocess input before trying to parse it.
         /// </summary>
+        [Obsolete("This property has been superseded by the OnParsing delegate.")]
         public Func<string, string> Preprocessor { get; set; }
 
         /// <summary>
@@ -256,9 +257,13 @@ namespace FlatFiles
         /// <returns>The parsed value.</returns>
         public override object Parse(IColumnContext context, string value)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (Preprocessor != null)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 value = Preprocessor(value);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             if (OnParsing != null)
             {

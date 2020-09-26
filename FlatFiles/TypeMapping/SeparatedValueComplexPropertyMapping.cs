@@ -43,7 +43,36 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="preprocessor">A preprocessor function.</param>
         /// <returns>The property mapping for further configuration.</returns>
+        [Obsolete("This function has been superseded by the OnParsing function.")]
         ISeparatedValueComplexPropertyMapping Preprocessor(Func<string, string> preprocessor);
+
+        /// <summary>
+        /// Sets the function to run before the input is parsed.
+        /// </summary>
+        /// <param name="handler">A function to call before the textual value is parsed.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ISeparatedValueComplexPropertyMapping OnParsing(Func<IColumnContext, String, String> handler);
+
+        /// <summary>
+        /// Sets the function to run after the input is parsed.
+        /// </summary>
+        /// <param name="handler">A function to call after the value is parsed.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ISeparatedValueComplexPropertyMapping OnParsed(Func<IColumnContext, object, object> handler);
+
+        /// <summary>
+        /// Sets the function to run before the output is formatted as a string.
+        /// </summary>1
+        /// <param name="handler">A function to call before the value is formatted as a string.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ISeparatedValueComplexPropertyMapping OnFormatting(Func<IColumnContext, object, object> handler);
+
+        /// <summary>
+        /// Sets the function to run after the output is formatted as a string.
+        /// </summary>
+        /// <param name="handler">A function to call after the value is formatted as a string.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        ISeparatedValueComplexPropertyMapping OnFormatted(Func<IColumnContext, string, string> handler);
     }
 
     internal sealed class SeparatedValueComplexPropertyMapping<TEntity> : ISeparatedValueComplexPropertyMapping, IMemberMapping
@@ -54,6 +83,10 @@ namespace FlatFiles.TypeMapping
         private INullFormatter nullFormatter;
         private IDefaultValue defaultValue;
         private Func<string, string> preprocessor;
+        private Func<IColumnContext, string, string> onParsing;
+        private Func<IColumnContext, object, object> onParsed;
+        private Func<IColumnContext, object, object> onFormatting;
+        private Func<IColumnContext, string, string> onFormatted;
 
         public SeparatedValueComplexPropertyMapping(
             ISeparatedValueTypeMapper<TEntity> mapper, 
@@ -78,7 +111,13 @@ namespace FlatFiles.TypeMapping
                     Options = options,
                     NullFormatter = nullFormatter,
                     DefaultValue = defaultValue,
-                    Preprocessor = preprocessor
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Preprocessor = preprocessor,
+#pragma warning restore CS0618 // Type or member is obsolete
+                    OnParsing = onParsing,
+                    OnParsed = onParsed,
+                    OnFormatting = onFormatting,
+                    OnFormatted = onFormatted
                 };
 
                 var mapperSource = (IMapperSource<TEntity>)mapper;
@@ -128,6 +167,30 @@ namespace FlatFiles.TypeMapping
         public ISeparatedValueComplexPropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
             this.preprocessor = preprocessor;
+            return this;
+        }
+
+        public ISeparatedValueComplexPropertyMapping OnParsing(Func<IColumnContext, String, String> handler)
+        {
+            this.onParsing = handler;
+            return this;
+        }
+
+        public ISeparatedValueComplexPropertyMapping OnParsed(Func<IColumnContext, object, object> handler)
+        {
+            this.onParsed = handler;
+            return this;
+        }
+
+        public ISeparatedValueComplexPropertyMapping OnFormatting(Func<IColumnContext, object, object> handler)
+        {
+            this.onFormatting = handler;
+            return this;
+        }
+
+        public ISeparatedValueComplexPropertyMapping OnFormatted(Func<IColumnContext, string, string> handler)
+        {
+            this.onFormatted = handler;
             return this;
         }
     }

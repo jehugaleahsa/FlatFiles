@@ -57,7 +57,36 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="preprocessor">A preprocessor function.</param>
         /// <returns>The property mapping for further configuration.</returns>
+        [Obsolete("This function has been superseded by the OnParsing function.")]
         IUInt16PropertyMapping Preprocessor(Func<string, string> preprocessor);
+
+        /// <summary>
+        /// Sets the function to run before the input is parsed.
+        /// </summary>
+        /// <param name="handler">A function to call before the textual value is parsed.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IUInt16PropertyMapping OnParsing(Func<IColumnContext, String, String> handler);
+
+        /// <summary>
+        /// Sets the function to run after the input is parsed.
+        /// </summary>
+        /// <param name="handler">A function to call after the value is parsed.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IUInt16PropertyMapping OnParsed(Func<IColumnContext, object, object> handler);
+
+        /// <summary>
+        /// Sets the function to run before the output is formatted as a string.
+        /// </summary>1
+        /// <param name="handler">A function to call before the value is formatted as a string.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IUInt16PropertyMapping OnFormatting(Func<IColumnContext, object, object> handler);
+
+        /// <summary>
+        /// Sets the function to run after the output is formatted as a string.
+        /// </summary>
+        /// <param name="handler">A function to call after the value is formatted as a string.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IUInt16PropertyMapping OnFormatted(Func<IColumnContext, string, string> handler);
     }
 
     internal sealed class UInt16PropertyMapping : IUInt16PropertyMapping, IMemberMapping
@@ -110,7 +139,33 @@ namespace FlatFiles.TypeMapping
 
         public IUInt16PropertyMapping Preprocessor(Func<string, string> preprocessor)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             column.Preprocessor = preprocessor;
+#pragma warning restore CS0618 // Type or member is obsolete
+            return this;
+        }
+
+        public IUInt16PropertyMapping OnParsing(Func<IColumnContext, String, String> handler)
+        {
+            column.OnParsing = handler;
+            return this;
+        }
+
+        public IUInt16PropertyMapping OnParsed(Func<IColumnContext, object, object> handler)
+        {
+            column.OnParsed = handler;
+            return this;
+        }
+
+        public IUInt16PropertyMapping OnFormatting(Func<IColumnContext, object, object> handler)
+        {
+            column.OnFormatting = handler;
+            return this;
+        }
+
+        public IUInt16PropertyMapping OnFormatted(Func<IColumnContext, string, string> handler)
+        {
+            column.OnFormatted = handler;
             return this;
         }
 

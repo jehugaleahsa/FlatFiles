@@ -80,7 +80,9 @@ namespace FlatFiles.Test
             int preprocessorCallCount = 0;
 
             var column = new TimeSpanColumn("created");
+#pragma warning disable CS0618 // Type or member is obsolete
             column.Preprocessor = (value) => { preprocessorCallCount++; return value; };
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var actual = (TimeSpan?)column.Parse(null, "    ");
             Assert.AreEqual(1, preprocessorCallCount, "Preprocessor function should be called exactly once");

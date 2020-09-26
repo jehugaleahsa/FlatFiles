@@ -134,7 +134,9 @@ namespace FlatFiles.Test
             int preprocessorCallCount = 0;
 
             DateTimeOffsetColumn column = new DateTimeOffsetColumn("created");
+#pragma warning disable CS0618 // Type or member is obsolete
             column.Preprocessor = (value) => { preprocessorCallCount++; return value; };
+#pragma warning restore CS0618 // Type or member is obsolete
 
             DateTime? actual = (DateTime?)column.Parse(null, "    ");
             DateTime? expected = null;
