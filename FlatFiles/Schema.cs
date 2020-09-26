@@ -86,6 +86,8 @@ namespace FlatFiles
                 }
                 else
                 {
+                    var rawValue = values[sourceIndex];
+                    ParseValue(context, columnIndex, -1, rawValue);
                     ++sourceIndex;
                 }
             }
@@ -169,6 +171,11 @@ namespace FlatFiles
                     var formattedValue = FormatValue(context, columnIndex, valueIndex, value);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
+                }
+                else
+                {
+                    var formattedValue = FormatValue(context, columnIndex, -1, null);
+                    formattedValues[columnIndex] = formattedValue;
                 }
             }
             return formattedValues;

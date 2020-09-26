@@ -38,7 +38,22 @@ namespace FlatFiles
         /// <returns>A null.</returns>
         public override object Parse(IColumnContext context, string value)
         {
-            return null;
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (Preprocessor != null)
+            {
+                value = Preprocessor(value);
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+            if (OnParsing != null)
+            {
+                value = OnParsing(context, value);
+            }
+            object result = null;
+            if (OnParsed != null)
+            {
+                result = OnParsed(context, result);
+            }
+            return result;
         }
 
         /// <summary>
@@ -49,7 +64,16 @@ namespace FlatFiles
         /// <returns>A null.</returns>
         public override string Format(IColumnContext context, object value)
         {
-            return NullFormatter.FormatNull(context);
+            if (OnFormatting != null)
+            {
+                value = OnFormatting(context, value);
+            }
+            string result = NullFormatter.FormatNull(context);
+            if (OnFormatted != null)
+            {
+                result = OnFormatted(context, result);
+            }
+            return result;
         }
     }
 }

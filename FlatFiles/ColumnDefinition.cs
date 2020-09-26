@@ -259,31 +259,33 @@ namespace FlatFiles
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             if (Preprocessor != null)
-#pragma warning restore CS0618 // Type or member is obsolete
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 value = Preprocessor(value);
-#pragma warning restore CS0618 // Type or member is obsolete
             }
+#pragma warning restore CS0618 // Type or member is obsolete
             if (OnParsing != null)
             {
                 value = OnParsing(context, value);
             }
-            if (NullFormatter.IsNullValue(context, value))
-            {
-                if (IsNullable)
-                {
-                    return null;
-                }
-                return DefaultValue.GetDefaultValue(context);  // Should we check for the expected type?
-            }
-            string trimmed = IsTrimmed ? TrimValue(value) : value;
-            object result = OnParse(context, trimmed);
+            object result = ParseValue(context, value);
             if (OnParsed != null)
             {
                 result = OnParsed(context, result);
             }
             return result;
+        }
+
+        private object ParseValue(IColumnContext context, string value)
+        {
+            if (NullFormatter.IsNullValue(context, value))
+            {
+                return IsNullable ? null : DefaultValue.GetDefaultValue(context); // Should we check for the expected type?
+            }
+            else
+            {
+                string trimmed = IsTrimmed ? TrimValue(value) : value;
+                return OnParse(context, trimmed);
+            }
         }
 
         /// <summary>
@@ -311,16 +313,24 @@ namespace FlatFiles
             {
                 value = OnFormatting(context, value);
             }
-            if (value == null)
-            {
-                return NullFormatter.FormatNull(context);
-            }
-            string result = OnFormat(context, (T)value);
+            string result = FormatValue(context, value);
             if (OnFormatted != null)
             {
                 result = OnFormatted(context, result);
             }
             return result;
+        }
+
+        private string FormatValue(IColumnContext context, object value)
+        {
+            if (value == null)
+            {
+                return NullFormatter.FormatNull(context);
+            }
+            else
+            {
+                return OnFormat(context, (T)value);
+            }
         }
 
         /// <summary>
