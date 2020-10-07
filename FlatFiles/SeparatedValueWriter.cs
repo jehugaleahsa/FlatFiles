@@ -108,7 +108,7 @@ namespace FlatFiles
         }
 
         /// <summary>
-        /// Write the textual representation of the record schema to the writer.
+        /// Write the textual representation of the record schema.
         /// </summary>
         /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
         public void WriteSchema()

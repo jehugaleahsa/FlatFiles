@@ -37,6 +37,16 @@ namespace FlatFiles.TypeMapping
             return writer.GetSchema();
         }
 
+        public void WriteSchema()
+        {
+            writer.WriteSchema();
+        }
+
+        public async Task WriteSchemaAsync()
+        {
+            await writer.WriteSchemaAsync().ConfigureAwait(false);
+        }
+
         public void Write(object entity)
         {
             writer.Write((TEntity)entity);

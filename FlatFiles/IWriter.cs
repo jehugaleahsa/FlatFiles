@@ -25,6 +25,18 @@ namespace FlatFiles
         ISchema GetSchema();
 
         /// <summary>
+        /// Write the textual representation of the record schema.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        void WriteSchema();
+
+        /// <summary>
+        /// Write the textual representation of the record schema.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        Task WriteSchemaAsync();
+
+        /// <summary>
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>

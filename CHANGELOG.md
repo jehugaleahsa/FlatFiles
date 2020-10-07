@@ -1,3 +1,8 @@
+## 4.10.0 (2020-10-06)
+**Summary** - Add the ability to explicitly write the schema using typed writers.
+
+I never added support for writing the schema using typed writers. I never added `WriteSchema` and `WriteSchemaAsync` to the `IWriter` interface either. I don't see why not, so I added them.
+
 ## 4.9.0 (2020-09-26)
 **Summary** - Make OnParsing, OnParsed, OnFormatting, OnFormatted events available to type mappings.
 

@@ -33,6 +33,18 @@ namespace FlatFiles.TypeMapping
         ISchema GetSchema();
 
         /// <summary>
+        /// Write the textual representation of the record schema.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        void WriteSchema();
+
+        /// <summary>
+        /// Write the textual representation of the record schema to the writer.
+        /// </summary>
+        /// <remarks>If the header or records have already been written, this call is ignored.</remarks>
+        Task WriteSchemaAsync();
+
+        /// <summary>
         /// Writes the given entity to the underlying document.
         /// </summary>
         /// <param name="entity">The entity to write.</param>
@@ -82,6 +94,16 @@ namespace FlatFiles.TypeMapping
         public ISchema GetSchema()
         {
             return writer.GetSchema();
+        }
+
+        public void WriteSchema()
+        {
+            writer.WriteSchema();
+        }
+
+        public async Task WriteSchemaAsync()
+        {
+            await writer.WriteSchemaAsync().ConfigureAwait(false);
         }
 
         public void Write(TEntity entity)
@@ -144,6 +166,16 @@ namespace FlatFiles.TypeMapping
         public ISchema GetSchema()
         {
             return null;
+        }
+
+        public void WriteSchema()
+        {
+            writer.WriteSchema();
+        }
+
+        public async Task WriteSchemaAsync()
+        {
+            await writer.WriteSchemaAsync().ConfigureAwait(false);
         }
 
         public void Write(object entity)
