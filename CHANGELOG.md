@@ -1,3 +1,8 @@
+## 4.11.0 (2020-10-09)
+**Summary* - Allow handling unrecognized rows when using schema selectors.
+
+Previously, if a record was encountered that could be handled by any of the configured schemas, the selector would throw a generic `FlatFilesException`. Now, a `RecordProcessingException`is thrown instead, which can be ignored causing the record to be skipped.
+
 ## 4.10.0 (2020-10-06)
 **Summary** - Add the ability to explicitly write the schema using typed writers.
 

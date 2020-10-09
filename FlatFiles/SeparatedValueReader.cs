@@ -360,11 +360,24 @@ namespace FlatFiles
             {
                 return metadata.ExecutionContext.Schema;
             }
-            return schemaSelector.GetSchema(rawValues);
+            SeparatedValueSchema schema = schemaSelector.GetSchema(rawValues);
+            if (schema != null)
+            {
+                return schema;
+            }
+            ProcessError(new RecordProcessingException(metadata, Resources.MissingMatcher));
+            return null;
         }
 
         private bool IsSkipped(string[] values)
         {
+            if (metadata.ExecutionContext.Schema == null && schemaSelector != null)
+            {
+                // A schema was not found by the selector for the given record.
+                // If we got here then we know the raised exception was handled and suppressed.
+                // Therefore we skip the record and go on to the next one.
+                return true;
+            }
             if (RecordRead == null)
             {
                 return false;

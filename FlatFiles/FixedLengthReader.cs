@@ -413,7 +413,13 @@ namespace FlatFiles
             {
                 return metadata.ExecutionContext.Schema;
             }
-            return schemaSelector.GetSchema(record);
+            FixedLengthSchema schema = schemaSelector.GetSchema(record);
+            if (schema != null)
+            {
+                return schema;
+            }
+            ProcessError(new RecordProcessingException(metadata, Resources.MissingMatcher));
+            return null;
         }
 
         private string ReadNextRecord()

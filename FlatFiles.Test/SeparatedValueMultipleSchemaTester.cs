@@ -201,6 +201,27 @@ namespace FlatFiles.Test
             Assert.IsFalse(reader.Read());
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(RecordProcessingException))]
+        public void TestReader_UnknownType()
+        {
+            var stringReader = new StringReader("What's this weird thing?");
+            var selector = getSchemaSelector();
+            var reader = new SeparatedValueReader(stringReader, selector);
+
+            reader.Read();
+        }
+
+        [TestMethod]
+        public void TestReader_UnknownType_IgnoreUnknown_SkipsRecord()
+        {
+            var stringReader = new StringReader("What's this weird thing?");
+            var selector = getSchemaSelector();
+            var reader = new SeparatedValueReader(stringReader, selector);
+            reader.RecordError += (o, e) => e.IsHandled = true;
+            Assert.IsFalse(reader.Read());
+        }
+
         private SeparatedValueTypeMapperSelector getTypeMapperSelector(bool hasMetadata = false)
         {
             var selector = new SeparatedValueTypeMapperSelector();

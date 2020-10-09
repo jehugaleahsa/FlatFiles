@@ -92,7 +92,7 @@ namespace FlatFiles
                 defaultMatcher.Action?.Invoke();
                 return defaultMatcher.Schema;
             }
-            throw new FlatFileException(Resources.MissingMatcher);
+            return null;
         }
 
         private class SchemaMatcher
