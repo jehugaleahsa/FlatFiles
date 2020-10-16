@@ -2,6 +2,7 @@
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -453,6 +454,55 @@ namespace FlatFiles.Test
 ,2,,John,,07/17/2018,,23.45,
 ,3,,Susan,,07/18/2018,,34.56,
 ", output);
+        }
+
+        [TestMethod]
+        public void TestReadFlatFile_DuplicateHeaderNames()
+        {
+            string data = @"ID,Description,Date,Time,Price,Date,Time,Price
+""1"",""Net Profit"",""8/3/2020"",""9:58:48"",""$111.11"",""8/3/2020"",""10:41:10"",""$333.33""
+""2"",""Net Loss"",""8/3/2020"",""14:41:10"",""$444.44"",""8/3/2020"",""16:29:08"",""$222.22""";
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("ID"));
+            schema.AddColumn(new StringColumn("Description"));
+            schema.AddColumn(new DateTimeColumn("PurchaseDate"));
+            schema.AddColumn(new TimeSpanColumn("PurchaseTime"));
+            schema.AddColumn(new DecimalColumn("PurchasePrice")
+            {
+                NumberStyles = NumberStyles.Currency
+            });
+            schema.AddColumn(new DateTimeColumn("SellDate"));
+            schema.AddColumn(new TimeSpanColumn("SellTime"));
+            schema.AddColumn(new DecimalColumn("SellPrice")
+            {
+                NumberStyles = NumberStyles.Currency
+            });
+
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+            var reader = new SeparatedValueReader(new StringReader(data), schema, options);
+
+            DataTable dataTable = new DataTable();
+            dataTable.ReadFlatFile(reader);
+
+            Assert.AreEqual(2, dataTable.Rows.Count);
+            var actualColumns = dataTable.Columns.OfType<DataColumn>().Select(x => x.ColumnName).ToArray();
+            CollectionAssert.AreEqual(new string[]
+                {
+                    "ID", "Description", "PurchaseDate", "PurchaseTime", "PurchasePrice", "SellDate", "SellTime", "SellPrice"
+                }, actualColumns);
+            CollectionAssert.AreEqual(new object[]
+                {
+                    1, "Net Profit", new DateTime(2020, 8, 3), new TimeSpan(9, 58, 48), 
+                    111.11m, new DateTime(2020, 8, 3), new TimeSpan(10, 41, 10), 333.33m
+                }, dataTable.Rows[0].ItemArray);
+            CollectionAssert.AreEqual(new object[]
+                {
+                    2, "Net Loss", new DateTime(2020, 8, 3), new TimeSpan(14, 41, 10),
+                    444.44m, new DateTime(2020, 8, 3), new TimeSpan(16, 29, 08), 222.22m
+                }, dataTable.Rows[1].ItemArray);
         }
     }
 }
