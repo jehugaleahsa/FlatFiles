@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -411,6 +414,39 @@ namespace FlatFiles.Test
 2,John,23.45
 3,Susan,34.56
 ", output);
+        }
+
+        [TestMethod]
+        public void TestReadFlatFile_IgnoredColumns2()
+        {
+            const string data =
+@"A,B,C
+1,2,3
+4,5,6";
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("A"));
+            schema.AddColumn(new IgnoredColumn("Ignored"));
+            schema.AddColumn(new StringColumn("C"));
+
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+
+            var textReader = new StringReader(data);
+            var csvReader = new SeparatedValueReader(textReader, schema, options);
+
+            DataTable dataTable = new DataTable();
+            dataTable.ReadFlatFile(csvReader);
+            string[] columnNames = dataTable.Columns.OfType<DataColumn>()
+                .Select(r => r.ColumnName)
+                .ToArray();
+            CollectionAssert.AreEqual(new[] { "A", "C" }, columnNames);
+            Assert.AreEqual(2, dataTable.Rows.Count);
+            object[] values1 = dataTable.Rows[0].ItemArray;
+            CollectionAssert.AreEqual(new[] { "1", "3" }, values1);
+            object[] values2 = dataTable.Rows[1].ItemArray;
+            CollectionAssert.AreEqual(new[] { "4", "6" }, values2);
         }
 
         [TestMethod]

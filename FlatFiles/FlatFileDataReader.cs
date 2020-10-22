@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 
 namespace FlatFiles
 {
@@ -60,6 +61,7 @@ namespace FlatFiles
     public sealed class FlatFileDataReader : IDataReader, IFlatFileDataRecord
     {
         private ISchema schema;  // cached
+        private ColumnCollection columns; // cached
         private object[] values; // cached
 
         /// <summary>
@@ -124,9 +126,9 @@ namespace FlatFiles
         {
             var schema = GetSchema();
             var schemaTable = GetEmptySchemaDataTable(schema);
-            for (int index = 0; index != schema.ColumnDefinitions.Count; ++index)
+            for (int index = 0, count = columns.Count; index != count; ++index)
             {
-                var column = schema.ColumnDefinitions[index];
+                var column = columns[index];
                 object[] values = new object[]
                 {
                     true,  // AllowDBNull
@@ -165,7 +167,7 @@ namespace FlatFiles
         {
             DataTable schemaTable = new DataTable();
             schemaTable.Locale = CultureInfo.InvariantCulture;
-            schemaTable.MinimumCapacity = schema.ColumnDefinitions.Count;
+            schemaTable.MinimumCapacity = schema.ColumnDefinitions.PhysicalCount;
             schemaTable.Columns.AddRange(new[]
             {
                 new DataColumn(SchemaTableColumn.AllowDBNull, typeof(Boolean)),
@@ -229,7 +231,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of fields in the current record.
         /// </summary>
-        public int FieldCount => GetSchema().ColumnDefinitions.Count;
+        public int FieldCount {
+            get {
+                GetSchema();
+                return columns.Count;
+            }
+        }
 
         /// <summary>
         /// Gets the boolean value from the current record at the given index.
@@ -322,8 +329,8 @@ namespace FlatFiles
         /// <returns>The type name.</returns>
         public string GetDataTypeName(int i)
         {
-            var schema = GetSchema();
-            return schema.ColumnDefinitions[i].ColumnType.Name;
+            GetSchema();
+            return columns[i].ColumnType.Name;
         }
 
         /// <summary>
@@ -377,8 +384,8 @@ namespace FlatFiles
         /// <returns>The type of the value at the given index.</returns>
         public Type GetFieldType(int i)
         {
-            var schema = GetSchema();
-            return schema.ColumnDefinitions[i].ColumnType;
+            GetSchema();
+            return columns[i].ColumnType;
         }
 
         /// <summary>
@@ -443,8 +450,8 @@ namespace FlatFiles
         /// <returns>The name of the column at the given index.</returns>
         public string GetName(int i)
         {
-            var schema = GetSchema();
-            return schema.ColumnDefinitions[i].ColumnName;
+            GetSchema();
+            return columns[i].ColumnName;
         }
 
         /// <summary>
@@ -454,8 +461,8 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name.</returns>
         public int GetOrdinal(string name)
         {
-            var schema = GetSchema();
-            return schema.GetOrdinal(name);
+            GetSchema();
+            return columns.GetOrdinal(name);
         }
 
         /// <summary>
@@ -609,6 +616,14 @@ namespace FlatFiles
             if (schema == null)
             {
                 schema = Reader.GetSchema();
+                columns = new ColumnCollection();
+                foreach (ColumnDefinition column in schema.ColumnDefinitions)
+                {
+                    if (!column.IsIgnored)
+                    {
+                        columns.AddColumn(column);
+                    }
+                }
             }
             return schema;
         }

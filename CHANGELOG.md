@@ -1,3 +1,10 @@
+## 4.12.0 (2020-10-21)
+**Summary** - `FlatFileDataReader` not correctly ignoring ignored columns in several places.
+
+The ADO.NET classes didn't receive the same level of love that the rest of the library received when introducing ignored columns. When getting the column names, their ordinal positions, etc., the `FlatFileDataReader` was returning information for ignored columns. This caused the `DataTable` extensions to see too many column names and yet receive too few record values in the table (with the data shifted to the left for each missing column). Fixing the `FlatFileDataReader` fixed the `DataTable` problems, as well.
+
+Technically this is a breaking change that might warrant a major version change; however, as the previous behavior could not possibly be desired and few people actually use the ADO.NET classes, I am going to include this in the next minor version, treating it as just a bug fix.
+
 ## 4.11.0 (2020-10-09)
 **Summary* - Allow handling unrecognized rows when using schema selectors.
 

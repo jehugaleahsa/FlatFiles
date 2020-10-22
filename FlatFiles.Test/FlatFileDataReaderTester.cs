@@ -146,5 +146,48 @@ namespace FlatFiles.Test
             var dataReader = new FlatFileDataReader(csvReader);
             return dataReader;
         }
+
+        [TestMethod]
+        public void TestFlatFileReader_IgnoreIgnoredColumns()
+        {
+            const string data =
+@"A,B,C
+1,2,3
+4,5,6";
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("A"));
+            schema.AddColumn(new IgnoredColumn("Ignored"));
+            schema.AddColumn(new StringColumn("C"));
+
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+
+            var textReader = new StringReader(data);
+            var csvReader = new SeparatedValueReader(textReader, schema, options);
+            using (var dataReader = new FlatFileDataReader(csvReader))
+            {
+                Assert.AreEqual("A", dataReader.GetName(0));
+                Assert.AreEqual("C", dataReader.GetName(1));
+                Assert.AreEqual(0, dataReader.GetOrdinal("A"));
+                Assert.AreEqual(-1, dataReader.GetOrdinal("B"));
+                Assert.AreEqual(1, dataReader.GetOrdinal("C"));
+
+                var schemaTable = dataReader.GetSchemaTable();
+                string[] columnNames = schemaTable.Rows.OfType<DataRow>()
+                    .Select(r => r.Field<string>("ColumnName"))
+                    .ToArray();
+                CollectionAssert.AreEqual(new[] { "A", "C" }, columnNames);
+
+                Assert.IsTrue(dataReader.Read());
+                object[] values1 = dataReader.GetValues();
+                CollectionAssert.AreEqual(new[] { "1", "3" }, values1);
+                Assert.IsTrue(dataReader.Read());
+                object[] values2 = dataReader.GetValues();
+                CollectionAssert.AreEqual(new[] { "4", "6" }, values2);
+                Assert.IsFalse(dataReader.Read());
+            }
+        }
     }
 }
