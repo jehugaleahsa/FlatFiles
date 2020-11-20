@@ -83,7 +83,7 @@
 
         public string Trim(string value)
         {
-            if (value.Length > 0 || value[value.Length - 1] == first)
+            if (value.Length > 0 && value[value.Length - 1] == first)
             {
                 return value.Substring(0, value.Length - 1);
             }
