@@ -316,7 +316,15 @@ namespace FlatFiles.Test
         {
             DataTable table = new DataTable();
             DataColumn idColumn = table.Columns.Add("id", typeof(int));
+            table.Columns.Add("name", typeof(string));
+            table.Columns.Add("created", typeof(DateTime));
+            table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
+
+            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
+            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
+            table.Rows.Add(new object[] { 4, null, null, null });
 
             var options = new SeparatedValueOptions()
             {
@@ -348,7 +356,13 @@ namespace FlatFiles.Test
         {
             DataTable table = new DataTable();
             DataColumn idColumn = table.Columns.Add("id", typeof(int));
+            table.Columns.Add("name", typeof(string));
+            table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
+
+            table.Rows.Add(new object[] { 1, "Bob", 12.34m });
+            table.Rows.Add(new object[] { 2, "John", 23.45m });
+            table.Rows.Add(new object[] { 3, "Susan", 34.56m });
 
             var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             var stringWriter = new StringWriter();
@@ -374,7 +388,14 @@ namespace FlatFiles.Test
         {
             DataTable table = new DataTable();
             DataColumn idColumn = table.Columns.Add("id", typeof(int));
+            table.Columns.Add("name", typeof(string));
+            table.Columns.Add("created", typeof(DateTime));
+            table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
+
+            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
+            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
 
             var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
             var stringWriter = new StringWriter();
@@ -432,7 +453,14 @@ namespace FlatFiles.Test
         {
             DataTable table = new DataTable();
             DataColumn idColumn = table.Columns.Add("id", typeof(int));
+            table.Columns.Add("name", typeof(string));
+            table.Columns.Add("created", typeof(DateTime));
+            table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
+
+            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
+            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
 
             var options = new SeparatedValueOptions()
             {
