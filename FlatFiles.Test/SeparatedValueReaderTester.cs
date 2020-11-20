@@ -5,7 +5,6 @@ using System.Globalization;
 using FlatFiles.TypeMapping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace FlatFiles.Test
 {
@@ -619,21 +618,21 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             StringReader stringReader = new StringReader(text);
             SeparatedValueReader reader = new SeparatedValueReader(stringReader);
             Assert.IsTrue(reader.Read(), "Could not read the first record.");
-            assertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
+            AssertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
             Assert.IsTrue(reader.Read(), "Could not read the second record.");
-            assertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
+            AssertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
             Assert.IsTrue(reader.Read(), "Could not read the third record.");
-            assertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
+            AssertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
             Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
-            assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
+            AssertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
             Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
-            assertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
+            AssertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
             Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
-            assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
+            AssertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
             Assert.IsFalse(reader.Read(), "Read too many records.");
         }
 
-        private static void assertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)
+        private static void AssertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)
         {
             object[] values = reader.GetValues();
             Assert.AreEqual(6, values.Length);
