@@ -142,6 +142,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             HandleHeader();
             try
             {
@@ -172,6 +174,7 @@ namespace FlatFiles
         private object[] ParsePartitions()
         {
             var rawValues = PartitionWithFilter();
+            metadata.Values = rawValues;
             while (rawValues != null)
             {
                 var values = ParseValues(rawValues);
@@ -218,6 +221,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             await HandleHeaderAsync().ConfigureAwait(false);
             try
             {
@@ -248,6 +253,7 @@ namespace FlatFiles
         private async Task<object[]> ParsePartitionsAsync()
         {
             var rawValues = await PartitionWithFilterAsync().ConfigureAwait(false);
+            metadata.Values = rawValues;
             while (rawValues != null)
             {
                 var values = ParseValues(rawValues);
@@ -430,6 +436,7 @@ namespace FlatFiles
                 return null;
             }
             var record = parser.ReadRecord();
+            metadata.Record = record;
             ++metadata.PhysicalRecordNumber;
             return record;
         }
@@ -442,6 +449,7 @@ namespace FlatFiles
                 return null;
             }
             var record = await parser.ReadRecordAsync().ConfigureAwait(false);
+            metadata.Record = record;
             ++metadata.PhysicalRecordNumber;
             return record;
         }

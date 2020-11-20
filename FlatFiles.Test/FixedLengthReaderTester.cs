@@ -143,6 +143,31 @@ namespace FlatFiles.Test
         }
 
         /// <summary>
+        /// We should be able to inspect each raw record as we process a file.
+        /// </summary>
+        [TestMethod]
+        public void TestRead_InspectRawRecords()
+        {
+            FixedLengthSchema schema = new FixedLengthSchema();
+            schema.AddColumn(new Int32Column("id"), 10)
+                  .AddColumn(new StringColumn("name"), 25)
+                  .AddColumn(new DateTimeColumn("created"), 10);
+
+            const string text = @"       123                      Bob 1/19/2013";
+            StringReader stringReader = new StringReader(text);
+            var reader = new FixedLengthReader(stringReader, schema);
+            reader.RecordRead += (sender, e) => {
+                Assert.AreEqual(@"       123                      Bob 1/19/2013", e.Record);
+            };
+            reader.RecordParsed += (sender, e) => {
+                Assert.AreEqual(@"       123                      Bob 1/19/2013", e.RecordContext.Record);
+                CollectionAssert.AreEqual(new[] { "       123", "                      Bob", " 1/19/2013" }, e.RecordContext.Values);
+            };
+            Assert.IsTrue(reader.Read());
+            Assert.IsFalse(reader.Read());
+        }
+
+        /// <summary>
         /// If we provide a schema, it will be used to parse the values
         /// and can be retrieved.
         /// </summary>

@@ -178,6 +178,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             HandleSchema();
             try
             {
@@ -267,6 +269,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             await HandleSchemaAsync().ConfigureAwait(false);
             try
             {
@@ -487,7 +491,9 @@ namespace FlatFiles
             }
             try
             {
-                string[] results = parser.ReadRecord();
+                (string record, string[] results) = parser.ReadRecord();
+                metadata.Record = record;
+                metadata.Values = results;
                 ++metadata.PhysicalRecordNumber;
                 return results;
             }
@@ -507,7 +513,9 @@ namespace FlatFiles
             }
             try
             {
-                string[] results = await parser.ReadRecordAsync().ConfigureAwait(false);
+                (string record, string[] results) = await parser.ReadRecordAsync().ConfigureAwait(false);
+                metadata.Record = record;
+                metadata.Values = results;
                 ++metadata.PhysicalRecordNumber;
                 return results;
             }

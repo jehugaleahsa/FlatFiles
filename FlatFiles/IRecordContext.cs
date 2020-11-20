@@ -21,6 +21,16 @@ namespace FlatFiles
         /// Gets the index of the record being processed, ignoring skipped records.
         /// </summary>
         int LogicalRecordNumber { get; }
+
+        /// <summary>
+        /// Gets the record being processed when the error occurred.
+        /// </summary>
+        string Record { get; }
+
+        /// <summary>
+        /// Gets the partitioned values being processed when the error occurred.
+        /// </summary>
+        string[] Values { get; }
     }
 
     /// <summary>
@@ -64,6 +74,10 @@ namespace FlatFiles
 
         public int LogicalRecordNumber { get; set; }
 
+        public string Record { get; set; }
+
+        public string[] Values { get; set; }
+
         IFixedLengthExecutionContext IFixedLengthRecordContext.ExecutionContext => ExecutionContext;
 
         IExecutionContext IRecordContext.ExecutionContext => ExecutionContext;
@@ -85,6 +99,10 @@ namespace FlatFiles
         public int PhysicalRecordNumber { get; set; }
 
         public int LogicalRecordNumber { get; set; }
+
+        public string Record { get; set; }
+
+        public string[] Values { get; set; }
 
         ISeparatedValueExecutionContext ISeparatedValueRecordContext.ExecutionContext => ExecutionContext;
 

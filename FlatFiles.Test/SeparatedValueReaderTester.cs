@@ -5,6 +5,7 @@ using System.Globalization;
 using FlatFiles.TypeMapping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace FlatFiles.Test
 {
@@ -258,6 +259,32 @@ This is not a real record
             CollectionAssert.AreEqual(new object[] { 234, "Jay Smith", new DateTime(2017, 05, 21) }, actual2);
 
             Assert.IsFalse(parser.Read(), "There should not be any more records.");
+        }
+
+        /// <summary>
+        /// We should be able to inspect each raw record as we process a file.
+        /// </summary>
+        [TestMethod]
+        public void TestRead_InspectRawRecords()
+        {
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+
+            const string text = @"123,""Bob Smith"",4/21/2017";
+            StringReader stringReader = new StringReader(text);
+            var reader = new SeparatedValueReader(stringReader, schema);
+            reader.RecordRead += (sender, e) => {
+                Assert.AreEqual(@"123,""Bob Smith"",4/21/2017", e.RecordContext.Record);
+                CollectionAssert.AreEqual(new[] { "123", "Bob Smith", "4/21/2017" }, e.RecordContext.Values);
+            };
+            reader.RecordParsed += (sender, e) => {
+                Assert.AreEqual(@"123,""Bob Smith"",4/21/2017", e.RecordContext.Record);
+                CollectionAssert.AreEqual(new[] { "123", "Bob Smith", "4/21/2017" }, e.RecordContext.Values);
+            };
+            Assert.IsTrue(reader.Read());
+            Assert.IsFalse(reader.Read());
         }
 
         internal class Person
