@@ -142,6 +142,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             HandleHeader();
             try
             {
@@ -165,13 +167,14 @@ namespace FlatFiles
         {
             if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
-                skip();
+                SkipInternal();
             }
         }
 
         private object[] ParsePartitions()
         {
             var rawValues = PartitionWithFilter();
+            metadata.Values = rawValues;
             while (rawValues != null)
             {
                 var values = ParseValues(rawValues);
@@ -218,6 +221,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             await HandleHeaderAsync().ConfigureAwait(false);
             try
             {
@@ -241,13 +246,14 @@ namespace FlatFiles
         {
             if (metadata.PhysicalRecordNumber == 0 && metadata.ExecutionContext.Options.IsFirstRecordHeader)
             {
-                await skipAsync().ConfigureAwait(false);
+                await SkipAsyncInternal().ConfigureAwait(false);
             }
         }
 
         private async Task<object[]> ParsePartitionsAsync()
         {
             var rawValues = await PartitionWithFilterAsync().ConfigureAwait(false);
+            metadata.Values = rawValues;
             while (rawValues != null)
             {
                 var values = ParseValues(rawValues);
@@ -329,10 +335,10 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             HandleHeader();
-            return skip();
+            return SkipInternal();
         }
 
-        private bool skip()
+        private bool SkipInternal()
         {
             var record = ReadNextRecord();
             return record != null;
@@ -350,10 +356,10 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await HandleHeaderAsync().ConfigureAwait(false);
-            return await skipAsync().ConfigureAwait(false);
+            return await SkipAsyncInternal().ConfigureAwait(false);
         }
 
-        private async ValueTask<bool> skipAsync()
+        private async ValueTask<bool> SkipAsyncInternal()
         {
             var record = await ReadNextRecordAsync().ConfigureAwait(false);
             return record != null;
@@ -430,6 +436,7 @@ namespace FlatFiles
                 return null;
             }
             var record = parser.ReadRecord();
+            metadata.Record = record;
             ++metadata.PhysicalRecordNumber;
             return record;
         }
@@ -442,6 +449,7 @@ namespace FlatFiles
                 return null;
             }
             var record = await parser.ReadRecordAsync().ConfigureAwait(false);
+            metadata.Record = record;
             ++metadata.PhysicalRecordNumber;
             return record;
         }

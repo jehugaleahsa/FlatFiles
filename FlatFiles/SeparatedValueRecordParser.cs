@@ -57,28 +57,30 @@ namespace FlatFiles
             token.Clear();
         }
 
-        public string[] ReadRecord()
+        public (string, string[]) ReadRecord()
         {
             TokenType tokenType = GetNextToken();
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = GetNextToken();
             }
+            string record = recordSeparatorMatcher.Trim(reader.GetRecord());
             string[] results = tokens.ToArray();
             tokens.Clear();
-            return results;
+            return (record, results);
         }
 
-        public async Task<string[]> ReadRecordAsync()
+        public async Task<(string, string[])> ReadRecordAsync()
         {
             TokenType tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             }
+            string record = reader.GetRecord();
             string[] results = tokens.ToArray();
             tokens.Clear();
-            return results;
+            return (record, results);
         }
 
         private TokenType GetNextToken()

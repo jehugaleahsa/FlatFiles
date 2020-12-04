@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FlatFiles
 {
     internal sealed class RetryReader
     {
+        private readonly StringBuilder record = new StringBuilder();
         private readonly CircularQueue<char> queue = new CircularQueue<char>(4096);
         private readonly TextReader reader;
         private bool isEndOfStreamFound;
@@ -28,8 +30,10 @@ namespace FlatFiles
             {
                 return false;
             }
-            Current = queue.Peek();
+            char current = queue.Peek();
+            Current = current;
             queue.Dequeue(1);
+            record.Append(current);
             return true;
         }
 
@@ -74,6 +78,7 @@ namespace FlatFiles
             {
                 return false;
             }
+            record.Append(queue.Peek());
             queue.Dequeue(1);
             return true;
         }
@@ -84,6 +89,7 @@ namespace FlatFiles
             {
                 return false;
             }
+            record.Append(value);
             queue.Dequeue(1);
             return true;
         }
@@ -94,6 +100,8 @@ namespace FlatFiles
             {
                 return false;
             }
+            record.Append(first);
+            record.Append(second);
             queue.Dequeue(2);
             return true;
         }
@@ -111,8 +119,16 @@ namespace FlatFiles
                     return false;
                 }
             }
+            record.Append(value);
             queue.Dequeue(value.Length);
             return true;
+        }
+
+        public string GetRecord()
+        {
+            string record = this.record.ToString();
+            this.record.Clear();
+            return record;
         }
     }
 }

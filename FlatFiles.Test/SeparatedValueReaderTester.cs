@@ -260,6 +260,32 @@ This is not a real record
             Assert.IsFalse(parser.Read(), "There should not be any more records.");
         }
 
+        /// <summary>
+        /// We should be able to inspect each raw record as we process a file.
+        /// </summary>
+        [TestMethod]
+        public void TestRead_InspectRawRecords()
+        {
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new Int32Column("id"))
+                  .AddColumn(new StringColumn("name"))
+                  .AddColumn(new DateTimeColumn("created"));
+
+            const string text = @"123,""Bob Smith"",4/21/2017";
+            StringReader stringReader = new StringReader(text);
+            var reader = new SeparatedValueReader(stringReader, schema);
+            reader.RecordRead += (sender, e) => {
+                Assert.AreEqual(@"123,""Bob Smith"",4/21/2017", e.RecordContext.Record);
+                CollectionAssert.AreEqual(new[] { "123", "Bob Smith", "4/21/2017" }, e.RecordContext.Values);
+            };
+            reader.RecordParsed += (sender, e) => {
+                Assert.AreEqual(@"123,""Bob Smith"",4/21/2017", e.RecordContext.Record);
+                CollectionAssert.AreEqual(new[] { "123", "Bob Smith", "4/21/2017" }, e.RecordContext.Values);
+            };
+            Assert.IsTrue(reader.Read());
+            Assert.IsFalse(reader.Read());
+        }
+
         internal class Person
         {
             public int Id { get; set; }
@@ -592,21 +618,21 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             StringReader stringReader = new StringReader(text);
             SeparatedValueReader reader = new SeparatedValueReader(stringReader);
             Assert.IsTrue(reader.Read(), "Could not read the first record.");
-            assertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
+            AssertValues(reader, "John", "Doe", "120 jefferson st.", "Riverside", "NJ", "08075");
             Assert.IsTrue(reader.Read(), "Could not read the second record.");
-            assertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
+            AssertValues(reader, "Jack", "McGinnis", "220 hobo Av.", "Phila", "PA", "09119");
             Assert.IsTrue(reader.Read(), "Could not read the third record.");
-            assertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
+            AssertValues(reader, "John \"Da Man\"", "Repici", "120 Jefferson St.", "Riverside", "NJ", "08075");
             Assert.IsTrue(reader.Read(), "Could not read the fourth record.");
-            assertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
+            AssertValues(reader, "Stephen", "Tyler", "7452 Terrace \"At the Plaza\" road", "SomeTown", "SD", "91234");
             Assert.IsTrue(reader.Read(), "Could not read the fifth record.");
-            assertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
+            AssertValues(reader, null, "Blankman",null, "SomeTown", "SD", "00298");
             Assert.IsTrue(reader.Read(), "Could not read the sixth record.");
-            assertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
+            AssertValues(reader, "Joan \"the bone\", Anne", "Jet", "9th, at Terrace plc", "Desert City", "CO", "00123");
             Assert.IsFalse(reader.Read(), "Read too many records.");
         }
 
-        private static void assertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)
+        private static void AssertValues(SeparatedValueReader reader, string firstName, string lastName, string street, string city, string state, string zip)
         {
             object[] values = reader.GetValues();
             Assert.AreEqual(6, values.Length);

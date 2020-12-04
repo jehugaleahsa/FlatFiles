@@ -5,6 +5,8 @@
         int Size { get; }
 
         bool IsMatch();
+
+        string Trim(string value);
     }
 
     internal static class SeparatorMatcher
@@ -44,6 +46,21 @@
             }
             return reader.IsMatch1('\n');
         }
+
+        public string Trim(string value)
+        {
+            int length = value.Length;
+            if (length > 0 && value[value.Length - 1] == '\n')
+            {
+                --length;
+                if (length > 1 && value[value.Length - 2] == '\r')
+                {
+                    --length;
+                }
+                return value.Substring(0, length);
+            }
+            return value;
+        }
     }
 
     internal sealed class OneCharacterSeparatorMatcher : ISeparatorMatcher
@@ -62,6 +79,15 @@
         public bool IsMatch()
         {
             return reader.IsMatch1(first);
+        }
+
+        public string Trim(string value)
+        {
+            if (value.Length > 0 && value[value.Length - 1] == first)
+            {
+                return value.Substring(0, value.Length - 1);
+            }
+            return value;
         }
     }
 
@@ -84,6 +110,16 @@
         {
             return reader.IsMatch2(first, second);
         }
+
+        public string Trim(string value)
+        {
+            int length = value.Length;
+            if (length > 1 && value[value.Length - 2] == first && value[value.Length - 1] == second)
+            {
+                return value.Substring(0, value.Length - 2);
+            }
+            return value;
+        }
     }
 
     internal sealed class StringSeparatorMatcher : ISeparatorMatcher
@@ -102,6 +138,15 @@
         public bool IsMatch()
         {
             return reader.IsMatch(separator);
+        }
+
+        public string Trim(string value)
+        {
+            if (value.EndsWith(separator))
+            {
+                return value.Substring(0, value.Length - separator.Length);
+            }
+            return value;
         }
     }
 }

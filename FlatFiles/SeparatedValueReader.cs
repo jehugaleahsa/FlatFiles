@@ -178,6 +178,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             HandleSchema();
             try
             {
@@ -209,7 +211,7 @@ namespace FlatFiles
             }
             if (schemaSelector != null || metadata.ExecutionContext.Schema != null)
             {
-                skip();
+                SkipInternal();
                 return;
             }
             string[] columnNames = ReadNextRecord();
@@ -226,7 +228,7 @@ namespace FlatFiles
             var rawValues = ReadWithFilter();
             while (rawValues != null)
             {
-                if (metadata.ExecutionContext.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ExecutionContext.Schema != null && HasWrongNumberOfColumns(rawValues))
                 {
                     ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
@@ -267,6 +269,8 @@ namespace FlatFiles
             {
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
+            metadata.Record = null;
+            metadata.Values = null;
             await HandleSchemaAsync().ConfigureAwait(false);
             try
             {
@@ -298,7 +302,7 @@ namespace FlatFiles
             }
             if (metadata.ExecutionContext.Schema != null)
             {
-                await skipAsync().ConfigureAwait(false);
+                await SkipAsyncInternal().ConfigureAwait(false);
                 return;
             }
             string[] columnNames = await ReadNextRecordAsync().ConfigureAwait(false);
@@ -315,7 +319,7 @@ namespace FlatFiles
             var rawValues = await ReadWithFilterAsync().ConfigureAwait(false);
             while (rawValues != null)
             {
-                if (metadata.ExecutionContext.Schema != null && hasWrongNumberOfColumns(rawValues))
+                if (metadata.ExecutionContext.Schema != null && HasWrongNumberOfColumns(rawValues))
                 {
                     ProcessError(new RecordProcessingException(metadata, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 }
@@ -332,7 +336,7 @@ namespace FlatFiles
             return null;
         }
 
-        private bool hasWrongNumberOfColumns(string[] values)
+        private bool HasWrongNumberOfColumns(string[] values)
         {
             var schema = metadata.ExecutionContext.Schema;
             return values.Length + schema.ColumnDefinitions.MetadataCount < schema.ColumnDefinitions.PhysicalCount;
@@ -430,11 +434,11 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             HandleSchema();
-            bool result = skip();
+            bool result = SkipInternal();
             return result;
         }
 
-        private bool skip()
+        private bool SkipInternal()
         {
             string[] rawValues = ReadNextRecord();
             return rawValues != null;
@@ -453,11 +457,11 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await HandleSchemaAsync().ConfigureAwait(false);
-            bool result = await skipAsync().ConfigureAwait(false);
+            bool result = await SkipAsyncInternal().ConfigureAwait(false);
             return result;
         }
 
-        private async ValueTask<bool> skipAsync()
+        private async ValueTask<bool> SkipAsyncInternal()
         {
             string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
             return rawValues != null;
@@ -487,7 +491,9 @@ namespace FlatFiles
             }
             try
             {
-                string[] results = parser.ReadRecord();
+                (string record, string[] results) = parser.ReadRecord();
+                metadata.Record = record;
+                metadata.Values = results;
                 ++metadata.PhysicalRecordNumber;
                 return results;
             }
@@ -507,7 +513,9 @@ namespace FlatFiles
             }
             try
             {
-                string[] results = await parser.ReadRecordAsync().ConfigureAwait(false);
+                (string record, string[] results) = await parser.ReadRecordAsync().ConfigureAwait(false);
+                metadata.Record = record;
+                metadata.Values = results;
                 ++metadata.PhysicalRecordNumber;
                 return results;
             }
