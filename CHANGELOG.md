@@ -1,3 +1,8 @@
+## 4.13.0 (2020-12-03)
+**Summary** - This change allows the original text making up a record to be viewed while parsing a file. The raw record contents will be accessible via the `IRecordContext` interface, which is available within the event args.
+
+I originally had some concerns regarding memory usage or performance impacts, but after profiling and benchmarking, no significant performance issues were detected.
+
 ## 4.12.0 (2020-10-21)
 **Summary** - `FlatFileDataReader` not correctly ignoring ignored columns in several places.
 
