@@ -4,23 +4,25 @@
     <TargetFrameworks>netcoreapp3.0;netstandard2.0;netstandard1.6;net451</TargetFrameworks>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
-    <Copyright>Copyright @ 2020</Copyright>
+    <Copyright>Copyright @ 2021</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jehugaleahsa/FlatFiles</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Add the ability to view the original text making up a record while processing the records.</PackageReleaseNotes>
+    <PackageReleaseNotes>The behavior of TypedWriter.WriteAll is somewhat unintuitive when called with no records. The expectation is that the header/schema is written when performing this bulk operation; otherwise, the caller has to explicitly call WriteSchema explicitly beforehand. This slightly changes the behavior of the code, such that it might result in headers/schema being written in cases where the file was blank before. However, when IsFirstRecordSchema is true, it is extremely unlikely consumers would expect a blank file to be generated.
+
+During my testing, I also discovered a bug where the schema was getting set, then unset when the header/schema record was the only record in the file. You should be able to try to read the first record of an empty file and get false back, then read the schema via GetSchema; however, my code would throwing an InvalidOperationException or, worse, a NullReferenceException.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.13.0</Version>
+    <Version>4.14.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>4.13.0.0</AssemblyVersion>
-    <FileVersion>4.13.0.0</FileVersion>
+    <AssemblyVersion>4.14.0.0</AssemblyVersion>
+    <FileVersion>4.14.0.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>

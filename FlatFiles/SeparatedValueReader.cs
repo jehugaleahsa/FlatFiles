@@ -215,11 +215,16 @@ namespace FlatFiles
                 return;
             }
             string[] columnNames = ReadNextRecord();
-            metadata.ExecutionContext.Schema = new SeparatedValueSchema();
+            if (columnNames == null)
+            {
+                return;
+            }
+            var schema = new SeparatedValueSchema();
+            metadata.ExecutionContext.Schema = schema;
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.ExecutionContext.Schema.AddColumn(column);
+                schema.AddColumn(column);
             }
         }
 
@@ -306,6 +311,10 @@ namespace FlatFiles
                 return;
             }
             string[] columnNames = await ReadNextRecordAsync().ConfigureAwait(false);
+            if (columnNames == null)
+            {
+                return;
+            }
             metadata.ExecutionContext.Schema = new SeparatedValueSchema();
             foreach (string columnName in columnNames)
             {
@@ -356,11 +365,7 @@ namespace FlatFiles
 
         private SeparatedValueSchema GetSchema(string[] rawValues)
         {
-            if (rawValues == null)
-            {
-                return null;
-            }
-            if (schemaSelector == null)
+            if (rawValues == null || schemaSelector == null)
             {
                 return metadata.ExecutionContext.Schema;
             }

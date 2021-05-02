@@ -367,6 +367,10 @@ namespace FlatFiles
 
         private string[] PartitionRecord(string record)
         {
+            if (record == null)
+            {
+                return null;
+            }
             var schema = GetSchema(record);
             metadata.ExecutionContext.Schema = schema;
             if (schema == null)
@@ -411,11 +415,7 @@ namespace FlatFiles
 
         private FixedLengthSchema GetSchema(string record)
         {
-            if (record == null)
-            {
-                return null;
-            }
-            if (schemaSelector == null)
+            if (record == null || schemaSelector == null)
             {
                 return metadata.ExecutionContext.Schema;
             }

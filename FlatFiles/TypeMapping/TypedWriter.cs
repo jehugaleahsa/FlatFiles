@@ -215,6 +215,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities written by the writer.</returns>
         public static void WriteAll<TEntity>(this ITypedWriter<TEntity> writer, IEnumerable<TEntity> entities)
         {
+            writer.WriteSchema();
             foreach (var entity in entities)
             {
                 writer.Write(entity);
@@ -230,6 +231,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities written by the writer.</returns>
         public static async Task WriteAllAsync<TEntity>(this ITypedWriter<TEntity> writer, IEnumerable<TEntity> entities)
         {
+            await writer.WriteSchemaAsync().ConfigureAwait(false);
             foreach (var entity in entities)
             {
                 await writer.WriteAsync(entity).ConfigureAwait(false);

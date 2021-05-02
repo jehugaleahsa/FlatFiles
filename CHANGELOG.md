@@ -1,3 +1,8 @@
+## 4.14.0 (2021-05-01)
+**Summary** - The behavior of `TypedWriter.WriteAll` is somewhat unintuitive when called with no records. The expectation is that the header is written when performing this bulk operation, otherwise the caller has to explicitly check for empty or always call `WriteSchema` explicitly beforehand. This slightly changes the behavior of the code, such that it might result in headers/schema being written in cases where the file was blank before. However, when `IsFirstRecordSchema` is `true`, it is extremely unlikely consumers would expect a blank file to be generated.
+
+During my testing, I also discovered a bug where the schema was getting set, then unset when the header/schema record was the only record in the file. You should be able to try to read the first record of an empty file and get `false` back, then read the schema via `GetSchema`; however, my code would throwing an `InvalidOperationException` or, worse, a `NullReferenceException`.
+
 ## 4.13.0 (2020-12-03)
 **Summary** - This change allows the original text making up a record to be viewed while parsing a file. The raw record contents will be accessible via the `IRecordContext` interface, which is available within the event args.
 
@@ -11,7 +16,7 @@ The ADO.NET classes didn't receive the same level of love that the rest of the l
 Technically this is a breaking change that might warrant a major version change; however, as the previous behavior could not possibly be desired and few people actually use the ADO.NET classes, I am going to include this in the next minor version, treating it as just a bug fix.
 
 ## 4.11.0 (2020-10-09)
-**Summary* - Allow handling unrecognized rows when using schema selectors.
+**Summary** - Allow handling unrecognized rows when using schema selectors.
 
 Previously, if a record was encountered that could be handled by any of the configured schemas, the selector would throw a generic `FlatFilesException`. Now, a `RecordProcessingException`is thrown instead, which can be ignored causing the record to be skipped.
 

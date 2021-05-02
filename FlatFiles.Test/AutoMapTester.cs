@@ -88,6 +88,36 @@ namespace FlatFiles.Test
             AssertEqual(expected, results, 2);
         }
 
+        [TestMethod]
+        public void ShouldWriteHeadersWhenNoRecordsProvided()
+        {
+            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            mapper.Property(x => x.Id);
+            mapper.Property(x => x.Name);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+            var stringWriter = new StringWriter();
+            var writer = mapper.GetWriter(stringWriter);
+            writer.WriteAll(new Person[0]);
+            writer.WriteAll(new Person[0]); // Test we don't double write headers
+            var output = stringWriter.ToString();
+
+            var stringReader = new StringReader(output);
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+            var reader = new SeparatedValueReader(stringReader, options);
+            Assert.IsFalse(reader.Read(), "No records should have been written.");
+
+            var schema = reader.GetSchema();
+            Assert.AreEqual(4, schema.ColumnDefinitions.Count, "The wrong number of headers were found.");
+            var expected = new[] { "Id", "Name", "CreatedOn", "IsActive" };
+            var actual = schema.ColumnDefinitions.Select(c => c.ColumnName).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+
+        }
+
         private static void AssertEqual(IList<Person> expected, IList<Person> actual, int id)
         {
             Assert.AreEqual(expected[id].Id, actual[id].Id, $"Wrong ID for person {id}");
