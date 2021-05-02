@@ -658,6 +658,78 @@ When he's not traveling, he's at home with his lovely wife, children and leather
             assertRecords(expected, reader);
         }
 
+        [TestMethod]
+        public void ShouldHandleEmbeddedQuotes()
+        {
+            string source = "x\ty\tabc\"def\tz";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false,
+                Separator = "\t"
+            };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] { "x", "y", "abc\"def", "z" }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
+        public void ShouldHandleEmbeddedQuotes2()
+        {
+            string source = "DebtConversionConvertedInstrumentAmount1\tus-gaap/2019" +
+                "\t0\t0\tmonetary\tD\tC\tDebt Conversion, Converted Instrument, Amount" +
+                "\tThe value of the financial instrument(s) that the original debt is being converted into in a noncash (or part noncash) transaction. \"Part noncash refers to that portion of the transaction not resulting in cash receipts or cash payments in the period.";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false,
+                Separator = "\t",
+                PreserveWhiteSpace = false,
+                QuoteBehavior = QuoteBehavior.Never
+            };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] 
+                { 
+                    "DebtConversionConvertedInstrumentAmount1",
+                    "us-gaap/2019", 
+                    "0", 
+                    "0",
+                    "monetary",
+                    "D",
+                    "C",
+                    "Debt Conversion, Converted Instrument, Amount",
+                    "The value of the financial instrument(s) that the original debt is being converted into in a noncash (or part noncash) transaction. \"Part noncash refers to that portion of the transaction not resulting in cash receipts or cash payments in the period."
+                }
+            };
+            assertRecords(expected, reader);
+        }
+
+        [TestMethod]
+        public void ShouldHandleNonTerminatingEmbeddedQuotes()
+        {
+            string source = "This\tis\t\"not\"the\tend\"\tof\tthe\tmessage";
+            StringReader stringReader = new StringReader(source);
+            SeparatedValueOptions options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false,
+                Separator = "\t"
+            };
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, options);
+            object[][] expected = new object[][]
+            {
+                new object[] 
+                { 
+                    "This", "is", "not\"the\tend", "of", "the", "message"
+                }
+            };
+            assertRecords(expected, reader);
+        }
+
         private void assertRecords(object[][] expected, SeparatedValueReader reader)
         {
             for (int recordIndex = 0; recordIndex != expected.Length; ++recordIndex)
