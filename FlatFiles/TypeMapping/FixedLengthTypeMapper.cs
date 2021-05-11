@@ -1366,10 +1366,7 @@ namespace FlatFiles.TypeMapping
         private void Write(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
             var typedWriter = GetTypedWriter(writer);
-            foreach (TEntity entity in entities)
-            {
-                typedWriter.Write(entity);
-            }
+            typedWriter.WriteAll(entities);
         }
 
         public async Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
@@ -1386,10 +1383,7 @@ namespace FlatFiles.TypeMapping
         private async Task WriteAsync(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
         {
             var typedWriter = GetTypedWriter(writer);
-            foreach (TEntity entity in entities)
-            {
-                await typedWriter.WriteAsync(entity).ConfigureAwait(false);
-            }
+            await typedWriter.WriteAllAsync(entities).ConfigureAwait(false);
         }
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)

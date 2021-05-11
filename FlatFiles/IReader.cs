@@ -24,6 +24,11 @@ namespace FlatFiles
         event EventHandler<RecordErrorEventArgs> RecordError;
 
         /// <summary>
+        /// Gets the options controlling the behavior of the reader.
+        /// </summary>
+        IOptions Options { get; }
+
+        /// <summary>
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>

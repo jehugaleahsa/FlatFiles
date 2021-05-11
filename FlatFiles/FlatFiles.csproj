@@ -10,19 +10,19 @@
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>The behavior of TypedWriter.WriteAll is somewhat unintuitive when called with no records. The expectation is that the header/schema is written when performing this bulk operation; otherwise, the caller has to explicitly call WriteSchema explicitly beforehand. This slightly changes the behavior of the code, such that it might result in headers/schema being written in cases where the file was blank before. However, when IsFirstRecordSchema is true, it is extremely unlikely consumers would expect a blank file to be generated.
+    <PackageReleaseNotes>Recent changes to write out headers when writing multiple records only applied to the extension method WriteAll. However, the mapper class's Write methods have a similar semantic and behaved the same as before. This commit actually changes the mapper methods to call WriteAll under the hood, so now the same behavior will be exhibited.
 
-During my testing, I also discovered a bug where the schema was getting set, then unset when the header/schema record was the only record in the file. You should be able to try to read the first record of an empty file and get false back, then read the schema via GetSchema; however, my code would throwing an InvalidOperationException or, worse, a NullReferenceException.</PackageReleaseNotes>
+I discovered a bug I introduced with the previous version where I wrote the schema out no matter what. I only want to do this if the writer is configured to write out the schema, which is false by default.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.14.0</Version>
+    <Version>4.15.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>4.14.0.0</AssemblyVersion>
-    <FileVersion>4.14.0.0</FileVersion>
+    <AssemblyVersion>4.15.0.0</AssemblyVersion>
+    <FileVersion>4.15.0.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>

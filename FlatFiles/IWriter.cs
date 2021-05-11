@@ -19,6 +19,11 @@ namespace FlatFiles
         event EventHandler<RecordErrorEventArgs> RecordError;
 
         /// <summary>
+        /// Gets the options controlling the behavior of the writer.
+        /// </summary>
+        IOptions Options { get; }
+
+        /// <summary>
         /// Gets the schema being used by the builder to create the textual representation.
         /// </summary>
         /// <returns>The schema being used by the builder to create the textual representation.</returns>

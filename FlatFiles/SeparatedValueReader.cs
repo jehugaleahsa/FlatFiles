@@ -81,7 +81,7 @@ namespace FlatFiles
                 ExecutionContext = new SeparatedValueExecutionContext()
                 {
                     Schema = hasSchema ? schema : null,
-                    Options = parser.Options
+                    Options = parser.Options.Clone()
                 }
             };
         }
@@ -115,6 +115,8 @@ namespace FlatFiles
             add { metadata.ColumnError += value; }
             remove { metadata.ColumnError -= value; }
         }
+
+        IOptions IReader.Options => metadata.ExecutionContext.Options;
 
         /// <summary>
         /// Gets the names of the columns found in the file.

@@ -89,24 +89,24 @@ namespace FlatFiles.Test
         }
 
         [TestMethod]
-        public void ShouldWriteHeadersWhenNoRecordsProvided()
+        public void ShouldWriteHeadersWhenNoRecordsProvided_Writer()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
             var stringWriter = new StringWriter();
-            var writer = mapper.GetWriter(stringWriter);
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+            var writer = mapper.GetWriter(stringWriter, options);
             writer.WriteAll(new Person[0]);
             writer.WriteAll(new Person[0]); // Test we don't double write headers
             var output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var options = new SeparatedValueOptions()
-            {
-                IsFirstRecordSchema = true
-            };
             var reader = new SeparatedValueReader(stringReader, options);
             Assert.IsFalse(reader.Read(), "No records should have been written.");
 
@@ -115,7 +115,66 @@ namespace FlatFiles.Test
             var expected = new[] { "Id", "Name", "CreatedOn", "IsActive" };
             var actual = schema.ColumnDefinitions.Select(c => c.ColumnName).ToArray();
             CollectionAssert.AreEqual(expected, actual);
+        }
 
+        [TestMethod]
+        public void ShouldWriteHeadersWhenNoRecordsProvided_Mapper()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.Property(x => x.Id);
+            mapper.Property(x => x.Name);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+            var stringWriter = new StringWriter();
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = true
+            };
+            mapper.Write(stringWriter, new Person[0], options);
+            var output = stringWriter.ToString();
+
+            var stringReader = new StringReader(output);
+            var reader = new SeparatedValueReader(stringReader, options);
+            Assert.IsFalse(reader.Read(), "No records should have been written.");
+
+            var schema = reader.GetSchema();
+            Assert.AreEqual(4, schema.ColumnDefinitions.Count, "The wrong number of headers were found.");
+            var expected = new[] { "Id", "Name", "CreatedOn", "IsActive" };
+            var actual = schema.ColumnDefinitions.Select(c => c.ColumnName).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void ShouldNotWriteHeaderWhenHeaderNotConfigured()
+        {
+            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            mapper.Property(x => x.Id);
+            mapper.Property(x => x.Name);
+            mapper.Property(x => x.CreatedOn);
+            mapper.Property(x => x.IsActive);
+            var stringWriter = new StringWriter();
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false
+            };
+            var people = new Person[]
+            {
+                new Person()
+                {
+                    Id = 1,
+                    Name = "Tom",
+                    CreatedOn = new DateTime(2021, 05, 10),
+                    IsActive = true,
+                    VisitCount = 100
+                }
+            };
+            mapper.Write(stringWriter, people, options);
+            var output = stringWriter.ToString();
+
+            var stringReader = new StringReader(output);
+            var reader = new SeparatedValueReader(stringReader, mapper.GetSchema(), options);
+            Assert.IsTrue(reader.Read(), "The first record should have been written.");
+            Assert.IsFalse(reader.Read(), "Too many records were written.");
         }
 
         private static void AssertEqual(IList<Person> expected, IList<Person> actual, int id)

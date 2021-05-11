@@ -15,7 +15,7 @@ namespace FlatFiles.Test
         {
             string content = "----,5.12,----,apple" + Environment.NewLine;            
 
-            object[] values = parseValues(content);
+            object[] values = ParseValues(content);
 
             Assert.AreEqual(4, values.Length);
             Assert.IsNull(values[0]);
@@ -23,15 +23,15 @@ namespace FlatFiles.Test
             Assert.IsNull(values[2]);
             Assert.AreEqual("apple", values[3]);
 
-            string output = writeValues(values);
+            string output = WriteValues(values);
 
             Assert.AreEqual(content, output);
         }
 
-        private static object[] parseValues(string content)
+        private static object[] ParseValues(string content)
         {
             StringReader stringReader = new StringReader(content);
-            var schema = getSchema();
+            var schema = GetSchema();
             SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema);
             Assert.IsTrue(reader.Read(), "The record could not be read.");
             object[] values = reader.GetValues();
@@ -39,9 +39,9 @@ namespace FlatFiles.Test
             return values;
         }
 
-        private static string writeValues(object[] values)
+        private static string WriteValues(object[] values)
         {
-            var schema = getSchema();
+            var schema = GetSchema();
             StringWriter stringWriter = new StringWriter();
             SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema);
             writer.Write(values);
@@ -49,7 +49,7 @@ namespace FlatFiles.Test
             return stringWriter.ToString();
         }
 
-        private static SeparatedValueSchema getSchema()
+        private static SeparatedValueSchema GetSchema()
         {
             var nullHandler = NullFormatter.ForValue("----");
 

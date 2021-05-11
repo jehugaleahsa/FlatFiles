@@ -42,5 +42,26 @@ namespace FlatFiles.Test
             Assert.IsTrue(reader.Read(), "The record was not retrieved after the schema.");
             Assert.IsFalse(reader.Read(), "Encountered more than the expected number of records.");
         }
+
+        [TestMethod]
+        public void ShouldNotWriteSchemaAfterFirstRecordWritten()
+        {
+            StringWriter stringWriter = new StringWriter();
+            // Explicitly indicate that the first record is NOT the schema
+            SeparatedValueSchema schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("Col1"));
+            var options = new SeparatedValueOptions()
+            {
+                IsFirstRecordSchema = false
+            };
+            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema, options);
+            writer.Write(new string[] { "a" });
+            writer.WriteSchema();  // Explicitly write the schema
+
+            StringReader stringReader = new StringReader(stringWriter.ToString());
+            var reader = new SeparatedValueReader(stringReader, schema, options);
+            Assert.IsTrue(reader.Read(), "The record was not retrieved.");
+            Assert.IsFalse(reader.Read(), "Encountered more than the expected number of records.");
+        }
     }
 }

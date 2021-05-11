@@ -77,6 +77,8 @@ namespace FlatFiles
         /// </summary>
         public event EventHandler<RecordErrorEventArgs> RecordError;
 
+        IOptions IWriter.Options => recordWriter.Metadata.ExecutionContext.Options;
+
         /// <summary>
         /// Gets the schema used to build the output.
         /// </summary>

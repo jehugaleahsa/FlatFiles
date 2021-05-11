@@ -104,6 +104,8 @@ namespace FlatFiles
             remove => metadata.ColumnError -= value;
         }
 
+        IOptions IReader.Options => metadata.ExecutionContext.Options;
+
         /// <summary>
         /// Gets the schema being used by the parser.
         /// </summary>
