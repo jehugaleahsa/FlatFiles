@@ -675,6 +675,16 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities that are extracted from the file.</returns>
         IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null);
 
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Reads the entities from the given reader.
+        /// </summary>
+        /// <param name="reader">A reader over the separated value document.</param>
+        /// <param name="options">The options controlling how the separated value document is read.</param>
+        /// <returns>An asynchronous enumerable over the entities.</returns>
+        IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions options = null);
+#endif
+
         /// <summary>
         /// Gets a typed reader to read entities from the underlying document.
         /// </summary>
@@ -698,6 +708,16 @@ namespace FlatFiles.TypeMapping
         /// <param name="entities">The entities to write to the stream.</param>
         /// <param name="options">The options used to format the output.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null);
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="writer">A writer over the separated value document.</param>
+        /// <param name="entities">The entities to write to the stream.</param>
+        /// <param name="options">The options used to format the output.</param>
+        Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions options = null);
+#endif
 
         /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
@@ -930,6 +950,16 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities that are extracted from the file.</returns>
         IEnumerable<object> Read(TextReader reader, SeparatedValueOptions options = null);
 
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Reads the entities from the given reader.
+        /// </summary>
+        /// <param name="reader">A reader over the separated value document.</param>
+        /// <param name="options">The options controlling how the separated value document is read.</param>
+        /// <returns>An asynchronous enumerable over the entities.</returns>
+        IAsyncEnumerable<object> ReadAsync(TextReader reader, SeparatedValueOptions options = null);
+#endif
+
         /// <summary>
         /// Gets a typed reader to read entities from the underlying document.
         /// </summary>
@@ -953,6 +983,16 @@ namespace FlatFiles.TypeMapping
         /// <param name="entities">The entities to write to the stream.</param>
         /// <param name="options">The options used to format the output.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options = null);
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="writer">A writer over the separated value document.</param>
+        /// <param name="entities">The entities to write to the stream.</param>
+        /// <param name="options">The options used to format the output.</param>
+        Task WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions options = null);
+#endif
 
         /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
@@ -1455,19 +1495,17 @@ namespace FlatFiles.TypeMapping
 
         public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null)
         {
-            SeparatedValueSchema schema = getSchema();
-            var separatedValueReader = new SeparatedValueReader(reader, schema, options);
-            return Read(separatedValueReader);
+            var typedReader = GetReader(reader, options);
+            return typedReader.ReadAll();
         }
 
-        private IEnumerable<TEntity> Read(SeparatedValueReader reader)
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions options = null)
         {
-            var typedReader = GetTypedReader(reader);
-            while (typedReader.Read())
-            {
-                yield return typedReader.Current;
-            }
+            var typedReader = GetReader(reader, options);
+            return typedReader.ReadAllAsync();
         }
+#endif
 
         public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
         {
@@ -1494,33 +1532,31 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
-            var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            Write(separatedValueWriter, entities);
-        }
-
-        private void Write(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
-        {
-            var typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetWriter(writer, options);
             typedWriter.WriteAll(entities);
         }
 
-        public async Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null)
+        public Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null)
         {
             if (entities == null)
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
-            var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
-            await WriteAsync(separatedValueWriter, entities).ConfigureAwait(false);
+            var typedWriter = GetWriter(writer, options);
+            return typedWriter.WriteAllAsync(entities);
         }
 
-        private async Task WriteAsync(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions options = null)
         {
-            var typedWriter = GetTypedWriter(writer);
-            await typedWriter.WriteAllAsync(entities).ConfigureAwait(false);
+            if (entities == null)
+            {
+                throw new ArgumentNullException(nameof(entities));
+            }
+            var typedWriter = GetWriter(writer, options);
+            return typedWriter.WriteAllAsync(entities);
         }
+#endif
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null)
         {
@@ -1695,8 +1731,6 @@ namespace FlatFiles.TypeMapping
             return GetEnumMapping<TEnum>(member, IsNullable(member));
         }
 
-
-
         IIgnoredMapping IDynamicSeparatedValueTypeConfiguration.Ignored()
         {
             return Ignored();
@@ -1724,8 +1758,19 @@ namespace FlatFiles.TypeMapping
 
         IEnumerable<object> IDynamicSeparatedValueTypeMapper.Read(TextReader reader, SeparatedValueOptions options)
         {
-            return (IEnumerable<object>)Read(reader, options);
+            IDynamicSeparatedValueTypeMapper untypedMapper = this;
+            var untypedReader = untypedMapper.GetReader(reader, options);
+            return untypedReader.ReadAll();
         }
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        IAsyncEnumerable<object> IDynamicSeparatedValueTypeMapper.ReadAsync(TextReader reader, SeparatedValueOptions options)
+        {
+            IDynamicSeparatedValueTypeMapper untypedMapper = this;
+            var untypedReader = untypedMapper.GetReader(reader, options);
+            return untypedReader.ReadAllAsync();
+        }
+#endif
 
         ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions options)
         {
@@ -1734,15 +1779,26 @@ namespace FlatFiles.TypeMapping
 
         void IDynamicSeparatedValueTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
         {
-            var converted = entities.Cast<TEntity>();
-            Write(writer, converted, options);
+            IDynamicSeparatedValueTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            untypedWriter.WriteAll(entities);
         }
 
-        async Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
+        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
         {
-            var converted = entities.Cast<TEntity>();
-            await WriteAsync(writer, converted, options).ConfigureAwait(false);
+            IDynamicSeparatedValueTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            return untypedWriter.WriteAllAsync(entities);
         }
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions options)
+        {
+            IDynamicSeparatedValueTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            return untypedWriter.WriteAllAsync(entities);
+        }
+#endif
 
         ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions options)
         {

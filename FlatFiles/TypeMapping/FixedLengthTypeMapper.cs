@@ -470,6 +470,16 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities that are extracted from the file.</returns>
         IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null);
 
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Reads the entities from the given reader.
+        /// </summary>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
+        /// <returns>An asynchronous enumerable over the entities.</returns>
+        IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, FixedLengthOptions options = null);
+#endif
+
         /// <summary>
         /// Gets a typed reader to read entities from the underlying document.
         /// </summary>
@@ -493,6 +503,16 @@ namespace FlatFiles.TypeMapping
         /// <param name="entities">The entities to write to the document.</param>
         /// <param name="options">The options controlling how the separated value document is written.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null);
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Writes the given entities to the given writer.
+        /// </summary>
+        /// <param name="writer">A writer over the fixed-length document.</param>
+        /// <param name="entities">The entities to write to the document.</param>
+        /// <param name="options">The options controlling how the separated value document is written.</param>
+        Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, FixedLengthOptions options = null);
+#endif
 
         /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
@@ -750,6 +770,16 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities that are extracted from the file.</returns>
         IEnumerable<object> Read(TextReader reader, FixedLengthOptions options = null);
 
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Reads the entities from the given reader.
+        /// </summary>
+        /// <param name="reader">A reader over the fixed-length document.</param>
+        /// <param name="options">The options controlling how the fixed-length document is read.</param>
+        /// <returns>An asynchronous enumerable over the entities.</returns>
+        IAsyncEnumerable<object> ReadAsync(TextReader reader, FixedLengthOptions options = null);
+#endif
+
         /// <summary>
         /// Gets a typed reader to read entities from the underlying document.
         /// </summary>
@@ -773,6 +803,16 @@ namespace FlatFiles.TypeMapping
         /// <param name="entities">The entities to write to the stream.</param>
         /// <param name="options">The options used to format the output.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options = null);
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        /// <summary>
+        /// Writes the given entities to the given stream.
+        /// </summary>
+        /// <param name="writer">A writer over the separated value document.</param>
+        /// <param name="entities">The entities to write to the stream.</param>
+        /// <param name="options">The options used to format the output.</param>
+        Task WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, FixedLengthOptions options = null);
+#endif
 
         /// <summary>
         /// Gets a typed writer to write entities to the underlying document.
@@ -1325,19 +1365,17 @@ namespace FlatFiles.TypeMapping
 
         public IEnumerable<TEntity> Read(TextReader reader, FixedLengthOptions options = null)
         {
-            var schema = getSchema();
-            var fixedLengthReader = new FixedLengthReader(reader, schema, options);
-            return Read(fixedLengthReader);
+            var typedReader = GetReader(reader, options);
+            return typedReader.ReadAll();
         }
 
-        private IEnumerable<TEntity> Read(FixedLengthReader reader)
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, FixedLengthOptions options = null)
         {
-            var typedReader = GetTypedReader(reader);
-            while (typedReader.Read())
-            {
-                yield return typedReader.Current;
-            }
+            var typedReader = GetReader(reader, options);
+            return typedReader.ReadAllAsync();
         }
+#endif
 
         public IFixedLengthTypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null)
         {
@@ -1358,33 +1396,31 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
-            var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
-            Write(fixedLengthWriter, entities);
-        }
-
-        private void Write(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
-        {
-            var typedWriter = GetTypedWriter(writer);
+            var typedWriter = GetWriter(writer, options);
             typedWriter.WriteAll(entities);
         }
 
-        public async Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
+        public Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions options = null)
         {
             if (entities == null)
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
-            var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
-            await WriteAsync(fixedLengthWriter, entities).ConfigureAwait(false);
+            var typedWriter = GetWriter(writer, options);
+            return typedWriter.WriteAllAsync(entities);
         }
 
-        private async Task WriteAsync(IWriterWithMetadata writer, IEnumerable<TEntity> entities)
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, FixedLengthOptions options = null)
         {
-            var typedWriter = GetTypedWriter(writer);
-            await typedWriter.WriteAllAsync(entities).ConfigureAwait(false);
+            if (entities == null)
+            {
+                throw new ArgumentNullException(nameof(entities));
+            }
+            var typedWriter = GetWriter(writer, options);
+            return typedWriter.WriteAllAsync(entities);
         }
+#endif
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)
         {
@@ -1588,8 +1624,19 @@ namespace FlatFiles.TypeMapping
 
         IEnumerable<object> IDynamicFixedLengthTypeMapper.Read(TextReader reader, FixedLengthOptions options)
         {
-            return (IEnumerable<object>)Read(reader, options);
+            IDynamicFixedLengthTypeMapper untypedMapper = this;
+            var untypedReader = untypedMapper.GetReader(reader, options);
+            return untypedReader.ReadAll();
         }
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        IAsyncEnumerable<object> IDynamicFixedLengthTypeMapper.ReadAsync(TextReader reader, FixedLengthOptions options)
+        {
+            IDynamicFixedLengthTypeMapper untypedMapper = this;
+            var untypedReader = untypedMapper.GetReader(reader, options);
+            return untypedReader.ReadAllAsync();
+        }
+#endif
 
         IFixedLengthTypedReader<object> IDynamicFixedLengthTypeMapper.GetReader(TextReader reader, FixedLengthOptions options)
         {
@@ -1598,15 +1645,26 @@ namespace FlatFiles.TypeMapping
 
         void IDynamicFixedLengthTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)
         {
-            var converted = entities.Cast<TEntity>();
-            Write(writer, converted, options);
+            IDynamicFixedLengthTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            untypedWriter.WriteAll(entities);
         }
 
-        async Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)
+        Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, FixedLengthOptions options)
         {
-            var converted = entities.Cast<TEntity>();
-            await WriteAsync(writer, converted, options).ConfigureAwait(false);
+            IDynamicFixedLengthTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            return untypedWriter.WriteAllAsync(entities);
         }
+
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+        Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, FixedLengthOptions options)
+        {
+            IDynamicFixedLengthTypeMapper untypedMapper = this;
+            var untypedWriter = untypedMapper.GetWriter(writer, options);
+            return untypedWriter.WriteAllAsync(entities);
+        }
+#endif
 
         ITypedWriter<object> IDynamicFixedLengthTypeMapper.GetWriter(TextWriter writer, FixedLengthOptions options)
         {

@@ -438,23 +438,21 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-#if NETCOREAPP3_0
-
+#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         /// <summary>
-        /// 
+        /// Reads each record from the given reader, such that each record is retrieved asynchronously.
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="reader"></param>
-        /// <returns></returns>
+        /// <typeparam name="TEntity">The type of the entities returned by the reader.</typeparam>
+        /// <param name="reader">The reader to retrieve the records from.</param>
+        /// <returns>Each record from the given reader.</returns>
         public static async IAsyncEnumerable<TEntity> ReadAllAsync<TEntity>(this ITypedReader<TEntity> reader)
         {
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 var entity = reader.Current;
                 yield return entity;
             }
         }
-
 #endif
     }
 }
