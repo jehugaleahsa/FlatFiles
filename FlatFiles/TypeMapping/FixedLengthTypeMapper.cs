@@ -1379,7 +1379,7 @@ namespace FlatFiles.TypeMapping
 
         public IFixedLengthTypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions options = null)
         {
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var fixedLengthReader = new FixedLengthReader(reader, schema, options);
             return GetTypedReader(fixedLengthReader);
         }
@@ -1424,7 +1424,7 @@ namespace FlatFiles.TypeMapping
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions options = null)
         {
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var fixedLengthWriter = new FixedLengthWriter(writer, schema, options);
             return GetTypedWriter(fixedLengthWriter);
         }
@@ -1437,10 +1437,10 @@ namespace FlatFiles.TypeMapping
 
         public FixedLengthSchema GetSchema()
         {
-            return getSchema();
+            return GetSchemaInternal();
         }
 
-        private FixedLengthSchema getSchema()
+        private FixedLengthSchema GetSchemaInternal()
         {
             FixedLengthSchema schema = new FixedLengthSchema();
             var mappings = lookup.GetMappings();
