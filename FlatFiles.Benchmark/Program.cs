@@ -11,25 +11,25 @@ namespace FlatFiles.Benchmark
     {
         static void Main(string[] args)
         {
-            runBenchmarks();
+            RunBenchmarks();
 
             //runPerformanceMonitor();
         }
 
-        private static void runBenchmarks()
+        private static void RunBenchmarks()
         {
             var configuration = new ManualConfig()
             {
                 Options = ConfigOptions.KeepBenchmarkFiles
             };
-            configuration.Add(StatisticColumn.Min);
-            configuration.Add(StatisticColumn.Max);
-            configuration.Add(DefaultConfig.Instance.GetColumnProviders().ToArray());
-            configuration.Add(DefaultConfig.Instance.GetLoggers().ToArray());
-            configuration.Add(DefaultConfig.Instance.GetDiagnosers().ToArray());
-            configuration.Add(DefaultConfig.Instance.GetAnalysers().ToArray());
-            configuration.Add(DefaultConfig.Instance.GetJobs().ToArray());
-            configuration.Add(DefaultConfig.Instance.GetValidators().ToArray());
+            configuration.AddColumn(StatisticColumn.Min);
+            configuration.AddColumn(StatisticColumn.Max);
+            configuration.AddColumnProvider(DefaultConfig.Instance.GetColumnProviders().ToArray());
+            configuration.AddLogger(DefaultConfig.Instance.GetLoggers().ToArray());
+            configuration.AddDiagnoser(DefaultConfig.Instance.GetDiagnosers().ToArray());
+            configuration.AddAnalyser(DefaultConfig.Instance.GetAnalysers().ToArray());
+            configuration.AddJob(DefaultConfig.Instance.GetJobs().ToArray());
+            configuration.AddValidator(DefaultConfig.Instance.GetValidators().ToArray());
 
             BenchmarkRunner.Run<CoreBenchmarkSuite>(configuration);
 
@@ -37,7 +37,7 @@ namespace FlatFiles.Benchmark
             Console.In.ReadLine();
         }
 
-        private static void runPerformanceMonitor()
+        private static void RunPerformanceMonitor()
         {
             var tester = new AsyncVsSyncTest();
             for (int i = 0; i != 10; ++i)

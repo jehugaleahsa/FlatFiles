@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -174,7 +175,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader reader = new StringReader(data);
+            var reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -196,7 +197,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader textReader = new StringReader(data);
+            var textReader = new StringReader(data);
             var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             var people = new List<Person>();
             await foreach (var person in reader.ReadAllAsync().ConfigureAwait(false))
@@ -223,7 +224,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader reader = new StringReader(quotedData);
+            var reader = new StringReader(quotedData);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -245,7 +246,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader reader = new StringReader(data);
+            var reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -268,7 +269,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
 
-            StringReader reader = new StringReader(data);
+            var reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -290,7 +291,7 @@ namespace FlatFiles.Benchmark
             mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader(p => p.CreatedOn);
             mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader(p => p.IsActive);
 
-            StringReader reader = new StringReader(data);
+            var reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -313,7 +314,7 @@ namespace FlatFiles.Benchmark
             mapper.CustomMapping(new DateTimeColumn("CreatedOn")).WithReader(p => p.CreatedOn);
             mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader(p => p.IsActive);
 
-            StringReader reader = new StringReader(data);
+            var reader = new StringReader(data);
             var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
@@ -352,17 +353,17 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunCsvHelper()
         {
-            StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration());
+            var reader = new StringReader(data);
+            var csvReader = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
             var people = csvReader.GetRecords<Person>().ToArray();
         }
 
         [Benchmark]
         public async Task RunCsvHelper_Async()
         {
-            StringReader reader = new StringReader(data);
-            var csvReader = new CsvHelper.CsvReader(reader, new Configuration());
-            List<Person> people = new List<Person>();
+            var reader = new StringReader(data);
+            var csvReader = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
+            var people = new List<Person>();
             await csvReader.ReadAsync().ConfigureAwait(false);
             csvReader.ReadHeader();
             while (await csvReader.ReadAsync().ConfigureAwait(false))
@@ -374,8 +375,8 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunCsvHelper_Quoted()
         {
-            StringReader reader = new StringReader(quotedData);
-            var csvReader = new CsvHelper.CsvReader(reader);
+            var reader = new StringReader(quotedData);
+            var csvReader = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
             var people = csvReader.GetRecords<Person>().ToArray();
         }
 
@@ -387,7 +388,7 @@ namespace FlatFiles.Benchmark
             var people = new List<Person>();
             foreach (var record in records)
             {
-                Person person = new Person
+                var person = new Person()
                 {
                     FirstName = record[0],
                     LastName = record[1],

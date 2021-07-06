@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
@@ -14,55 +15,52 @@ namespace FlatFiles.Benchmark
         {
             string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
-            using (var stream = File.OpenRead(path))
-            using (var textReader = new StreamReader(stream))
+            using var stream = File.OpenRead(path);
+            using var textReader = new StreamReader(stream);
+            var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                var configuration = new Configuration()
-                {
-                    HasHeaderRecord = true,
-                    HeaderValidated = (isValid, names, index, context) => { }
-                };
-                var map = configuration.AutoMap<SampleData>();
-                map.Map(x => x.YearStart).Name("YearStart").Index(0);
-                map.Map(x => x.YearEnd).Name("YearEnd").Index(1);
-                map.Map(x => x.LocationAbbreviation).Name("LocationAbbr").Index(2);
-                map.Map(x => x.LocationDescription).Name("LocationDesc").Index(3);
-                map.Map(x => x.DataSource).Name("DataSource").Index(4);
-                map.Map(x => x.Topic).Name("Topic").Index(5);
-                map.Map(x => x.Question).Name("Question").Index(6);
-                map.Map(x => x.Response).Name("Response").Index(7);
-                map.Map(x => x.DataValueUnit).Name("DataValueUnit").Index(8);
-                map.Map(x => x.DataValueType).Name("DataValueType").Index(9);
-                map.Map(x => x.DataValue).Name("DataValue").Index(10);
-                map.Map(x => x.AlternativeDataValue).Name("DataValueAlt").Index(11);
-                map.Map(x => x.DataValueFootnoteSymbol).Name("DataValueFootnoteSymbol").Index(12);
-                map.Map(x => x.DataValueFootnote).Name("DatavalueFootnote").Index(13);
-                map.Map(x => x.LowConfidenceLimit).Name("LowConfidenceLimit").Index(14);
-                map.Map(x => x.HighConfidenceLimit).Name("HighConfidenceLimit").Index(15);
-                map.Map(x => x.StratificationCategory1).Name("StratificationCategory1").Index(16);
-                map.Map(x => x.Stratification1).Name("Stratification1").Index(17);
-                map.Map(x => x.StratificationCategory2).Name("StratificationCategory2").Index(18);
-                map.Map(x => x.Stratification2).Name("Stratification2").Index(19);
-                map.Map(x => x.StratificationCategory3).Name("StratificationCategory3").Index(20);
-                map.Map(x => x.Stratification3).Name("Stratification3").Index(21);
-                map.Map(x => x.GeoLocation).Name("GeoLocation").Index(22);
-                map.Map(x => x.ResponseId).Name("ResponseID").Index(23);
-                map.Map(x => x.LocationId).Name("LocationID").Index(24);
-                map.Map(x => x.TopicId).Name("TopicID").Index(25);
-                map.Map(x => x.QuestionId).Name("QuestionID").Index(26);
-                map.Map(x => x.DataValueTypeId).Name("DataValueTypeID").Index(27);
-                map.Map(x => x.StratificationCategoryId1).Name("StratificationCategoryID1").Index(28);
-                map.Map(x => x.StratificationId1).Name("StratificationID1").Index(29);
-                map.Map(x => x.StratificationCategoryId2).Name("StratificationCategoryID2").Index(30);
-                map.Map(x => x.StratificationId2).Name("StratificationID2").Index(31);
-                map.Map(x => x.StratificationCategoryId3).Name("StratificationCategoryID3").Index(32);
-                map.Map(x => x.StratificationId3).Name("StratificationID3").Index(33);
-                configuration.RegisterClassMap(map);
-                var csvReader = new CsvHelper.CsvReader(textReader, configuration);
-                csvReader.Read();
-                csvReader.ReadHeader();
-                var people = csvReader.GetRecords<SampleData>().ToArray();
-            }
+                HasHeaderRecord = true
+            };
+            var csvReader = new CsvHelper.CsvReader(textReader, configuration);
+            var map = csvReader.Context.AutoMap<SampleData>();
+            map.Map(x => x.YearStart).Name("YearStart").Index(0);
+            map.Map(x => x.YearEnd).Name("YearEnd").Index(1);
+            map.Map(x => x.LocationAbbreviation).Name("LocationAbbr").Index(2);
+            map.Map(x => x.LocationDescription).Name("LocationDesc").Index(3);
+            map.Map(x => x.DataSource).Name("DataSource").Index(4);
+            map.Map(x => x.Topic).Name("Topic").Index(5);
+            map.Map(x => x.Question).Name("Question").Index(6);
+            map.Map(x => x.Response).Name("Response").Index(7);
+            map.Map(x => x.DataValueUnit).Name("DataValueUnit").Index(8);
+            map.Map(x => x.DataValueType).Name("DataValueType").Index(9);
+            map.Map(x => x.DataValue).Name("DataValue").Index(10);
+            map.Map(x => x.AlternativeDataValue).Name("DataValueAlt").Index(11);
+            map.Map(x => x.DataValueFootnoteSymbol).Name("DataValueFootnoteSymbol").Index(12);
+            map.Map(x => x.DataValueFootnote).Name("DatavalueFootnote").Index(13);
+            map.Map(x => x.LowConfidenceLimit).Name("LowConfidenceLimit").Index(14);
+            map.Map(x => x.HighConfidenceLimit).Name("HighConfidenceLimit").Index(15);
+            map.Map(x => x.StratificationCategory1).Name("StratificationCategory1").Index(16);
+            map.Map(x => x.Stratification1).Name("Stratification1").Index(17);
+            map.Map(x => x.StratificationCategory2).Name("StratificationCategory2").Index(18);
+            map.Map(x => x.Stratification2).Name("Stratification2").Index(19);
+            map.Map(x => x.StratificationCategory3).Name("StratificationCategory3").Index(20);
+            map.Map(x => x.Stratification3).Name("Stratification3").Index(21);
+            map.Map(x => x.GeoLocation).Name("GeoLocation").Index(22);
+            map.Map(x => x.ResponseId).Name("ResponseID").Index(23);
+            map.Map(x => x.LocationId).Name("LocationID").Index(24);
+            map.Map(x => x.TopicId).Name("TopicID").Index(25);
+            map.Map(x => x.QuestionId).Name("QuestionID").Index(26);
+            map.Map(x => x.DataValueTypeId).Name("DataValueTypeID").Index(27);
+            map.Map(x => x.StratificationCategoryId1).Name("StratificationCategoryID1").Index(28);
+            map.Map(x => x.StratificationId1).Name("StratificationID1").Index(29);
+            map.Map(x => x.StratificationCategoryId2).Name("StratificationCategoryID2").Index(30);
+            map.Map(x => x.StratificationId2).Name("StratificationID2").Index(31);
+            map.Map(x => x.StratificationCategoryId3).Name("StratificationCategoryID3").Index(32);
+            map.Map(x => x.StratificationId3).Name("StratificationID3").Index(33);
+            csvReader.Context.RegisterClassMap(map);
+            csvReader.Read();
+            csvReader.ReadHeader();
+            var people = csvReader.GetRecords<SampleData>().ToArray();
         }
 
         [Benchmark]
@@ -106,11 +104,9 @@ namespace FlatFiles.Benchmark
 
             string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
-            using (var stream = File.OpenRead(path))
-            using (var textReader = new StreamReader(stream))
-            {
-                var people = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
-            }
+            using var stream = File.OpenRead(path);
+            using var textReader = new StreamReader(stream);
+            var people = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         private class SampleData
