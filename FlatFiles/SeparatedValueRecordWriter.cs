@@ -16,16 +16,17 @@ namespace FlatFiles
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options)
         {
             this.writer = writer;
+            var executionContext = new SeparatedValueExecutionContext()
+            {
+                Schema = schema,
+                Options = options.Clone()
+            };
             Metadata = new SeparatedValueRecordContext()
             {
-                ExecutionContext = new SeparatedValueExecutionContext()
-                {
-                    Schema = schema,
-                    Options = options.Clone()
-                }
+                ExecutionContext = executionContext
             };
-            quoteString = String.Empty + options.Quote;
-            doubleQuoteString = String.Empty + options.Quote + options.Quote;
+            quoteString = options.Quote.ToString();
+            doubleQuoteString = options.Quote.ToString() + options.Quote;
         }
 
         public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
@@ -38,28 +39,29 @@ namespace FlatFiles
 
         public void WriteRecord(object[] values)
         {
-            Metadata.ExecutionContext.Schema = GetSchema(values);
-            if (Metadata.ExecutionContext.Schema != null && values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
-            {
-                throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
-            }
-            var formattedValues = FormatValues(values);
-            EscapeValues(formattedValues);
-            string joined = String.Join(Metadata.ExecutionContext.Options.Separator, formattedValues);
+            string joined = FormatAndJoinValues(values);
             writer.Write(joined);
         }
 
         public async Task WriteRecordAsync(object[] values)
         {
-            Metadata.ExecutionContext.Schema = GetSchema(values);
-            if (Metadata.ExecutionContext.Schema != null && values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
+            var joined = FormatAndJoinValues(values);
+            await writer.WriteAsync(joined).ConfigureAwait(false);
+        }
+
+        private string FormatAndJoinValues(object[] values)
+        {
+            var executionContext = Metadata.ExecutionContext;
+            var schema = GetSchema(values);
+            executionContext.Schema = schema;
+            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
             var formattedValues = FormatValues(values);
             EscapeValues(formattedValues);
-            string joined = String.Join(Metadata.ExecutionContext.Options.Separator, formattedValues);
-            await writer.WriteAsync(joined).ConfigureAwait(false);
+            string joined = String.Join(executionContext.Options.Separator, formattedValues);
+            return joined;
         }
 
         private SeparatedValueSchema GetSchema(object[] values)
@@ -69,7 +71,8 @@ namespace FlatFiles
 
         private string[] FormatValues(object[] values)
         {
-            if (Metadata.ExecutionContext.Schema == null)
+            var schema = Metadata.ExecutionContext.Schema;
+            if (schema == null)
             {
                 string[] results = new string[values.Length];
                 for (int index = 0; index != results.Length; ++index)
@@ -78,7 +81,7 @@ namespace FlatFiles
                 }
                 return results;
             }
-            return Metadata.ExecutionContext.Schema.FormatValues(Metadata, values);
+            return schema.FormatValues(Metadata, values);
         }
 
         private static string ToString(object value)
@@ -100,7 +103,6 @@ namespace FlatFiles
             {
                 return quoteString + value.Replace(quoteString, doubleQuoteString) + quoteString;
             }
-
             return value;
         }
 
@@ -111,11 +113,12 @@ namespace FlatFiles
             {
                 return false;
             }
-            if (Metadata.ExecutionContext.Options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
+            var options = Metadata.ExecutionContext.Options;
+            if (options.QuoteBehavior == QuoteBehavior.AlwaysQuote)
             {
                 return true;
             }
-            if (Metadata.ExecutionContext.Options.QuoteBehavior == QuoteBehavior.Never)
+            if (options.QuoteBehavior == QuoteBehavior.Never)
             {
                 return false;
             }
@@ -130,12 +133,12 @@ namespace FlatFiles
                 return true;
             }
             // Escape strings containing the separator.
-            if (value.Contains(Metadata.ExecutionContext.Options.Separator))
+            if (value.Contains(options.Separator))
             {
                 return true;
             }
             // Escape strings containing the record separator.
-            if (Metadata.ExecutionContext.Options.RecordSeparator != null && value.Contains(Metadata.ExecutionContext.Options.RecordSeparator))
+            if (options.RecordSeparator != null && value.Contains(options.RecordSeparator))
             {
                 return true;
             }
@@ -157,8 +160,7 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = getColumnNames();
-            string joined = String.Join(Metadata.ExecutionContext.Options.Separator, names);
+            string joined = JoinSchema();
             writer.Write(joined);
         }
 
@@ -172,18 +174,26 @@ namespace FlatFiles
             {
                 return;
             }
-            var names = getColumnNames();
-            string joined = String.Join(Metadata.ExecutionContext.Options.Separator, names);
+            string joined = JoinSchema();
             await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 
-        private string[] getColumnNames()
+        private String JoinSchema()
         {
-            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
-            string[] columnNames = new string[Metadata.ExecutionContext.Schema.ColumnDefinitions.Count];
+            var names = GetColumnNames();
+            string joined = String.Join(Metadata.ExecutionContext.Options.Separator, names);
+            return joined;
+        }
+
+        private string[] GetColumnNames()
+        {
+            var schema = Metadata.ExecutionContext.Schema;
+            var definitions = schema.ColumnDefinitions;
+            string[] columnNames = new string[schema.ColumnDefinitions.Count];
             for (int columnIndex = 0; columnIndex != columnNames.Length; ++columnIndex)
             {
-                var columnName = definitions[columnIndex].ColumnName;
+                var column = definitions[columnIndex];
+                var columnName = column.ColumnName;
                 columnNames[columnIndex] = Escape(columnName);
             }
             return columnNames;
@@ -191,12 +201,14 @@ namespace FlatFiles
 
         public void WriteRecordSeparator()
         {
-            writer.Write(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine);
+            var separator = Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine;
+            writer.Write(separator);
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            await writer.WriteAsync(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
+            var separator = Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine;
+            await writer.WriteAsync(separator).ConfigureAwait(false);
         }
 
         public void WriteRaw(String data)

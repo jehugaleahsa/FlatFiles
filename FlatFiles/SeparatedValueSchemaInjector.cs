@@ -5,24 +5,14 @@ using FlatFiles.Properties;
 namespace FlatFiles
 {
     /// <summary>
-    /// Allows specifying which schema to use when a predicate is matched.
-    /// </summary>
-    public interface ISeparatedValueSchemaInjectorWhenBuilder
-    {
-        /// <summary>
-        /// Specifies which schema to use when the predicate is matched.
-        /// </summary>
-        /// <param name="schema">The schema to use.</param>
-        /// <exception cref="System.ArgumentNullException">The schema is null.</exception>
-        void Use(SeparatedValueSchema schema);
-    }
-
-    /// <summary>
     /// Represents a class that can dynamically provide the schema based on the shape of the data being written.
     /// </summary>
-    public class SeparatedValueSchemaInjector
+    public sealed class SeparatedValueSchemaInjector
     {
-        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher { Predicate = values => false };
+        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher()
+        { 
+            Predicate = values => false 
+        };
         private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
@@ -56,7 +46,18 @@ namespace FlatFiles
         /// <returns>The current selector to allow for further customization.</returns>
         public void WithDefault(SeparatedValueSchema schema)
         {
-            defaultMatcher = schema == null ? nonMatcher : new SchemaMatcher { Predicate = values => true, Schema = schema };
+            if (schema == null)
+            {
+                defaultMatcher = nonMatcher;
+            }
+            else
+            {
+                defaultMatcher = new SchemaMatcher() 
+                { 
+                    Predicate = values => true, 
+                    Schema = schema 
+                };
+            }
         }
 
         private void Add(SeparatedValueSchema schema, Func<object[], bool> predicate)
@@ -85,14 +86,14 @@ namespace FlatFiles
             throw new FlatFileException(Resources.MissingMatcher);
         }
 
-        private class SchemaMatcher
+        private sealed class SchemaMatcher
         {
             public SeparatedValueSchema Schema { get; set; }
 
             public Func<object[], bool> Predicate { get; set; }
         }
 
-        private class SeparatedValueSchemaInjectorWhenBuilder : ISeparatedValueSchemaInjectorWhenBuilder
+        private sealed class SeparatedValueSchemaInjectorWhenBuilder : ISeparatedValueSchemaInjectorWhenBuilder
         {
             private readonly SeparatedValueSchemaInjector selector;
             private readonly Func<object[], bool> predicate;

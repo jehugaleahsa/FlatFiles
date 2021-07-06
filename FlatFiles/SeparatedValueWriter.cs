@@ -119,11 +119,12 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.ExecutionContext.Schema != null)
+            var metadata = recordWriter.Metadata;
+            if (metadata.ExecutionContext.Schema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
-                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++metadata.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -138,11 +139,12 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Metadata.ExecutionContext.Schema != null)
+            var metadata = recordWriter.Metadata;
+            if (metadata.ExecutionContext.Schema != null)
             {
                 await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                ++recordWriter.Metadata.PhysicalRecordNumber;
+                ++metadata.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -151,20 +153,22 @@ namespace FlatFiles
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
-        /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
+        /// <exception cref="ArgumentNullException">The values array is null.</exception>
         public void Write(object[] values)
         {
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
+            var metadata = recordWriter.Metadata;
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
+                var executionContext = metadata.ExecutionContext;
+                if (executionContext.Options.IsFirstRecordSchema && executionContext.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
-                    ++recordWriter.Metadata.PhysicalRecordNumber;
+                    ++metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
@@ -172,8 +176,8 @@ namespace FlatFiles
             {
                 recordWriter.WriteRecord(values);
                 recordWriter.WriteRecordSeparator();
-                ++recordWriter.Metadata.PhysicalRecordNumber;
-                ++recordWriter.Metadata.LogicalRecordNumber;
+                ++metadata.PhysicalRecordNumber;
+                ++metadata.LogicalRecordNumber;
             }
             catch (RecordProcessingException exception)
             {
@@ -181,7 +185,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
             }
         }
 
@@ -189,20 +193,22 @@ namespace FlatFiles
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
-        /// <exception cref="System.ArgumentNullException">The values array is null.</exception>
+        /// <exception cref="ArgumentNullException">The values array is null.</exception>
         public async Task WriteAsync(object[] values)
         {
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
+            var metadata = recordWriter.Metadata;
             if (!isSchemaWritten)
             {
-                if (recordWriter.Metadata.ExecutionContext.Options.IsFirstRecordSchema && recordWriter.Metadata.ExecutionContext.Schema != null)
+                var executionContext = metadata.ExecutionContext;
+                if (executionContext.Options.IsFirstRecordSchema && executionContext.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                    ++recordWriter.Metadata.PhysicalRecordNumber;
+                    ++metadata.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
@@ -210,8 +216,8 @@ namespace FlatFiles
             {
                 await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                ++recordWriter.Metadata.PhysicalRecordNumber;
-                ++recordWriter.Metadata.LogicalRecordNumber;
+                ++metadata.PhysicalRecordNumber;
+                ++metadata.LogicalRecordNumber;
             }
             catch (RecordProcessingException exception)
             {
@@ -219,7 +225,7 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(recordWriter.Metadata, Resources.InvalidRecordConversion, exception));
+                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
             }
         }
 

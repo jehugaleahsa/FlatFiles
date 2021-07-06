@@ -14,13 +14,14 @@ namespace FlatFiles
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema schema, FixedLengthOptions options)
         {
             this.writer = writer;
+            var executionContext = new FixedLengthExecutionContext()
+            {
+                Schema = schema,
+                Options = options.Clone()
+            };
             Metadata = new FixedLengthRecordContext()
             {
-                ExecutionContext = new FixedLengthExecutionContext()
-                {
-                    Schema = schema,
-                    Options = options.Clone()
-                }
+                ExecutionContext = executionContext
             };
         }
 
@@ -34,8 +35,9 @@ namespace FlatFiles
 
         public void WriteRecord(object[] values)
         {
-            Metadata.ExecutionContext.Schema = GetSchema(values);
-            if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = GetSchema(values);
+            Metadata.ExecutionContext.Schema = schema;
+            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
@@ -49,8 +51,9 @@ namespace FlatFiles
 
         public async Task WriteRecordAsync(object[] values)
         {
-            Metadata.ExecutionContext.Schema = GetSchema(values);
-            if (values.Length != Metadata.ExecutionContext.Schema.ColumnDefinitions.PhysicalCount)
+            var schema = GetSchema(values);
+            Metadata.ExecutionContext.Schema = schema;
+            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new RecordProcessingException(Metadata, Resources.WrongNumberOfValues);
             }
@@ -96,13 +99,16 @@ namespace FlatFiles
             {
                 return;
             }
-            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
-            var windows = Metadata.ExecutionContext.Schema.Windows;
+            var schema = Metadata.ExecutionContext.Schema;
+            var definitions = schema.ColumnDefinitions;
+            var windows = schema.Windows;
             int columnCount = definitions.Count;
             for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {
-                string columnName = definitions[columnIndex].ColumnName;
-                string fittedValue = FitWidth(windows[columnIndex], columnName);
+                var window = windows[columnIndex];
+                var column = definitions[columnIndex];
+                var columnName = column.ColumnName;
+                var fittedValue = FitWidth(window, columnName);
                 writer.Write(fittedValue);
             }
         }
@@ -113,13 +119,16 @@ namespace FlatFiles
             {
                 return;
             }
-            var definitions = Metadata.ExecutionContext.Schema.ColumnDefinitions;
-            var windows = Metadata.ExecutionContext.Schema.Windows;
+            var schema = Metadata.ExecutionContext.Schema;
+            var definitions = schema.ColumnDefinitions;
+            var windows = schema.Windows;
             int columnCount = definitions.Count;
             for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {
-                string columnName = definitions[columnIndex].ColumnName;
-                string fittedValue = FitWidth(windows[columnIndex], columnName);
+                var window = windows[columnIndex];
+                var column = definitions[columnIndex];
+                string columnName = column.ColumnName;
+                string fittedValue = FitWidth(window, columnName);
                 await writer.WriteAsync(fittedValue).ConfigureAwait(false);
             }
         }
@@ -155,28 +164,36 @@ namespace FlatFiles
 
         private string GetPaddedValue(string value, Window window)
         {
-            var alignment = window.Alignment ?? Metadata.ExecutionContext.Options.Alignment;
+            var options = Metadata.ExecutionContext.Options;
+            var alignment = window.Alignment ?? options.Alignment;
+            var fillCharacter = window.FillCharacter ?? options.FillCharacter;
             if (alignment == FixedAlignment.LeftAligned)
             {
-                return value.PadRight(window.Width, window.FillCharacter ?? Metadata.ExecutionContext.Options.FillCharacter);
+                return value.PadRight(window.Width, fillCharacter);
             }
-
-            return value.PadLeft(window.Width, window.FillCharacter ?? Metadata.ExecutionContext.Options.FillCharacter);
+            else
+            {
+                return value.PadLeft(window.Width, fillCharacter);
+            }
         }
 
         public void WriteRecordSeparator()
         {
-            if (Metadata.ExecutionContext.Options.HasRecordSeparator)
+            var options = Metadata.ExecutionContext.Options;
+            if (options.HasRecordSeparator)
             {
-                writer.Write(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine);
+                var separator = options.RecordSeparator ?? Environment.NewLine;
+                writer.Write(separator);
             }
         }
 
         public async Task WriteRecordSeparatorAsync()
         {
-            if (Metadata.ExecutionContext.Options.HasRecordSeparator)
+            var options = Metadata.ExecutionContext.Options;
+            if (options.HasRecordSeparator)
             {
-                await writer.WriteAsync(Metadata.ExecutionContext.Options.RecordSeparator ?? Environment.NewLine).ConfigureAwait(false);
+                var separator = options.RecordSeparator ?? Environment.NewLine;
+                await writer.WriteAsync(separator).ConfigureAwait(false);
             }
         }
 

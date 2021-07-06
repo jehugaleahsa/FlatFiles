@@ -28,7 +28,7 @@ namespace FlatFiles
         {
             foreach (IColumnDefinition definition in other.definitions)
             {
-                addColumn(definition);
+                AddColumnInternal(definition);
             }
         }
 
@@ -48,8 +48,8 @@ namespace FlatFiles
         {
             get 
             {
-                int index = ordinals.ContainsKey(columnName) ? ordinals[columnName] : -1;
-                return definitions[index];
+                int index = GetOrdinal(columnName);
+                return this[index];
             }
         }
 
@@ -83,10 +83,10 @@ namespace FlatFiles
             {
                 throw new ArgumentException(Resources.DuplicateColumnName, nameof(definition));
             }
-            addColumn(definition);
+            AddColumnInternal(definition);
         }
 
-        private void addColumn(IColumnDefinition definition)
+        private void AddColumnInternal(IColumnDefinition definition)
         {
             definitions.Add(definition);
             if (definition is IMetadataColumn)

@@ -1455,7 +1455,7 @@ namespace FlatFiles.TypeMapping
 
         public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null)
         {
-            SeparatedValueSchema schema = getSchema();
+            SeparatedValueSchema schema = GetSchemaInternal();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
             return Read(separatedValueReader);
         }
@@ -1471,7 +1471,7 @@ namespace FlatFiles.TypeMapping
 
         public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
         {
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
             return GetTypedReader(separatedValueReader);
         }
@@ -1494,7 +1494,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             Write(separatedValueWriter, entities);
         }
@@ -1511,7 +1511,7 @@ namespace FlatFiles.TypeMapping
             {
                 throw new ArgumentNullException(nameof(entities));
             }
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             await WriteAsync(separatedValueWriter, entities).ConfigureAwait(false);
         }
@@ -1524,7 +1524,7 @@ namespace FlatFiles.TypeMapping
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null)
         {
-            var schema = getSchema();
+            var schema = GetSchemaInternal();
             var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
             return GetTypedWriter(separatedValueWriter);
         }
@@ -1537,10 +1537,10 @@ namespace FlatFiles.TypeMapping
 
         public SeparatedValueSchema GetSchema()
         {
-            return getSchema();
+            return GetSchemaInternal();
         }
 
-        private SeparatedValueSchema getSchema()
+        private SeparatedValueSchema GetSchemaInternal()
         {
             SeparatedValueSchema schema = new SeparatedValueSchema();
             var mappings = lookup.GetMappings();
@@ -1554,7 +1554,7 @@ namespace FlatFiles.TypeMapping
 
         SeparatedValueSchema IDynamicSeparatedValueTypeConfiguration.GetSchema()
         {
-            return GetSchema();
+            return GetSchemaInternal();
         }
 
         IBooleanPropertyMapping IDynamicSeparatedValueTypeConfiguration.BooleanProperty(string memberName)

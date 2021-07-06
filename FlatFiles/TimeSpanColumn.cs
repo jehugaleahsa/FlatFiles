@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 
 namespace FlatFiles
 {
@@ -140,7 +139,8 @@ namespace FlatFiles
             {
                 return value.ToString();
             }
-            return value.ToString(OutputFormat, GetFormatProvider(context, FormatProvider));
+            var provider = GetFormatProvider(context, FormatProvider);
+            return value.ToString(OutputFormat, provider);
         }
     }
 }

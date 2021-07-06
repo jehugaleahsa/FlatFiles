@@ -59,13 +59,14 @@ namespace FlatFiles
                 options = new FixedLengthOptions();
             }
             parser = new FixedLengthRecordParser(reader, schema, options);
+            var executionContext = new FixedLengthExecutionContext()
+            {
+                Schema = schema,
+                Options = options.Clone()
+            };
             metadata = new FixedLengthRecordContext()
             {
-                ExecutionContext = new FixedLengthExecutionContext()
-                {
-                    Schema = schema,
-                    Options = options.Clone()
-                }
+                ExecutionContext = executionContext
             };
         }
 
@@ -316,7 +317,8 @@ namespace FlatFiles
         {
             try
             {
-                return metadata.ExecutionContext.Schema.ParseValues(metadata, rawValues);
+                var schema = metadata.ExecutionContext.Schema;
+                return schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {

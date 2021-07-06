@@ -71,9 +71,4 @@ namespace FlatFiles
         /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
         Task WriteRawAsync(String data, bool writeRecordSeparator = false);
     }
-
-    internal interface IWriterWithMetadata : IWriter
-    {
-        IRecordContext GetMetadata();
-    }
 }

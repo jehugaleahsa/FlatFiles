@@ -56,7 +56,8 @@ namespace FlatFiles
         protected override string OnFormat(IColumnContext context, object[] values)
         {
             var writer = new StringWriter();
-            var recordWriter = new FixedLengthRecordWriter(writer, schema, Options ?? new FixedLengthOptions());
+            var options = Options ?? new FixedLengthOptions();
+            var recordWriter = new FixedLengthRecordWriter(writer, schema, options);
             recordWriter.WriteRecord(values);
             return writer.ToString();
         }

@@ -92,7 +92,8 @@ namespace FlatFiles
 
         private SeparatedValueRecordWriter GetWriter(StringWriter writer)
         {
-            return new SeparatedValueRecordWriter(writer, schema, Options ?? new SeparatedValueOptions());
+            var options = Options ?? new SeparatedValueOptions();
+            return new SeparatedValueRecordWriter(writer, schema, options);
         }
     }
 }

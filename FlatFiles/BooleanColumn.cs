@@ -53,8 +53,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext context, bool value)
         {
-            bool actual = value;
-            return actual ? TrueString : FalseString;
+            return value ? TrueString : FalseString;
         }
     }
 }

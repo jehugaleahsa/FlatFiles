@@ -20,14 +20,16 @@ namespace FlatFiles
         {
             this.reader = reader;
             Options = options.Clone();
-            separatorMatcher = SeparatorMatcher.GetMatcher(reader, options.Separator);
-            recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, options.RecordSeparator);
-            if (options.RecordSeparator != null && options.RecordSeparator.StartsWith(options.Separator))
+            var separator = options.Separator;
+            separatorMatcher = SeparatorMatcher.GetMatcher(reader, separator);
+            var recordSeparator = options.RecordSeparator ?? Environment.NewLine;
+            recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, recordSeparator);
+            if (recordSeparator.StartsWith(separator))
             {
-                string postfix = options.RecordSeparator.Substring(options.Separator.Length);
+                string postfix = recordSeparator.Substring(separator.Length);
                 postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
-            separatorLength = Math.Max(Options.RecordSeparator?.Length ?? 2, Options.Separator.Length);
+            separatorLength = Math.Max(recordSeparator.Length, separator.Length);
         }
 
         internal SeparatedValueOptions Options { get; }
@@ -217,7 +219,14 @@ namespace FlatFiles
                     }
                     else
                     {
-                        tokenType = Options.PreserveWhiteSpace ? AppendWhiteSpace() : SkipWhiteSpace();
+                        if (Options.PreserveWhiteSpace)
+                        {
+                            tokenType = AppendWhiteSpace();
+                        }
+                        else
+                        {
+                            tokenType = SkipWhiteSpace();
+                        }
                         // If we find anything other than a separator, it's a syntax error.
                         if (tokenType == TokenType.Normal)
                         {
@@ -263,7 +272,14 @@ namespace FlatFiles
                     }
                     else
                     {
-                        tokenType = await (Options.PreserveWhiteSpace ? AppendWhiteSpaceAsync() : SkipWhiteSpaceAsync()).ConfigureAwait(false);
+                        if (Options.PreserveWhiteSpace)
+                        {
+                            tokenType = await AppendWhiteSpaceAsync().ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            tokenType = await SkipWhiteSpaceAsync().ConfigureAwait(false);
+                        }
                         // If we find anything other than a separator, it's a syntax error.
                         if (tokenType == TokenType.Normal)
                         {

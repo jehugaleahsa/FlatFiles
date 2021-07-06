@@ -14,9 +14,9 @@ namespace FlatFiles
         private readonly Func<TDestination, TSource> formatter;
 
         public ConversionColumn(
-            IColumnDefinition columnDefinition,
-            Func<TSource, TDestination> parser, 
-            Func<TDestination, TSource> formatter)
+                IColumnDefinition columnDefinition,
+                Func<TSource, TDestination> parser, 
+                Func<TDestination, TSource> formatter)
             : base(columnDefinition.ColumnName)
         {
             this.columnDefinition = columnDefinition;

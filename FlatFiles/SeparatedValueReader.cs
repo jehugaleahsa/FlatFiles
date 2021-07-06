@@ -74,15 +74,16 @@ namespace FlatFiles
             {
                 throw new ArgumentException(Resources.SameSeparator, nameof(options));
             }
-            RetryReader retryReader = new RetryReader(reader);
+            var retryReader = new RetryReader(reader);
             parser = new SeparatedValueRecordParser(retryReader, options);
+            var executionContext = new SeparatedValueExecutionContext()
+            {
+                Schema = hasSchema ? schema : null,
+                Options = parser.Options.Clone()
+            };
             metadata = new SeparatedValueRecordContext()
             {
-                ExecutionContext = new SeparatedValueExecutionContext()
-                {
-                    Schema = hasSchema ? schema : null,
-                    Options = parser.Options.Clone()
-                }
+                ExecutionContext = executionContext
             };
         }
 
@@ -129,11 +130,12 @@ namespace FlatFiles
                 return null;
             }
             HandleSchema();
-            if (metadata.ExecutionContext.Schema == null)
+            var schema = metadata.ExecutionContext.Schema;
+            if (schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.ExecutionContext.Schema;
+            return schema;
         }
 
         ISchema IReader.GetSchema()
@@ -157,11 +159,12 @@ namespace FlatFiles
                 return null;
             }
             await HandleSchemaAsync().ConfigureAwait(false);
-            if (metadata.ExecutionContext.Schema == null)
+            var schema = metadata.ExecutionContext.Schema;
+            if (schema == null)
             {
                 throw new InvalidOperationException(Resources.SchemaNotDefined);
             }
-            return metadata.ExecutionContext.Schema;
+            return schema;
         }
 
         async Task<ISchema> IReader.GetSchemaAsync()
@@ -317,11 +320,12 @@ namespace FlatFiles
             {
                 return;
             }
-            metadata.ExecutionContext.Schema = new SeparatedValueSchema();
+            var schema = new SeparatedValueSchema();
+            metadata.ExecutionContext.Schema = schema;
             foreach (string columnName in columnNames)
             {
                 StringColumn column = new StringColumn(columnName);
-                metadata.ExecutionContext.Schema.AddColumn(column);
+                schema.AddColumn(column);
             }
         }
 
@@ -350,7 +354,8 @@ namespace FlatFiles
         private bool HasWrongNumberOfColumns(string[] values)
         {
             var schema = metadata.ExecutionContext.Schema;
-            return values.Length + schema.ColumnDefinitions.MetadataCount < schema.ColumnDefinitions.PhysicalCount;
+            var columnDefinitions = schema.ColumnDefinitions;
+            return values.Length + columnDefinitions.MetadataCount < columnDefinitions.PhysicalCount;
         }
 
         private async Task<string[]> ReadWithFilterAsync()
@@ -400,13 +405,14 @@ namespace FlatFiles
 
         private object[] ParseValues(string[] rawValues)
         {
-            if (metadata.ExecutionContext.Schema == null)
+            var schema = metadata.ExecutionContext.Schema;
+            if (schema == null)
             {
                 return ParseWithoutSchema(rawValues);
             }
             try
             {
-                return metadata.ExecutionContext.Schema.ParseValues(metadata, rawValues);
+                return schema.ParseValues(metadata, rawValues);
             }
             catch (FlatFileException exception)
             {
@@ -418,7 +424,7 @@ namespace FlatFiles
         private object[] ParseWithoutSchema(string[] rawValues)
         {
             var results = new object[rawValues.Length];
-            bool preserveWhitespace = metadata.ExecutionContext.Options.PreserveWhiteSpace;
+            var preserveWhitespace = metadata.ExecutionContext.Options.PreserveWhiteSpace;
             for (int columnIndex = 0; columnIndex != rawValues.Length; ++columnIndex)
             {
                 var rawValue = rawValues[columnIndex];
@@ -447,7 +453,7 @@ namespace FlatFiles
 
         private bool SkipInternal()
         {
-            string[] rawValues = ReadNextRecord();
+            var rawValues = ReadNextRecord();
             return rawValues != null;
         }
 
@@ -464,13 +470,13 @@ namespace FlatFiles
                 throw new InvalidOperationException(Resources.ReadingWithErrors);
             }
             await HandleSchemaAsync().ConfigureAwait(false);
-            bool result = await SkipAsyncInternal().ConfigureAwait(false);
+            var result = await SkipAsyncInternal().ConfigureAwait(false);
             return result;
         }
 
         private async ValueTask<bool> SkipAsyncInternal()
         {
-            string[] rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
+            var rawValues = await ReadNextRecordAsync().ConfigureAwait(false);
             return rawValues != null;
         }
 

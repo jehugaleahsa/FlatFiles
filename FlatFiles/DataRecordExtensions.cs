@@ -965,11 +965,11 @@ namespace FlatFiles
         {
             if (value is string stringValue)
             {
-                value = Guid.Parse(stringValue);
+                return Guid.Parse(stringValue);
             }
-            else if (value is byte[] byteArray)
+            if (value is byte[] byteArray)
             {
-                value = new Guid(byteArray);
+                return new Guid(byteArray);
             }
             return value;
         }
@@ -1034,7 +1034,7 @@ namespace FlatFiles
         /// <param name="values">The array to store the values in.</param>
         /// <param name="replaceDBNulls">Indicates whether DBNull instances should be replaced with nulls.</param>
         /// <returns>The number of objects copied to the array.</returns>
-        public static int GetValues(this IDataRecord record, object[] values, bool replaceDBNulls)
+        public static int GetValues(this IDataRecord record, object[] values, bool replaceDBNulls = false)
         {
             int result = record.GetValues(values);
             if (replaceDBNulls)

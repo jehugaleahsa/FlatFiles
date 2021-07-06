@@ -5,13 +5,6 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column whose data is not sourced by the input file.
     /// </summary>
-    public interface IMetadataColumn
-    {
-    }
-
-    /// <summary>
-    /// Represents a column whose data is not sourced by the input file.
-    /// </summary>
     /// <typeparam name="T">The type of the metadata.</typeparam>
     public abstract class MetadataColumn<T> : ColumnDefinition, IMetadataColumn
     {

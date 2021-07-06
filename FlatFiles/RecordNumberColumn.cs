@@ -71,10 +71,12 @@ namespace FlatFiles
 
         private int GetRecordNumber(IColumnContext context)
         {
+            var recordContext = context.RecordContext;
+            var options = recordContext.ExecutionContext.Options;
             if (IncludeSkippedRecords)
             {
-                int recordCount = context.RecordContext.PhysicalRecordNumber;
-                if (context.RecordContext.ExecutionContext.Options.IsFirstRecordSchema && !IncludeSchema)
+                int recordCount = recordContext.PhysicalRecordNumber;
+                if (options.IsFirstRecordSchema && !IncludeSchema)
                 {
                     --recordCount;
                 }
@@ -83,8 +85,8 @@ namespace FlatFiles
 
             // We only incrememnt the logical count after we are sure the record is not filtered out.
             // Since the value for the column is generated beforehand, we must increase it by one.
-            int offset = (IncludeSchema && context.RecordContext.ExecutionContext.Options.IsFirstRecordSchema) ? 2 : 1;
-            return context.RecordContext.LogicalRecordNumber + offset;
+            int offset = (IncludeSchema && options.IsFirstRecordSchema) ? 2 : 1;
+            return recordContext.LogicalRecordNumber + offset;
         }
     }
 }

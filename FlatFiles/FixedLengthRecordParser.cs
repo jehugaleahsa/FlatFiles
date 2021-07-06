@@ -31,9 +31,9 @@ namespace FlatFiles
             return recordReader.IsEndOfStream();
         }
 
-        public async ValueTask<bool> IsEndOfStreamAsync()
+        public ValueTask<bool> IsEndOfStreamAsync()
         {
-            return await recordReader.IsEndOfStreamAsync().ConfigureAwait(false);
+            return recordReader.IsEndOfStreamAsync();
         }
 
         public string ReadRecord()
@@ -41,9 +41,9 @@ namespace FlatFiles
             return recordReader.ReadRecord();
         }
 
-        public async Task<string> ReadRecordAsync()
+        public Task<string> ReadRecordAsync()
         {
-            return await recordReader.ReadRecordAsync().ConfigureAwait(false);
+            return recordReader.ReadRecordAsync();
         }
 
         private interface IRecordReader

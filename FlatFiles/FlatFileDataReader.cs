@@ -1,60 +1,12 @@
 ﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
+
 using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using System.Linq;
 
 namespace FlatFiles
 {
-    /// <summary>
-    /// Provides access to the column values within each row for a <see cref="FlatFileDataReader"/>.
-    /// </summary>
-    public interface IFlatFileDataRecord : IDataRecord
-    {
-        /// <summary>
-        /// Gets the DateTime value from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The DateTime value at the given index.</returns>
-        DateTimeOffset GetDateTimeOffset(int i);
-
-        /// <summary>
-        /// Gets the sbyte value from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The sbyte value at the given index.</returns>
-        sbyte GetSByte(int i);
-
-        /// <summary>
-        /// Gets the <see cref="TimeSpan"/> from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The string at the given index.</returns>
-        TimeSpan GetTimeSpan(int i);
-
-        /// <summary>
-        /// Gets the unsigned short value from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The unsigned short value at the given index.</returns>
-        ushort GetUInt16(int i);
-
-        /// <summary>
-        /// Gets the unsigned int value from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The unsigned int value at the given index.</returns>
-        uint GetUInt32(int i);
-
-        /// <summary>
-        /// Gets the unsigned long value from the current record at the given index.
-        /// </summary>
-        /// <param name="i">The index of the value.</param>
-        /// <returns>The unsigned long value at the given index.</returns>
-        ulong GetUInt64(int i);
-    }
-
     /// <summary>
     /// Provides an ADO.NET adapter (IDataReader) for a flat file reader.
     /// </summary>
@@ -91,7 +43,7 @@ namespace FlatFiles
         /// </summary>
         ~FlatFileDataReader()
         {
-            dispose(false);
+            DisposeInternal(false);
         }
 
         /// <summary>
@@ -99,11 +51,11 @@ namespace FlatFiles
         /// </summary>
         public void Dispose()
         {
-            dispose(true);
+            DisposeInternal(true);
             GC.SuppressFinalize(this);
         }
 
-        private void dispose(bool disposing)
+        private void DisposeInternal(bool disposing)
         {
             IsClosed = true;
         }
@@ -126,38 +78,45 @@ namespace FlatFiles
         {
             var schema = GetSchema();
             var schemaTable = GetEmptySchemaDataTable(schema);
+            var rows = schemaTable.Rows;
+            object[] values = new object[]
+            {
+                true,  // AllowDBNull
+                null,  // BaseCatalogName
+                null,  // BaseColumnName
+                null,  // BaseSchemaName
+                null,  // BaseServerName
+                null,  // BaseTableName
+                null,  // ColumnName
+                0,  // ColumnOrdinal
+                Int32.MaxValue,  // ColumnSize
+                null, // DataType
+                null,  // DataTypeName
+                false,  // IsAliased
+                false,  // IsAutoIncrement
+                false,  // IsColumnSet
+                false,  // IsExpression
+                false,  // IsHidden
+                false,  // IsIdentity
+                false,  // IsKey
+                false,  // IsLong
+                false,  // IsReadOnly
+                false,  // IsRowVersion
+                false,  // IsUnique
+                255,  // NumericPrecision
+                255,  // NumericScale
+                null  // ProviderType
+            };
             for (int index = 0, count = columns.Count; index != count; ++index)
             {
                 var column = columns[index];
-                object[] values = new object[]
-                {
-                    true,  // AllowDBNull
-                    null,  // BaseCatalogName
-                    column.ColumnName,  // BaseColumnName
-                    null,  // BaseSchemaName
-                    null,  // BaseServerName
-                    null,  // BaseTableName
-                    column.ColumnName,  // ColumnName
-                    index,  // ColumnOrdinal
-                    Int32.MaxValue,  // ColumnSize
-                    column.ColumnType, // DataType
-                    column.ColumnType.Name,  // DataTypeName
-                    false,  // IsAliased
-                    false,  // IsAutoIncrement
-                    false,  // IsColumnSet
-                    false,  // IsExpression
-                    false,  // IsHidden
-                    false,  // IsIdentity
-                    false,  // IsKey
-                    false,  // IsLong
-                    false,  // IsReadOnly
-                    false,  // IsRowVersion
-                    false,  // IsUnique
-                    255,  // NumericPrecision
-                    255,  // NumericScale
-                    column.ColumnType  // ProviderType
-                };
-                schemaTable.Rows.Add(values);
+                values[2] = column.ColumnName; // BaseColumnName
+                values[6] = column.ColumnName; // ColumnName
+                values[7] = index; // ColumnOrdinal
+                values[9] = column.ColumnType; // DataType
+                values[10] = column.ColumnType.Name; // DataTypeName
+                values[24] = column.ColumnType; // ProviderType
+                rows.Add(values);
             }
             schemaTable.AcceptChanges();
             return schemaTable;
@@ -165,35 +124,37 @@ namespace FlatFiles
 
         private static DataTable GetEmptySchemaDataTable(ISchema schema)
         {
-            DataTable schemaTable = new DataTable();
-            schemaTable.Locale = CultureInfo.InvariantCulture;
-            schemaTable.MinimumCapacity = schema.ColumnDefinitions.PhysicalCount;
+            DataTable schemaTable = new DataTable()
+            {
+                Locale = CultureInfo.InvariantCulture,
+                MinimumCapacity = schema.ColumnDefinitions.PhysicalCount
+            };
             schemaTable.Columns.AddRange(new[]
             {
-                new DataColumn(SchemaTableColumn.AllowDBNull, typeof(Boolean)),
-                new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(String)),
-                new DataColumn(SchemaTableColumn.BaseColumnName, typeof(String)),
-                new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(String)),
-                new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(String)),
-                new DataColumn(SchemaTableColumn.BaseTableName, typeof(String)),
-                new DataColumn(SchemaTableColumn.ColumnName, typeof(String)),
-                new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(Int32)),
-                new DataColumn(SchemaTableColumn.ColumnSize, typeof(Int32)),
+                new DataColumn(SchemaTableColumn.AllowDBNull, typeof(bool)),
+                new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(string)),
+                new DataColumn(SchemaTableColumn.BaseColumnName, typeof(string)),
+                new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(string)),
+                new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(string)),
+                new DataColumn(SchemaTableColumn.BaseTableName, typeof(string)),
+                new DataColumn(SchemaTableColumn.ColumnName, typeof(string)),
+                new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(int)),
+                new DataColumn(SchemaTableColumn.ColumnSize, typeof(int)),
                 new DataColumn(SchemaTableColumn.DataType, typeof(Type)),
-                new DataColumn("DataTypeName", typeof(String)),
-                new DataColumn(SchemaTableColumn.IsAliased, typeof(Boolean)),
-                new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(Boolean)),
-                new DataColumn("IsColumnSet", typeof(Boolean)),
-                new DataColumn(SchemaTableColumn.IsExpression, typeof(Boolean)),
-                new DataColumn(SchemaTableOptionalColumn.IsHidden, typeof(Boolean)),
-                new DataColumn("IsIdentity", typeof(Boolean)),
-                new DataColumn(SchemaTableColumn.IsKey, typeof(Boolean)),
-                new DataColumn(SchemaTableColumn.IsLong, typeof(Boolean)),
-                new DataColumn(SchemaTableOptionalColumn.IsReadOnly, typeof(Boolean)),
-                new DataColumn(SchemaTableOptionalColumn.IsRowVersion, typeof(Boolean)),
-                new DataColumn(SchemaTableColumn.IsUnique, typeof(Boolean)),
-                new DataColumn(SchemaTableColumn.NumericPrecision, typeof(Int32)),
-                new DataColumn(SchemaTableColumn.NumericScale, typeof(Int32)),
+                new DataColumn("DataTypeName", typeof(string)),
+                new DataColumn(SchemaTableColumn.IsAliased, typeof(bool)),
+                new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool)),
+                new DataColumn("IsColumnSet", typeof(bool)),
+                new DataColumn(SchemaTableColumn.IsExpression, typeof(bool)),
+                new DataColumn(SchemaTableOptionalColumn.IsHidden, typeof(bool)),
+                new DataColumn("IsIdentity", typeof(bool)),
+                new DataColumn(SchemaTableColumn.IsKey, typeof(bool)),
+                new DataColumn(SchemaTableColumn.IsLong, typeof(bool)),
+                new DataColumn(SchemaTableOptionalColumn.IsReadOnly, typeof(bool)),
+                new DataColumn(SchemaTableOptionalColumn.IsRowVersion, typeof(bool)),
+                new DataColumn(SchemaTableColumn.IsUnique, typeof(bool)),
+                new DataColumn(SchemaTableColumn.NumericPrecision, typeof(int)),
+                new DataColumn(SchemaTableColumn.NumericScale, typeof(int)),
                 new DataColumn(SchemaTableColumn.ProviderType, typeof(Type))
             });
             return schemaTable;
@@ -232,7 +193,8 @@ namespace FlatFiles
         /// Gets the number of fields in the current record.
         /// </summary>
         public int FieldCount {
-            get {
+            get 
+            {
                 GetSchema();
                 return columns.Count;
             }
@@ -638,4 +600,5 @@ namespace FlatFiles
         }
     }
 }
+
 #endif
