@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
@@ -9,7 +10,7 @@ namespace FlatFiles.Benchmark
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             RunBenchmarks();
 
@@ -37,6 +38,7 @@ namespace FlatFiles.Benchmark
             Console.In.ReadLine();
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private static void RunPerformanceMonitor()
         {
             var tester = new AsyncVsSyncTest();
