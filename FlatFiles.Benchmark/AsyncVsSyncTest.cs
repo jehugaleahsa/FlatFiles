@@ -111,12 +111,8 @@ namespace FlatFiles.Benchmark
             using (var response = await http.GetResponseAsync().ConfigureAwait(false))
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                var writer = mapper.GetWriter(textWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                while (await reader.ReadAsync().ConfigureAwait(false))
-                {
-                    await writer.WriteAsync(reader.Current).ConfigureAwait(false);
-                }
+                var entities = mapper.ReadAsync(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                await mapper.WriteAsync(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ConfigureAwait(false);
             }
             return textWriter.ToString();
 

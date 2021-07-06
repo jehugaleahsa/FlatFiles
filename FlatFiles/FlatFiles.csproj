@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netstandard2.0;netstandard1.6;net451</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.1;netstandard2.0;netstandard1.6;net451</TargetFrameworks>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
     <Copyright>Copyright @ 2021</Copyright>
@@ -10,19 +10,17 @@
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>csv;comma;tab;separated;value;delimited;flat;file;fixed;width;fixed-width;length;fixed-length;parser;parsing;parse</PackageTags>
-    <PackageReleaseNotes>Recent changes to write out headers when writing multiple records only applied to the extension method WriteAll. However, the mapper class's Write methods have a similar semantic and behaved the same as before. This commit actually changes the mapper methods to call WriteAll under the hood, so now the same behavior will be exhibited.
-
-I discovered a bug I introduced with the previous version where I wrote the schema out no matter what. I only want to do this if the writer is configured to write out the schema, which is false by default.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add explicit support for .net standard 2.1. Add explicit support for methods working with IAsyncEnumerable.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.15.0</Version>
+    <Version>4.16.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>4.15.0.0</AssemblyVersion>
-    <FileVersion>4.15.0.0</FileVersion>
+    <AssemblyVersion>4.16.0.0</AssemblyVersion>
+    <FileVersion>4.16.0.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
@@ -41,6 +39,10 @@ I discovered a bug I introduced with the previous version where I wrote the sche
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\FlatFiles.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.1\FlatFiles.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.0|AnyCPU'">
@@ -84,6 +86,11 @@ I discovered a bug I introduced with the previous version where I wrote the sche
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
     <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
