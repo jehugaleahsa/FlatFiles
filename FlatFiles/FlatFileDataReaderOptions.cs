@@ -1,5 +1,3 @@
-﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
-
 using System;
 
 namespace FlatFiles
@@ -28,5 +26,3 @@ namespace FlatFiles
         public bool IsNullStringAllowed { get; set; }
     }
 }
-
-#endif

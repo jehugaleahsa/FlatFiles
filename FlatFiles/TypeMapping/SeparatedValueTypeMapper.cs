@@ -839,13 +839,11 @@ namespace FlatFiles.TypeMapping
             return typedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
             return typedReader.ReadAllAsync();
         }
-#endif
 
         public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions? options = null)
         {
@@ -886,7 +884,6 @@ namespace FlatFiles.TypeMapping
             return typedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions? options = null)
         {
             if (entities == null)
@@ -896,7 +893,6 @@ namespace FlatFiles.TypeMapping
             var typedWriter = GetWriter(writer, options);
             return typedWriter.WriteAllAsync(entities);
         }
-#endif
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions? options = null)
         {
@@ -1107,14 +1103,12 @@ namespace FlatFiles.TypeMapping
             return untypedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         IAsyncEnumerable<object> IDynamicSeparatedValueTypeMapper.ReadAsync(TextReader reader, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedReader = untypedMapper.GetReader(reader, options);
             return untypedReader.ReadAllAsync();
         }
-#endif
 
         ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions? options)
         {
@@ -1135,14 +1129,12 @@ namespace FlatFiles.TypeMapping
             return untypedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
             return untypedWriter.WriteAllAsync(entities);
         }
-#endif
 
         ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions? options)
         {
