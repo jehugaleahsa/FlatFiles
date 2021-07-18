@@ -20,20 +20,20 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the format string to use when parsing the date and time.
         /// </summary>
-        public string InputFormat { get; set; }
+        public string? InputFormat { get; set; }
 
         /// <summary>
         /// Gets or sets the format string to use when converting the value to a string.
         /// </summary>
-        public string OutputFormat { get; set; }
+        public string? OutputFormat { get; set; }
 
         /// <summary>
         /// Gets or sets the format provider to use when parsing the date and time.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider { get; set; }
 
         /// <inheritdoc />
-        protected override DateTimeOffset OnParse(IColumnContext context, string value)
+        protected override DateTimeOffset OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
             if (InputFormat == null)
@@ -44,7 +44,7 @@ namespace FlatFiles
         }
 
         /// <inheritdoc />
-        protected override string OnFormat(IColumnContext context, DateTimeOffset value)
+        protected override string OnFormat(IColumnContext? context, DateTimeOffset value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)

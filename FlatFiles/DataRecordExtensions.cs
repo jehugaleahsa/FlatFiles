@@ -60,7 +60,7 @@ namespace FlatFiles
         public static TEnum GetEnum<TEnum>(this IDataRecord record, int i)
             where TEnum : Enum
         {
-            return GetValue<TEnum>(record, i, null);
+            return GetValue<TEnum>(record, i, null)!;
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace FlatFiles
             where TEnum : Enum
         {
             int ordinal = record.GetOrdinal(name);
-            return GetValue<TEnum>(record, ordinal, null);
+            return GetValue<TEnum>(record, ordinal, null)!;
         }
 
         /// <summary>
@@ -116,10 +116,10 @@ namespace FlatFiles
         /// <param name="i">The zero-based column ordinal.</param>
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
-        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, int i, Func<T, TEnum> mapper)
+        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, int i, Func<T?, TEnum> mapper)
             where TEnum : Enum
         {
-            T value = GetValue<T>(record, i, null);
+            T? value = GetValue<T>(record, i, null);
             return mapper(value);
         }
 
@@ -132,7 +132,7 @@ namespace FlatFiles
         /// <param name="name">The name of the column to find.</param>
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
-        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, string name, Func<T, TEnum> mapper)
+        public static TEnum GetEnum<T, TEnum>(this IDataRecord record, string name, Func<T?, TEnum> mapper)
             where TEnum : Enum
         {
             int ordinal = record.GetOrdinal(name);
@@ -148,10 +148,10 @@ namespace FlatFiles
         /// <param name="i">The zero-based column ordinal.</param>
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
-        public static TEnum? GetNullableEnum<T, TEnum>(this IDataRecord record, int i, Func<T, TEnum?> mapper)
+        public static TEnum? GetNullableEnum<T, TEnum>(this IDataRecord record, int i, Func<T?, TEnum?> mapper)
             where TEnum : struct, Enum
         {
-            T value = GetValue<T>(record, i, null);
+            T? value = GetValue<T>(record, i, null);
             return mapper(value);
         }
 
@@ -164,7 +164,7 @@ namespace FlatFiles
         /// <param name="name">The name of the column to find.</param>
         /// <param name="mapper">A method that maps from the column's type to the desired type.</param>
         /// <returns>The value of the column mapped to the enumeration value.</returns>
-        public static TEnum? GetNullableEnum<T, TEnum>(this IDataRecord record, string name, Func<T, TEnum?> mapper)
+        public static TEnum? GetNullableEnum<T, TEnum>(this IDataRecord record, string name, Func<T?, TEnum?> mapper)
             where TEnum : struct, Enum
         {
             int ordinal = record.GetOrdinal(name);
@@ -728,7 +728,7 @@ namespace FlatFiles
         /// <param name="record">The IDataRecord to get the value for.</param>
         /// <param name="i">The zero-based column ordinal.</param>
         /// <returns>The value of the column -or- null if the column is null.</returns>
-        public static string GetNullableString(this IDataRecord record, int i)
+        public static string? GetNullableString(this IDataRecord record, int i)
         {
             return record.IsDBNull(i) ? null : record.GetString(i);
         }
@@ -739,7 +739,7 @@ namespace FlatFiles
         /// <param name="record">The IDataRecord to get the value for.</param>
         /// <param name="name">The name of the column to find.</param>
         /// <returns>The value of the column -or- null if the column is null.</returns>
-        public static string GetNullableString(this IDataRecord record, string name)
+        public static string? GetNullableString(this IDataRecord record, string name)
         {
             int ordinal = record.GetOrdinal(name);
             return GetNullableString(record, ordinal);
@@ -916,7 +916,7 @@ namespace FlatFiles
         /// <param name="name">The name of the field to find.</param>
         /// <param name="provider">A format provider for converting to the desired type.</param>
         /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, string name, IFormatProvider provider = null)
+        public static T? GetValue<T>(this IDataRecord record, string name, IFormatProvider? provider = null)
         {
             int ordinal = record.GetOrdinal(name);
             return GetValue<T>(record, ordinal, provider);
@@ -930,9 +930,9 @@ namespace FlatFiles
         /// <param name="i">The zero-based column ordinal.</param>
         /// <param name="provider">A format provider for converting to the desired type.</param>
         /// <returns>The value.</returns>
-        public static T GetValue<T>(this IDataRecord record, int i, IFormatProvider provider = null)
+        public static T? GetValue<T>(this IDataRecord record, int i, IFormatProvider? provider = null)
         {
-            Type underlyingType = Nullable.GetUnderlyingType(typeof(T));
+            Type? underlyingType = Nullable.GetUnderlyingType(typeof(T));
             Type type = underlyingType ?? typeof(T);
             if (record.IsDBNull(i))
             {
@@ -1034,7 +1034,7 @@ namespace FlatFiles
         /// <param name="values">The array to store the values in.</param>
         /// <param name="replaceDBNulls">Indicates whether DBNull instances should be replaced with nulls.</param>
         /// <returns>The number of objects copied to the array.</returns>
-        public static int GetValues(this IDataRecord record, object[] values, bool replaceDBNulls = false)
+        public static int GetValues(this IDataRecord record, object?[] values, bool replaceDBNulls = false)
         {
             int result = record.GetValues(values);
             if (replaceDBNulls)

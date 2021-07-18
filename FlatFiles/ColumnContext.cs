@@ -2,6 +2,11 @@
 {
     internal class ColumnContext : IColumnContext
     {
+        public ColumnContext(IRecordContext recordContext)
+        {
+            RecordContext = recordContext;
+        }
+
         public IRecordContext RecordContext { get; set; }
 
         public IColumnDefinition ColumnDefinition

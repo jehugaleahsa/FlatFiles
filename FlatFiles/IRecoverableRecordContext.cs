@@ -4,7 +4,7 @@ namespace FlatFiles
 {
     internal interface IRecoverableRecordContext : IRecordContext
     {
-        event EventHandler<ColumnErrorEventArgs> ColumnError;
+        event EventHandler<ColumnErrorEventArgs>? ColumnError;
 
         bool HasHandler { get; }
 

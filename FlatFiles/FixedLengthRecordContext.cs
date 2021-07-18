@@ -4,17 +4,22 @@ namespace FlatFiles
 {
     internal sealed class FixedLengthRecordContext : IFixedLengthRecordContext, IRecoverableRecordContext
     {
-        public event EventHandler<ColumnErrorEventArgs> ColumnError;
+        public FixedLengthRecordContext(FixedLengthExecutionContext executionContext)
+        {
+            ExecutionContext = executionContext;
+        }
 
-        public FixedLengthExecutionContext ExecutionContext { get; set; }
+        public event EventHandler<ColumnErrorEventArgs>? ColumnError;
+
+        public FixedLengthExecutionContext ExecutionContext { get; }
 
         public int PhysicalRecordNumber { get; set; }
 
         public int LogicalRecordNumber { get; set; }
 
-        public string Record { get; set; }
+        public string? Record { get; set; }
 
-        public string[] Values { get; set; }
+        public string[]? Values { get; set; }
 
         IFixedLengthExecutionContext IFixedLengthRecordContext.ExecutionContext => ExecutionContext;
 

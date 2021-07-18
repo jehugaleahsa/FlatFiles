@@ -19,12 +19,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the value representing true.
         /// </summary>
-        public string TrueString { get; set; } = Boolean.TrueString;
+        public string? TrueString { get; set; } = Boolean.TrueString;
 
         /// <summary>
         /// Gets or sets the value representing false.
         /// </summary>
-        public string FalseString { get; set; } = Boolean.FalseString;
+        public string? FalseString { get; set; } = Boolean.FalseString;
 
         /// <summary>
         /// Parses the given value into its equivilent boolean value.
@@ -32,7 +32,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>True if the value equals the TrueString; otherwise, false.</returns>
-        protected override bool OnParse(IColumnContext context, string value)
+        protected override bool OnParse(IColumnContext? context, string value)
         {
             if (String.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
             {
@@ -51,9 +51,10 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected override string OnFormat(IColumnContext context, bool value)
+        protected override string OnFormat(IColumnContext? context, bool value)
         {
-            return value ? TrueString : FalseString;
+            string? formatted = value ? TrueString : FalseString;
+            return formatted ?? String.Empty;
         }
     }
 }

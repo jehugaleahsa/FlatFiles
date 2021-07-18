@@ -9,11 +9,11 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthSchemaInjector
     {
-        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher() 
+        private static readonly SchemaMatcher nonMatcher = new() 
         { 
             Predicate = values => false 
         };
-        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
+        private readonly List<SchemaMatcher> matchers = new();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace FlatFiles
             matchers.Add(matcher);
         }
 
-        internal FixedLengthSchema GetSchema(object[] values)
+        internal FixedLengthSchema GetSchema(object?[] values)
         {
             foreach (var matcher in matchers)
             {
@@ -90,7 +90,7 @@ namespace FlatFiles
         {
             public FixedLengthSchema Schema { get; set; }
 
-            public Func<object[], bool> Predicate { get; set; }
+            public Func<object?[], bool> Predicate { get; set; }
         }
 
         private sealed class FixedLengthSchemaInjectorWhenBuilder : IFixedLengthSchemaInjectorWhenBuilder

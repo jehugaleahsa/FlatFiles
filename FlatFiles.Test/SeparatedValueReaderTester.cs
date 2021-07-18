@@ -184,10 +184,11 @@ namespace FlatFiles.Test
         public void TestGetSchema_NotExtracted_Throws()
         {
             string text = "a,b,c";
-            StringReader stringReader = new StringReader(text);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var stringReader = new StringReader(text);
+            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
             IReader parser = new SeparatedValueReader(stringReader, options);
-            Assert.ThrowsException<InvalidOperationException>(() => parser.GetSchema());
+            var schema = parser.GetSchema();
+            Assert.IsNull(schema, "No schema was provided or located in the file. Null should be returned.");
         }
 
         /// <summary>

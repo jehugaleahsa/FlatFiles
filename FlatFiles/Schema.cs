@@ -17,7 +17,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column definitions that make up the schema.
         /// </summary>
-        public virtual ColumnCollection ColumnDefinitions { get; } = new ColumnCollection();
+        public virtual ColumnCollection ColumnDefinitions { get; } = new();
 
         /// <summary>
         /// Gets the index of the column with the given name.
@@ -45,9 +45,9 @@ namespace FlatFiles
         /// <param name="context">The metadata for the current record being processed.</param>
         /// <param name="values">The values to parse.</param>
         /// <returns>The parsed objects.</returns>
-        internal object[] ParseValues(IRecoverableRecordContext context, string[] values)
+        internal object?[] ParseValues(IRecoverableRecordContext context, string[] values)
         {
-            object[] parsedValues = new object[ColumnDefinitions.PhysicalCount];
+            object?[] parsedValues = new object?[ColumnDefinitions.PhysicalCount];
             for (int columnIndex = 0, sourceIndex = 0, destinationIndex = 0, columnCount = ColumnDefinitions.Count; 
                 columnIndex != columnCount; 
                 ++columnIndex)
@@ -56,7 +56,7 @@ namespace FlatFiles
                 if (definition is IMetadataColumn)
                 {
                     var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
-                    var metadata = ParseWithContext(columnContext, null);
+                    var metadata = ParseWithContext(columnContext, String.Empty);
                     parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
                 }
@@ -78,7 +78,7 @@ namespace FlatFiles
             return parsedValues;
         }
 
-        private object ParseValue(IRecoverableRecordContext context, int columnIndex, int destinationIndex, string rawValue)
+        private object? ParseValue(IRecoverableRecordContext context, int columnIndex, int destinationIndex, string rawValue)
         {
             var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
             if (isContextDisabled)
@@ -93,7 +93,7 @@ namespace FlatFiles
             }
         }
 
-        private object ParseWithContext(IColumnContext columnContext, string rawValue)
+        private object? ParseWithContext(IColumnContext columnContext, string rawValue)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace FlatFiles
             }
         }
 
-        private static object ParseWithoutContext(IColumnDefinition definition, int position, string rawValue)
+        private static object? ParseWithoutContext(IColumnDefinition definition, int position, string rawValue)
         {
             try
             {
@@ -136,7 +136,7 @@ namespace FlatFiles
         /// <param name="context">The metadata for the record currently being processed.</param>
         /// <param name="values">The values to format.</param>
         /// <returns>The formatted values.</returns>
-        internal string[] FormatValues(IRecoverableRecordContext context, object[] values)
+        internal string[] FormatValues(IRecoverableRecordContext context, object?[] values)
         {
             string[] formattedValues = new string[ColumnDefinitions.Count];
             for (int columnIndex = 0, valueIndex = 0, columnCount = ColumnDefinitions.Count; 
@@ -167,7 +167,7 @@ namespace FlatFiles
             return formattedValues;
         }
 
-        private string FormatValue(IRecoverableRecordContext context, int columnIndex, int valueIndex, object value)
+        private string FormatValue(IRecoverableRecordContext context, int columnIndex, int valueIndex, object? value)
         {
             var isContextDisabled = context.ExecutionContext.Options.IsColumnContextDisabled;
             if (isContextDisabled)
@@ -182,7 +182,7 @@ namespace FlatFiles
             }
         }
 
-        private string FormatWithContext(IColumnContext columnContext, object value)
+        private string FormatWithContext(IColumnContext columnContext, object? value)
         {
             try
             {
@@ -198,14 +198,14 @@ namespace FlatFiles
                     recordContext.ProcessError(this, e);
                     if (e.IsHandled)
                     {
-                        return (string)e.Substitution;
+                        return (string?)e.Substitution ?? String.Empty;
                     }
                 }
                 throw columnException;
             }
         }
 
-        private static string FormatWithoutContext(IColumnDefinition definition, int position, object value)
+        private static string FormatWithoutContext(IColumnDefinition definition, int position, object? value)
         {
             try
             {
@@ -219,9 +219,8 @@ namespace FlatFiles
 
         private static ColumnContext GetColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)
         {
-            return new ColumnContext()
+            return new ColumnContext(context)
             {
-                RecordContext = context,
                 PhysicalIndex = physicalIndex,
                 LogicalIndex = logicalIndex
             };

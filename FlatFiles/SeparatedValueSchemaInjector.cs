@@ -9,11 +9,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueSchemaInjector
     {
-        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher()
-        { 
-            Predicate = values => false 
-        };
-        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
+        private static readonly SchemaMatcher nonMatcher = new(null, values => false);
+        private readonly List<SchemaMatcher> matchers = new();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
         /// <summary>
@@ -28,9 +25,9 @@ namespace FlatFiles
         /// </summary>
         /// <param name="predicate">Indicates whether the schema should be used for a record.</param>
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        /// <exception cref="ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
-        public ISeparatedValueSchemaInjectorWhenBuilder When(Func<object[], bool> predicate)
+        public ISeparatedValueSchemaInjectorWhenBuilder When(Func<object?[], bool> predicate)
         {
             if (predicate == null)
             {
@@ -44,7 +41,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="schema">The default schema to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public void WithDefault(SeparatedValueSchema schema)
+        public void WithDefault(SeparatedValueSchema? schema)
         {
             if (schema == null)
             {
@@ -52,25 +49,17 @@ namespace FlatFiles
             }
             else
             {
-                defaultMatcher = new SchemaMatcher() 
-                { 
-                    Predicate = values => true, 
-                    Schema = schema 
-                };
+                defaultMatcher = new SchemaMatcher(schema, values => true);
             }
         }
 
-        private void Add(SeparatedValueSchema schema, Func<object[], bool> predicate)
+        private void Add(SeparatedValueSchema schema, Func<object?[], bool> predicate)
         {
-            var matcher = new SchemaMatcher()
-            {
-                Schema = schema,
-                Predicate = predicate
-            };
+            var matcher = new SchemaMatcher(schema, predicate);
             matchers.Add(matcher);
         }
 
-        internal SeparatedValueSchema GetSchema(object[] values)
+        internal SeparatedValueSchema? GetSchema(object?[] values)
         {
             foreach (var matcher in matchers)
             {
@@ -88,17 +77,23 @@ namespace FlatFiles
 
         private sealed class SchemaMatcher
         {
-            public SeparatedValueSchema Schema { get; set; }
+            public SchemaMatcher(SeparatedValueSchema? schema, Func<object?[], bool> predicate)
+            {
+                Schema = schema;
+                Predicate = predicate;
+            }
 
-            public Func<object[], bool> Predicate { get; set; }
+            public SeparatedValueSchema? Schema { get; }
+
+            public Func<object?[], bool> Predicate { get; }
         }
 
         private sealed class SeparatedValueSchemaInjectorWhenBuilder : ISeparatedValueSchemaInjectorWhenBuilder
         {
             private readonly SeparatedValueSchemaInjector selector;
-            private readonly Func<object[], bool> predicate;
+            private readonly Func<object?[], bool> predicate;
 
-            public SeparatedValueSchemaInjectorWhenBuilder(SeparatedValueSchemaInjector selector, Func<object[], bool> predicate)
+            public SeparatedValueSchemaInjectorWhenBuilder(SeparatedValueSchemaInjector selector, Func<object?[], bool> predicate)
             {
                 this.selector = selector;
                 this.predicate = predicate;

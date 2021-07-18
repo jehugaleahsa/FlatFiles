@@ -20,6 +20,6 @@ namespace FlatFiles
         /// <summary>
         /// Gets the global, default format provider to use.
         /// </summary>
-        IFormatProvider FormatProvider { get; }
+        IFormatProvider? FormatProvider { get; }
     }
 }

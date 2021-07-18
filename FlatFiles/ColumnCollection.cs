@@ -10,8 +10,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class ColumnCollection : IEnumerable<IColumnDefinition>
     {
-        private readonly List<IColumnDefinition> definitions = new List<IColumnDefinition>();
-        private readonly Dictionary<string, int> ordinals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<IColumnDefinition> definitions = new();
+        private readonly Dictionary<string, int> ordinals = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new ColumnCollection.
@@ -26,7 +26,7 @@ namespace FlatFiles
         /// <param name="other">The ColumnCollection to copy.</param>
         internal ColumnCollection(ColumnCollection other)
         {
-            foreach (IColumnDefinition definition in other.definitions)
+            foreach (var definition in other.definitions)
             {
                 AddColumnInternal(definition);
             }
@@ -79,7 +79,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(definition));
             }
-            if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName))
+            if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName!))
             {
                 throw new ArgumentException(Resources.DuplicateColumnName, nameof(definition));
             }
@@ -99,7 +99,7 @@ namespace FlatFiles
             }
             if (!String.IsNullOrEmpty(definition.ColumnName))
             {
-                ordinals.Add(definition.ColumnName, definitions.Count - 1);
+                ordinals.Add(definition.ColumnName!, definitions.Count - 1);
             }
         }
 

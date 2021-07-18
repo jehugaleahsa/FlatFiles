@@ -30,7 +30,7 @@ namespace FlatFiles.TypeMapping
         /// Gets the schema being used by the writer to write record values.
         /// </summary>
         /// <returns>The schema being used by the writer.</returns>
-        ISchema GetSchema();
+        ISchema? GetSchema();
 
         /// <summary>
         /// Write the textual representation of the record schema.
@@ -91,7 +91,7 @@ namespace FlatFiles.TypeMapping
         public IWriter Writer => writer;
 
 
-        public ISchema GetSchema()
+        public ISchema? GetSchema()
         {
             return writer.GetSchema();
         }

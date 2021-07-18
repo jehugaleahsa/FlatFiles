@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets the schema being used to process the records.
         /// </summary>
-        new SeparatedValueSchema Schema { get; }
+        new SeparatedValueSchema? Schema { get; }
 
         /// <summary>
         /// Gets the global options being used to process the records.

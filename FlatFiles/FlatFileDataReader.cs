@@ -12,9 +12,9 @@ namespace FlatFiles
     /// </summary>
     public sealed class FlatFileDataReader : IDataReader, IFlatFileDataRecord
     {
-        private ISchema schema;  // cached
-        private ColumnCollection columns; // cached
-        private object[] values; // cached
+        private ISchema? schema;  // cached
+        private ColumnCollection? columns; // cached
+        private object?[]? values; // cached
 
         /// <summary>
         /// Initializes a new instance of a FlatFileParser.
@@ -22,7 +22,7 @@ namespace FlatFiles
         /// <param name="reader">The reader to use to parse the underlying file.</param>
         /// <param name="options">The options to use to control how the file is read.</param>
         /// <exception cref="System.ArgumentNullException">The parser is null.</exception>
-        public FlatFileDataReader(IReader reader, FlatFileDataReaderOptions options = null)
+        public FlatFileDataReader(IReader reader, FlatFileDataReaderOptions? options = null)
         {
             Reader = reader ?? throw new ArgumentNullException(nameof(reader));
             Options = options ?? new FlatFileDataReaderOptions();
@@ -79,7 +79,7 @@ namespace FlatFiles
             var schema = GetSchema();
             var schemaTable = GetEmptySchemaDataTable(schema);
             var rows = schemaTable.Rows;
-            object[] values = new object[]
+            var values = new object?[]
             {
                 true,  // AllowDBNull
                 null,  // BaseCatalogName
@@ -107,6 +107,7 @@ namespace FlatFiles
                 255,  // NumericScale
                 null  // ProviderType
             };
+            var columns = GetColumns(schema);
             for (int index = 0, count = columns.Count; index != count; ++index)
             {
                 var column = columns[index];
@@ -124,7 +125,7 @@ namespace FlatFiles
 
         private static DataTable GetEmptySchemaDataTable(ISchema schema)
         {
-            DataTable schemaTable = new DataTable()
+            var schemaTable = new DataTable()
             {
                 Locale = CultureInfo.InvariantCulture,
                 MinimumCapacity = schema.ColumnDefinitions.PhysicalCount
@@ -192,13 +193,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the number of fields in the current record.
         /// </summary>
-        public int FieldCount {
-            get 
-            {
-                GetSchema();
-                return columns.Count;
-            }
-        }
+        public int FieldCount => GetColumns().Count;
 
         /// <summary>
         /// Gets the boolean value from the current record at the given index.
@@ -291,8 +286,7 @@ namespace FlatFiles
         /// <returns>The type name.</returns>
         public string GetDataTypeName(int i)
         {
-            GetSchema();
-            return columns[i].ColumnType.Name;
+            return GetColumns()[i].ColumnType.Name;
         }
 
         /// <summary>
@@ -346,8 +340,7 @@ namespace FlatFiles
         /// <returns>The type of the value at the given index.</returns>
         public Type GetFieldType(int i)
         {
-            GetSchema();
-            return columns[i].ColumnType;
+            return GetColumns()[i].ColumnType;
         }
 
         /// <summary>
@@ -410,10 +403,9 @@ namespace FlatFiles
         /// </summary>
         /// <param name="i">The index of the column.</param>
         /// <returns>The name of the column at the given index.</returns>
-        public string GetName(int i)
+        public string? GetName(int i)
         {
-            GetSchema();
-            return columns[i].ColumnName;
+            return GetColumns()[i].ColumnName;
         }
 
         /// <summary>
@@ -423,8 +415,7 @@ namespace FlatFiles
         /// <returns>The index of the column with the given name.</returns>
         public int GetOrdinal(string name)
         {
-            GetSchema();
-            return columns.GetOrdinal(name);
+            return GetColumns().GetOrdinal(name);
         }
 
         /// <summary>
@@ -443,10 +434,10 @@ namespace FlatFiles
         /// </summary>
         /// <param name="i">The index of the value.</param>
         /// <returns>The string at the given index.</returns>
-        public string GetString(int i)
+        public string? GetString(int i)
         {
             var values = GetValues();
-            var value = (string)values[i];
+            var value = (string?)values[i];
             if (value == null && !Options.IsNullStringAllowed)
             {
                 throw new InvalidCastException();
@@ -503,7 +494,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="i">The index of the value.</param>
         /// <returns>The value as an object at the given index.</returns>
-        public object GetValue(int i)
+        public object? GetValue(int i)
         {
             var values = GetValues();
             var value = values[i];
@@ -519,7 +510,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The array to copy the values to.</param>
         /// <returns>The number of values copied to the given array.</returns>
-        public int GetValues(object[] values)
+        public int GetValues(object?[] values)
         {
             var sources = GetValues();
             var length = Math.Min(sources.Length, values.Length);
@@ -553,12 +544,11 @@ namespace FlatFiles
         /// </summary>
         /// <param name="name">The name of the column.</param>
         /// <returns>The value in the column with the given name.</returns>
-        public object this[string name]
+        public object? this[string name]
         {
             get 
-            {  
-                var schema = GetSchema();
-                var index = schema.GetOrdinal(name);
+            {
+                var index = GetColumns().GetOrdinal(name);
                 return GetValue(index);
             }
         }
@@ -568,7 +558,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="i">The index of the value.</param>
         /// <returns>The value at the given index.</returns>
-        public object this[int i]
+        public object? this[int i]
         {
             get { return GetValue(i); }
         }
@@ -578,6 +568,23 @@ namespace FlatFiles
             if (schema == null)
             {
                 schema = Reader.GetSchema();
+                if (schema == null)
+                {
+                    throw new NullReferenceException();
+                }
+            }
+            return schema;
+        }
+
+        private ColumnCollection GetColumns()
+        {
+            return GetColumns(GetSchema());
+        }
+
+        private ColumnCollection GetColumns(ISchema schema)
+        {
+            if (columns == null)
+            {
                 columns = new ColumnCollection();
                 foreach (ColumnDefinition column in schema.ColumnDefinitions)
                 {
@@ -587,14 +594,18 @@ namespace FlatFiles
                     }
                 }
             }
-            return schema;
+            return columns;
         }
 
-        private object[] GetValues()
+        private object?[] GetValues()
         {
             if (values == null)
             {
                 values = Reader.GetValues();
+                if (values == null)
+                {
+                    throw new NullReferenceException();
+                }
             }
             return values;
         }

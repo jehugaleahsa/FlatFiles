@@ -109,20 +109,20 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the format provider to use.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the format used to parse the <see cref="TimeSpan"/>.
         /// </summary>
-        public string InputFormat { get; set; }
+        public string? InputFormat { get; set; }
 
         /// <summary>
         /// Gets or sets the format used to write the <see cref="TimeSpan"/> to the flat file.
         /// </summary>
-        public string OutputFormat { get; set; }
+        public string? OutputFormat { get; set; }
 
         /// <inheritdoc />
-        protected override TimeSpan OnParse(IColumnContext context, string value)
+        protected override TimeSpan OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
             if (InputFormat == null)
@@ -133,7 +133,7 @@ namespace FlatFiles
         }
 
         /// <inheritdoc />
-        protected override string OnFormat(IColumnContext context, TimeSpan value)
+        protected override string OnFormat(IColumnContext? context, TimeSpan value)
         {
             if (OutputFormat == null)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -8,6 +9,8 @@ namespace FlatFiles
     /// </summary>
     public class RecordNumberColumn : MetadataColumn<int>
     {
+        private readonly Int32Column column;
+
         /// <summary>
         /// Initializes a new instance of a RecordNumberColumn.
         /// </summary>
@@ -15,6 +18,7 @@ namespace FlatFiles
         public RecordNumberColumn(string columnName)
             : base(columnName)
         {
+            this.column = new Int32Column(columnName);
         }
 
         /// <summary>
@@ -30,32 +34,44 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the format provider to use when parsing.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider 
+        {
+            get => column.FormatProvider;
+            set => column.FormatProvider = value;
+        }
 
         /// <summary>
         /// Gets or sets the number styles to use when parsing.
         /// </summary>
-        public NumberStyles NumberStyles { get; set; } = NumberStyles.Integer;
+        public NumberStyles NumberStyles 
+        {
+            get => column.NumberStyles;
+            set => column.NumberStyles = value;
+        }
 
         /// <summary>
         /// Gets or sets the format string to use when converting the value to a string.
         /// </summary>
-        public string OutputFormat { get; set; }
+        public string? OutputFormat 
+        {
+            get => column.OutputFormat;
+            set => column.OutputFormat = value;
+        }
 
         /// <summary>
         /// Provides a textual representation for the value.
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <returns>The formatted value.</returns>
-        protected override string OnFormat(IColumnContext context)
+        /// <exception cref="FlatFileException">This column requires column-level context but it has been disabled.</exception>
+        protected override string OnFormat(IColumnContext? context)
         {
-            var recordNumber = GetRecordNumber(context);
-            var provider = GetFormatProvider(context, FormatProvider);
-            if (OutputFormat == null)
+            if (context == null)
             {
-                return recordNumber.ToString(provider);
+                throw new FlatFileException(Resources.MetadataExpectingContext);
             }
-            return recordNumber.ToString(OutputFormat, provider);
+            var recordNumber = GetRecordNumber(context);
+            return column.Format(context, recordNumber);
         }
 
         /// <summary>
@@ -63,8 +79,13 @@ namespace FlatFiles
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <returns>The parsed value.</returns>
-        protected override int OnParse(IColumnContext context)
+        /// <exception cref="FlatFileException">This column requires column-level context but it has been disabled.</exception>
+        protected override int OnParse(IColumnContext? context)
         {
+            if (context == null)
+            {
+                throw new FlatFileException(Resources.MetadataExpectingContext);
+            }
             var recordNumber = GetRecordNumber(context);
             return recordNumber;
         }

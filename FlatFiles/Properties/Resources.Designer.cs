@@ -11,8 +11,8 @@
 namespace FlatFiles.Properties {
     using System;
     using System.Reflection;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -20,7 +20,7 @@ namespace FlatFiles.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -179,6 +179,15 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The schema was configured with a metadata column but column-level context has been disabled..
+        /// </summary>
+        internal static string MetadataExpectingContext {
+            get {
+                return ResourceManager.GetString("MetadataExpectingContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No schema was found for the given record..
         /// </summary>
         internal static string MissingMatcher {
@@ -292,6 +301,15 @@ namespace FlatFiles.Properties {
         internal static string UnmatchedQuote {
             get {
                 return ResourceManager.GetString("UnmatchedQuote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value exceeded the configured window width..
+        /// </summary>
+        internal static string ValueExceedsWindowWidth {
+            get {
+                return ResourceManager.GetString("ValueExceedsWindowWidth", resourceCulture);
             }
         }
         

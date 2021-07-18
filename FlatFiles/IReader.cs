@@ -11,17 +11,17 @@ namespace FlatFiles
         /// <summary>
         /// Raised after a record is parsed.
         /// </summary>
-        event EventHandler<IRecordParsedEventArgs> RecordParsed;
+        event EventHandler<IRecordParsedEventArgs>? RecordParsed;
 
         /// <summary>
         /// Raised when an error occurs while processing a column.
         /// </summary>
-        event EventHandler<ColumnErrorEventArgs> ColumnError;
+        event EventHandler<ColumnErrorEventArgs>? ColumnError;
 
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<RecordErrorEventArgs> RecordError;
+        event EventHandler<RecordErrorEventArgs>? RecordError;
 
         /// <summary>
         /// Gets the options controlling the behavior of the reader.
@@ -32,13 +32,13 @@ namespace FlatFiles
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
-        ISchema GetSchema();
+        ISchema? GetSchema();
 
         /// <summary>
         /// Gets the schema being used by the parser to parse record values.
         /// </summary>
         /// <returns>The schema being used by the parser.</returns>
-        Task<ISchema> GetSchemaAsync();
+        Task<ISchema?> GetSchemaAsync();
 
         /// <summary>
         /// Reads the next record from the file.
@@ -68,6 +68,6 @@ namespace FlatFiles
         /// Gets the values of the current record.
         /// </summary>
         /// <returns>The value of the current record.</returns>
-        object[] GetValues();
+        object?[]? GetValues();
     }
 }

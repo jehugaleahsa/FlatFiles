@@ -17,7 +17,7 @@ namespace FlatFiles
                 IColumnDefinition columnDefinition,
                 Func<TSource, TDestination> parser, 
                 Func<TDestination, TSource> formatter)
-            : base(columnDefinition.ColumnName)
+            : base(columnDefinition.ColumnName, false)
         {
             this.columnDefinition = columnDefinition;
             this.parser = parser;
@@ -28,7 +28,7 @@ namespace FlatFiles
         public override Type ColumnType => typeof(TDestination);
 
         /// <inheritdoc />
-        public override object Parse(IColumnContext context, string value)
+        public override object? Parse(IColumnContext? context, string value)
         {
             var sourceValue = columnDefinition.Parse(context, value);
             if (sourceValue == null)
@@ -40,9 +40,9 @@ namespace FlatFiles
         }
 
         /// <inheritdoc />
-        public override string Format(IColumnContext context, object value)
+        public override string Format(IColumnContext? context, object? value)
         {
-            var destinationValue = value == null ? (object)null : formatter((TDestination)value);
+            var destinationValue = value == null ? (object?)null : formatter((TDestination)value);
             var sourceValue = columnDefinition.Format(context, destinationValue);
             return sourceValue;
         }

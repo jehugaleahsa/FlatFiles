@@ -19,7 +19,7 @@ namespace FlatFiles
         /// <param name="writer">A writer over the separated value document.</param>
         /// <param name="options">The options used to format the output.</param>
         /// <exception cref="ArgumentNullException">The writer is null.</exception>
-        public SeparatedValueWriter(TextWriter writer, SeparatedValueOptions options = null)
+        public SeparatedValueWriter(TextWriter writer, SeparatedValueOptions? options = null)
             : this(writer, null, options, false)
         {
         }
@@ -32,12 +32,12 @@ namespace FlatFiles
         /// <param name="options">The options used to format the output.</param>
         /// <exception cref="ArgumentNullException">The writer is null.</exception>
         /// <exception cref="ArgumentNullException">The schema is null.</exception>
-        public SeparatedValueWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options = null)
+        public SeparatedValueWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions? options = null)
             : this(writer, schema, options, true)
         {
         }
 
-        private SeparatedValueWriter(TextWriter writer, SeparatedValueSchema schema, SeparatedValueOptions options, bool hasSchema)
+        private SeparatedValueWriter(TextWriter writer, SeparatedValueSchema? schema, SeparatedValueOptions? options, bool hasSchema)
         {
             if (writer == null)
             {
@@ -47,10 +47,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(schema));
             }
-            if (options == null)
-            {
-                options = new SeparatedValueOptions();
-            }
+            options = options == null ? new SeparatedValueOptions() : options.Clone();
             recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
         }
 
@@ -62,7 +59,7 @@ namespace FlatFiles
         /// <param name="options">The options used to format the output.</param>
         /// <exception cref="ArgumentNullException">The writer is null.</exception>
         /// <exception cref="ArgumentNullException">The schema injector is null.</exception>
-        public SeparatedValueWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options = null)
+        public SeparatedValueWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions? options = null)
         {
             if (writer == null)
             {
@@ -72,39 +69,36 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(injector));
             }
-            if (options == null)
-            {
-                options = new SeparatedValueOptions();
-            }
+            options = options == null ? new SeparatedValueOptions() : options.Clone();
             recordWriter = new SeparatedValueRecordWriter(writer, injector, options);
         }
 
         /// <summary>
         /// Raised when an error occurs while processing a column.
         /// </summary>
-        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        public event EventHandler<ColumnErrorEventArgs>? ColumnError
         {
-            add => recordWriter.Metadata.ColumnError += value;
-            remove => recordWriter.Metadata.ColumnError -= value;
+            add => recordWriter.ColumnError += value;
+            remove => recordWriter.ColumnError -= value;
         }
 
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<RecordErrorEventArgs> RecordError;
+        public event EventHandler<RecordErrorEventArgs>? RecordError;
 
-        IOptions IWriter.Options => recordWriter.Metadata.ExecutionContext.Options;
+        IOptions IWriter.Options => recordWriter.Options;
 
         /// <summary>
         /// Gets the schema used to build the output.
         /// </summary>
         /// <returns>The schema used to build the output.</returns>
-        public SeparatedValueSchema GetSchema()
+        public SeparatedValueSchema? GetSchema()
         {
-            return recordWriter.Metadata.ExecutionContext.Schema;
+            return recordWriter.Schema;
         }
 
-        ISchema IWriter.GetSchema()
+        ISchema? IWriter.GetSchema()
         {
             return GetSchema();
         }
@@ -119,12 +113,11 @@ namespace FlatFiles
             {
                 return;
             }
-            var metadata = recordWriter.Metadata;
-            if (metadata.ExecutionContext.Schema != null)
+            if (recordWriter.Schema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
-                ++metadata.PhysicalRecordNumber;
+                ++recordWriter.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -139,12 +132,11 @@ namespace FlatFiles
             {
                 return;
             }
-            var metadata = recordWriter.Metadata;
-            if (metadata.ExecutionContext.Schema != null)
+            if (recordWriter.Schema != null)
             {
                 await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                ++metadata.PhysicalRecordNumber;
+                ++recordWriter.PhysicalRecordNumber;
             }
             isSchemaWritten = true;
         }
@@ -154,21 +146,19 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The values to write.</param>
         /// <exception cref="ArgumentNullException">The values array is null.</exception>
-        public void Write(object[] values)
+        public void Write(object?[] values)
         {
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
-            var metadata = recordWriter.Metadata;
             if (!isSchemaWritten)
             {
-                var executionContext = metadata.ExecutionContext;
-                if (executionContext.Options.IsFirstRecordSchema && executionContext.Schema != null)
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
-                    ++metadata.PhysicalRecordNumber;
+                    ++recordWriter.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
@@ -176,8 +166,8 @@ namespace FlatFiles
             {
                 recordWriter.WriteRecord(values);
                 recordWriter.WriteRecordSeparator();
-                ++metadata.PhysicalRecordNumber;
-                ++metadata.LogicalRecordNumber;
+                ++recordWriter.PhysicalRecordNumber;
+                ++recordWriter.LogicalRecordNumber;
             }
             catch (RecordProcessingException exception)
             {
@@ -185,7 +175,8 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
+                var recordContext = GetMetadata();
+                ProcessError(new RecordProcessingException(recordContext, Resources.InvalidRecordConversion, exception));
             }
         }
 
@@ -194,21 +185,19 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The values to write.</param>
         /// <exception cref="ArgumentNullException">The values array is null.</exception>
-        public async Task WriteAsync(object[] values)
+        public async Task WriteAsync(object?[] values)
         {
             if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
-            var metadata = recordWriter.Metadata;
             if (!isSchemaWritten)
             {
-                var executionContext = metadata.ExecutionContext;
-                if (executionContext.Options.IsFirstRecordSchema && executionContext.Schema != null)
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                    ++metadata.PhysicalRecordNumber;
+                    ++recordWriter.PhysicalRecordNumber;
                 }
                 isSchemaWritten = true;
             }
@@ -216,8 +205,8 @@ namespace FlatFiles
             {
                 await recordWriter.WriteRecordAsync(values).ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
-                ++metadata.PhysicalRecordNumber;
-                ++metadata.LogicalRecordNumber;
+                ++recordWriter.PhysicalRecordNumber;
+                ++recordWriter.LogicalRecordNumber;
             }
             catch (RecordProcessingException exception)
             {
@@ -225,7 +214,8 @@ namespace FlatFiles
             }
             catch (FlatFileException exception)
             {
-                ProcessError(new RecordProcessingException(metadata, Resources.InvalidRecordConversion, exception));
+                var recordContext = GetMetadata();
+                ProcessError(new RecordProcessingException(recordContext, Resources.InvalidRecordConversion, exception));
             }
         }
 
@@ -235,7 +225,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a newline should be written after the data.</param>
-        public void WriteRaw(String data, bool writeRecordSeparator = false)
+        public void WriteRaw(string data, bool writeRecordSeparator = false)
         {
             recordWriter.WriteRaw(data);
             if (writeRecordSeparator)
@@ -250,7 +240,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
-        public async Task WriteRawAsync(String data, bool writeRecordSeparator = false)
+        public async Task WriteRawAsync(string data, bool writeRecordSeparator = false)
         {
             await recordWriter.WriteRawAsync(data);
             if (writeRecordSeparator)
@@ -273,9 +263,24 @@ namespace FlatFiles
             throw exception;
         }
 
+        private IRecordContext GetMetadata()
+        {
+            if (recordWriter.Metadata != null)
+            {
+                return recordWriter.Metadata;
+            }
+            var executionContext = new GenericExecutionContext(recordWriter.Schema, recordWriter.Options.Clone());
+            var recordContext = new GenericRecordContext(executionContext)
+            {
+                PhysicalRecordNumber = recordWriter.PhysicalRecordNumber,
+                LogicalRecordNumber = recordWriter.LogicalRecordNumber
+            };
+            return recordContext;
+        }
+
         IRecordContext IWriterWithMetadata.GetMetadata()
         {
-            return recordWriter.Metadata;
+            return GetMetadata();
         }
     }
 }

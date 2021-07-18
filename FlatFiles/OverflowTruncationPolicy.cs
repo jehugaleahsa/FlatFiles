@@ -12,6 +12,10 @@
         /// <summary>
         /// Keep the front of the data by removing the trailing text.
         /// </summary>
-        TruncateTrailing
+        TruncateTrailing,
+        /// <summary>
+        /// If the data does not fit within the specified window, throw an exception.
+        /// </summary>
+        ThrowException
     }
 }

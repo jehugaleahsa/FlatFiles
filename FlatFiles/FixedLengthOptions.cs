@@ -37,7 +37,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the string that indicates the end of a record.
         /// </summary>
-        public string RecordSeparator { get; set; }
+        public string? RecordSeparator { get; set; }
 
         /// <summary>
         /// Gets or sets whether the first record in the source holds header information and should be skipped.
@@ -91,7 +91,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the global, default format provider.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider { get; set; }
 
         /// <summary>
         /// Duplicates the options.

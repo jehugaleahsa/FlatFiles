@@ -7,16 +7,16 @@ namespace FlatFiles
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
-    public class SeparatedValueComplexColumn : ColumnDefinition<object[]>
+    public class SeparatedValueComplexColumn : ColumnDefinition<object?[]?>
     {
-        private readonly SeparatedValueSchema schema;
+        private readonly SeparatedValueSchema? schema;
 
         /// <summary>
         /// Initializes a new SeparatedValueComplexColumn with no schema.
         /// </summary>
         /// <param name="columnName">The name of the column.</param>
         /// <param name="options">The options to use when parsing the embedded data.</param>
-        public SeparatedValueComplexColumn(string columnName, SeparatedValueOptions options = null) 
+        public SeparatedValueComplexColumn(string columnName, SeparatedValueOptions? options = null) 
             : this(columnName, null, options, false)
         {
         }
@@ -27,12 +27,12 @@ namespace FlatFiles
         /// <param name="columnName">The name of the column.</param>
         /// <param name="schema">The schema of the data embedded in the column.</param>
         /// <param name="options">The options to use when parsing the embedded data.</param>
-        public SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema, SeparatedValueOptions options = null)
+        public SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema, SeparatedValueOptions? options = null)
             : this(columnName, schema, options, true)
         {
         }
 
-        private SeparatedValueComplexColumn(string columnName, SeparatedValueSchema schema, SeparatedValueOptions options, bool hasSchema)
+        private SeparatedValueComplexColumn(string columnName, SeparatedValueSchema? schema, SeparatedValueOptions? options, bool hasSchema)
             : base(columnName)
         {
             if (hasSchema && schema == null)
@@ -40,7 +40,7 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(schema));
             }
             this.schema = schema;
-            Options = options;
+            Options = options ?? new();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace FlatFiles
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        protected override object[] OnParse(IColumnContext context, string value)
+        protected override object?[]? OnParse(IColumnContext? context, string value)
         {
             var stringReader = new StringReader(value);
             var reader = GetReader(stringReader);
@@ -82,8 +82,12 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="values">The object array containing the values of the embedded record.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        protected override string OnFormat(IColumnContext context, object[] values)
+        protected override string OnFormat(IColumnContext? context, object?[]? values)
         {
+            if (values == null)
+            {
+                return String.Empty;
+            }
             var writer = new StringWriter();
             var recordWriter = GetWriter(writer);
             recordWriter.WriteRecord(values);
@@ -92,8 +96,7 @@ namespace FlatFiles
 
         private SeparatedValueRecordWriter GetWriter(StringWriter writer)
         {
-            var options = Options ?? new SeparatedValueOptions();
-            return new SeparatedValueRecordWriter(writer, schema, options);
+            return new SeparatedValueRecordWriter(writer, schema, Options);
         }
     }
 }

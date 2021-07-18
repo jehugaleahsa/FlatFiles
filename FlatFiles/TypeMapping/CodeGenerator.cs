@@ -19,7 +19,7 @@ namespace FlatFiles.TypeMapping
     {
         public Func<TEntity> GetFactory<TEntity>()
         {
-            return () => (TEntity)Activator.CreateInstance(typeof(TEntity), true);
+            return () => (TEntity?)Activator.CreateInstance(typeof(TEntity), true)!;
         }
 
         public Action<IRecordContext, TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
@@ -32,13 +32,13 @@ namespace FlatFiles.TypeMapping
                     if (mapping.Member != null)
                     {
                         var value = values[mapping.LogicalIndex];
-                        mapping.Member.SetValue(entity, value);
+                        mapping.Member.SetValue(entity!, value);
                     }
                     else if (mapping.Reader != null)
                     {
                         var columnContext = GetColumnContext(recordContext, mapping);
                         var value = values[mapping.LogicalIndex];
-                        mapping.Reader(columnContext, entity, value);
+                        mapping.Reader(columnContext, entity!, value);
                     }
                 }
             }
@@ -55,13 +55,13 @@ namespace FlatFiles.TypeMapping
                     IMemberMapping mapping = mappings[index];
                     if (mapping.Member != null)
                     {
-                        object value = mapping.Member.GetValue(entity);
+                        object value = mapping.Member.GetValue(entity!);
                         values[mapping.LogicalIndex] = value;
                     }
                     else if (mapping.Writer != null)
                     {
                         var columnContext = GetColumnContext(recordContext, mapping);
-                        mapping.Writer(columnContext, entity, values);
+                        mapping.Writer(columnContext, entity!, values);
                     }
                 }
             }
@@ -71,9 +71,8 @@ namespace FlatFiles.TypeMapping
 
         private static IColumnContext GetColumnContext(IRecordContext recordContext, IMemberMapping mapping)
         {
-            var columnContext = new ColumnContext()
+            var columnContext = new ColumnContext(recordContext)
             {
-                RecordContext = recordContext,
                 PhysicalIndex = mapping.PhysicalIndex,
                 LogicalIndex = mapping.LogicalIndex
             };
@@ -83,7 +82,7 @@ namespace FlatFiles.TypeMapping
 
     internal sealed class EmitCodeGenerator : ICodeGenerator
     {
-        private readonly ConcurrentDictionary<string, int> nameLookup = new ConcurrentDictionary<string, int>();
+        private readonly ConcurrentDictionary<string, int> nameLookup = new();
         private readonly AssemblyBuilder assemblyBuilder;
         private readonly ModuleBuilder moduleBuilder;
 
@@ -120,9 +119,9 @@ namespace FlatFiles.TypeMapping
             var generator = methodBuilder.GetILGenerator();
             generator.Emit(OpCodes.Newobj, constructorInfo);
             generator.Emit(OpCodes.Ret);
-            var typeInfo = typeBuilder.CreateTypeInfo();
-            var createInfo = typeInfo.GetMethod(methodBuilder.Name);
-            return (Func<TEntity>)createInfo.CreateDelegate(typeof(Func<TEntity>));
+            var typeInfo = typeBuilder.CreateTypeInfo()!;
+            var createInfo = typeInfo.GetMethod(methodBuilder.Name)!;
+            return (Func<TEntity>)createInfo.CreateDelegate(typeof(Func<TEntity>))!;
         }
 
         public Action<IRecordContext, TEntity, object[]> GetReader<TEntity>(IMemberMapping[] mappings)
@@ -157,9 +156,9 @@ namespace FlatFiles.TypeMapping
             }
             methodGenerator.Emit(OpCodes.Ret);
 
-            var typeInfo = typeBuilder.CreateTypeInfo();
+            var typeInfo = typeBuilder.CreateTypeInfo()!;
             var instance = Activator.CreateInstance(typeInfo.AsType(), (object)mappings);
-            var readInfo = typeInfo.GetMethod(methodBuilder.Name);
+            var readInfo = typeInfo.GetMethod(methodBuilder.Name)!;
             return (Action<IRecordContext, TEntity, object[]>)readInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
         }
 
@@ -177,7 +176,7 @@ namespace FlatFiles.TypeMapping
             }
             else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
             {
-                MethodInfo setter = propertyInfo.GetSetMethod(true);
+                MethodInfo? setter = propertyInfo.GetSetMethod(true);
                 if (setter == null)
                 {
                     string message = String.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
@@ -203,24 +202,18 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Ldelem_Ref);
             generator.Emit(OpCodes.Stloc, mappingBuilder);
 
-            // Create the Context
-            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(Type.EmptyTypes);
-            generator.Emit(OpCodes.Newobj, contextCtorInfo);
-
-            // Set ColumnContext.RecordContext
-            generator.Emit(OpCodes.Dup);
+            // Create the Context, passing in RecordContext
+            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(new[] { typeof(IRecordContext) });
             generator.Emit(OpCodes.Ldarg_1);
-            var recordContextSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, IRecordContext>(x => x.RecordContext);
-            var recordContextSetter = recordContextSetInfo.GetSetMethod();
-            generator.Emit(OpCodes.Callvirt, recordContextSetter);
+            generator.Emit(OpCodes.Newobj, contextCtorInfo);
 
             // Set ColumnContext.PhysicalIndex
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var physicalIndexGetInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, int>(x => x.PhysicalIndex);
-            var physicalIndexGetter = physicalIndexGetInfo.GetGetMethod();
+            var physicalIndexGetter = physicalIndexGetInfo.GetGetMethod()!;
             var physicalIndexSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, int>(x => x.PhysicalIndex);
-            var physicalIndexSetter = physicalIndexSetInfo.GetSetMethod();
+            var physicalIndexSetter = physicalIndexSetInfo.GetSetMethod()!;
             generator.Emit(OpCodes.Callvirt, physicalIndexGetter);
             generator.Emit(OpCodes.Callvirt, physicalIndexSetter);
 
@@ -228,9 +221,9 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var logicalIndexGetInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, int>(x => x.LogicalIndex);
-            var logicalIndexGetter = logicalIndexGetInfo.GetGetMethod();
+            var logicalIndexGetter = logicalIndexGetInfo.GetGetMethod()!;
             var logicalIndexSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, int>(x => x.LogicalIndex);
-            var logicalIndexSetter = logicalIndexSetInfo.GetSetMethod();
+            var logicalIndexSetter = logicalIndexSetInfo.GetSetMethod()!;
             generator.Emit(OpCodes.Callvirt, logicalIndexGetter);
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Stloc, indexBuilder);
@@ -241,7 +234,7 @@ namespace FlatFiles.TypeMapping
             // Get the reader
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var readerGetInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, Action<IColumnContext, object, object>>(x => x.Reader);
-            var readerGetter = readerGetInfo.GetGetMethod();
+            var readerGetter = readerGetInfo.GetGetMethod()!;
             generator.Emit(OpCodes.Callvirt, readerGetter);
 
             // Load the parameters
@@ -252,7 +245,7 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Ldelem_Ref);
 
             // Invoke the reader
-            var invokeInfo = MemberAccessorBuilder.GetMethod<Action<IColumnContext, object, object>>(x => x.Invoke(null, null, null));
+            var invokeInfo = MemberAccessorBuilder.GetMethod<Action<IColumnContext?, object?, object?>>(x => x.Invoke(null, null, null));
             generator.Emit(OpCodes.Callvirt, invokeInfo);
         }
 
@@ -287,9 +280,9 @@ namespace FlatFiles.TypeMapping
             }
             methodGenerator.Emit(OpCodes.Ret);
 
-            var typeInfo = typeBuilder.CreateTypeInfo();
+            var typeInfo = typeBuilder.CreateTypeInfo()!;
             var instance = Activator.CreateInstance(typeInfo.AsType(), (object)mappings);
-            var writeMethodInfo = typeInfo.GetMethod(methodBuilder.Name);
+            var writeMethodInfo = typeInfo.GetMethod(methodBuilder.Name)!;
             return (Action<IRecordContext, TEntity, object[]>)writeMethodInfo.CreateDelegate(typeof(Action<IRecordContext, TEntity, object[]>), instance);
         }
 
@@ -310,7 +303,7 @@ namespace FlatFiles.TypeMapping
             }
             else if (mapping.Member.MemberInfo is PropertyInfo propertyInfo)
             {
-                MethodInfo getter = propertyInfo.GetGetMethod(true);
+                MethodInfo? getter = propertyInfo.GetGetMethod(true);
                 if (getter == null)
                 {
                     string message = String.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
@@ -340,24 +333,18 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Ldelem_Ref);
             generator.Emit(OpCodes.Stloc, mappingBuilder);
 
-            // Create the ColumnContext
-            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(Type.EmptyTypes);
-            generator.Emit(OpCodes.Newobj, contextCtorInfo);
-
-            // Set ColumnContext.RecordContext
-            generator.Emit(OpCodes.Dup);
+            // Create the ColumnContext, passing RecordContext
+            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(new[] { typeof(IRecordContext) });
             generator.Emit(OpCodes.Ldarg_1);
-            var recordContextSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, IRecordContext>(x => x.RecordContext);
-            var recordContextSetter = recordContextSetInfo.GetSetMethod();
-            generator.Emit(OpCodes.Callvirt, recordContextSetter);
+            generator.Emit(OpCodes.Newobj, contextCtorInfo);
 
             // Set ColumnContext.PhysicalIndex
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var physicalIndexGetInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, int>(x => x.PhysicalIndex);
-            var physicalIndexGetter = physicalIndexGetInfo.GetGetMethod();
+            var physicalIndexGetter = physicalIndexGetInfo.GetGetMethod()!;
             var physicalIndexSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, int>(x => x.PhysicalIndex);
-            var physicalIndexSetter = physicalIndexSetInfo.GetSetMethod();
+            var physicalIndexSetter = physicalIndexSetInfo.GetSetMethod()!;
             generator.Emit(OpCodes.Callvirt, physicalIndexGetter);
             generator.Emit(OpCodes.Callvirt, physicalIndexSetter);
 
@@ -365,9 +352,9 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var logicalIndexGetInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, int>(x => x.LogicalIndex);
-            var logicalIndexGetter = logicalIndexGetInfo.GetGetMethod();
+            var logicalIndexGetter = logicalIndexGetInfo.GetGetMethod()!;
             var logicalIndexSetInfo = MemberAccessorBuilder.GetProperty<ColumnContext, int>(x => x.LogicalIndex);
-            var logicalIndexSetter = logicalIndexSetInfo.GetSetMethod();
+            var logicalIndexSetter = logicalIndexSetInfo.GetSetMethod()!;
             generator.Emit(OpCodes.Callvirt, logicalIndexGetter);
             generator.Emit(OpCodes.Callvirt, logicalIndexSetter);
 
@@ -376,7 +363,7 @@ namespace FlatFiles.TypeMapping
             // Get the writer
             generator.Emit(OpCodes.Ldloc, mappingBuilder);
             var writerInfo = MemberAccessorBuilder.GetProperty<IMemberMapping, Action<IColumnContext, object, object[]>>(x => x.Writer);
-            var writerGetter = writerInfo.GetGetMethod();
+            var writerGetter = writerInfo.GetGetMethod()!;
             generator.Emit(OpCodes.Callvirt, writerGetter);
 
             // Load the parameters
@@ -385,7 +372,7 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Ldarg_3);
 
             // Invoke the writer
-            var invokeInfo = MemberAccessorBuilder.GetMethod<Action<IColumnContext, object, object>>(x => x.Invoke(null, null, null));
+            var invokeInfo = MemberAccessorBuilder.GetMethod<Action<IColumnContext?, object?, object?>>(x => x.Invoke(null, null, null));
             generator.Emit(OpCodes.Callvirt, invokeInfo);
         }
     }

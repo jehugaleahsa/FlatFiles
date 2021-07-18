@@ -11,6 +11,7 @@ namespace FlatFiles
         /// Register a method to fire whenever a match is made.
         /// </summary>
         /// <param name="action">The action to take.</param>
+        /// <exception cref="ArgumentNullException">The action is null.</exception>
         void OnMatch(Action action);
     }
 }

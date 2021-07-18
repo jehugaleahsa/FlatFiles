@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets the schema being used to process the records.
         /// </summary>
-        ISchema Schema { get; }
+        ISchema? Schema { get; }
 
         /// <summary>
         /// Gets the global options being used to process the records.

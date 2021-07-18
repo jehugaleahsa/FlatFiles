@@ -32,7 +32,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to trim.</param>
         /// <returns>The value trimmed.</returns>
-        protected override string OnParse(IColumnContext context, string value)
+        protected override string OnParse(IColumnContext? context, string value)
         {
             return value;
         }
@@ -48,7 +48,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected override string OnFormat(IColumnContext context, string value)
+        protected override string OnFormat(IColumnContext? context, string value)
         {
             return value;
         }

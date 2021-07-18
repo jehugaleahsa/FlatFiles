@@ -13,6 +13,6 @@
         /// <summary>
         /// Gets the parsed record values read from the source file.
         /// </summary>
-        object[] Values { get; }
+        object?[]? Values { get; }
     }
 }

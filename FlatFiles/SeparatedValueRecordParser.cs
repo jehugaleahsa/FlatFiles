@@ -8,12 +8,12 @@ namespace FlatFiles
 {
     internal sealed class SeparatedValueRecordParser
     {
-        private readonly List<string> tokens = new List<string>();
-        private readonly StringBuilder token = new StringBuilder();
+        private readonly List<string> tokens = new();
+        private readonly StringBuilder token = new();
         private readonly RetryReader reader;
         private readonly ISeparatorMatcher separatorMatcher;
         private readonly ISeparatorMatcher recordSeparatorMatcher;
-        private readonly ISeparatorMatcher postfixMatcher;
+        private readonly ISeparatorMatcher? postfixMatcher;
         private readonly int separatorLength;
 
         public SeparatedValueRecordParser(RetryReader reader, SeparatedValueOptions options)
@@ -54,33 +54,33 @@ namespace FlatFiles
 
         private void AddToken()
         {
-            string value = token.ToString();
+            var value = token.ToString();
             tokens.Add(value);
             token.Clear();
         }
 
         public (string, string[]) ReadRecord()
         {
-            TokenType tokenType = GetNextToken();
+            var tokenType = GetNextToken();
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = GetNextToken();
             }
-            string record = recordSeparatorMatcher.Trim(reader.GetRecord());
-            string[] results = tokens.ToArray();
+            var record = recordSeparatorMatcher.Trim(reader.GetRecord());
+            var results = tokens.ToArray();
             tokens.Clear();
             return (record, results);
         }
 
         public async Task<(string, string[])> ReadRecordAsync()
         {
-            TokenType tokenType = await GetNextTokenAsync().ConfigureAwait(false);
+            var tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             while (tokenType == TokenType.EndOfToken)
             {
                 tokenType = await GetNextTokenAsync().ConfigureAwait(false);
             }
-            string record = reader.GetRecord();
-            string[] results = tokens.ToArray();
+            var record = recordSeparatorMatcher.Trim(reader.GetRecord());
+            var results = tokens.ToArray();
             tokens.Clear();
             return (record, results);
         }
@@ -89,7 +89,7 @@ namespace FlatFiles
         {
             if (!Options.PreserveWhiteSpace)
             {
-                TokenType tokenType = SkipWhiteSpace();
+                var tokenType = SkipWhiteSpace();
                 if (tokenType != TokenType.Normal)
                 {
                     AddToken();
@@ -112,7 +112,7 @@ namespace FlatFiles
         {
             if (!Options.PreserveWhiteSpace)
             {
-                TokenType tokenType = await SkipWhiteSpaceAsync().ConfigureAwait(false);
+                var tokenType = await SkipWhiteSpaceAsync().ConfigureAwait(false);
                 if (tokenType != TokenType.Normal)
                 {
                     AddToken();
@@ -137,7 +137,7 @@ namespace FlatFiles
             {
                 reader.LoadBuffer();
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
@@ -159,7 +159,7 @@ namespace FlatFiles
             {
                 await reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 reader.Read();
@@ -198,7 +198,7 @@ namespace FlatFiles
             {
                 reader.LoadBuffer();
             }
-            TokenType tokenType = TokenType.Normal;
+            var tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
             {
                 if (reader.Current != Options.Quote)
@@ -251,7 +251,7 @@ namespace FlatFiles
             {
                 await reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = TokenType.Normal;
+            var tokenType = TokenType.Normal;
             while (tokenType == TokenType.Normal && reader.Read())
             {
                 if (reader.Current != Options.Quote)
@@ -304,7 +304,7 @@ namespace FlatFiles
             {
                 reader.LoadBuffer();
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 if (reader.ShouldLoadBuffer(separatorLength + 1))
@@ -326,7 +326,7 @@ namespace FlatFiles
             {
                 await reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 if (reader.ShouldLoadBuffer(separatorLength + 1))
@@ -348,7 +348,7 @@ namespace FlatFiles
             {
                 reader.LoadBuffer();
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 if (reader.ShouldLoadBuffer(separatorLength + 1))
@@ -371,7 +371,7 @@ namespace FlatFiles
             {
                 await reader.LoadBufferAsync().ConfigureAwait(false);
             }
-            TokenType tokenType = GetSeparator();
+            var tokenType = GetSeparator();
             while (tokenType == TokenType.Normal)
             {
                 if (reader.ShouldLoadBuffer(separatorLength + 1))

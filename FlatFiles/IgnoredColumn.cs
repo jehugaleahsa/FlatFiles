@@ -36,19 +36,19 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value that was parsed from the document.</param>
         /// <returns>A null.</returns>
-        public override object Parse(IColumnContext context, string value)
+        public override object? Parse(IColumnContext? context, string value)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             if (Preprocessor != null)
             {
-                value = Preprocessor(value);
+                value = Preprocessor(value) ?? String.Empty;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
             if (OnParsing != null)
             {
-                value = OnParsing(context, value);
+                value = OnParsing(context, value) ?? String.Empty;
             }
-            object result = null;
+            object? result = null;
             if (OnParsed != null)
             {
                 result = OnParsed(context, result);
@@ -62,16 +62,16 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value that needs written to the document.</param>
         /// <returns>A null.</returns>
-        public override string Format(IColumnContext context, object value)
+        public override string Format(IColumnContext? context, object? value)
         {
             if (OnFormatting != null)
             {
                 value = OnFormatting(context, value);
             }
-            string result = NullFormatter.FormatNull(context);
+            string result = NullFormatter.FormatNull(context) ?? String.Empty;
             if (OnFormatted != null)
             {
-                result = OnFormatted(context, result);
+                result = OnFormatted(context, result) ?? String.Empty;
             }
             return result;
         }

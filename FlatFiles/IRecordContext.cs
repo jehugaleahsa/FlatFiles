@@ -25,11 +25,11 @@ namespace FlatFiles
         /// <summary>
         /// Gets the record being processed when the error occurred.
         /// </summary>
-        string Record { get; }
+        string? Record { get; }
 
         /// <summary>
         /// Gets the partitioned values being processed when the error occurred.
         /// </summary>
-        string[] Values { get; }
+        string[]? Values { get; }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FlatFiles
+﻿namespace FlatFiles
 {
     /// <summary>
     /// Defines the expected format of a record in a file.

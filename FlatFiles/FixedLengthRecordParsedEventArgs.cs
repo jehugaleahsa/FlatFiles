@@ -10,7 +10,7 @@ namespace FlatFiles
         /// <summary>
         /// Creates a new instance of a FixedLengthRecordParsedEventArgs.
         /// </summary>
-        internal FixedLengthRecordParsedEventArgs(IRecordContext context, object[] values)
+        internal FixedLengthRecordParsedEventArgs(IRecordContext context, object?[] values)
         {
             RecordContext = context;
             Values = values;
@@ -24,6 +24,6 @@ namespace FlatFiles
         /// <summary>
         /// Gets the parsed record values read from the source file.
         /// </summary>
-        public object[] Values { get; }
+        public object?[] Values { get; }
     }
 }

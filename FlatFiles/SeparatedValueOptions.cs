@@ -10,6 +10,7 @@ namespace FlatFiles
     public sealed class SeparatedValueOptions : IOptions
     {
         private string separator = ",";
+        private QuoteBehavior quoteBehavior = QuoteBehavior.Default;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueParserOptions.
@@ -42,7 +43,7 @@ namespace FlatFiles
         /// the record separator to null will enable this default behavior. When writing,
         /// FlatFiles will use Environment.NewLine as the default record separator.
         /// </remarks>
-        public string RecordSeparator { get; set; }
+        public string? RecordSeparator { get; set; }
 
         /// <summary>
         /// Gets or sets the character used to quote records containing special characters.
@@ -52,7 +53,18 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets how FlatFiles will handle quoting values.
         /// </summary>
-        public QuoteBehavior QuoteBehavior { get; set; } = QuoteBehavior.Default;
+        public QuoteBehavior QuoteBehavior 
+        {
+            get => quoteBehavior; 
+            set
+            {
+                if (!Enum.IsDefined(typeof(QuoteBehavior), value))
+                {
+                    throw new ArgumentException(Resources.InvalidAlignment, nameof(value));
+                }
+                quoteBehavior = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether the first record is the schema.
@@ -72,7 +84,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the global, default format provider.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider { get; set; }
 
         /// <summary>
         /// Duplicates the options.

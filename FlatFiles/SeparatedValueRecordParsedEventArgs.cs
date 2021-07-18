@@ -12,7 +12,7 @@ namespace FlatFiles
         /// <summary>
         /// Creates a new instance of a SeparatedValueRecordParsedEventArgs.
         /// </summary>
-        internal SeparatedValueRecordParsedEventArgs(IRecordContext metadata, object[] values)
+        internal SeparatedValueRecordParsedEventArgs(IRecordContext metadata, object?[]? values)
         {
             RecordContext = metadata;
             Values = values;
@@ -26,6 +26,6 @@ namespace FlatFiles
         /// <summary>
         /// Gets the parsed record values read from the source file.
         /// </summary>
-        public object[] Values { get; }
+        public object?[]? Values { get; }
     }
 }

@@ -20,7 +20,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the format provider to use to parse the value.
         /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
+        public IFormatProvider? FormatProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the number styles to use when parsing the value.
@@ -30,7 +30,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the formatting to use when converting the value to a string.
         /// </summary>
-        public string OutputFormat { get; set; }
+        public string? OutputFormat { get; set; }
 
         /// <summary>
         /// Parses the given value into a signed byte.
@@ -38,7 +38,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed signed byte value.</returns>
-        protected override sbyte OnParse(IColumnContext context, string value)
+        protected override sbyte OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
             return SByte.Parse(value, NumberStyles, provider);
@@ -50,7 +50,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected override string OnFormat(IColumnContext context, sbyte value)
+        protected override string OnFormat(IColumnContext? context, sbyte value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
             if (OutputFormat == null)

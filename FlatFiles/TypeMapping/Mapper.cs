@@ -5,7 +5,7 @@ namespace FlatFiles.TypeMapping
 {
     internal interface IMapper
     {
-        IMemberAccessor Member { get; }
+        IMemberAccessor? Member { get; }
 
         int LogicalCount { get; }
 
@@ -25,22 +25,22 @@ namespace FlatFiles.TypeMapping
     {
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
-        private Func<IRecordContext, object[], TEntity> cachedReader;
-        private Action<IRecordContext, TEntity, object[]> cachedWriter;
+        private Func<IRecordContext, object[], TEntity>? cachedReader;
+        private Action<IRecordContext, TEntity, object[]>? cachedWriter;
 
         public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator)
             : this(lookup, codeGenerator, null)
         {
         }
 
-        public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator, IMemberAccessor member)
+        public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator, IMemberAccessor? member)
         {
             this.lookup = lookup;
             this.codeGenerator = codeGenerator;
             Member = member;
         }
 
-        public IMemberAccessor Member { get; }
+        public IMemberAccessor? Member { get; }
 
         public int LogicalCount => lookup.LogicalCount;
 
@@ -65,7 +65,7 @@ namespace FlatFiles.TypeMapping
                     {
                         var nestedReader = nestedMapper.GetReader();
                         var result = nestedReader(recordContext, values);
-                        nestedMapper.Member.SetValue(entity, result);
+                        nestedMapper.Member!.SetValue(entity!, result);
                     }
                     return entity;
                 };
@@ -85,7 +85,7 @@ namespace FlatFiles.TypeMapping
         Func<IRecordContext, object[], object> IMapper.GetReader()
         {
             var reader = GetReader();
-            return (metadata, values) => reader(metadata, values);
+            return (metadata, values) => reader(metadata, values)!;
         }
 
         public Action<IRecordContext, TEntity, object[]> GetWriter()
@@ -105,7 +105,7 @@ namespace FlatFiles.TypeMapping
                     serializer(metadata, entity, values);
                     foreach (var nestedMapper in nestedMappers)
                     {
-                        var nested = nestedMapper.Member.GetValue(entity);
+                        var nested = nestedMapper.Member!.GetValue(entity!);
                         var writer = nestedMapper.GetWriter();
                         writer(metadata, nested, values);
                     }
@@ -173,7 +173,7 @@ namespace FlatFiles.TypeMapping
         {
             var entityType = member.Type;
             var mapperType = typeof(Mapper<>).MakeGenericType(entityType);
-            var mapper = (IMapper)Activator.CreateInstance(mapperType, lookup, codeGenerator, member);
+            var mapper = (IMapper)Activator.CreateInstance(mapperType, lookup, codeGenerator, member)!;
             return mapper;
         }
     }

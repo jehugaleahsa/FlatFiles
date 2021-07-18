@@ -8,9 +8,9 @@ namespace FlatFiles
     /// </summary>
     public sealed class DefaultValue : IDefaultValue
     {
-        private readonly Func<IColumnContext, object> factory;
+        private readonly Func<IColumnContext?, object?> factory;
 
-        private DefaultValue(Func<IColumnContext, object> factory)
+        private DefaultValue(Func<IColumnContext?, object?> factory)
         {
             this.factory = factory;
         }
@@ -20,7 +20,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="value">The value to use as a default.</param>
         /// <returns>An instance of a <see cref="IDefaultValue"/> that returns the given value.</returns>
-        public static IDefaultValue Use(object value)
+        public static IDefaultValue Use(object? value)
         {
             return new DefaultValue(ctx => value);
         }
@@ -30,7 +30,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="factory">The value to use as a default.</param>
         /// <returns>An instance of a <see cref="IDefaultValue"/> that returns the result of the delegate.</returns>
-        public static IDefaultValue Use(Func<IColumnContext, object> factory)
+        public static IDefaultValue Use(Func<IColumnContext?, object?> factory)
         {
             if (factory == null)
             {
@@ -53,7 +53,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="context">The current column context.</param>
         /// <returns>The default value.</returns>
-        public object GetDefaultValue(IColumnContext context)
+        public object? GetDefaultValue(IColumnContext? context)
         {
             return factory(context);
         }

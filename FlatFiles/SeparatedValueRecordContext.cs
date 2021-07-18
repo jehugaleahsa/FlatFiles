@@ -4,7 +4,12 @@ namespace FlatFiles
 {
     internal sealed class SeparatedValueRecordContext : ISeparatedValueRecordContext, IRecoverableRecordContext
     {
-        public event EventHandler<ColumnErrorEventArgs> ColumnError;
+        public SeparatedValueRecordContext(SeparatedValueExecutionContext executionContext)
+        {
+            ExecutionContext = executionContext;
+        }
+
+        public event EventHandler<ColumnErrorEventArgs>? ColumnError;
 
         public SeparatedValueExecutionContext ExecutionContext { get; set; }
 
@@ -12,9 +17,9 @@ namespace FlatFiles
 
         public int LogicalRecordNumber { get; set; }
 
-        public string Record { get; set; }
+        public string? Record { get; set; }
 
-        public string[] Values { get; set; }
+        public string[]? Values { get; set; }
 
         ISeparatedValueExecutionContext ISeparatedValueRecordContext.ExecutionContext => ExecutionContext;
 

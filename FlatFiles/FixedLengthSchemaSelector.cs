@@ -8,11 +8,11 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthSchemaSelector
     {
-        private static readonly SchemaMatcher nonMatcher = new SchemaMatcher() 
+        private static readonly SchemaMatcher nonMatcher = new() 
         { 
             Predicate = values => false 
         };
-        private readonly List<SchemaMatcher> matchers = new List<SchemaMatcher>();
+        private readonly List<SchemaMatcher> matchers = new();
         private SchemaMatcher defaultMatcher = nonMatcher;
 
         /// <summary>

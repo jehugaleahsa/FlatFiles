@@ -28,9 +28,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public sealed override string Format(IColumnContext context, object value)
+        public sealed override string Format(IColumnContext? context, object? value)
         {
-            return OnFormat(context);
+            return OnFormat(context) ?? String.Empty;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <returns>The formatted value.</returns>
-        protected abstract string OnFormat(IColumnContext context);
+        protected abstract string? OnFormat(IColumnContext? context);
 
         /// <summary>
         /// Parses the given value and returns the parsed object.
@@ -46,7 +46,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public sealed override object Parse(IColumnContext context, string value)
+        public sealed override object? Parse(IColumnContext? context, string value)
         {
             return OnParse(context);
         }
@@ -56,6 +56,6 @@ namespace FlatFiles
         /// </summary>
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <returns>The parsed value.</returns>
-        protected abstract T OnParse(IColumnContext context);
+        protected abstract T OnParse(IColumnContext? context);
     }
 }

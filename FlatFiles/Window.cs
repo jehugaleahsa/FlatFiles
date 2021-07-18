@@ -12,7 +12,7 @@ namespace FlatFiles
         /// Acts as an indicator that the column or property should capture any data
         /// at the end of a record, past the last window.
         /// </summary>
-        public static readonly Window Trailing = new Window();
+        public static readonly Window Trailing = new();
 
         private FixedAlignment? alignment;
         private OverflowTruncationPolicy? truncationPolicy;
@@ -77,7 +77,6 @@ namespace FlatFiles
                 {
                     throw new ArgumentException(Resources.InvalidTruncationPolicy, nameof(value));
                 }
-
                 truncationPolicy = value;
             }
         }

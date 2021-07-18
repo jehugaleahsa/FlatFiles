@@ -8,7 +8,7 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthSchema : Schema
     {
-        private readonly List<Window> windows = new List<Window>();
+        private readonly List<Window> windows = new();
         private ColumnCollection cachedColumns;
         private IColumnDefinition trailing;
 
@@ -59,7 +59,7 @@ namespace FlatFiles
                 }
                 else if (cachedColumns == null)
                 {
-                    ColumnCollection copy = new ColumnCollection(base.ColumnDefinitions);
+                    var copy = new ColumnCollection(base.ColumnDefinitions);
                     copy.AddColumn(trailing);
                     this.cachedColumns = copy;
                     return copy;
@@ -74,7 +74,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the column widths.
         /// </summary>
-        public WindowCollection Windows => new WindowCollection(windows);
+        public WindowCollection Windows => new(windows);
 
         /// <summary>
         /// Gets the total width of all columns.

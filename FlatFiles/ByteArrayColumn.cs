@@ -19,7 +19,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the encoding to use when parsing the value.
         /// </summary>
-        public Encoding Encoding { get; set; }
+        public Encoding? Encoding { get; set; }
 
         /// <summary>
         /// Parses the given value as a byte array.
@@ -27,9 +27,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed byte array.</returns>
-        protected override byte[] OnParse(IColumnContext context, string value)
+        protected override byte[] OnParse(IColumnContext? context, string value)
         {
-            Encoding actualEncoding = Encoding ?? new UTF8Encoding(false);
+            var actualEncoding = Encoding ?? Encoding.UTF8;
             return actualEncoding.GetBytes(value);
         }
 
@@ -39,9 +39,9 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected override string OnFormat(IColumnContext context, byte[] value)
+        protected override string OnFormat(IColumnContext? context, byte[] value)
         {
-            Encoding actualEncoding = Encoding ?? new UTF8Encoding(false);
+            var actualEncoding = Encoding ?? Encoding.UTF8;
             return actualEncoding.GetString(value);
         }
     }

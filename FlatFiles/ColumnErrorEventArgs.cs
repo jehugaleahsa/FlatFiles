@@ -17,12 +17,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets the schema that was being used to parse when the error occurred.
         /// </summary>
-        public IColumnContext ColumnContext => exception.ColumnContext;
+        public IColumnContext? ColumnContext => exception.ColumnContext;
 
         /// <summary>
         /// Gets the value that was being parsed when the error occurred.
         /// </summary>
-        public object ColumnValue => exception.ColumnValue;
+        public object? ColumnValue => exception.ColumnValue;
 
         /// <summary>
         /// Gets the exception that was thrown.
@@ -41,6 +41,6 @@ namespace FlatFiles
         /// When reading, the type of the substitution must match the type of the column.
         /// When writing, the type of the substitution must be a string.
         /// </remarks>
-        public object Substitution { get; set; }
+        public object? Substitution { get; set; }
     }
 }

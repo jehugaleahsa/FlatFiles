@@ -1,4 +1,5 @@
 ﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
+
 using System;
 using System.Data;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace FlatFiles
         /// <param name="errorHandler">A <see cref="FillErrorEventHandler"/> delegate to call when an error occurs while loading data.</param>
         /// <exception cref="ArgumentNullException">The table is null.</exception>
         /// <exception cref="ArgumentNullException">The reader is null.</exception>
-        public static void ReadFlatFile(this DataTable table, IReader reader, LoadOption loadOption = LoadOption.PreserveChanges, FillErrorEventHandler errorHandler = null)
+        public static void ReadFlatFile(this DataTable table, IReader reader, LoadOption loadOption = LoadOption.PreserveChanges, FillErrorEventHandler? errorHandler = null)
         {
             if (table == null)
             {
@@ -55,15 +56,15 @@ namespace FlatFiles
                 .Where(c => !c.IsIgnored)
                 .Select(c => table.Columns.IndexOf(c.ColumnName))
                 .ToArray();
-            var values = new object[columnIndexes.Length];
-            foreach (DataRow row in table.Rows)
+            var values = new object?[columnIndexes.Length];
+            foreach (DataRow? row in table.Rows)
             {
                 for (int index = 0; index != values.Length; ++index)
                 {
                     int columnIndex = columnIndexes[index];
                     if (columnIndex != -1)
                     {
-                        values[index] = row.IsNull(columnIndex) ? null : row[columnIndex];
+                        values[index] = row!.IsNull(columnIndex) ? null : row[columnIndex];
                     }
                 }
                 writer.Write(values);
@@ -71,4 +72,5 @@ namespace FlatFiles
         }
     }
 }
+
 #endif

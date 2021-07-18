@@ -1,5 +1,4 @@
 ﻿using System;
-using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -22,7 +21,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="message">A message describing the cause of the error.</param>
         /// <param name="innerException">An inner exception containing the cause of the underlying error.</param>
-        internal FlatFileException(string message, Exception innerException)
+        internal FlatFileException(string message, Exception? innerException)
             : base(message, innerException)
         {
         }

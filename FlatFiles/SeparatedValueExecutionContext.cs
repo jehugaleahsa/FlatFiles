@@ -2,11 +2,17 @@
 {
     internal sealed class SeparatedValueExecutionContext : ISeparatedValueExecutionContext
     {
-        public SeparatedValueSchema Schema { get; set; }
+        public SeparatedValueExecutionContext(SeparatedValueSchema? schema, SeparatedValueOptions options)
+        {
+            Schema = schema;
+            Options = options;
+        }
 
-        public SeparatedValueOptions Options { get; set; }
+        public SeparatedValueSchema? Schema { get; }
 
-        ISchema IExecutionContext.Schema => Schema;
+        public SeparatedValueOptions Options { get; }
+
+        ISchema? IExecutionContext.Schema => Schema;
 
         IOptions IExecutionContext.Options => Options;
     }

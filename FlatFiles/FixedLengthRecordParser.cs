@@ -10,8 +10,12 @@ namespace FlatFiles
     {
         private readonly IRecordReader recordReader;
 
-        public FixedLengthRecordParser(TextReader reader, FixedLengthSchema schema, FixedLengthOptions options)
+        public FixedLengthRecordParser(TextReader reader, FixedLengthSchema? schema, FixedLengthOptions options)
         {
+            // When no record separator is specified, we must rely on the total width of the windows
+            // to figure out how much to read. If a separator is provided, we just read up to that
+            // separator. We can then pass that record to the schema selector to determine the schema
+            // afterwards.
             if (options.HasRecordSeparator)
             {
                 recordReader = new SeparatorRecordReader(reader, options.RecordSeparator);
@@ -63,7 +67,7 @@ namespace FlatFiles
             private readonly ISeparatorMatcher matcher;
             private readonly StringBuilder builder;
 
-            public SeparatorRecordReader(TextReader reader, string separator)
+            public SeparatorRecordReader(TextReader reader, string? separator)
             {
                 this.reader = new RetryReader(reader);
                 matcher = SeparatorMatcher.GetMatcher(this.reader, separator);

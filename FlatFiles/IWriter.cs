@@ -11,12 +11,12 @@ namespace FlatFiles
         /// <summary>
         /// Raised when an error occurs while processing a column.
         /// </summary>
-        event EventHandler<ColumnErrorEventArgs> ColumnError;
+        event EventHandler<ColumnErrorEventArgs>? ColumnError;
 
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        event EventHandler<RecordErrorEventArgs> RecordError;
+        event EventHandler<RecordErrorEventArgs>? RecordError;
 
         /// <summary>
         /// Gets the options controlling the behavior of the writer.
@@ -27,7 +27,7 @@ namespace FlatFiles
         /// Gets the schema being used by the builder to create the textual representation.
         /// </summary>
         /// <returns>The schema being used by the builder to create the textual representation.</returns>
-        ISchema GetSchema();
+        ISchema? GetSchema();
 
         /// <summary>
         /// Write the textual representation of the record schema.
@@ -46,14 +46,14 @@ namespace FlatFiles
         /// </summary>
         /// <param name="values">The values to write.</param>
         /// <returns>The textual representation of the given values.</returns>
-        void Write(object[] values);
+        void Write(object?[] values);
 
         /// <summary>
         /// Writes the textual representation of the given values to the writer.
         /// </summary>
         /// <param name="values">The values to write.</param>
         /// <returns>The textual representation of the given values.</returns>
-        Task WriteAsync(object[] values);
+        Task WriteAsync(object?[] values);
 
         /// <summary>
         /// Write the given data directly to the output. By default, this will
@@ -61,7 +61,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
-        void WriteRaw(String data, bool writeRecordSeparator = false);
+        void WriteRaw(string data, bool writeRecordSeparator = false);
 
         /// <summary>
         /// Write the given data directly to the output. By default, this will
@@ -69,6 +69,6 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
-        Task WriteRawAsync(String data, bool writeRecordSeparator = false);
+        Task WriteRawAsync(string data, bool writeRecordSeparator = false);
     }
 }

@@ -2,7 +2,7 @@
 {
     internal static class SeparatorMatcher
     {
-        public static ISeparatorMatcher GetMatcher(RetryReader reader, string separator)
+        public static ISeparatorMatcher GetMatcher(RetryReader reader, string? separator)
         {
             if (separator == null)
             {

@@ -10,6 +10,6 @@
         /// </summary>
         /// <param name="context">The current column context.</param>
         /// <returns>The default value.</returns>
-        object GetDefaultValue(IColumnContext context);
+        object? GetDefaultValue(IColumnContext? context);
     }
 }

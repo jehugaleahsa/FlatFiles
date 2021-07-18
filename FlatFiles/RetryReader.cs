@@ -7,8 +7,8 @@ namespace FlatFiles
 {
     internal sealed class RetryReader
     {
-        private readonly StringBuilder record = new StringBuilder();
-        private readonly CircularQueue<char> queue = new CircularQueue<char>(4096);
+        private readonly StringBuilder record = new();
+        private readonly CircularQueue<char> queue = new(4096);
         private readonly TextReader reader;
         private bool isEndOfStreamFound;
 
@@ -49,7 +49,7 @@ namespace FlatFiles
                 return;
             }
             var segment = queue.PrepareBlock();
-            int length = reader.ReadBlock(segment.Array, segment.Offset, segment.Count);
+            int length = reader.ReadBlock(segment.Array!, segment.Offset, segment.Count);
             if (length < segment.Count)
             {
                 isEndOfStreamFound = true;
@@ -64,7 +64,7 @@ namespace FlatFiles
                 return;
             }
             var segment = queue.PrepareBlock();
-            int length = await reader.ReadBlockAsync(segment.Array, segment.Offset, segment.Count).ConfigureAwait(false);
+            int length = await reader.ReadBlockAsync(segment.Array!, segment.Offset, segment.Count).ConfigureAwait(false);
             if (length < segment.Count)
             {
                 isEndOfStreamFound = true;

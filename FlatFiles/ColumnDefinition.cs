@@ -9,7 +9,7 @@ namespace FlatFiles
     /// </summary>
     public abstract class ColumnDefinition : IColumnDefinition
     {
-        private string columnName;
+        private string? columnName;
         private INullFormatter nullHandler = FlatFiles.NullFormatter.Default;
         private IDefaultValue defaultValue = FlatFiles.DefaultValue.Disabled();
 
@@ -27,7 +27,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="columnName">The name of the column to define.</param>
         /// <param name="isIgnored">Specifies whether the value in the column appears in the parsed record.</param>
-        internal ColumnDefinition(string columnName, bool isIgnored)
+        internal ColumnDefinition(string? columnName, bool isIgnored)
         {
             IsIgnored = isIgnored; // Set ignored first or ColumnName setter fails!
             ColumnName = columnName;
@@ -36,7 +36,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets the name of the column.
         /// </summary>
-        public string ColumnName
+        public string? ColumnName
         {
             get => columnName;
             internal set 
@@ -82,27 +82,27 @@ namespace FlatFiles
         /// Gets or sets a function used to preprocess input before trying to parse it.
         /// </summary>
         [Obsolete("This property has been superseded by the OnParsing delegate.")]
-        public Func<string, string> Preprocessor { get; set; }
+        public Func<string, string?>? Preprocessor { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to pre-process input before trying to parse it.
         /// </summary>
-        public Func<IColumnContext, string, string> OnParsing { get; set; }
+        public Func<IColumnContext?, string, string?>? OnParsing { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to post-process input after parsing it.
         /// </summary>
-        public Func<IColumnContext, object, object> OnParsed { get; set; }
+        public Func<IColumnContext?, object?, object?>? OnParsed { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to pre-process output before trying to format it.
         /// </summary>
-        public Func<IColumnContext, object, object> OnFormatting { get; set; }
+        public Func<IColumnContext?, object?, object?>? OnFormatting { get; set; }
 
         /// <summary>
         /// Gets or sets a function used to post-process output after formatting it.
         /// </summary>
-        public Func<IColumnContext, string, string> OnFormatted { get; set; }
+        public Func<IColumnContext?, string, string?>? OnFormatted { get; set; }
 
         /// <summary>
         /// Gets the type of the values in the column.
@@ -115,7 +115,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public abstract object Parse(IColumnContext context, string value);
+        public abstract object? Parse(IColumnContext? context, string value);
 
         /// <summary>
         /// Removes any leading or trailing whitespace from the value.
@@ -124,7 +124,7 @@ namespace FlatFiles
         /// <returns>The trimmed value.</returns>
         protected internal static string TrimValue(string value)
         {
-            return value?.Trim();
+            return value.Trim();
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public abstract string Format(IColumnContext context, object value);
+        public abstract string Format(IColumnContext? context, object? value);
 
         /// <summary>
         /// Gets the format provider to use. If the given provider is not null, it will be used.
@@ -143,7 +143,7 @@ namespace FlatFiles
         /// <param name="context">The current column context.</param>
         /// <param name="formatProvider">The format provider set on the column.</param>
         /// <returns>The format provider to use.</returns>
-        protected static IFormatProvider GetFormatProvider(IColumnContext context, IFormatProvider formatProvider)
+        protected static IFormatProvider GetFormatProvider(IColumnContext? context, IFormatProvider? formatProvider)
         {
             return formatProvider
                 ?? context?.RecordContext.ExecutionContext.Options.FormatProvider
@@ -177,19 +177,19 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        public override object Parse(IColumnContext context, string value)
+        public override object? Parse(IColumnContext? context, string value)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             if (Preprocessor != null)
             {
-                value = Preprocessor(value);
+                value = Preprocessor(value) ?? String.Empty;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
             if (OnParsing != null)
             {
-                value = OnParsing(context, value);
+                value = OnParsing(context, value) ?? String.Empty;
             }
-            object result = ParseValue(context, value);
+            object? result = ParseValue(context, value);
             if (OnParsed != null)
             {
                 result = OnParsed(context, result);
@@ -197,11 +197,18 @@ namespace FlatFiles
             return result;
         }
 
-        private object ParseValue(IColumnContext context, string value)
+        private object? ParseValue(IColumnContext? context, string? value)
         {
-            if (NullFormatter.IsNullValue(context, value))
+            if (value == null || NullFormatter.IsNullValue(context, value))
             {
-                return IsNullable ? null : DefaultValue.GetDefaultValue(context); // Should we check for the expected type?
+                if (IsNullable)
+                {
+                    return null;
+                }
+                else
+                {
+                    return DefaultValue.GetDefaultValue(context); // Should we check for the expected type?
+                }
             }
             else
             {
@@ -221,7 +228,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The value to parse.</param>
         /// <returns>The parsed value.</returns>
-        protected abstract T OnParse(IColumnContext context, string value);
+        protected abstract T OnParse(IColumnContext? context, string value);
 
         /// <summary>
         /// Formats the given object.
@@ -229,7 +236,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        public override string Format(IColumnContext context, object value)
+        public override string Format(IColumnContext? context, object? value)
         {
             if (OnFormatting != null)
             {
@@ -238,16 +245,16 @@ namespace FlatFiles
             string result = FormatValue(context, value);
             if (OnFormatted != null)
             {
-                result = OnFormatted(context, result);
+                result = OnFormatted(context, result) ?? String.Empty;
             }
             return result;
         }
 
-        private string FormatValue(IColumnContext context, object value)
+        private string FormatValue(IColumnContext? context, object? value)
         {
             if (value == null)
             {
-                return NullFormatter.FormatNull(context);
+                return NullFormatter.FormatNull(context) ?? String.Empty;
             }
             else
             {
@@ -261,6 +268,6 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="value">The object to format.</param>
         /// <returns>The formatted value.</returns>
-        protected abstract string OnFormat(IColumnContext context, T value);
+        protected abstract string OnFormat(IColumnContext? context, T value);
     }
 }

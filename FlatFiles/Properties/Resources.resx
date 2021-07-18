@@ -204,4 +204,10 @@
   <data name="NoAutoMapPropertyType" xml:space="preserve">
     <value>Could not find an appropriate property mapping for the type of the column '{0}'.</value>
   </data>
+  <data name="ValueExceedsWindowWidth" xml:space="preserve">
+    <value>The value exceeded the configured window width.</value>
+  </data>
+  <data name="MetadataExpectingContext" xml:space="preserve">
+    <value>The schema was configured with a metadata column but column-level context has been disabled.</value>
+  </data>
 </root>
