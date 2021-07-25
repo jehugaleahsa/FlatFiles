@@ -17,7 +17,6 @@ namespace FlatFiles.Benchmark
             //RunPerformanceMonitor();
         }
 
-        [SuppressMessage("CodeQuality", "IDE0051")]
         private static void RunBenchmarks()
         {
             var configuration = new ManualConfig()

@@ -215,7 +215,11 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var csvReader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(reader);
-            var people = csvReader.ReadAll().ToArray();
+            var people = new List<Person>();
+            foreach (var person in csvReader.ReadAll())
+            {
+                people.Add(person);
+            }
         }
 
         [Benchmark]
@@ -354,7 +358,11 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var csvReader = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
-            var people = csvReader.GetRecords<Person>().ToArray();
+            var people = new List<Person>();
+            foreach (var person in csvReader.GetRecords<Person>())
+            {
+                people.Add(person);
+            }
         }
 
         [Benchmark]
@@ -376,7 +384,11 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(quotedData);
             var csvReader = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
-            var people = csvReader.GetRecords<Person>().ToArray();
+            var people = new List<Person>();
+            foreach (var person in csvReader.GetRecords<Person>())
+            {
+                people.Add(person);
+            }
         }
 
         [Benchmark]
