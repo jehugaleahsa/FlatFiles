@@ -12,9 +12,9 @@ namespace FlatFiles.Benchmark
     {
         static void Main()
         {
-            //RunBenchmarks();
+            RunBenchmarks();
 
-            RunPerformanceMonitor();
+            //RunPerformanceMonitor();
         }
 
         [SuppressMessage("CodeQuality", "IDE0051")]

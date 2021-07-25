@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds configuration settings for the FlatFileDataReader class.
     /// </summary>
-    public class FlatFileDataReaderOptions
+    public sealed class FlatFileDataReaderOptions
     {
         /// <summary>
         /// Initializes a new instance of FlatFileDataReaderOptions.

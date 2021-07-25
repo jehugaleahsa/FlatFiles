@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column containing the record number metadata.
     /// </summary>
-    public class RecordNumberColumn : MetadataColumn<int>
+    public sealed class RecordNumberColumn : MetadataColumn<int>
     {
         private readonly Int32Column column;
 

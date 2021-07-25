@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a column of character values.
     /// </summary>
-    public class CharColumn : ColumnDefinition<char>
+    public sealed class CharColumn : ColumnDefinition<char>
     {
         /// <summary>
         /// Initializes a new instance of a CharColumn.

@@ -6,7 +6,7 @@ namespace FlatFiles
     /// Represents a column that should be ignored when reading a document and used as a placeholder
     /// when writing a document.
     /// </summary>
-    public class IgnoredColumn : ColumnDefinition
+    public sealed class IgnoredColumn : ColumnDefinition
     {
         /// <summary>
         /// Initializes a new IgnoredColumn.

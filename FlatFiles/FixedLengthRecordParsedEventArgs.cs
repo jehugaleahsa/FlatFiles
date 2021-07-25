@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds the information related to a parsed fixed length record.
     /// </summary>
-    public class FixedLengthRecordParsedEventArgs : EventArgs, IRecordParsedEventArgs
+    public sealed class FixedLengthRecordParsedEventArgs : EventArgs, IRecordParsedEventArgs
     {
         /// <summary>
         /// Creates a new instance of a FixedLengthRecordParsedEventArgs.

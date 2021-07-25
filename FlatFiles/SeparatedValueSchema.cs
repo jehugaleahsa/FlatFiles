@@ -1,10 +1,15 @@
-﻿namespace FlatFiles
+﻿using System;
+using System.Collections.Concurrent;
+
+namespace FlatFiles
 {
     /// <summary>
     /// Defines the expected format of a record in a file.
     /// </summary>
     public sealed class SeparatedValueSchema : Schema
     {
+        private static readonly ConcurrentDictionary<ValueTuple<int, bool>, SeparatedValueSchema> dynamicSchemas = new();
+
         /// <summary>
         /// Initializes a new instance of a Schema.
         /// </summary>
@@ -14,17 +19,19 @@
 
         internal static SeparatedValueSchema BuildDynamicSchema(SeparatedValueOptions options, int length)
         {
-            // TODO: Cache or optimize this somehow
-            var schema = new SeparatedValueSchema();
-            for (int columnIndex = 0; columnIndex != length; ++columnIndex)
+            return dynamicSchemas.GetOrAdd((length, options.PreserveWhiteSpace), (pair) =>
             {
-                var column = new StringColumn($"Column{columnIndex}")
+                var schema = new SeparatedValueSchema();
+                for (int columnIndex = 0; columnIndex != pair.Item1; ++columnIndex)
                 {
-                    Trim = !options.PreserveWhiteSpace
-                };
-                schema.AddColumn(column);
-            }
-            return schema;
+                    var column = new StringColumn($"Column{columnIndex}")
+                    {
+                        Trim = !pair.Item2
+                    };
+                    schema.AddColumn(column);
+                }
+                return schema;
+            });
         }
 
         /// <summary>

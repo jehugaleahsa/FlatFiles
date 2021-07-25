@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Defines the location and width of a column in a fixed-length record.
     /// </summary>
-    public class Window
+    public sealed class Window
     {
         /// <summary>
         /// Acts as an indicator that the column or property should capture any data

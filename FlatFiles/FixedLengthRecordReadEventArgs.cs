@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds the information related to an unpartitioned, unparsed fixed length record.
     /// </summary>
-    public class FixedLengthRecordReadEventArgs : EventArgs
+    public sealed class FixedLengthRecordReadEventArgs : EventArgs
     {
         /// <summary>
         /// Creates a new instance of a FixedLengthRecordReadEventArgs.

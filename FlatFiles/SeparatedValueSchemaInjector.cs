@@ -9,9 +9,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class SeparatedValueSchemaInjector
     {
-        private static readonly SchemaMatcher nonMatcher = new(null, values => false);
         private readonly List<SchemaMatcher> matchers = new();
-        private SchemaMatcher defaultMatcher = nonMatcher;
+        private SchemaMatcher? defaultMatcher;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueSchemaInjector.
@@ -45,7 +44,7 @@ namespace FlatFiles
         {
             if (schema == null)
             {
-                defaultMatcher = nonMatcher;
+                defaultMatcher = null;
             }
             else
             {
@@ -68,7 +67,7 @@ namespace FlatFiles
                     return matcher.Schema;
                 }
             }
-            if (defaultMatcher.Predicate(values))
+            if (defaultMatcher != null && defaultMatcher.Predicate(values))
             {
                 return defaultMatcher.Schema;
             }
@@ -77,13 +76,13 @@ namespace FlatFiles
 
         private sealed class SchemaMatcher
         {
-            public SchemaMatcher(SeparatedValueSchema? schema, Func<object?[], bool> predicate)
+            public SchemaMatcher(SeparatedValueSchema schema, Func<object?[], bool> predicate)
             {
                 Schema = schema;
                 Predicate = predicate;
             }
 
-            public SeparatedValueSchema? Schema { get; }
+            public SeparatedValueSchema Schema { get; }
 
             public Func<object?[], bool> Predicate { get; }
         }

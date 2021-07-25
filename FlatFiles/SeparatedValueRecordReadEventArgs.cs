@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds the information related to an unparsed separated value record.
     /// </summary>
-    public class SeparatedValueRecordReadEventArgs : EventArgs
+    public sealed class SeparatedValueRecordReadEventArgs : EventArgs
     {
         /// <inheritdoc />
         /// <summary>

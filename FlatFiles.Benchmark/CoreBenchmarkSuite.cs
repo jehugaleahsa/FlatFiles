@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using CsvHelper.Configuration;
 using FlatFiles.TypeMapping;
 
 namespace FlatFiles.Benchmark
@@ -39,122 +38,15 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_FlatFileDataReader_ByPosition()
+        public void RunFlatFiles_NoSchema()
         {
             var reader = new StringReader(data);
-            var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            var dataReader = new FlatFileDataReader(csvReader);
-            var people = new List<Person>();
-            while (dataReader.Read())
+            var csvReader = new SeparatedValueReader(reader);
+            var people = new List<object[]>();
+            while (csvReader.Read())
             {
-                var person = new Person()
-                {
-                    FirstName = dataReader.GetString(0),
-                    LastName = dataReader.GetString(1),
-                    Age = dataReader.GetInt32(2),
-                    Street1 = dataReader.GetString(3),
-                    Street2 = dataReader.GetString(4),
-                    City = dataReader.GetString(5),
-                    State = dataReader.GetString(6),
-                    Zip = dataReader.GetString(7),
-                    FavoriteColor = dataReader.GetString(8),
-                    FavoriteFood = dataReader.GetString(9),
-                    FavoriteSport = dataReader.GetString(10),
-                    CreatedOn = dataReader.GetDateTime(11),
-                    IsActive = dataReader.GetBoolean(12)
-                };
-                people.Add(person);
+                people.Add(csvReader.GetValues());
             }
-        }
-
-        [Benchmark]
-        public void RunFlatFiles_FlatFileDataReader_ByName()
-        {
-            var reader = new StringReader(data);
-            var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            var dataReader = new FlatFileDataReader(csvReader);
-            var people = new List<Person>();
-            while (dataReader.Read())
-            {
-                var person = new Person()
-                {
-                    FirstName = dataReader.GetString("FirstName"),
-                    LastName = dataReader.GetString("LastName"),
-                    Age = dataReader.GetInt32("Age"),
-                    Street1 = dataReader.GetString("Street1"),
-                    Street2 = dataReader.GetString("Street2"),
-                    City = dataReader.GetString("City"),
-                    State = dataReader.GetString("State"),
-                    Zip = dataReader.GetString("Zip"),
-                    FavoriteColor = dataReader.GetString("FavoriteColor"),
-                    FavoriteFood = dataReader.GetString("FavoriteFood"),
-                    FavoriteSport = dataReader.GetString("FavoriteSport"),
-                    CreatedOn = dataReader.GetDateTime("CreatedOn"),
-                    IsActive = dataReader.GetBoolean("IsActive")
-                };
-                people.Add(person);
-            }
-        }
-
-        [Benchmark]
-        public void RunFlatFiles_FlatFileDataReader_GetValue()
-        {
-            var reader = new StringReader(data);
-            var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            var dataReader = new FlatFileDataReader(csvReader);
-            var people = new List<Person>();
-            while (dataReader.Read())
-            {
-                var person = new Person()
-                {
-                    FirstName = dataReader.GetValue<string>(0),
-                    LastName = dataReader.GetValue<string>(1),
-                    Age = dataReader.GetValue<int>(2),
-                    Street1 = dataReader.GetValue<string>(3),
-                    Street2 = dataReader.GetValue<string>(4),
-                    City = dataReader.GetValue<string>(5),
-                    State = dataReader.GetValue<string>(6),
-                    Zip = dataReader.GetValue<string>(7),
-                    FavoriteColor = dataReader.GetValue<string>(8),
-                    FavoriteFood = dataReader.GetValue<string>(9),
-                    FavoriteSport = dataReader.GetValue<string>(10),
-                    CreatedOn = dataReader.GetValue<DateTime?>(11),
-                    IsActive = dataReader.GetValue<bool>(12)
-                };
-                people.Add(person);
-            }
-        }
-
-        [Benchmark]
-        public void RunFlatFiles_DataTable()
-        {
-            var reader = new StringReader(data);
-            var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-            var dataTable = new DataTable();
-            dataTable.ReadFlatFile(csvReader);
-        }
-
-        private static SeparatedValueSchema GetSchema()
-        {
-            var schema = new SeparatedValueSchema();
-            schema.AddColumn(new StringColumn("FirstName"));
-            schema.AddColumn(new StringColumn("LastName"));
-            schema.AddColumn(new Int32Column("Age"));
-            schema.AddColumn(new StringColumn("Street1"));
-            schema.AddColumn(new StringColumn("Street2"));
-            schema.AddColumn(new StringColumn("City"));
-            schema.AddColumn(new StringColumn("State"));
-            schema.AddColumn(new StringColumn("Zip"));
-            schema.AddColumn(new StringColumn("FavoriteColor"));
-            schema.AddColumn(new StringColumn("FavoriteFood"));
-            schema.AddColumn(new StringColumn("FavoriteSport"));
-            schema.AddColumn(new DateTimeColumn("CreatedOn"));
-            schema.AddColumn(new BooleanColumn("IsActive"));
-            return schema;
         }
 
         [Benchmark]
@@ -339,15 +231,122 @@ namespace FlatFiles.Benchmark
         }
 
         [Benchmark]
-        public void RunFlatFiles_NoSchema()
+        public void RunFlatFiles_FlatFileDataReader_ByPosition()
         {
             var reader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(reader);
-            var people = new List<object[]>();
-            while (csvReader.Read())
+            var schema = GetSchema();
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
             {
-                people.Add(csvReader.GetValues());
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetString(0),
+                    LastName = dataReader.GetString(1),
+                    Age = dataReader.GetInt32(2),
+                    Street1 = dataReader.GetString(3),
+                    Street2 = dataReader.GetString(4),
+                    City = dataReader.GetString(5),
+                    State = dataReader.GetString(6),
+                    Zip = dataReader.GetString(7),
+                    FavoriteColor = dataReader.GetString(8),
+                    FavoriteFood = dataReader.GetString(9),
+                    FavoriteSport = dataReader.GetString(10),
+                    CreatedOn = dataReader.GetDateTime(11),
+                    IsActive = dataReader.GetBoolean(12)
+                };
+                people.Add(person);
             }
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_FlatFileDataReader_ByName()
+        {
+            var reader = new StringReader(data);
+            var schema = GetSchema();
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
+            {
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetString("FirstName"),
+                    LastName = dataReader.GetString("LastName"),
+                    Age = dataReader.GetInt32("Age"),
+                    Street1 = dataReader.GetString("Street1"),
+                    Street2 = dataReader.GetString("Street2"),
+                    City = dataReader.GetString("City"),
+                    State = dataReader.GetString("State"),
+                    Zip = dataReader.GetString("Zip"),
+                    FavoriteColor = dataReader.GetString("FavoriteColor"),
+                    FavoriteFood = dataReader.GetString("FavoriteFood"),
+                    FavoriteSport = dataReader.GetString("FavoriteSport"),
+                    CreatedOn = dataReader.GetDateTime("CreatedOn"),
+                    IsActive = dataReader.GetBoolean("IsActive")
+                };
+                people.Add(person);
+            }
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_FlatFileDataReader_GetValue()
+        {
+            var reader = new StringReader(data);
+            var schema = GetSchema();
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataReader = new FlatFileDataReader(csvReader);
+            var people = new List<Person>();
+            while (dataReader.Read())
+            {
+                var person = new Person()
+                {
+                    FirstName = dataReader.GetValue<string>(0),
+                    LastName = dataReader.GetValue<string>(1),
+                    Age = dataReader.GetValue<int>(2),
+                    Street1 = dataReader.GetValue<string>(3),
+                    Street2 = dataReader.GetValue<string>(4),
+                    City = dataReader.GetValue<string>(5),
+                    State = dataReader.GetValue<string>(6),
+                    Zip = dataReader.GetValue<string>(7),
+                    FavoriteColor = dataReader.GetValue<string>(8),
+                    FavoriteFood = dataReader.GetValue<string>(9),
+                    FavoriteSport = dataReader.GetValue<string>(10),
+                    CreatedOn = dataReader.GetValue<DateTime?>(11),
+                    IsActive = dataReader.GetValue<bool>(12)
+                };
+                people.Add(person);
+            }
+        }
+
+        [Benchmark]
+        public void RunFlatFiles_DataTable()
+        {
+            var reader = new StringReader(data);
+            var schema = GetSchema();
+            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var dataTable = new DataTable();
+            dataTable.ReadFlatFile(csvReader);
+        }
+
+        private static SeparatedValueSchema GetSchema()
+        {
+            var schema = new SeparatedValueSchema();
+            schema.AddColumn(new StringColumn("FirstName"));
+            schema.AddColumn(new StringColumn("LastName"));
+            schema.AddColumn(new Int32Column("Age"));
+            schema.AddColumn(new StringColumn("Street1"));
+            schema.AddColumn(new StringColumn("Street2"));
+            schema.AddColumn(new StringColumn("City"));
+            schema.AddColumn(new StringColumn("State"));
+            schema.AddColumn(new StringColumn("Zip"));
+            schema.AddColumn(new StringColumn("FavoriteColor"));
+            schema.AddColumn(new StringColumn("FavoriteFood"));
+            schema.AddColumn(new StringColumn("FavoriteSport"));
+            schema.AddColumn(new DateTimeColumn("CreatedOn"));
+            schema.AddColumn(new BooleanColumn("IsActive"));
+            return schema;
         }
 
         [Benchmark]

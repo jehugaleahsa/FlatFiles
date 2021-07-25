@@ -238,14 +238,19 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldPreserveLeadingWhitespaceIfConfigured_MultipleSpaces_TwoColumn()
         {
-            string source = "  a, \t\n  b";
-            StringReader stringReader = new StringReader(source);
+            const string source = "  a, \t\n  b";
+            var stringReader = new StringReader(source);
             //SeparatedValueSchema schema = new SeparatedValueSchema();
             //schema.AddColumn(new StringColumn("a") { Trim = false });
             //schema.AddColumn(new StringColumn("b") { Trim = false });
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, /*schema,*/ options);
-            object[][] expected = new object[][]
+            var options = new SeparatedValueOptions() 
+            { 
+                IsFirstRecordSchema = false, 
+                RecordSeparator = "\r\n", 
+                PreserveWhiteSpace = true 
+            };
+            var reader = new SeparatedValueReader(stringReader, /*schema,*/ options);
+            var expected = new object[][]
             {
                 new object[] { "  a", " \t\n  b" }
             };

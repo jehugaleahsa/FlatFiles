@@ -7,7 +7,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
-    public class SeparatedValueComplexColumn : ColumnDefinition<object?[]?>
+    public sealed class SeparatedValueComplexColumn : ColumnDefinition<object?[]?>
     {
         private readonly SeparatedValueSchema? schema;
 

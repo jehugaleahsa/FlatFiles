@@ -5,7 +5,7 @@ namespace FlatFiles
     /// <summary>
     /// Holds the information related to a partitioned, unparsed fixed length record.
     /// </summary>
-    public class FixedLengthRecordPartitionedEventArgs : EventArgs
+    public sealed class FixedLengthRecordPartitionedEventArgs : EventArgs
     {
         /// <summary>
         /// Creates a new instance of a FixedLengthRecordPartitionedEventArgs.
