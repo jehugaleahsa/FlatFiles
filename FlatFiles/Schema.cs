@@ -55,7 +55,7 @@ namespace FlatFiles
                 var definition = ColumnDefinitions[columnIndex];
                 if (definition is IMetadataColumn)
                 {
-                    var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                    var columnContext = NewColumnContext(context, columnIndex, destinationIndex);
                     var metadata = ParseWithContext(columnContext, String.Empty);
                     parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
@@ -88,7 +88,7 @@ namespace FlatFiles
             }
             else
             {
-                var columnContext = GetColumnContext(context, columnIndex, destinationIndex);
+                var columnContext = NewColumnContext(context, columnIndex, destinationIndex);
                 return ParseWithContext(columnContext, rawValue);
             }
         }
@@ -146,7 +146,7 @@ namespace FlatFiles
                 IColumnDefinition definition = ColumnDefinitions[columnIndex];
                 if (definition is IMetadataColumn)
                 {
-                    var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                    var columnContext = NewColumnContext(context, columnIndex, valueIndex);
                     var formattedValue = FormatWithContext(columnContext, null);
                     formattedValues[columnIndex] = formattedValue;
                     ++valueIndex;
@@ -177,7 +177,7 @@ namespace FlatFiles
             }
             else
             {
-                var columnContext = GetColumnContext(context, columnIndex, valueIndex);
+                var columnContext = NewColumnContext(context, columnIndex, valueIndex);
                 return FormatWithContext(columnContext, value);
             }
         }
@@ -217,13 +217,9 @@ namespace FlatFiles
             }
         }
 
-        private static ColumnContext GetColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)
+        private static ColumnContext NewColumnContext(IRecordContext context, int physicalIndex, int logicalIndex)
         {
-            return new ColumnContext(context)
-            {
-                PhysicalIndex = physicalIndex,
-                LogicalIndex = logicalIndex
-            };
+            return new ColumnContext(context, physicalIndex, logicalIndex);
         }
     }
 }

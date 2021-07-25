@@ -9,7 +9,7 @@ namespace FlatFiles
     public sealed class EnumColumn<TEnum> : ColumnDefinition<TEnum>
     {
         private Func<string, TEnum> parser;
-        private Func<TEnum, string> formatter;
+        private Func<TEnum, string?> formatter;
 
         /// <summary>
         /// Initializes a new EnumColumn with the given name.
@@ -27,7 +27,7 @@ namespace FlatFiles
             return (TEnum)Enum.Parse(typeof(TEnum), value, true);
         }
 
-        private static string DefaultFormatter(TEnum value)
+        private static string? DefaultFormatter(TEnum value)
         {
             return Convert.ToInt32(value).ToString();
         }
@@ -35,7 +35,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the parser used to convert string values into enumeration values.
         /// </summary>
-        public Func<string, TEnum> Parser
+        public Func<string, TEnum>? Parser
         {
             get => parser;
             set => parser = value ?? DefaultParser;
@@ -44,7 +44,7 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the formatter used to convert enumeration values to string values.
         /// </summary>
-        public Func<TEnum, string> Formatter
+        public Func<TEnum, string?>? Formatter
         {
             get => formatter;
             set => formatter = value ?? DefaultFormatter;
@@ -69,7 +69,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext? context, TEnum value)
         {
-            return formatter(value);
+            return formatter(value) ?? String.Empty;
         }
     }
 }

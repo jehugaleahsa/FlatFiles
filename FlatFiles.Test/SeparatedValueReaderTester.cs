@@ -731,7 +731,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
         public void TestReader_NullToDateTime_ProvidesUsefulErrorMessage()
         {
             const string rawData = "Hello,,Goodbye";
-            StringReader reader = new StringReader(rawData);
+            var reader = new StringReader(rawData);
 
             var mapper = SeparatedValueTypeMapper.Define<ClassWithDate>();
             mapper.Ignored();
@@ -746,6 +746,68 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             catch (FlatFileException)
             {                
             }
+        }
+
+        [TestMethod]
+        public void TestReader_DefaultRecordSeparator_HandlesLinuxNewline()
+        {
+            const string rawData = "a,b,c\nd,e,f\nh,i,j";
+            var reader = new StringReader(rawData);
+            var csvReader = new SeparatedValueReader(reader);
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "a", "b", "c" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "d", "e", "f" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "h", "i", "j" }, csvReader.GetValues());
+            Assert.IsFalse(csvReader.Read());
+        }
+
+        [TestMethod]
+        public void TestReader_DefaultRecordSeparator_HandlesMacNewline()
+        {
+            const string rawData = "a,b,c\rd,e,f\rh,i,j";
+            var reader = new StringReader(rawData);
+            var csvReader = new SeparatedValueReader(reader);
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "a", "b", "c" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "d", "e", "f" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "h", "i", "j" }, csvReader.GetValues());
+            Assert.IsFalse(csvReader.Read());
+        }
+
+        [TestMethod]
+        public void TestReader_DefaultRecordSeparator_HandlesWindowsNewline()
+        {
+            const string rawData = "a,b,c\r\nd,e,f\r\nh,i,j";
+            var reader = new StringReader(rawData);
+            var csvReader = new SeparatedValueReader(reader);
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "a", "b", "c" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "d", "e", "f" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "h", "i", "j" }, csvReader.GetValues());
+            Assert.IsFalse(csvReader.Read());
+        }
+
+        [TestMethod]
+        public void TestReader_DefaultRecordSeparator_HandlesMixedNewlines()
+        {
+            const string rawData = "a,b,c\rd,e,f\nh,i,j\r\nk,l,m";
+            var reader = new StringReader(rawData);
+            var csvReader = new SeparatedValueReader(reader);
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "a", "b", "c" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "d", "e", "f" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "h", "i", "j" }, csvReader.GetValues());
+            Assert.IsTrue(csvReader.Read());
+            CollectionAssert.AreEqual(new[] { "k", "l", "m" }, csvReader.GetValues());
+            Assert.IsFalse(csvReader.Read());
         }
 
         internal class ClassWithDate

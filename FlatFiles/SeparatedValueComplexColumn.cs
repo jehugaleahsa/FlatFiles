@@ -40,13 +40,13 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(schema));
             }
             this.schema = schema;
-            Options = options ?? new();
+            Options = options;
         }
 
         /// <summary>
         /// Gets or sets the separated value options.
         /// </summary>
-        public SeparatedValueOptions Options { get; set; }
+        public SeparatedValueOptions? Options { get; set; }
 
         /// <summary>
         /// Extracts a single record from the embedded data.

@@ -5,35 +5,12 @@ using System.IO;
 namespace FlatFiles.TypeMapping
 {
     /// <summary>
-    /// Allows specifying which schema to use when a predicate is matched.
-    /// </summary>
-    public interface IFixedLengthTypeMapperSelectorWhenBuilder
-    {
-        /// <summary>
-        /// Specifies which type mapper to use when the predicate is matched.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity mapped by the mapper.</typeparam>
-        /// <param name="mapper">The type mapper to use.</param>
-        /// <exception cref="System.ArgumentNullException">The mapper is null.</exception>
-        /// <returns>The type mapper selector.</returns>
-        void Use<TEntity>(IFixedLengthTypeMapper<TEntity> mapper);
-
-        /// <summary>
-        /// Specifies which type mapper to use when the predicate is matched.
-        /// </summary>
-        /// <param name="mapper">The type mapper to use.</param>
-        /// <exception cref="System.ArgumentNullException">The mapper is null.</exception>
-        /// <returns>The type mapper selector.</returns>
-        void Use(IDynamicFixedLengthTypeMapper mapper);
-    }
-
-    /// <summary>
     /// Represents a class that can dynamically map types based on the shap of the record.
     /// </summary>
-    public class FixedLengthTypeMapperSelector
+    public sealed class FixedLengthTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
-        private IDynamicFixedLengthTypeMapper defaultMapper;
+        private readonly List<TypeMapperMatcher> matchers = new();
+        private IDynamicFixedLengthTypeMapper? defaultMapper;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthTypeMapperSelector.
@@ -47,7 +24,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="predicate">Indicates whether the schema should be used for a record.</param>
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        /// <exception cref="ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
         public IFixedLengthTypeMapperSelectorWhenBuilder When(Func<string, bool> predicate)
         {
@@ -63,9 +40,9 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="typeMapper">The default type mapper to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity> typeMapper)
+        public void WithDefault<TEntity>(IFixedLengthTypeMapper<TEntity>? typeMapper)
         {
-            defaultMapper = (IDynamicFixedLengthTypeMapper)typeMapper;
+            defaultMapper = (IDynamicFixedLengthTypeMapper?)typeMapper;
         }
 
         /// <summary>
@@ -73,7 +50,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="typeMapper">The default schema to use.</param>
         /// <returns>The current selector to allow for further customization.</returns>
-        public void WithDefault(IDynamicFixedLengthTypeMapper typeMapper)
+        public void WithDefault(IDynamicFixedLengthTypeMapper? typeMapper)
         {
             defaultMapper = typeMapper;
         }
@@ -84,25 +61,25 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">The reader to use.</param>
         /// <param name="options">The separate value options to use.</param>
         /// <returns>The typed reader.</returns>
-        public IFixedLengthTypedReader<object> GetReader(TextReader reader, FixedLengthOptions options = null)
+        public IFixedLengthTypedReader<object?> GetReader(TextReader reader, FixedLengthOptions? options = null)
         {
             var selector = new FixedLengthSchemaSelector();
             var valueReader = new FixedLengthReader(reader, selector, options);
             var multiReader = new MultiplexingFixedLengthTypedReader(valueReader);
             foreach (var matcher in matchers)
             {
-                var typedReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<IRecordContext, object?[], object?>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typedReader.Value);
             }
             if (defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(defaultMapper));
+                var typeReader = new Lazy<Func<IRecordContext, object?[], object?>>(GetReader (defaultMapper));
                 selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<IRecordContext, object[], object>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
+        private Func<Func<IRecordContext, object?[], object?>> GetReader(IDynamicFixedLengthTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
@@ -111,21 +88,23 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicFixedLengthTypeMapper typeMapper, Func<string, bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher()
-            {
-                TypeMapper = typeMapper,
-                Predicate = predicate
-            });
+            matchers.Add(new TypeMapperMatcher(typeMapper, predicate));
         }
 
-        private class TypeMapperMatcher
+        private sealed class TypeMapperMatcher
         {
-            public IDynamicFixedLengthTypeMapper TypeMapper { get; set; }
+            public TypeMapperMatcher(IDynamicFixedLengthTypeMapper typeMapper, Func<string, bool> predicate)
+            {
+                TypeMapper = typeMapper;
+                Predicate = predicate;
+            }
 
-            public Func<string, bool> Predicate { get; set; }
+            public IDynamicFixedLengthTypeMapper TypeMapper { get; }
+
+            public Func<string, bool> Predicate { get; }
         }
 
-        private class FixedLengthTypeMapperSelectorWhenBuilder : IFixedLengthTypeMapperSelectorWhenBuilder
+        private sealed class FixedLengthTypeMapperSelectorWhenBuilder : IFixedLengthTypeMapperSelectorWhenBuilder
         {
             private readonly FixedLengthTypeMapperSelector selector;
             private readonly Func<string, bool> predicate;

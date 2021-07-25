@@ -1,26 +1,28 @@
-﻿namespace FlatFiles
+﻿using FlatFiles.Properties;
+
+namespace FlatFiles
 {
-    internal class ColumnContext : IColumnContext
+    internal sealed class ColumnContext : IColumnContext
     {
-        public ColumnContext(IRecordContext recordContext)
+        public ColumnContext(IRecordContext recordContext, int physicalIndex, int logicalIndex)
         {
-            RecordContext = recordContext;
-        }
-
-        public IRecordContext RecordContext { get; set; }
-
-        public IColumnDefinition ColumnDefinition
-        {
-            get
+            var schema = recordContext.ExecutionContext.Schema;
+            if (schema == null)
             {
-                var schema = RecordContext.ExecutionContext.Schema;
-                var definition = schema.ColumnDefinitions[PhysicalIndex];
-                return definition;
+                throw new FlatFileException(Resources.SchemaNotDefined);
             }
+            RecordContext = recordContext;
+            ColumnDefinition = schema.ColumnDefinitions[physicalIndex];
+            PhysicalIndex = physicalIndex;
+            LogicalIndex = logicalIndex;
         }
 
-        public int PhysicalIndex { get; set; }
+        public IRecordContext RecordContext { get; }
 
-        public int LogicalIndex { get; set; }
+        public IColumnDefinition ColumnDefinition { get; }
+
+        public int PhysicalIndex { get; }
+
+        public int LogicalIndex { get; }
     }
 }

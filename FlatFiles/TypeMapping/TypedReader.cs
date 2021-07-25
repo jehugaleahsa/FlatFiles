@@ -1,149 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
 {
-    /// <summary>
-    ///  Represents a reader that will generate entities.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
-    public interface ITypedReader<out TEntity>
-    {
-        /// <summary>
-        /// Raised when an error occurs while processing a record.
-        /// </summary>
-        event EventHandler<RecordErrorEventArgs> RecordError;
-
-        /// <summary>
-        /// Raised when an error occurs while processing a column.
-        /// </summary>
-        event EventHandler<ColumnErrorEventArgs> ColumnError;
-
-        /// <summary>
-        /// Raised when a record is parsed.
-        /// </summary>
-        event EventHandler<IRecordParsedEventArgs> RecordParsed;
-
-        /// <summary>
-        /// Gets the underlying reader.
-        /// </summary>
-        IReader Reader { get; }
-
-        /// <summary>
-        /// Gets the schema being used by the parser to parse record values.
-        /// </summary>
-        /// <returns>The schema being used by the parser.</returns>
-        ISchema GetSchema();
-
-        /// <summary>
-        /// Reads the next record from the file.
-        /// </summary>
-        /// <returns>True if the next record was read; otherwise, false if the end of file was reached.</returns>
-        bool Read();
-
-        /// <summary>
-        /// Reads the next record from the file.
-        /// </summary>
-        /// <returns>True if the next record was read; otherwise, false if the end of file was reached.</returns>
-        ValueTask<bool> ReadAsync();
-
-        /// <summary>
-        /// Skips the next record from the file.
-        /// </summary>
-        /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
-        bool Skip();
-
-        /// <summary>
-        /// Skips the next record from the file.
-        /// </summary>
-        /// <returns>True if the next record was skipped; otherwise, false if the end of the file was reached.</returns>
-        ValueTask<bool> SkipAsync();
-
-        /// <summary>
-        /// Gets the last read entity.
-        /// </summary>
-        TEntity Current { get; }
-    }
-
-    /// <summary>
-    ///  Represents a separated value reader that will generate entities.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
-    public interface ISeparatedValueTypedReader<out TEntity> : ITypedReader<TEntity>
-    {
-        /// <summary>
-        /// Raised when a record is read, before it is parsed.
-        /// </summary>
-        event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead;
-
-        /// <summary>
-        /// Raised after a record is parsed.
-        /// </summary>
-        new event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed;
-    }
-
-    /// <summary>
-    ///  Represents a fixed length reader that will generate entities.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity being read.</typeparam>
-    public interface IFixedLengthTypedReader<out TEntity> : ITypedReader<TEntity>
-    {
-        /// <summary>
-        /// Raised when a record is read from the source file, before it is partitioned.
-        /// </summary>
-        event EventHandler<FixedLengthRecordReadEventArgs> RecordRead;
-
-        /// <summary>
-        /// Raised after a record is partitioned, before it is parsed.
-        /// </summary>
-        event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned;
-
-        /// <summary>
-        /// Raised after a record is parsed.
-        /// </summary>
-        new event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed;
-    }
-
     internal abstract class TypedReader<TEntity> : ITypedReader<TEntity>
     {
-        private readonly IReaderWithMetadata reader;
-        private readonly Func<IRecordContext, object[], TEntity> deserializer;
+        private readonly Func<IRecordContext, object?[], TEntity> deserializer;
+        private TEntity? current;
 
-        protected TypedReader(IReaderWithMetadata reader, IMapper<TEntity> mapper)
+        protected TypedReader(IMapper<TEntity> mapper)
         {
-            this.reader = reader;
             deserializer = mapper.GetReader();
         }
 
-        event EventHandler<IRecordParsedEventArgs> ITypedReader<TEntity>.RecordParsed
+        event EventHandler<IRecordParsedEventArgs>? ITypedReader<TEntity>.RecordParsed
         {
-            add => reader.RecordParsed += value;
-            remove => reader.RecordParsed -= value;
+            add => Reader.RecordParsed += value;
+            remove => Reader.RecordParsed -= value;
         }
 
-        public event EventHandler<RecordErrorEventArgs> RecordError
+        public event EventHandler<RecordErrorEventArgs>? RecordError
         {
-            add => reader.RecordError += value;
-            remove => reader.RecordError -= value;
+            add => Reader.RecordError += value;
+            remove => Reader.RecordError -= value;
         }
 
-        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        public event EventHandler<ColumnErrorEventArgs>? ColumnError
         {
-            add => reader.ColumnError += value;
-            remove => reader.ColumnError -= value;
+            add => Reader.ColumnError += value;
+            remove => Reader.ColumnError -= value;
         }
 
-        public IReader Reader => reader;
+        public abstract IReader Reader { get; }
 
-        public ISchema GetSchema()
+        public ISchema? GetSchema()
         {
-            return reader.GetSchema();
+            return Reader.GetSchema();
         }
 
         public bool Read()
         {
-            if (!reader.Read())
+            if (!Reader.Read())
             {
                 return false;
             }
@@ -153,7 +50,7 @@ namespace FlatFiles.TypeMapping
 
         public async ValueTask<bool> ReadAsync()
         {
-            if (!await reader.ReadAsync().ConfigureAwait(false))
+            if (!await Reader.ReadAsync().ConfigureAwait(false))
             {
                 return false;
             }
@@ -163,296 +60,23 @@ namespace FlatFiles.TypeMapping
 
         private void SetCurrent()
         {
-            var values = reader.GetValues();
-            var recordContext = reader.GetMetadata();
-            Current = deserializer(recordContext, values);
+            var values = Reader.GetValues();
+            IReaderWithMetadata metadataReader = (IReaderWithMetadata)Reader;
+            var recordContext = metadataReader.GetMetadata();
+            current = deserializer(recordContext, values); // Won't be null is Read returns true
         }
 
         public bool Skip()
         {
-            return reader.Skip();
+            return Reader.Skip();
         }
 
         public async ValueTask<bool> SkipAsync()
         {
-            return await reader.SkipAsync().ConfigureAwait(false);
+            return await Reader.SkipAsync().ConfigureAwait(false);
         }
 
-        public TEntity Current { get; private set; }
-    }
-
-    internal sealed class SeparatedValueTypedReader<TEntity> : TypedReader<TEntity>, ISeparatedValueTypedReader<TEntity>
-    {
-        private readonly SeparatedValueReader reader;
-
-        public SeparatedValueTypedReader(SeparatedValueReader reader, IMapper<TEntity> mapper)
-            : base(reader, mapper)
-        {
-            this.reader = reader;
-        }
-
-        public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
-        {
-            add => reader.RecordRead += value;
-            remove => reader.RecordRead -= value;
-        }
-
-        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
-        {
-            add => reader.RecordParsed += value;
-            remove => reader.RecordParsed -= value;
-        }
-    }
-
-    internal sealed class MultiplexingSeparatedValueTypedReader : ISeparatedValueTypedReader<object>
-    {
-        private readonly SeparatedValueReader reader;
-
-        public MultiplexingSeparatedValueTypedReader(SeparatedValueReader reader)
-        {
-            this.reader = reader;
-        }
-
-        public IReader Reader => reader;
-
-        public object Current { get; private set; }
-
-        public Func<IRecordContext, object[], object> Deserializer { get; set; }
-
-        public event EventHandler<SeparatedValueRecordReadEventArgs> RecordRead
-        {
-            add => reader.RecordRead += value;
-            remove => reader.RecordRead -= value;
-        }
-
-        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
-        {
-            add => ((IReader)reader).RecordParsed += value;
-            remove => ((IReader)reader).RecordParsed -= value;
-        }
-
-        public event EventHandler<SeparatedValueRecordParsedEventArgs> RecordParsed
-        {
-            add => reader.RecordParsed += value;
-            remove => reader.RecordParsed -= value;
-        }
-
-        public event EventHandler<RecordErrorEventArgs> RecordError
-        {
-            add => reader.RecordError += value;
-            remove => reader.RecordError -= value;
-        }
-
-        public event EventHandler<ColumnErrorEventArgs> ColumnError
-        {
-            add => reader.ColumnError += value;
-            remove => reader.ColumnError -= value;
-        }
-
-        public ISchema GetSchema()
-        {
-            return null;
-        }
-
-        public bool Read()
-        {
-            if (!reader.Read())
-            {
-                return false;
-            }
-            SetCurrent();
-            return true;
-        }
-
-        public async ValueTask<bool> ReadAsync()
-        {
-            if (!await reader.ReadAsync().ConfigureAwait(false))
-            {
-                return false;
-            }
-            SetCurrent();
-            return true;
-        }
-
-        private void SetCurrent()
-        {
-            var values = reader.GetValues();
-            IReaderWithMetadata metadataReader = reader;
-            var recordContext = metadataReader.GetMetadata();
-            Current = Deserializer(recordContext, values);
-        }
-
-        public bool Skip()
-        {
-            return reader.Skip();
-        }
-
-        public ValueTask<bool> SkipAsync()
-        {
-            return reader.SkipAsync();
-        }
-    }
-
-    internal sealed class FixedLengthTypedReader<TEntity> : TypedReader<TEntity>, IFixedLengthTypedReader<TEntity>
-    {
-        private readonly FixedLengthReader reader;
-
-        public FixedLengthTypedReader(FixedLengthReader reader, IMapper<TEntity> mapper)
-            : base(reader, mapper)
-        {
-            this.reader = reader;
-        }
-
-        public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
-        {
-            add => reader.RecordRead += value;
-            remove => reader.RecordRead -= value;
-        }
-
-        public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
-        {
-            add => reader.RecordPartitioned += value;
-            remove => reader.RecordPartitioned -= value;
-        }
-
-        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
-        {
-            add => reader.RecordParsed += value;
-            remove => reader.RecordParsed -= value;
-        }
-    }
-
-    internal sealed class MultiplexingFixedLengthTypedReader : IFixedLengthTypedReader<object>
-    {
-        private readonly FixedLengthReader reader;
-
-        public MultiplexingFixedLengthTypedReader(FixedLengthReader reader)
-        {
-            this.reader = reader;
-        }
-
-        public IReader Reader => reader;
-
-        public object Current { get; private set; }
-
-        public Func<IRecordContext, object[], object> Deserializer { get; set; }
-
-        public event EventHandler<FixedLengthRecordReadEventArgs> RecordRead
-        {
-            add => reader.RecordRead += value;
-            remove => reader.RecordRead -= value;
-        }
-
-        public event EventHandler<FixedLengthRecordPartitionedEventArgs> RecordPartitioned
-        {
-            add => reader.RecordPartitioned += value;
-            remove => reader.RecordPartitioned -= value;
-        }
-
-        public event EventHandler<FixedLengthRecordParsedEventArgs> RecordParsed
-        {
-            add => reader.RecordParsed += value;
-            remove => reader.RecordParsed -= value;
-        }
-
-        event EventHandler<IRecordParsedEventArgs> ITypedReader<object>.RecordParsed
-        {
-            add => ((IReader)reader).RecordParsed += value;
-            remove => ((IReader)reader).RecordParsed -= value;
-        }
-
-        public event EventHandler<RecordErrorEventArgs> RecordError
-        {
-            add => reader.RecordError += value;
-            remove => reader.RecordError -= value;
-        }
-
-        public event EventHandler<ColumnErrorEventArgs> ColumnError
-        {
-            add => reader.ColumnError += value;
-            remove => reader.ColumnError -= value;
-        }
-
-        public ISchema GetSchema()
-        {
-            return null;
-        }
-
-        public bool Read()
-        {
-            if (!reader.Read())
-            {
-                return false;
-            }
-            SetCurrent();
-            return true;
-        }
-
-        public async ValueTask<bool> ReadAsync()
-        {
-            if (!await reader.ReadAsync().ConfigureAwait(false))
-            {
-                return false;
-            }
-            SetCurrent();
-            return true;
-        }
-
-        private void SetCurrent()
-        {
-            var values = reader.GetValues();
-            IReaderWithMetadata metadataReader = reader;
-            var recordContext = metadataReader.GetMetadata();
-            Current = Deserializer(recordContext, values);
-        }
-
-        public bool Skip()
-        {
-            return reader.Skip();
-        }
-
-        public ValueTask<bool> SkipAsync()
-        {
-            return reader.SkipAsync();
-        }
-    }
-
-    /// <summary>
-    /// Provides extension methods for working with typed readers.
-    /// </summary>
-    public static class TypedReaderExtensions
-    {
-        /// <summary>
-        /// Reads all of the entities from the typed reader.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity the reader is configured to read.</typeparam>
-        /// <param name="reader">The reader to read the entities from.</param>
-        /// <returns>The entities read by the reader.</returns>
-        /// <remarks>This method only consumes records from the reader on-demand.</remarks>
-        public static IEnumerable<TEntity> ReadAll<TEntity>(this ITypedReader<TEntity> reader)
-        {
-            while (reader.Read())
-            {
-                var entity = reader.Current;
-                yield return entity;
-            }
-        }
-
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        /// <summary>
-        /// Reads each record from the given reader, such that each record is retrieved asynchronously.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entities returned by the reader.</typeparam>
-        /// <param name="reader">The reader to retrieve the records from.</param>
-        /// <returns>Each record from the given reader.</returns>
-        public static async IAsyncEnumerable<TEntity> ReadAllAsync<TEntity>(this ITypedReader<TEntity> reader)
-        {
-            while (await reader.ReadAsync().ConfigureAwait(false))
-            {
-                var entity = reader.Current;
-                yield return entity;
-            }
-        }
-#endif
+        // FIXME: We should throw an exception if no or all records read
+        public TEntity Current => current!;
     }
 }

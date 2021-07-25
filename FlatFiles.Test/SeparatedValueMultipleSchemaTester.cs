@@ -17,8 +17,8 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestReader_ReadThreeTypes()
         {
-            StringWriter stringWriter = new StringWriter();
-            var injector = getSchemaInjector();
+            var stringWriter = new StringWriter();
+            var injector = GetSchemaInjector();
             var writer = new SeparatedValueWriter(stringWriter, injector);
             writer.Write(new object[] { "First Batch", 2 });
             writer.Write(new object[] { 1, "Bob Smith", new DateTime(2018, 06, 04), 12.34m });
@@ -32,7 +32,7 @@ namespace FlatFiles.Test
 ", output);
 
             var stringReader = new StringReader(output);
-            var selector = getSchemaSelector();
+            var selector = GetSchemaSelector();
             var reader = new SeparatedValueReader(stringReader, selector);
 
             Assert.IsTrue(reader.Read(), "The header record could not be read.");            
@@ -67,47 +67,47 @@ namespace FlatFiles.Test
             Assert.IsFalse(reader.Read());
         }
 
-        private SeparatedValueSchemaInjector getSchemaInjector()
+        private static SeparatedValueSchemaInjector GetSchemaInjector()
         {
             var injector = new SeparatedValueSchemaInjector();
-            injector.When(values => values.Length == 2).Use(getHeaderSchema());
-            injector.When(values => values.Length == 3).Use(getFooterSchema());
-            injector.WithDefault(getRecordSchema());
+            injector.When(values => values.Length == 2).Use(GetHeaderSchema());
+            injector.When(values => values.Length == 3).Use(GetFooterSchema());
+            injector.WithDefault(GetRecordSchema());
             return injector;
         }
 
-        private SeparatedValueSchemaSelector getSchemaSelector()
+        private static SeparatedValueSchemaSelector GetSchemaSelector()
         {
             var selector = new SeparatedValueSchemaSelector();
-            selector.When(values => values.Length == 2).Use(getHeaderSchema());
-            selector.When(values => values.Length == 3).Use(getFooterSchema());
-            selector.WithDefault(getRecordSchema());
+            selector.When(values => values.Length == 2).Use(GetHeaderSchema());
+            selector.When(values => values.Length == 3).Use(GetFooterSchema());
+            selector.WithDefault(GetRecordSchema());
             return selector;
         }
 
-        private SeparatedValueSchema getHeaderSchema()
+        private static SeparatedValueSchema GetHeaderSchema()
         {
-            var mapper = getHeaderTypeMapper();
+            var mapper = GetHeaderTypeMapper();
             return mapper.GetSchema();
         }
 
-        private SeparatedValueSchema getRecordSchema()
+        private static SeparatedValueSchema GetRecordSchema()
         {
-            var mapper = getRecordTypeMapper();
+            var mapper = GetRecordTypeMapper();
             return mapper.GetSchema();
         }
 
-        private SeparatedValueSchema getFooterSchema()
+        private static SeparatedValueSchema GetFooterSchema()
         {
-            var mapper = getFooterTypeMapper();
+            var mapper = GetFooterTypeMapper();
             return mapper.GetSchema();
         }
 
         [TestMethod]
         public void TestTypeMapper_ReadThreeTypes()
         {
-            StringWriter stringWriter = new StringWriter();
-            var injector = getTypeMapperInjector();
+            var stringWriter = new StringWriter();
+            var injector = GetTypeMapperInjector();
             var writer = injector.GetWriter(stringWriter);
             writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
             writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
@@ -120,7 +120,7 @@ namespace FlatFiles.Test
 46.9,23.45,True
 ", output);
 
-            var selector = getTypeMapperSelector();
+            var selector = GetTypeMapperSelector();
             var stringReader = new StringReader(output);
             var reader = selector.GetReader(stringReader);
 
@@ -155,8 +155,8 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestTypeMapper_ReadThreeTypes_WithMetadataRecord()
         {
-            StringWriter stringWriter = new StringWriter();
-            var injector = getTypeMapperInjector();
+            var stringWriter = new StringWriter();
+            var injector = GetTypeMapperInjector();
             var writer = injector.GetWriter(stringWriter);
             writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
             writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
@@ -169,7 +169,7 @@ namespace FlatFiles.Test
 46.9,23.45,True
 ", output);
 
-            var selector = getTypeMapperSelector(true);
+            var selector = GetTypeMapperSelector(true);
             var stringReader = new StringReader(output);
             var reader = selector.GetReader(stringReader);
 
@@ -206,7 +206,7 @@ namespace FlatFiles.Test
         public void TestReader_UnknownType()
         {
             var stringReader = new StringReader("What's this weird thing?");
-            var selector = getSchemaSelector();
+            var selector = GetSchemaSelector();
             var reader = new SeparatedValueReader(stringReader, selector);
 
             reader.Read();
@@ -216,31 +216,31 @@ namespace FlatFiles.Test
         public void TestReader_UnknownType_IgnoreUnknown_SkipsRecord()
         {
             var stringReader = new StringReader("What's this weird thing?");
-            var selector = getSchemaSelector();
+            var selector = GetSchemaSelector();
             var reader = new SeparatedValueReader(stringReader, selector);
             reader.RecordError += (o, e) => e.IsHandled = true;
             Assert.IsFalse(reader.Read());
         }
 
-        private SeparatedValueTypeMapperSelector getTypeMapperSelector(bool hasMetadata = false)
+        private static SeparatedValueTypeMapperSelector GetTypeMapperSelector(bool hasMetadata = false)
         {
             var selector = new SeparatedValueTypeMapperSelector();
-            selector.WithDefault(getRecordTypeMapper(hasMetadata));
-            selector.When(x => x.Length == 2).Use(getHeaderTypeMapper());
-            selector.When(x => x.Length == 3).Use(getFooterTypeMapper());
+            selector.WithDefault(GetRecordTypeMapper(hasMetadata));
+            selector.When(x => x.Length == 2).Use(GetHeaderTypeMapper());
+            selector.When(x => x.Length == 3).Use(GetFooterTypeMapper());
             return selector;
         }
 
-        private SeparatedValueTypeMapperInjector getTypeMapperInjector()
+        private static SeparatedValueTypeMapperInjector GetTypeMapperInjector()
         {
             var selector = new SeparatedValueTypeMapperInjector();
-            selector.WithDefault(getRecordTypeMapper());
-            selector.When<HeaderRecord>().Use(getHeaderTypeMapper());
-            selector.When<FooterRecord>().Use(getFooterTypeMapper());
+            selector.WithDefault(GetRecordTypeMapper());
+            selector.When<HeaderRecord>().Use(GetHeaderTypeMapper());
+            selector.When<FooterRecord>().Use(GetFooterTypeMapper());
             return selector;
         }
 
-        private static ISeparatedValueTypeMapper<HeaderRecord> getHeaderTypeMapper()
+        private static ISeparatedValueTypeMapper<HeaderRecord> GetHeaderTypeMapper()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new HeaderRecord());
             mapper.Property(x => x.BatchName);
@@ -248,7 +248,7 @@ namespace FlatFiles.Test
             return mapper;
         }
 
-        private static ISeparatedValueTypeMapper<DataRecord> getRecordTypeMapper(bool hasMetadata = false)
+        private static ISeparatedValueTypeMapper<DataRecord> GetRecordTypeMapper(bool hasMetadata = false)
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new DataRecord());
             mapper.Property(x => x.Id);
@@ -266,7 +266,7 @@ namespace FlatFiles.Test
             return mapper;
         }
 
-        private ISeparatedValueTypeMapper<FooterRecord> getFooterTypeMapper()
+        private static ISeparatedValueTypeMapper<FooterRecord> GetFooterTypeMapper()
         {
             var mapper = SeparatedValueTypeMapper.Define(() => new FooterRecord());
             mapper.Property(x => x.TotalAmount);

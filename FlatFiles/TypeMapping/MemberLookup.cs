@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace FlatFiles.TypeMapping
 {
-    internal class MemberLookup
+    internal sealed class MemberLookup
     {
-        private readonly Dictionary<string, IMemberMapping> lookup = new Dictionary<string, IMemberMapping>();
-        private readonly Dictionary<Type, object> factories = new Dictionary<Type, object>();
+        private readonly Dictionary<string, IMemberMapping> lookup = new();
+        private readonly Dictionary<Type, object?> factories = new();
         private int ignoredCount;
 
         public int LogicalCount => lookup.Count - ignoredCount;
@@ -54,7 +54,7 @@ namespace FlatFiles.TypeMapping
             return lookup.Values.OrderBy(m => m.PhysicalIndex).ToArray();
         }
 
-        public Func<TEntity> GetFactory<TEntity>()
+        public Func<TEntity>? GetFactory<TEntity>()
         {
             if (factories.TryGetValue(typeof(TEntity), out var factory))
             {

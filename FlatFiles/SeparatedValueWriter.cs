@@ -47,7 +47,6 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(schema));
             }
-            options = options == null ? new SeparatedValueOptions() : options.Clone();
             recordWriter = new SeparatedValueRecordWriter(writer, schema, options);
         }
 
@@ -69,7 +68,6 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(injector));
             }
-            options = options == null ? new SeparatedValueOptions() : options.Clone();
             recordWriter = new SeparatedValueRecordWriter(writer, injector, options);
         }
 

@@ -9,12 +9,8 @@ namespace FlatFiles
     /// </summary>
     public sealed class FixedLengthSchemaInjector
     {
-        private static readonly SchemaMatcher nonMatcher = new() 
-        { 
-            Predicate = values => false 
-        };
         private readonly List<SchemaMatcher> matchers = new();
-        private SchemaMatcher defaultMatcher = nonMatcher;
+        private SchemaMatcher? defaultMatcher;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchemaInjector.
@@ -28,9 +24,9 @@ namespace FlatFiles
         /// </summary>
         /// <param name="predicate">Indicates whether the schema should be used for a record.</param>
         /// <returns>An object for specifying which schema to use when the predicate matches.</returns>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        /// <exception cref="ArgumentNullException">The predicate is null.</exception>
         /// <remarks>Previously registered schemas will be used if their predicates match.</remarks>
-        public IFixedLengthSchemaInjectorWhenBuilder When(Func<object[], bool> predicate)
+        public IFixedLengthSchemaInjectorWhenBuilder When(Func<object?[], bool> predicate)
         {
             if (predicate == null)
             {
@@ -48,25 +44,17 @@ namespace FlatFiles
         {
             if (schema == null)
             {
-                defaultMatcher = nonMatcher;
+                defaultMatcher = null;
             }
             else
             {
-                defaultMatcher = new SchemaMatcher
-                {
-                    Predicate = values => true,
-                    Schema = schema
-                };
+                defaultMatcher = new SchemaMatcher(schema, values => true);
             }
         }
 
-        private void Add(FixedLengthSchema schema, Func<object[], bool> predicate)
+        private void Add(FixedLengthSchema schema, Func<object?[], bool> predicate)
         {
-            var matcher = new SchemaMatcher()
-            {
-                Schema = schema,
-                Predicate = predicate
-            };
+            var matcher = new SchemaMatcher(schema, predicate);
             matchers.Add(matcher);
         }
 
@@ -79,7 +67,7 @@ namespace FlatFiles
                     return matcher.Schema;
                 }
             }
-            if (defaultMatcher.Predicate(values))
+            if (defaultMatcher != null && defaultMatcher.Predicate(values))
             {
                 return defaultMatcher.Schema;
             }
@@ -88,17 +76,23 @@ namespace FlatFiles
 
         private sealed class SchemaMatcher
         {
-            public FixedLengthSchema Schema { get; set; }
+            public SchemaMatcher(FixedLengthSchema schema, Func<object?[], bool> predicate)
+            {
+                Schema = schema;
+                Predicate = predicate;
+            }
 
-            public Func<object?[], bool> Predicate { get; set; }
+            public FixedLengthSchema Schema { get; }
+
+            public Func<object?[], bool> Predicate { get; }
         }
 
         private sealed class FixedLengthSchemaInjectorWhenBuilder : IFixedLengthSchemaInjectorWhenBuilder
         {
             private readonly FixedLengthSchemaInjector selector;
-            private readonly Func<object[], bool> predicate;
+            private readonly Func<object?[], bool> predicate;
 
-            public FixedLengthSchemaInjectorWhenBuilder(FixedLengthSchemaInjector selector, Func<object[], bool> predicate)
+            public FixedLengthSchemaInjectorWhenBuilder(FixedLengthSchemaInjector selector, Func<object?[], bool> predicate)
             {
                 this.selector = selector;
                 this.predicate = predicate;

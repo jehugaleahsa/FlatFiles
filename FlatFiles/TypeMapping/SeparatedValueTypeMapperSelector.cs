@@ -5,33 +5,12 @@ using System.IO;
 namespace FlatFiles.TypeMapping
 {
     /// <summary>
-    /// Allows specifying which schema to use when a predicate is matched.
-    /// </summary>
-    public interface ISeparatedValueTypeMapperSelectorWhenBuilder
-    {
-        /// <summary>
-        /// Specifies which type mapper to use when the predicate is matched.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity mapped by the mapper.</typeparam>
-        /// <param name="mapper">The type mapper to use.</param>
-        /// <returns>The type mapper selector.</returns>
-        void Use<TEntity>(ISeparatedValueTypeMapper<TEntity> mapper);
-
-        /// <summary>
-        /// Specifies which type mapper to use when the predicate is matched.
-        /// </summary>
-        /// <param name="mapper">The type mapper to use.</param>
-        /// <returns>The type mapper selector.</returns>
-        void Use(IDynamicSeparatedValueTypeMapper mapper);
-    }
-
-    /// <summary>
     /// Represents a class that can dynamically map types based on the shap of the record.
     /// </summary>
-    public class SeparatedValueTypeMapperSelector
+    public sealed class SeparatedValueTypeMapperSelector
     {
-        private readonly List<TypeMapperMatcher> matchers = new List<TypeMapperMatcher>();
-        private IDynamicSeparatedValueTypeMapper defaultMapper;
+        private readonly List<TypeMapperMatcher> matchers = new();
+        private IDynamicSeparatedValueTypeMapper? defaultMapper;
 
         /// <summary>
         /// Initializes a new instance of a SeparatedValueTypeMapperSelector.
@@ -59,16 +38,16 @@ namespace FlatFiles.TypeMapping
         /// Provides the schema to use by default when no other matches are found.
         /// </summary>
         /// <param name="typeMapper">The default type mapper to use.</param>
-        public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity> typeMapper)
+        public void WithDefault<TEntity>(ISeparatedValueTypeMapper<TEntity>? typeMapper)
         {
-            defaultMapper = (IDynamicSeparatedValueTypeMapper)typeMapper;
+            defaultMapper = (IDynamicSeparatedValueTypeMapper?)typeMapper;
         }
 
         /// <summary>
         /// Provides the schema to use by default when no other matches are found.
         /// </summary>
         /// <param name="typeMapper">The default schema to use.</param>
-        public void WithDefault(IDynamicSeparatedValueTypeMapper typeMapper)
+        public void WithDefault(IDynamicSeparatedValueTypeMapper? typeMapper)
         {
             defaultMapper = typeMapper;
         }
@@ -79,25 +58,25 @@ namespace FlatFiles.TypeMapping
         /// <param name="reader">The reader to use.</param>
         /// <param name="options">The separate value options to use.</param>
         /// <returns>The typed reader.</returns>
-        public ISeparatedValueTypedReader<object> GetReader(TextReader reader, SeparatedValueOptions options = null)
+        public ISeparatedValueTypedReader<object> GetReader(TextReader reader, SeparatedValueOptions? options = null)
         {
             var selector = new SeparatedValueSchemaSelector();
             var valueReader = new SeparatedValueReader(reader, selector, options);
             var multiReader = new MultiplexingSeparatedValueTypedReader(valueReader);
             foreach (var matcher in matchers)
             {
-                var typedReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(matcher.TypeMapper));
+                var typedReader = new Lazy<Func<IRecordContext, object?[], object?>>(GetReader(matcher.TypeMapper));
                 selector.When(matcher.Predicate).Use(matcher.TypeMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typedReader.Value);
             }
             if (defaultMapper != null)
             {
-                var typeReader = new Lazy<Func<IRecordContext, object[], object>>(GetReader(defaultMapper));
+                var typeReader = new Lazy<Func<IRecordContext, object?[], object?>>(GetReader(defaultMapper));
                 selector.WithDefault(defaultMapper.GetSchema()).OnMatch(() => multiReader.Deserializer = typeReader.Value);
             }
             return multiReader;
         }
 
-        private Func<Func<IRecordContext, object[], object>> GetReader(IDynamicSeparatedValueTypeMapper defaultMapper)
+        private Func<Func<IRecordContext, object?[], object?>> GetReader(IDynamicSeparatedValueTypeMapper defaultMapper)
         {
             var source = (IMapperSource)defaultMapper;
             var reader = source.GetMapper();
@@ -106,21 +85,23 @@ namespace FlatFiles.TypeMapping
 
         internal void Add(IDynamicSeparatedValueTypeMapper typeMapper, Func<string[], bool> predicate)
         {
-            matchers.Add(new TypeMapperMatcher()
-            {
-                TypeMapper = typeMapper,
-                Predicate = predicate
-            });
+            matchers.Add(new TypeMapperMatcher(typeMapper, predicate));
         }
 
-        private class TypeMapperMatcher
+        private sealed class TypeMapperMatcher
         {
-            public IDynamicSeparatedValueTypeMapper TypeMapper { get; set; }
+            public TypeMapperMatcher(IDynamicSeparatedValueTypeMapper typeMapper, Func<string[], bool> predicate)
+            {
+                TypeMapper = typeMapper;
+                Predicate = predicate;
+            }
 
-            public Func<string[], bool> Predicate { get; set; }
+            public IDynamicSeparatedValueTypeMapper TypeMapper { get; }
+
+            public Func<string[], bool> Predicate { get; }
         }
 
-        private class SeparatedValueTypeMapperSelectorWhenBuilder : ISeparatedValueTypeMapperSelectorWhenBuilder
+        private sealed class SeparatedValueTypeMapperSelectorWhenBuilder : ISeparatedValueTypeMapperSelectorWhenBuilder
         {
             private readonly SeparatedValueTypeMapperSelector selector;
             private readonly Func<string[], bool> predicate;

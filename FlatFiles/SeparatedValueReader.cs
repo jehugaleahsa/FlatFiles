@@ -320,13 +320,17 @@ namespace FlatFiles
                 return null;
             }
             var schema = GetSchema(record, rawValues);
+            if (schema == null)
+            {
+                schema = SeparatedValueSchema.BuildDynamicSchema(parser.Options, rawValues.Length);
+            }
             var recordContext = NewRecordContext(schema, record, rawValues);
             this.recordContext = recordContext;
             if (IsSkipped(recordContext, rawValues))
             {
                 return null;
             }
-            if (schema != null && HasWrongNumberOfColumns(schema, rawValues))
+            if (HasWrongNumberOfColumns(schema, rawValues))
             {
                 ProcessError(new RecordProcessingException(recordContext, Resources.SeparatedValueRecordWrongNumberOfColumns));
                 return null;
@@ -339,6 +343,7 @@ namespace FlatFiles
             RecordParsed?.Invoke(this, new SeparatedValueRecordParsedEventArgs(recordContext, values));
             return values;
         }
+
 
         private SeparatedValueSchema? GetSchema(string? record, string[] rawValues)
         {
@@ -367,7 +372,7 @@ namespace FlatFiles
             return e.IsSkipped;
         }
 
-        private SeparatedValueRecordContext NewRecordContext(SeparatedValueSchema? schema, string record, string[] values)
+        private SeparatedValueRecordContext NewRecordContext(SeparatedValueSchema schema, string record, string[] values)
         {
             var executionContext = new SeparatedValueExecutionContext(schema, parser.Options.Clone());
             var recordContext = new SeparatedValueRecordContext(executionContext)
@@ -388,14 +393,10 @@ namespace FlatFiles
 
         private object?[]? ParseValues(SeparatedValueRecordContext recordContext, string[] rawValues)
         {
-            var schema = recordContext.ExecutionContext.Schema;
-            if (schema == null)
-            {
-                return ParseWithoutSchema(rawValues);
-            }
             try
             {
                 recordContext.ColumnError += ColumnError;
+                var schema = recordContext.ExecutionContext.Schema;
                 return schema.ParseValues(recordContext, rawValues);
             }
             catch (FlatFileException exception)
@@ -403,22 +404,6 @@ namespace FlatFiles
                 ProcessError(new RecordProcessingException(recordContext, Resources.InvalidRecordConversion, exception));
                 return null;
             }
-        }
-
-        private object?[] ParseWithoutSchema(string[] rawValues)
-        {
-            var results = new object?[rawValues.Length];
-            var column = new StringColumn("Placeholder")
-            {
-                Trim = !parser.Options.PreserveWhiteSpace
-            };
-            for (int columnIndex = 0; columnIndex != rawValues.Length; ++columnIndex)
-            {
-                var rawValue = rawValues[columnIndex];
-                var parsedValue = column.Parse(null, rawValue);
-                results[columnIndex] = parsedValue;
-            }
-            return results;
         }
 
         /// <summary>
@@ -528,7 +513,7 @@ namespace FlatFiles
         /// Gets the values for the current record.
         /// </summary>
         /// <returns>The values of the current record.</returns>
-        public object[] GetValues()
+        public object?[] GetValues()
         {
             if (hasError)
             {

@@ -12,6 +12,21 @@
         {
         }
 
+        internal static SeparatedValueSchema BuildDynamicSchema(SeparatedValueOptions options, int length)
+        {
+            // TODO: Cache or optimize this somehow
+            var schema = new SeparatedValueSchema();
+            for (int columnIndex = 0; columnIndex != length; ++columnIndex)
+            {
+                var column = new StringColumn($"Column{columnIndex}")
+                {
+                    Trim = !options.PreserveWhiteSpace
+                };
+                schema.AddColumn(column);
+            }
+            return schema;
+        }
+
         /// <summary>
         /// Adds a column to the schema, using the given definition to define it.
         /// </summary>

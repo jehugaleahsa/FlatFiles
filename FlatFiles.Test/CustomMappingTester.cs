@@ -245,7 +245,7 @@ namespace FlatFiles.Test
             var writer = new StringWriter();
             mapper.Write(writer, data);
             string output = writer.ToString();
-            StringReader reader = new StringReader(output);
+            var reader = new StringReader(output);
             var properties = mapper.Read(reader).ToArray();
             Assert.AreEqual(2, properties.Length, "The wrong number of entities were read.");
             AssertPropertyEqual(data, properties, 0);

@@ -3,30 +3,12 @@ using System.Linq;
 
 namespace FlatFiles.TypeMapping
 {
-    internal interface IMapper
-    {
-        IMemberAccessor? Member { get; }
-
-        int LogicalCount { get; }
-
-        Func<IRecordContext, object[], object> GetReader();
-
-        Action<IRecordContext, object, object[]> GetWriter();
-    }
-
-    internal interface IMapper<TEntity>: IMapper
-    {
-        new Func<IRecordContext, object[], TEntity> GetReader();
-
-        new Action<IRecordContext, TEntity, object[]> GetWriter();
-    }
-
     internal class Mapper<TEntity> : IMapper<TEntity>
     {
         private readonly MemberLookup lookup;
         private readonly ICodeGenerator codeGenerator;
-        private Func<IRecordContext, object[], TEntity>? cachedReader;
-        private Action<IRecordContext, TEntity, object[]>? cachedWriter;
+        private Func<IRecordContext, object?[], TEntity>? cachedReader;
+        private Action<IRecordContext, TEntity, object?[]>? cachedWriter;
 
         public Mapper(MemberLookup lookup, ICodeGenerator codeGenerator)
             : this(lookup, codeGenerator, null)
@@ -44,7 +26,7 @@ namespace FlatFiles.TypeMapping
 
         public int LogicalCount => lookup.LogicalCount;
 
-        public Func<IRecordContext, object[], TEntity> GetReader()
+        public Func<IRecordContext, object?[], TEntity> GetReader()
         {
             if (cachedReader != null)
             {
@@ -82,13 +64,13 @@ namespace FlatFiles.TypeMapping
             return cachedReader;
         }
 
-        Func<IRecordContext, object[], object> IMapper.GetReader()
+        Func<IRecordContext, object?[], object?> IMapper.GetReader()
         {
             var reader = GetReader();
-            return (metadata, values) => reader(metadata, values)!;
+            return (metadata, values) => reader(metadata, values);
         }
 
-        public Action<IRecordContext, TEntity, object[]> GetWriter()
+        public Action<IRecordContext, TEntity, object?[]> GetWriter()
         {
             if (cachedWriter != null)
             {
@@ -118,10 +100,10 @@ namespace FlatFiles.TypeMapping
             return cachedWriter;
         }
 
-        Action<IRecordContext, object, object[]> IMapper.GetWriter()
+        Action<IRecordContext, object?, object?[]> IMapper.GetWriter()
         {
             var writer = GetWriter();
-            return (metadata, entity, values) => writer(metadata, (TEntity)entity, values);
+            return (metadata, entity, values) => writer(metadata, (TEntity)entity!, values);
         }
 
         private IMemberMapping[] GetReaderMemberMappings(IMemberMapping[] mappings)
@@ -146,8 +128,8 @@ namespace FlatFiles.TypeMapping
         {
             var mappers = mappings
                 .Where(m => m.Member != null)
-                .Where(m => Member?.Name != m.Member.ParentAccessor?.Name)
-                .Where(m => m.Member.Name.StartsWith(Member?.Name ?? String.Empty))
+                .Where(m => Member?.Name != m.Member!.ParentAccessor?.Name)
+                .Where(m => m.Member!.Name.StartsWith(Member?.Name ?? String.Empty))
                 .Select(GetParentAccessor)
                 .GroupBy(p => p.Name)
                 .Select(g => g.First())
@@ -159,7 +141,7 @@ namespace FlatFiles.TypeMapping
         private IMemberAccessor GetParentAccessor(IMemberMapping mapping)
         {
             string accessorName = Member?.Name ?? String.Empty;
-            var childAccessor = mapping.Member;
+            var childAccessor = mapping.Member!;
             var parentAccessor = childAccessor.ParentAccessor;
             while (parentAccessor != null && accessorName != parentAccessor.Name)
             {

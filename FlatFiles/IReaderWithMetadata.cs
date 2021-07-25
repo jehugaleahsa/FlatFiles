@@ -2,6 +2,6 @@
 {
     internal interface IReaderWithMetadata : IReader
     {
-        IRecordContext? GetMetadata();
+        IRecordContext GetMetadata();
     }
 }

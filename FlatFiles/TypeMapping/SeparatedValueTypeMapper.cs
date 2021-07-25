@@ -14,7 +14,7 @@ namespace FlatFiles.TypeMapping
     /// </summary>
     public static class SeparatedValueTypeMapper
     {
-        private static readonly Dictionary<Type, Func<string, IColumnDefinition>> columnLookup = new Dictionary<Type, Func<string, IColumnDefinition>>()
+        private static readonly Dictionary<Type, Func<string, IColumnDefinition>> columnLookup = new()
         {
             { typeof(bool), n => new BooleanColumn(n) },
             { typeof(bool?), n => new BooleanColumn(n) },
@@ -94,7 +94,7 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(entityType));
             }
             var mapperType = typeof(SeparatedValueTypeMapper<>).MakeGenericType(entityType);
-            var mapper = Activator.CreateInstance(mapperType);
+            var mapper = Activator.CreateInstance(mapperType)!;
             return (IDynamicSeparatedValueTypeMapper)mapper;
         }
 
@@ -116,7 +116,7 @@ namespace FlatFiles.TypeMapping
                 throw new ArgumentNullException(nameof(factory));
             }
             var mapperType = typeof(SeparatedValueTypeMapper<>).MakeGenericType(entityType);
-            var mapper = Activator.CreateInstance(mapperType, factory);
+            var mapper = Activator.CreateInstance(mapperType, factory)!;
             return (IDynamicSeparatedValueTypeMapper)mapper;
         }
 
@@ -133,7 +133,7 @@ namespace FlatFiles.TypeMapping
         /// names in the provided entity type. The data for each column must be in a format that .NET can
         /// parse without customization.
         /// </remarks>
-        public static ITypedReader<TEntity> GetAutoMappedReader<TEntity>(TextReader reader, SeparatedValueOptions options = null, IAutoMapMatcher matcher = null)
+        public static ITypedReader<TEntity> GetAutoMappedReader<TEntity>(TextReader reader, SeparatedValueOptions? options = null, IAutoMapMatcher? matcher = null)
             where TEntity : new()
         {
             var optionsCopy = options == null ? new SeparatedValueOptions() : options.Clone();
@@ -156,7 +156,7 @@ namespace FlatFiles.TypeMapping
         /// names in the provided entity type. The data for each column must be in a format that .NET can
         /// parse without customization.
         /// </remarks>
-        public static async Task<ITypedReader<TEntity>> GetAutoMappedReaderAsync<TEntity>(TextReader reader, SeparatedValueOptions options = null, IAutoMapMatcher matcher = null)
+        public static async Task<ITypedReader<TEntity>> GetAutoMappedReaderAsync<TEntity>(TextReader reader, SeparatedValueOptions? options = null, IAutoMapMatcher? matcher = null)
             where TEntity : new()
         {
             var optionsCopy = options == null ? new SeparatedValueOptions() : options.Clone();
@@ -166,24 +166,31 @@ namespace FlatFiles.TypeMapping
             return GetAutoMapReader<TEntity>(schema, recordReader, matcher);
         }
 
-        private static ITypedReader<TEntity> GetAutoMapReader<TEntity>(SeparatedValueSchema schema, SeparatedValueReader reader, IAutoMapMatcher matcher)
+        private static ITypedReader<TEntity> GetAutoMapReader<TEntity>(SeparatedValueSchema? schema, SeparatedValueReader reader, IAutoMapMatcher? matcher)
             where TEntity : new()
         {
             var typedMapper = new SeparatedValueTypeMapper<TEntity>();
+            if (schema == null)
+            {
+                // If the schema is null, it means that no header record could be read.
+                // It is probably an empty file. We avoid making any mappings and just exit.
+                return typedMapper.GetReader(reader);
+            }
+            var actualMatcher = matcher ?? AutoMapMatcher.Default;
             IDynamicSeparatedValueTypeMapper dynamicmapper = typedMapper;
             foreach (var column in schema.ColumnDefinitions)
             {
                 var contextParameter = Expression.Parameter(typeof(IColumnContext), "context");
                 var entityParameter = Expression.Parameter(typeof(object), "entity");
                 var valueParameter = Expression.Parameter(typeof(object), "value");
-                var memberExpression = GetMemberExpression(entityParameter, typeof(TEntity), column, matcher ?? AutoMapMatcher.Default);
+                var memberExpression = GetMemberExpression(entityParameter, typeof(TEntity), column, actualMatcher);
                 var body = Expression.Assign(memberExpression, Expression.Convert(valueParameter, memberExpression.Type));
-                var columnDefinition = GetColumnDefinition(memberExpression.Type, column.ColumnName);
+                var columnDefinition = GetColumnDefinition(memberExpression.Type, column.ColumnName!);
                 if (columnDefinition == null)
                 {
                     throw new FlatFileException(String.Format(null, Resources.NoAutoMapPropertyType, column.ColumnName));
                 }
-                var lambdaExpression = Expression.Lambda<Action<IColumnContext, object, object>>(body, contextParameter, entityParameter, valueParameter);
+                var lambdaExpression = Expression.Lambda<Action<IColumnContext?, object?, object?>>(body, contextParameter, entityParameter, valueParameter);
                 var compiledSetter = lambdaExpression.Compile();
                 dynamicmapper.CustomMapping(columnDefinition).WithReader(compiledSetter);
             }
@@ -210,7 +217,7 @@ namespace FlatFiles.TypeMapping
             throw new FlatFileException(Resources.BadPropertySelector);
         }
 
-        private static PropertyInfo GetProperty(Type entityType, IColumnDefinition column, IAutoMapMatcher matcher)
+        private static PropertyInfo? GetProperty(Type entityType, IColumnDefinition column, IAutoMapMatcher matcher)
         {
             var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             var propertyInfos = entityType.GetTypeInfo().GetProperties(bindingFlags)
@@ -228,7 +235,7 @@ namespace FlatFiles.TypeMapping
             return propertyInfos.SingleOrDefault();
         }
 
-        private static FieldInfo GetField(Type entityType, IColumnDefinition column, IAutoMapMatcher matcher)
+        private static FieldInfo? GetField(Type entityType, IColumnDefinition column, IAutoMapMatcher matcher)
         {
             var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             var fieldInfos = entityType.GetTypeInfo().GetFields(bindingFlags)
@@ -255,11 +262,13 @@ namespace FlatFiles.TypeMapping
         /// <param name="resolver">An object that will determine the name of the generated columns.</param>
         /// <returns>A writer object for serializing entities.</returns>
         /// <remarks>Unless options are provided, by default this method will write the schema before the first record.</remarks>
-        public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions options = null, IAutoMapResolver resolver = null)
+        public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions? options = null, IAutoMapResolver? resolver = null)
         {
-            var optionsCopy = options == null ? new SeparatedValueOptions() { IsFirstRecordSchema = true } : options.Clone();
+            var optionsCopy = options == null 
+                ? new SeparatedValueOptions() { IsFirstRecordSchema = true } 
+                : options.Clone();
             var entityType = typeof(TEntity);
-            var typedMapper = Define(() => default(TEntity));
+            var typedMapper = Define<TEntity>(() => throw new InvalidOperationException("Unexpected entity creation within autom-mapped writer."));
             var dynamicMapper = (IDynamicSeparatedValueTypeMapper)typedMapper;
             var nameResolver = resolver ?? AutoMapResolver.Default;
 
@@ -282,7 +291,7 @@ namespace FlatFiles.TypeMapping
                         continue;
                     }
                     var body = Expression.Convert(Expression.Property(Expression.Convert(entity, entityType), property), typeof(object));
-                    var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
+                    var lambda = Expression.Lambda<Func<IColumnContext?, object?, object?>>(body, context, entity);
                     var getter = lambda.Compile();
                     dynamicMapper.CustomMapping(column).WithWriter(getter);
                 }
@@ -294,7 +303,7 @@ namespace FlatFiles.TypeMapping
                         continue;
                     }
                     var body = Expression.Convert(Expression.Field(Expression.Convert(entity, entityType), field), typeof(object));
-                    var lambda = Expression.Lambda<Func<IColumnContext, object, object>>(body, context, entity);
+                    var lambda = Expression.Lambda<Func<IColumnContext?, object?, object?>>(body, context, entity);
                     var getter = lambda.Compile();
                     dynamicMapper.CustomMapping(column).WithWriter(getter);
                 }
@@ -316,7 +325,7 @@ namespace FlatFiles.TypeMapping
             return members;
         }
 
-        private static IColumnDefinition GetColumnDefinition(Type type, string columnName)
+        private static IColumnDefinition? GetColumnDefinition(Type type, string columnName)
         {
             if (columnLookup.TryGetValue(type, out var factory))
             {
@@ -326,689 +335,12 @@ namespace FlatFiles.TypeMapping
         }
     }
 
-    /// <summary>
-    /// Supports configuration for mapping between entity properties and flat file columns.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
-    public interface ISeparatedValueTypeConfiguration<TEntity>
-    {
-        /// <summary>
-        /// Gets the schema defined by the current configuration.
-        /// </summary>
-        /// <returns>The schema.</returns>
-        SeparatedValueSchema GetSchema();
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping Property(Expression<Func<TEntity, bool?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IByteArrayPropertyMapping Property(Expression<Func<TEntity, byte[]>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping Property(Expression<Func<TEntity, byte?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping Property(Expression<Func<TEntity, sbyte?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICharArrayPropertyMapping Property(Expression<Func<TEntity, char[]>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping Property(Expression<Func<TEntity, char?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping Property(Expression<Func<TEntity, DateTime?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimeOffsetPropertyMapping Property(Expression<Func<TEntity, DateTimeOffset?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping Property(Expression<Func<TEntity, decimal?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping Property(Expression<Func<TEntity, double?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping Property(Expression<Func<TEntity, Guid?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Property(Expression<Func<TEntity, short?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ITimeSpanPropertyMapping Property(Expression<Func<TEntity, TimeSpan?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping Property(Expression<Func<TEntity, ushort?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Property(Expression<Func<TEntity, int?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping Property(Expression<Func<TEntity, uint?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Property(Expression<Func<TEntity, long?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping Property(Expression<Func<TEntity, ulong?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping Property(Expression<Func<TEntity, float?>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IStringPropertyMapping Property(Expression<Func<TEntity, string>> accessor);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="accessor">An expression tha returns the property to map.</param>
-        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IFixedLengthTypeMapper<TProp> mapper);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum>> accessor) where TEnum : Enum;
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="accessor">An expression that returns the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(Expression<Func<TEntity, TEnum?>> accessor) where TEnum : struct, Enum;
-
-        /// <summary>
-        /// Specifies that the next column is ignored and returns an object for configuration.
-        /// </summary>
-        /// <returns>An object to configure the mapping.</returns>
-        IIgnoredMapping Ignored();
-
-        /// <summary>
-        /// Specifies the next column will be mapped using custom functions.
-        /// </summary>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <returns>An object to configure the custom mapping.</returns>
-        ICustomMapping<TEntity> CustomMapping(IColumnDefinition column);
-
-        /// <summary>
-        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
-        /// code to get and set entity properties, resulting in significant performance improvements. 
-        /// However, some environments do not support runtime JIT, so disabling optimization will allow
-        /// FlatFiles to work.
-        /// </summary>
-        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
-        void OptimizeMapping(bool isOptimized = true);
-
-        /// <summary>
-        /// Specifies a different factory method to use when initializing nested members.
-        /// </summary>
-        /// <typeparam name="TOther">The type of the entity created by the factory.</typeparam>
-        /// <param name="factory">A method that generates an instance of the entity.</param>
-        void UseFactory<TOther>(Func<TOther> factory);
-    }
-
-    /// <summary>
-    /// Supports reading to and writing from flat files for a type.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity read and written.</typeparam>
-    public interface ISeparatedValueTypeMapper<TEntity> : ISeparatedValueTypeConfiguration<TEntity>
-    {
-        /// <summary>
-        /// Reads the entities from the given reader.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null);
-
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        /// <summary>
-        /// Reads the entities from the given reader.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>An asynchronous enumerable over the entities.</returns>
-        IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions options = null);
-#endif
-
-        /// <summary>
-        /// Gets a typed reader to read entities from the underlying document.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>A typed reader.</returns>
-        ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        void Write(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null);
-
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions options = null);
-#endif
-
-        /// <summary>
-        /// Gets a typed writer to write entities to the underlying document.
-        /// </summary>
-        /// <param name="writer">The writer over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is written.</param>
-        /// <returns>A typed writer.</returns>
-        ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null);
-    }
-
-    /// <summary>
-    /// Supports runtime configuration for mapping between runtime type entity properties and flat file columns.
-    /// </summary>
-    public interface IDynamicSeparatedValueTypeConfiguration
-    {
-        /// <summary>
-        /// Gets the schema defined by the current configuration.
-        /// </summary>
-        /// <returns>The schema.</returns>
-        SeparatedValueSchema GetSchema();
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBooleanPropertyMapping BooleanProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IByteArrayPropertyMapping ByteArrayProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IBytePropertyMapping ByteProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISBytePropertyMapping SByteProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICharArrayPropertyMapping CharArrayProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ICharPropertyMapping CharProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimePropertyMapping DateTimeProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDateTimeOffsetPropertyMapping DateTimeOffsetProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDecimalPropertyMapping DecimalProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IDoublePropertyMapping DoubleProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IGuidPropertyMapping GuidProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt16PropertyMapping Int16Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt16PropertyMapping UInt16Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt32PropertyMapping Int32Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt32PropertyMapping UInt32Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IInt64PropertyMapping Int64Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IUInt64PropertyMapping UInt64Property(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISinglePropertyMapping SingleProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IStringPropertyMapping StringProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ITimeSpanPropertyMapping TimeSpanProperty(string memberName);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TProp">The type of the property being mapped.</typeparam>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IFixedLengthComplexPropertyMapping ComplexProperty<TProp>(string memberName, IFixedLengthTypeMapper<TProp> mapper);
-
-        /// <summary>
-        /// Associates the property with the type mapper and returns an object for configuration.
-        /// </summary>
-        /// <typeparam name="TEnum">The enumerated type of the property.</typeparam>
-        /// <param name="memberName">The name of the property to map.</param>
-        /// <returns>An object to configure the property mapping.</returns>
-        IEnumPropertyMapping<TEnum> EnumProperty<TEnum>(string memberName) where TEnum : struct, Enum;
-
-        /// <summary>
-        /// Specifies that the next column is ignored and returns an object for configuration.
-        /// </summary>
-        /// <returns>An object to configure the mapping.</returns>
-        IIgnoredMapping Ignored();
-
-        /// <summary>
-        /// Specifies the next column will be mapped using custom functions.
-        /// </summary>
-        /// <param name="column">The custom column definition for parsing and formatting the column.</param>
-        /// <returns>An object to configure the custom mapping.</returns>
-        ICustomMapping CustomMapping(IColumnDefinition column);
-
-        /// <summary>
-        /// When optimized (the default), mappers will use System.Reflection.Emit to generate 
-        /// code to get and set entity properties, resulting in significant performance improvements. 
-        /// However, some environments do not support runtime JIT, so disabling optimization will allow
-        /// FlatFiles to work.
-        /// </summary>
-        /// <param name="isOptimized">Specifies whether the mapping process should be optimized.</param>
-        void OptimizeMapping(bool isOptimized = true);
-
-        /// <summary>
-        /// Specifies a different factory method to use when initializing nested members.
-        /// </summary>
-        /// <param name="entityType">
-        /// The type of the entity to associate the factory with. The factory must return instances of that type.
-        /// </param>
-        /// <param name="factory">A method that generates an instance of the entity.</param>
-        void UseFactory(Type entityType, Func<object> factory);
-    }
-
-    /// <summary>
-    /// Supports reading to and writing from flat files for a runtime type. 
-    /// </summary>
-    public interface IDynamicSeparatedValueTypeMapper : IDynamicSeparatedValueTypeConfiguration
-    {
-        /// <summary>
-        /// Reads the entities from the given reader.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>The entities that are extracted from the file.</returns>
-        IEnumerable<object> Read(TextReader reader, SeparatedValueOptions options = null);
-
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        /// <summary>
-        /// Reads the entities from the given reader.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>An asynchronous enumerable over the entities.</returns>
-        IAsyncEnumerable<object> ReadAsync(TextReader reader, SeparatedValueOptions options = null);
-#endif
-
-        /// <summary>
-        /// Gets a typed reader to read entities from the underlying document.
-        /// </summary>
-        /// <param name="reader">A reader over the separated value document.</param>
-        /// <param name="options">The options controlling how the separated value document is read.</param>
-        /// <returns>A typed reader.</returns>
-        ISeparatedValueTypedReader<object> GetReader(TextReader reader, SeparatedValueOptions options = null);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        void Write(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options = null);
-
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        Task WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options = null);
-
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        /// <summary>
-        /// Writes the given entities to the given stream.
-        /// </summary>
-        /// <param name="writer">A writer over the separated value document.</param>
-        /// <param name="entities">The entities to write to the stream.</param>
-        /// <param name="options">The options used to format the output.</param>
-        Task WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions options = null);
-#endif
-
-        /// <summary>
-        /// Gets a typed writer to write entities to the underlying document.
-        /// </summary>
-        /// <param name="writer">The writer over the fixed-length document.</param>
-        /// <param name="options">The options controlling how the separated value document is written.</param>
-        /// <returns>A typed writer.</returns>
-        ITypedWriter<object> GetWriter(TextWriter writer, SeparatedValueOptions options = null);
-    }
-
     internal sealed class SeparatedValueTypeMapper<TEntity>
         : ISeparatedValueTypeMapper<TEntity>,
         IDynamicSeparatedValueTypeMapper,
         IMapperSource<TEntity>
     {
-        private readonly MemberLookup lookup = new MemberLookup();
+        private readonly MemberLookup lookup = new();
         private bool isOptimized = true;
 
         public SeparatedValueTypeMapper()
@@ -1021,7 +353,7 @@ namespace FlatFiles.TypeMapping
         {
         }
 
-        public SeparatedValueTypeMapper(Func<TEntity> factory)
+        public SeparatedValueTypeMapper(Func<TEntity>? factory)
         {
             if (factory != null)
             {
@@ -1060,7 +392,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                ByteArrayColumn column = new ByteArrayColumn(member.Name);
+                var column = new ByteArrayColumn(member.Name);
                 return new ByteArrayPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1081,7 +413,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                ByteColumn column = new ByteColumn(member.Name) { IsNullable = isNullable };
+                var column = new ByteColumn(member.Name) { IsNullable = isNullable };
                 return new BytePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1102,7 +434,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                SByteColumn column = new SByteColumn(member.Name) { IsNullable = isNullable };
+                var column = new SByteColumn(member.Name) { IsNullable = isNullable };
                 return new SBytePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1117,7 +449,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                CharArrayColumn column = new CharArrayColumn(member.Name);
+                var column = new CharArrayColumn(member.Name);
                 return new CharArrayPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1138,7 +470,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                CharColumn column = new CharColumn(member.Name) { IsNullable = isNullable };
+                var column = new CharColumn(member.Name) { IsNullable = isNullable };
                 return new CharPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1159,7 +491,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DateTimeColumn column = new DateTimeColumn(member.Name) { IsNullable = isNullable };
+                var column = new DateTimeColumn(member.Name) { IsNullable = isNullable };
                 return new DateTimePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1201,7 +533,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DecimalColumn column = new DecimalColumn(member.Name) { IsNullable = isNullable };
+                var column = new DecimalColumn(member.Name) { IsNullable = isNullable };
                 return new DecimalPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1222,7 +554,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                DoubleColumn column = new DoubleColumn(member.Name) { IsNullable = isNullable };
+                var column = new DoubleColumn(member.Name) { IsNullable = isNullable };
                 return new DoublePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1243,7 +575,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                GuidColumn column = new GuidColumn(member.Name) { IsNullable = isNullable };
+                var column = new GuidColumn(member.Name) { IsNullable = isNullable };
                 return new GuidPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1264,7 +596,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int16Column column = new Int16Column(member.Name) { IsNullable = isNullable };
+                var column = new Int16Column(member.Name) { IsNullable = isNullable };
                 return new Int16PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1306,7 +638,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt16Column column = new UInt16Column(member.Name) { IsNullable = isNullable };
+                var column = new UInt16Column(member.Name) { IsNullable = isNullable };
                 return new UInt16PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1327,7 +659,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int32Column column = new Int32Column(member.Name) { IsNullable = isNullable };
+                var column = new Int32Column(member.Name) { IsNullable = isNullable };
                 return new Int32PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1348,7 +680,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt32Column column = new UInt32Column(member.Name) { IsNullable = isNullable };
+                var column = new UInt32Column(member.Name) { IsNullable = isNullable };
                 return new UInt32PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1369,7 +701,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                Int64Column column = new Int64Column(member.Name) { IsNullable = isNullable };
+                var column = new Int64Column(member.Name) { IsNullable = isNullable };
                 return new Int64PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1390,7 +722,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                UInt64Column column = new UInt64Column(member.Name) { IsNullable = isNullable };
+                var column = new UInt64Column(member.Name) { IsNullable = isNullable };
                 return new UInt64PropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1411,12 +743,12 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                SingleColumn column = new SingleColumn(member.Name) { IsNullable = isNullable };
+                var column = new SingleColumn(member.Name) { IsNullable = isNullable };
                 return new SinglePropertyMapping(column, member, fileIndex, workIndex);
             });
         }
 
-        public IStringPropertyMapping Property(Expression<Func<TEntity, string>> accessor)
+        public IStringPropertyMapping Property(Expression<Func<TEntity, string?>> accessor)
         {
             var member = GetMember(accessor);
             return GetStringMapping(member);
@@ -1426,7 +758,7 @@ namespace FlatFiles.TypeMapping
         {
             return lookup.GetOrAddMember(member, (fileIndex, workIndex) =>
             {
-                StringColumn column = new StringColumn(member.Name);
+                var column = new StringColumn(member.Name);
                 return new StringPropertyMapping(column, member, fileIndex, workIndex);
             });
         }
@@ -1484,7 +816,15 @@ namespace FlatFiles.TypeMapping
 
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column)
         {
-            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
+            var columnName = column.ColumnName;
+            if (String.IsNullOrWhiteSpace(columnName))
+            {
+                throw new ArgumentException(Resources.BlankColumnName, nameof(column));
+            }
+            var mapping = lookup.GetOrAddCustomMapping(columnName, (fileIndex, workIndex) =>
+            {
+                return new CustomMapping<TEntity>(column, fileIndex, workIndex);
+            });
             return mapping;
         }
 
@@ -1493,21 +833,21 @@ namespace FlatFiles.TypeMapping
             return MemberAccessorBuilder.GetMember(accessor);
         }
 
-        public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions options = null)
+        public IEnumerable<TEntity> Read(TextReader reader, SeparatedValueOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
             return typedReader.ReadAll();
         }
 
 #if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions options = null)
+        public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
             return typedReader.ReadAllAsync();
         }
 #endif
 
-        public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions options = null)
+        public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions? options = null)
         {
             var schema = GetSchemaInternal();
             var separatedValueReader = new SeparatedValueReader(reader, schema, options);
@@ -1526,7 +866,7 @@ namespace FlatFiles.TypeMapping
             return typedReader;
         }
 
-        public void Write(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null)
+        public void Write(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions? options = null)
         {
             if (entities == null)
             {
@@ -1536,7 +876,7 @@ namespace FlatFiles.TypeMapping
             typedWriter.WriteAll(entities);
         }
 
-        public Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions options = null)
+        public Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, SeparatedValueOptions? options = null)
         {
             if (entities == null)
             {
@@ -1547,7 +887,7 @@ namespace FlatFiles.TypeMapping
         }
 
 #if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions options = null)
+        public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions? options = null)
         {
             if (entities == null)
             {
@@ -1558,7 +898,7 @@ namespace FlatFiles.TypeMapping
         }
 #endif
 
-        public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions options = null)
+        public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions? options = null)
         {
             var schema = GetSchemaInternal();
             var separatedValueWriter = new SeparatedValueWriter(writer, schema, options);
@@ -1578,7 +918,7 @@ namespace FlatFiles.TypeMapping
 
         private SeparatedValueSchema GetSchemaInternal()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            var schema = new SeparatedValueSchema();
             var mappings = lookup.GetMappings();
             foreach (IMemberMapping mapping in mappings)
             {
@@ -1738,13 +1078,17 @@ namespace FlatFiles.TypeMapping
 
         ICustomMapping IDynamicSeparatedValueTypeConfiguration.CustomMapping(IColumnDefinition column)
         {
-            var mapping = lookup.GetOrAddCustomMapping(column.ColumnName, (fileIndex, workIndex) => new CustomMapping<TEntity>(column, fileIndex, workIndex));
-            return mapping;
+            return (ICustomMapping)CustomMapping(column);
         }
 
         private static IMemberAccessor GetMember<TProp>(string memberName)
         {
-            return MemberAccessorBuilder.GetMember<TEntity>(typeof(TProp), memberName);
+            var member = MemberAccessorBuilder.GetMember<TEntity>(typeof(TProp), memberName);
+            if (member == null)
+            {
+                throw new ArgumentException(Resources.BadPropertySelector, nameof(member));
+            }
+            return member;
         }
 
         private static bool IsNullable(IMemberAccessor accessor)
@@ -1756,7 +1100,7 @@ namespace FlatFiles.TypeMapping
             return Nullable.GetUnderlyingType(accessor.Type) != null;
         }
 
-        IEnumerable<object> IDynamicSeparatedValueTypeMapper.Read(TextReader reader, SeparatedValueOptions options)
+        IEnumerable<object> IDynamicSeparatedValueTypeMapper.Read(TextReader reader, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedReader = untypedMapper.GetReader(reader, options);
@@ -1764,7 +1108,7 @@ namespace FlatFiles.TypeMapping
         }
 
 #if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        IAsyncEnumerable<object> IDynamicSeparatedValueTypeMapper.ReadAsync(TextReader reader, SeparatedValueOptions options)
+        IAsyncEnumerable<object> IDynamicSeparatedValueTypeMapper.ReadAsync(TextReader reader, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedReader = untypedMapper.GetReader(reader, options);
@@ -1772,19 +1116,19 @@ namespace FlatFiles.TypeMapping
         }
 #endif
 
-        ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions options)
+        ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions? options)
         {
             return (ISeparatedValueTypedReader<object>)GetReader(reader, options);
         }
 
-        void IDynamicSeparatedValueTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
+        void IDynamicSeparatedValueTypeMapper.Write(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
             untypedWriter.WriteAll(entities);
         }
 
-        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions options)
+        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IEnumerable<object> entities, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
@@ -1792,7 +1136,7 @@ namespace FlatFiles.TypeMapping
         }
 
 #if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
-        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions options)
+        Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
@@ -1800,7 +1144,7 @@ namespace FlatFiles.TypeMapping
         }
 #endif
 
-        ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions options)
+        ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions? options)
         {
             return new UntypedWriter<TEntity>(GetWriter(writer, options));
         }
@@ -1838,7 +1182,7 @@ namespace FlatFiles.TypeMapping
         private ICodeGenerator GetCodeGenerator()
         {
             return isOptimized 
-                ? (ICodeGenerator)new EmitCodeGenerator() 
+                ? new EmitCodeGenerator() 
                 : new ReflectionCodeGenerator();
         }
     }

@@ -13,16 +13,16 @@ namespace FlatFiles
         private readonly string doubleQuoteString;
         private SeparatedValueRecordContext? recordContext;
 
-        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema? schema, SeparatedValueOptions options)
+        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchema? schema, SeparatedValueOptions? options)
         {
             this.writer = writer;
             this.Schema = schema;
-            this.Options = options;
-            this.quoteString = options.Quote.ToString();
-            this.doubleQuoteString = options.Quote.ToString() + options.Quote;
+            this.Options = options == null ? new SeparatedValueOptions() : options.Clone();
+            this.quoteString = Options.Quote.ToString();
+            this.doubleQuoteString = Options.Quote.ToString() + Options.Quote;
         }
 
-        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions options)
+        public SeparatedValueRecordWriter(TextWriter writer, SeparatedValueSchemaInjector injector, SeparatedValueOptions? options)
             : this(writer, (SeparatedValueSchema?)null, options)
         {
             this.injector = injector;
@@ -55,9 +55,13 @@ namespace FlatFiles
         private string FormatAndJoinValues(object?[] values)
         {
             var schema = GetSchema(values);
-            var recordContext = GetRecordContext(schema);
+            if (schema == null)
+            {
+                schema = SeparatedValueSchema.BuildDynamicSchema(Options, values.Length);
+            }
+            var recordContext = NewRecordContext(schema);
             this.recordContext = recordContext;
-            if (schema != null && values.Length != schema.ColumnDefinitions.PhysicalCount)
+            if (values.Length != schema.ColumnDefinitions.PhysicalCount)
             {
                 throw new RecordProcessingException(recordContext, Resources.WrongNumberOfValues);
             }
@@ -67,7 +71,7 @@ namespace FlatFiles
             return joined;
         }
 
-        private SeparatedValueRecordContext GetRecordContext(SeparatedValueSchema? schema)
+        private SeparatedValueRecordContext NewRecordContext(SeparatedValueSchema schema)
         {
             var executionContext = new SeparatedValueExecutionContext(schema, Options.Clone());
             return new SeparatedValueRecordContext(executionContext)

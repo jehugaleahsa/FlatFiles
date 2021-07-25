@@ -6,7 +6,7 @@ namespace FlatFiles
     /// <summary>
     /// Represents a string column that has contains multiple, nested values
     /// </summary>
-    public sealed class FixedLengthComplexColumn : ColumnDefinition<object[]?>
+    public sealed class FixedLengthComplexColumn : ColumnDefinition<object?[]?>
     {
         private readonly FixedLengthSchema schema;
 
@@ -36,7 +36,7 @@ namespace FlatFiles
         /// <returns>
         /// An object array containing the values read from the embedded data -or- null if there is no embedded data.
         /// </returns>
-        protected override object[]? OnParse(IColumnContext? context, string value)
+        protected override object?[]? OnParse(IColumnContext? context, string value)
         {
             var stringReader = new StringReader(value);
             var reader = new FixedLengthReader(stringReader, schema, Options);
@@ -53,7 +53,7 @@ namespace FlatFiles
         /// <param name="context">Holds information about the column current being processed.</param>
         /// <param name="values">The object array containing the values of the embedded record.</param>
         /// <returns>A formatted string containing the embedded data.</returns>
-        protected override string OnFormat(IColumnContext? context, object[]? values)
+        protected override string OnFormat(IColumnContext? context, object?[]? values)
         {
             if (values == null)
             {

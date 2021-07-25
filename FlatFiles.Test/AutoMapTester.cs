@@ -177,6 +177,16 @@ namespace FlatFiles.Test
             Assert.IsFalse(reader.Read(), "Too many records were written.");
         }
 
+        [TestMethod]
+        public void ShouldReturnEmptySchemaWhenFileEmpty()
+        {
+            var stringReader = new StringReader(String.Empty);
+            var reader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(stringReader);
+            var results = reader.ReadAll().ToArray();
+
+            Assert.AreEqual(0, results.Length, "The wrong number of records were read.");
+        }
+
         private static void AssertEqual(IList<Person> expected, IList<Person> actual, int id)
         {
             Assert.AreEqual(expected[id].Id, actual[id].Id, $"Wrong ID for person {id}");

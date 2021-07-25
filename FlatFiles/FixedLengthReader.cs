@@ -404,7 +404,7 @@ namespace FlatFiles
             {
                 return this.schema;
             }
-            FixedLengthSchema schema = schemaSelector.GetSchema(record);
+            FixedLengthSchema? schema = schemaSelector.GetSchema(record);
             if (schema != null)
             {
                 return schema;
@@ -456,7 +456,7 @@ namespace FlatFiles
         /// Gets the values for the current record.
         /// </summary>
         /// <returns>The values of the current record.</returns>
-        public object?[]? GetValues()
+        public object?[] GetValues()
         {
             if (hasError)
             {

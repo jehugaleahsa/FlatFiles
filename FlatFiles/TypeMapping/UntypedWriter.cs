@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FlatFiles.TypeMapping
 {
-    internal class UntypedWriter<TEntity> : ITypedWriter<object>
+    internal sealed class UntypedWriter<TEntity> : ITypedWriter<object>
     {
         private readonly ITypedWriter<TEntity> writer;
 
@@ -15,7 +15,7 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Raised when an error occurs while processing a column.
         /// </summary>
-        public event EventHandler<ColumnErrorEventArgs> ColumnError
+        public event EventHandler<ColumnErrorEventArgs>? ColumnError
         {
             add => writer.ColumnError += value;
             remove => writer.ColumnError -= value;
@@ -24,7 +24,7 @@ namespace FlatFiles.TypeMapping
         /// <summary>
         /// Raised when an error occurs while processing a record.
         /// </summary>
-        public event EventHandler<RecordErrorEventArgs> RecordError
+        public event EventHandler<RecordErrorEventArgs>? RecordError
         {
             add => writer.RecordError += value;
             remove => writer.RecordError -= value;
@@ -32,7 +32,7 @@ namespace FlatFiles.TypeMapping
 
         public IWriter Writer => writer.Writer;
 
-        public ISchema GetSchema()
+        public ISchema? GetSchema()
         {
             return writer.GetSchema();
         }

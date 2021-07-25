@@ -3,6 +3,7 @@
 using System;
 using System.Data;
 using System.Linq;
+using FlatFiles.Properties;
 
 namespace FlatFiles
 {
@@ -52,6 +53,10 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(writer));
             }
             var schema = writer.GetSchema();
+            if (schema == null)
+            {
+                throw new FlatFileException(Resources.SchemaNotDefined);
+            }
             var columnIndexes = schema.ColumnDefinitions
                 .Where(c => !c.IsIgnored)
                 .Select(c => table.Columns.IndexOf(c.ColumnName))

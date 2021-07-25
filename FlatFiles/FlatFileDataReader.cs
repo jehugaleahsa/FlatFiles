@@ -203,7 +203,7 @@ namespace FlatFiles
         public bool GetBoolean(int i)
         {
             var values = GetValues();
-            return (bool)values[i];
+            return (bool)values[i]!;
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace FlatFiles
         public byte GetByte(int i)
         {
             var values = GetValues();
-            return (byte)values[i];
+            return (byte)values[i]!;
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace FlatFiles
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
             var values = GetValues();
-            var bytes = (byte[])values[i];
+            var bytes = (byte[])values[i]!;
 #if NET451
             Array.Copy(bytes, fieldOffset, buffer, bufferoffset, length);
 #else
@@ -246,7 +246,7 @@ namespace FlatFiles
         public char GetChar(int i)
         {
             var values = GetValues();
-            return (char)values[i];
+            return (char)values[i]!;
         }
 
         /// <summary>
@@ -265,11 +265,11 @@ namespace FlatFiles
                 throw new ArgumentNullException(nameof(buffer));
             }
             var values = GetValues();
-            var chars = (char[])values[i];
+            var chars = (char[])values[i]!;
 #if NET451
-            Array.Copy(buffer, fieldoffset, buffer, bufferoffset, length);
+            Array.Copy(chars, fieldoffset, buffer, bufferoffset, length);
 #else
-            Array.Copy(buffer, (int)fieldoffset, buffer, bufferoffset, length);
+            Array.Copy(chars, (int)fieldoffset, buffer, bufferoffset, length);
 #endif
             return Math.Min(chars.Length - fieldoffset, length);
         }
@@ -297,7 +297,7 @@ namespace FlatFiles
         public DateTime GetDateTime(int i)
         {
             var values = GetValues();
-            return (DateTime)values[i];
+            return (DateTime)values[i]!;
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace FlatFiles
         public DateTimeOffset GetDateTimeOffset(int i)
         {
             var values = GetValues();
-            return (DateTimeOffset)values[i];
+            return (DateTimeOffset)values[i]!;
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace FlatFiles
         public decimal GetDecimal(int i)
         {
             var values = GetValues();
-            return (decimal)values[i];
+            return (decimal)values[i]!;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace FlatFiles
         public double GetDouble(int i)
         {
             var values = GetValues();
-            return (double)values[i];
+            return (double)values[i]!;
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace FlatFiles
         public float GetFloat(int i)
         {
             var values = GetValues();
-            return (float)values[i];
+            return (float)values[i]!;
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace FlatFiles
         public Guid GetGuid(int i)
         {
             var values = GetValues();
-            return (Guid)values[i];
+            return (Guid)values[i]!;
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace FlatFiles
         public short GetInt16(int i)
         {
             var values = GetValues();
-            return (short)values[i];
+            return (short)values[i]!;
         }
 
         /// <summary>
@@ -384,7 +384,7 @@ namespace FlatFiles
         public int GetInt32(int i)
         {
             var values = GetValues();
-            return (int)values[i];
+            return (int)values[i]!;
         }
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace FlatFiles
         public long GetInt64(int i)
         {
             var values = GetValues();
-            return (long)values[i];
+            return (long)values[i]!;
         }
 
         /// <summary>
@@ -426,7 +426,7 @@ namespace FlatFiles
         public sbyte GetSByte(int i)
         {
             var values = GetValues();
-            return (sbyte)values[i];
+            return (sbyte)values[i]!;
         }
 
         /// <summary>
@@ -453,7 +453,7 @@ namespace FlatFiles
         public TimeSpan GetTimeSpan(int i)
         {
             var values = GetValues();
-            return (TimeSpan)values[i];
+            return (TimeSpan)values[i]!;
         }
 
         /// <summary>
@@ -464,7 +464,7 @@ namespace FlatFiles
         public ushort GetUInt16(int i)
         {
             var values = GetValues();
-            return (ushort)values[i];
+            return (ushort)values[i]!;
         }
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace FlatFiles
         public uint GetUInt32(int i)
         {
             var values = GetValues();
-            return (uint)values[i];
+            return (uint)values[i]!;
         }
 
         /// <summary>
@@ -486,7 +486,7 @@ namespace FlatFiles
         public ulong GetUInt64(int i)
         {
             var values = GetValues();
-            return (ulong)values[i];
+            return (ulong)values[i]!;
         }
 
         /// <summary>

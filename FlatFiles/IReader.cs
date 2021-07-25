@@ -68,6 +68,6 @@ namespace FlatFiles
         /// Gets the values of the current record.
         /// </summary>
         /// <returns>The value of the current record.</returns>
-        object?[]? GetValues();
+        object?[] GetValues();
     }
 }

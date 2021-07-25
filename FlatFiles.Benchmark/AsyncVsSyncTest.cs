@@ -50,17 +50,13 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.StratificationCategoryId3).ColumnName("StratificationCategoryID3");
             mapper.Property(x => x.StratificationId3).ColumnName("StratificationID3");
 
-            StringWriter textWriter = new StringWriter();
+            var textWriter = new StringWriter();
             var http = WebRequest.CreateHttp("https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/FlatFiles.Benchmark/TestFiles/SampleData.csv");
             using (var response = http.GetResponse())
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                var writer = mapper.GetWriter(textWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                while (reader.Read())
-                {
-                    writer.Write(reader.Current);
-                }
+                var entities = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                mapper.Write(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true });
             }
             return textWriter.ToString();
         }
@@ -106,7 +102,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.StratificationCategoryId3).ColumnName("StratificationCategoryID3");
             mapper.Property(x => x.StratificationId3).ColumnName("StratificationID3");
 
-            StringWriter textWriter = new StringWriter();
+            var textWriter = new StringWriter();
             var http = WebRequest.CreateHttp("https://raw.githubusercontent.com/jehugaleahsa/FlatFiles/master/FlatFiles.Benchmark/TestFiles/SampleData.csv");
             using (var response = await http.GetResponseAsync().ConfigureAwait(false))
             using (var textReader = new StreamReader(response.GetResponseStream()))
@@ -212,7 +208,7 @@ namespace FlatFiles.Benchmark
 
             public override string ToString()
             {
-                return $"({Latitude}, {Longitude})";
+                return "(" + Latitude + ", " + Longitude + ")";
             }
         }
 

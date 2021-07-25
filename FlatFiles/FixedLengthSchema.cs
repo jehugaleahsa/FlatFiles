@@ -9,8 +9,8 @@ namespace FlatFiles
     public sealed class FixedLengthSchema : Schema
     {
         private readonly List<Window> windows = new();
-        private ColumnCollection cachedColumns;
-        private IColumnDefinition trailing;
+        private ColumnCollection? cachedColumns;
+        private IColumnDefinition? trailing;
 
         /// <summary>
         /// Initializes a new instance of a FixedLengthSchema.

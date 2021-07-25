@@ -22,14 +22,14 @@ namespace FlatFiles
             Options = options.Clone();
             var separator = options.Separator;
             separatorMatcher = SeparatorMatcher.GetMatcher(reader, separator);
-            var recordSeparator = options.RecordSeparator ?? Environment.NewLine;
+            var recordSeparator = options.RecordSeparator;
             recordSeparatorMatcher = SeparatorMatcher.GetMatcher(reader, recordSeparator);
-            if (recordSeparator.StartsWith(separator))
+            if (recordSeparator != null && recordSeparator.StartsWith(separator))
             {
                 string postfix = recordSeparator.Substring(separator.Length);
                 postfixMatcher = SeparatorMatcher.GetMatcher(reader, postfix);
             }
-            separatorLength = Math.Max(recordSeparator.Length, separator.Length);
+            separatorLength = Math.Max(recordSeparatorMatcher.Size, separator.Length);
         }
 
         internal SeparatedValueOptions Options { get; }
