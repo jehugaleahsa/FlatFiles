@@ -41,7 +41,7 @@ namespace FlatFiles
         protected override float OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
-            return Single.Parse(value, NumberStyles, provider);
+            return float.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

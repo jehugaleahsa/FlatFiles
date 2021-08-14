@@ -41,7 +41,7 @@ namespace FlatFiles
         protected override decimal OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
-            return Decimal.Parse(value, NumberStyles, provider);
+            return decimal.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

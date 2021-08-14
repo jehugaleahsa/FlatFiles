@@ -9,8 +9,8 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestIgnoredColumn_HandlePreAndPostProcessing()
         {
-            var ignored = new IgnoredColumn()
-            {
+            var ignored = new IgnoredColumn
+                          {
                 ColumnName = "Ignored",
                 NullFormatter = NullFormatter.ForValue("NULL"),
                 OnParsing = (ctx, value) => 

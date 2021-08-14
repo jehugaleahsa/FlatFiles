@@ -26,7 +26,7 @@ namespace FlatFiles.Test
             outerSchema.AddColumn(new FixedLengthComplexColumn("PlayerStats", innerSchema));
             outerSchema.AddColumn(new StringColumn("Nickname"));
 
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, outerSchema);
+            SeparatedValueReader reader = new SeparatedValueReader(stringReader, outerSchema, new SeparatedValueOptions { RecordSeparator = "\n" });
             Assert.IsTrue(reader.Read(), "A record should have been read.");
             object[] values = reader.GetValues();
             Assert.AreEqual("Tom", values[0]);
@@ -39,7 +39,7 @@ namespace FlatFiles.Test
             Assert.AreEqual("Ace", values[3]);
 
             StringWriter stringWriter = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, outerSchema);
+            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, outerSchema, new SeparatedValueOptions { RecordSeparator = "\n" });
             writer.Write(values);
 
             string output = stringWriter.GetStringBuilder().ToString();
@@ -78,7 +78,7 @@ namespace FlatFiles.Test
             Assert.AreEqual("Ace", player.NickName);
 
             StringWriter stringWriter = new StringWriter();
-            mapper.Write(stringWriter, new Player[] { player });
+            mapper.Write(stringWriter, new Player[] { player }, new SeparatedValueOptions { RecordSeparator = "\n" });
             
             string output = stringWriter.ToString();
             Assert.AreEqual(message, output);

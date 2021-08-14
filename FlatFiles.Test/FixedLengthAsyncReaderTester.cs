@@ -32,7 +32,7 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(p => p.IsActive, new Window(5)).ColumnName("active");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
 
             StringWriter stringWriter = new StringWriter();
             await mapper.WriteAsync(stringWriter, new Person[] { bob }).ConfigureAwait(false);
@@ -61,8 +61,8 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(p => p.IsActive, new Window(5)).ColumnName("active");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
-            var options = new FixedLengthOptions() { HasRecordSeparator = false };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
+            var options = new FixedLengthOptions { HasRecordSeparator = false };
 
             StringWriter stringWriter = new StringWriter();
             await mapper.WriteAsync(stringWriter, new Person[] { bob, bob }, options).ConfigureAwait(false);

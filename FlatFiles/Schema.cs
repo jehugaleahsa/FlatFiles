@@ -56,7 +56,7 @@ namespace FlatFiles
                 if (definition is IMetadataColumn)
                 {
                     var columnContext = NewColumnContext(context, columnIndex, destinationIndex);
-                    var metadata = ParseWithContext(columnContext, String.Empty);
+                    var metadata = ParseWithContext(columnContext, string.Empty);
                     parsedValues[destinationIndex] = metadata;
                     ++destinationIndex;
                 }
@@ -198,7 +198,7 @@ namespace FlatFiles
                     recordContext.ProcessError(this, e);
                     if (e.IsHandled)
                     {
-                        return (string?)e.Substitution ?? String.Empty;
+                        return (string?)e.Substitution ?? string.Empty;
                     }
                 }
                 throw columnException;

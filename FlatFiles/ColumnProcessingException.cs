@@ -24,7 +24,7 @@ namespace FlatFiles
 
         private static string GetErrorMessage(IColumnDefinition definition, int position, object? value)
         {
-            var message = String.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
+            var message = string.Format(null, Resources.InvalidColumnConversion, value, definition.ColumnType.FullName, definition.ColumnName, position);
             return message;
         }
 

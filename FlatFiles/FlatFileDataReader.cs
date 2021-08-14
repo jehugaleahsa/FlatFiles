@@ -87,7 +87,7 @@ namespace FlatFiles
                 null,  // BaseTableName
                 null,  // ColumnName
                 0,  // ColumnOrdinal
-                Int32.MaxValue,  // ColumnSize
+                int.MaxValue,  // ColumnSize
                 null, // DataType
                 null,  // DataTypeName
                 false,  // IsAliased
@@ -123,8 +123,8 @@ namespace FlatFiles
 
         private static DataTable GetEmptySchemaDataTable(ISchema schema)
         {
-            var schemaTable = new DataTable()
-            {
+            var schemaTable = new DataTable
+                              {
                 Locale = CultureInfo.InvariantCulture,
                 MinimumCapacity = schema.ColumnDefinitions.PhysicalCount
             };

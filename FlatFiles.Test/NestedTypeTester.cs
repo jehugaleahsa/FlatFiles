@@ -23,18 +23,18 @@ namespace FlatFiles.Test
             mapper.Property(x => x.CreatedOn).ColumnName("CreatedOn");
 
             var recordValues = new[] { "123", "Bob", "Test Street 1", "Test City", "PA", "55555", "true", "2017-11-05" };
-            var record = String.Join(",", recordValues);
+            var record = string.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
             Assert.AreEqual(1, results.Length);
             var result = results[0];
 
-            var expected = new Person()
-            {
+            var expected = new Person
+                           {
                 Id = 123,
                 Name = "Bob",
-                Address1 = new Address()
-                {
+                Address1 = new Address
+                           {
                     Street = "Test Street 1",
                     City = "Test City",
                     State = "PA",
@@ -61,19 +61,19 @@ namespace FlatFiles.Test
             mapper.DateTimeProperty("CreatedOn").ColumnName("CreatedOn");
 
             var recordValues = new[] { "123", "Bob", "Test Street 1", "Test City", "PA", "55555", "true", "2017-11-05" };
-            var record = String.Join(",", recordValues);
+            var record = string.Join(",", recordValues);
             StringReader reader = new StringReader(record);
             var results = mapper.Read(reader).ToArray();
             Assert.AreEqual(1, results.Length);
             var result = results[0];
             Assert.IsInstanceOfType(result, typeof(Person));
 
-            var expected = new Person()
-            {
+            var expected = new Person
+                           {
                 Id = 123,
                 Name = "Bob",
-                Address1 = new Address()
-                {
+                Address1 = new Address
+                           {
                     Street = "Test Street 1",
                     City = "Test City",
                     State = "PA",
@@ -100,12 +100,12 @@ namespace FlatFiles.Test
             mapper.Property(x => x.CreatedOn, 10).ColumnName("CreatedOn").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.UseFactory(() => new Address());
 
-            var expected = new Person()
-            {
+            var expected = new Person
+                           {
                 Id = 123,
                 Name = "Bob",
-                Address1 = new Address()
-                {
+                Address1 = new Address
+                           {
                     Street = "Test Street 1",
                     City = "Test City",
                     State = "PA",
@@ -141,12 +141,12 @@ namespace FlatFiles.Test
             mapper.DateTimeProperty("CreatedOn", 10).ColumnName("CreatedOn").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.UseFactory(typeof(Address), () => new Address());
 
-            var expected = new Person()
-            {
+            var expected = new Person
+                           {
                 Id = 123,
                 Name = "Bob",
-                Address1 = new Address()
-                {
+                Address1 = new Address
+                           {
                     Street = "Test Street 1",
                     City = "Test City",
                     State = "PA",
@@ -186,19 +186,19 @@ namespace FlatFiles.Test
             mapper.Property(x => x.IsActive).ColumnName("IsActive");
             mapper.Property(x => x.CreatedOn).ColumnName("CreatedOn");
 
-            var expected = new Person()
-            {
+            var expected = new Person
+                           {
                 Id = 123,
                 Name = "Bob",
-                Address1 = new Address()
-                {
+                Address1 = new Address
+                           {
                     Street = "Test Street 1",
                     City = "Test City",
                     State = "PA",
                     Zip = "55555"
                 },
-                Address2 = new Address()
-                {
+                Address2 = new Address
+                           {
                     Street = "Test Street 2",
                     City = "Test City 2",
                     State = "WA",
@@ -278,20 +278,20 @@ namespace FlatFiles.Test
             mapper.Property(x => x.Level2.Level3.Level4.IsActive).ColumnName("IsActive");
             mapper.Property(x => x.Level2.Level3.CreatedOn).ColumnName("CreatedOn");
 
-            var expected = new Level1()
-            {
+            var expected = new Level1
+                           {
                 Id = 123,
-                Level2 = new Level2()
-                {
+                Level2 = new Level2
+                         {
                     Name = "Bob",
-                    Level3 = new Level3()
-                    {
+                    Level3 = new Level3
+                             {
                         CreatedOn = new DateTime(2017, 11, 05),
-                        Level4 = new Level4()
-                        {
+                        Level4 = new Level4
+                                 {
                             IsActive = true,
-                            Address = new Address()
-                            {
+                            Address = new Address
+                                      {
                                 Street = "Test Street 1",
                                 City = "Test City",
                                 State = "PA",
@@ -335,27 +335,27 @@ namespace FlatFiles.Test
             mapper.Property(x => x.Level2.Level3.Level4.IsActive).ColumnName("IsActive");
             mapper.Property(x => x.Level2.Level3.CreatedOn).ColumnName("CreatedOn");
 
-            var expected = new Level1()
-            {
+            var expected = new Level1
+                           {
                 Id = 123,
-                Address = new Address()
-                {
+                Address = new Address
+                          {
                     Street = "Test Street 2",
                     City = "Test City 2",
                     State = "WA",
                     Zip = "44444"
                 },
-                Level2 = new Level2()
-                {
+                Level2 = new Level2
+                         {
                     Name = "Bob",
-                    Level3 = new Level3()
-                    {
+                    Level3 = new Level3
+                             {
                         CreatedOn = new DateTime(2017, 11, 05),
-                        Level4 = new Level4()
-                        {
+                        Level4 = new Level4
+                                 {
                             IsActive = true,
-                            Address = new Address()
-                            {
+                            Address = new Address
+                                      {
                                 Street = "Test Street 1",
                                 City = "Test City",
                                 State = "PA",

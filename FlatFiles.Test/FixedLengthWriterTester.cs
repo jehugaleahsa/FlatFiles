@@ -43,7 +43,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("First"), new Window(10) { FillCharacter = '@' });
             schema.AddColumn(new StringColumn("Second"), new Window(10) { FillCharacter = '!' });
             schema.AddColumn(new StringColumn("Third"), new Window(10) { FillCharacter = '$' });
-            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            FixedLengthOptions options = new FixedLengthOptions { IsFirstRecordHeader = true };
 
             StringWriter stringWriter = new StringWriter();
             FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);
@@ -67,7 +67,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("Second"), new Window(10) { FillCharacter = '!' });
             schema.AddColumn(new IgnoredColumn(), new Window(1) { FillCharacter = '|' });
             schema.AddColumn(new StringColumn("Third"), new Window(10) { FillCharacter = '$' });
-            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            FixedLengthOptions options = new FixedLengthOptions { IsFirstRecordHeader = true };
 
             StringWriter stringWriter = new StringWriter();
             FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);
@@ -89,7 +89,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new StringColumn("First"), new Window(10) { FillCharacter = '@' });
             schema.AddColumn(new StringColumn("Second"), new Window(10) { FillCharacter = '!' });
             schema.AddColumn(new StringColumn("Third"), new Window(10) { FillCharacter = '$' });
-            FixedLengthOptions options = new FixedLengthOptions() { IsFirstRecordHeader = true, HasRecordSeparator = false };
+            FixedLengthOptions options = new FixedLengthOptions { IsFirstRecordHeader = true, HasRecordSeparator = false };
 
             StringWriter stringWriter = new StringWriter();
             FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, options);
@@ -125,15 +125,15 @@ namespace FlatFiles.Test
             // Explicitly indicate that the first record is NOT the schema
             FixedLengthSchema schema = new FixedLengthSchema();
             schema.AddColumn(new StringColumn("Col1"), 10);
-            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, new FixedLengthOptions()
-            {
+            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, new FixedLengthOptions
+                                                                                   {
                 IsFirstRecordHeader = false
             });
             writer.WriteSchema();  // Explicitly write the schema
             writer.Write(new string[] { "a" });
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
-            var reader = new FixedLengthReader(stringReader, schema, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            var reader = new FixedLengthReader(stringReader, schema, new FixedLengthOptions { IsFirstRecordHeader = true });
 
             Assert.IsTrue(reader.Read(), "The record was not retrieved after the schema.");
             Assert.IsFalse(reader.Read(), "Encountered more than the expected number of records.");

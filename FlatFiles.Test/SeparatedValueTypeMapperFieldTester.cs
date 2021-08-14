@@ -21,7 +21,7 @@ namespace FlatFiles.Test
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(p => p.IsActive).ColumnName("active");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), IsActive = true };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob });

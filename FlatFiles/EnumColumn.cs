@@ -69,7 +69,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext? context, TEnum value)
         {
-            return formatter(value) ?? String.Empty;
+            return formatter(value) ?? string.Empty;
         }
     }
 }

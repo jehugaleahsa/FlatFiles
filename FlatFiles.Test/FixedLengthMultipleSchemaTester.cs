@@ -19,7 +19,7 @@ namespace FlatFiles.Test
         {
             StringWriter stringWriter = new StringWriter();
             var injector = getSchemaInjector();
-            var options = new FixedLengthOptions() { Alignment = FixedAlignment.RightAligned };
+            var options = new FixedLengthOptions { Alignment = FixedAlignment.RightAligned, RecordSeparator = "\n" };
             var writer = new FixedLengthWriter(stringWriter, injector, options);
             writer.Write(new object[] { "First Batch", 2 });
             writer.Write(new object[] { 1, "Bob Smith", new DateTime(2018, 06, 04), 12.34m });
@@ -110,12 +110,12 @@ namespace FlatFiles.Test
         {
             StringWriter stringWriter = new StringWriter();
             var injector = getTypeMapperInjector();
-            var options = new FixedLengthOptions() { Alignment = FixedAlignment.RightAligned };
+            var options = new FixedLengthOptions { Alignment = FixedAlignment.RightAligned, RecordSeparator = "\n" };
             var writer = injector.GetWriter(stringWriter, options);
-            writer.Write(new HeaderRecord() { BatchName = "First Batch", RecordCount = 2 });
-            writer.Write(new DataRecord() { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
-            writer.Write(new DataRecord() { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
-            writer.Write(new FooterRecord() { TotalAmount = 46.9m, AverageAmount = 23.45m, IsCriteriaMet = true });
+            writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
+            writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
+            writer.Write(new DataRecord { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
+            writer.Write(new FooterRecord { TotalAmount = 46.9m, AverageAmount = 23.45m, IsCriteriaMet = true });
             string output = stringWriter.ToString();
             Assert.AreEqual(@"              First Batch  2
          1                Bob Smith  20180604     12.34

@@ -616,14 +616,11 @@ namespace FlatFiles.TypeMapping
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column, Window window)
         {
             var columnName = column.ColumnName;
-            if (String.IsNullOrWhiteSpace(columnName))
+            if (string.IsNullOrWhiteSpace(columnName))
             {
                 throw new ArgumentException(Resources.BlankColumnName, nameof(column));
             }
-            var mapping = lookup.GetOrAddCustomMapping(columnName, (physicalIndex, logicalIndex) =>
-            {
-                return new CustomMapping<TEntity>(column, physicalIndex, logicalIndex);
-            });
+            var mapping = lookup.GetOrAddCustomMapping(columnName!, (physicalIndex, logicalIndex) => new CustomMapping<TEntity>(column, physicalIndex, logicalIndex));
             windowLookup[mapping] = window;
             return mapping;
         }

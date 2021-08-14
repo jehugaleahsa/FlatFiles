@@ -37,7 +37,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestCtor_SchemaNull_Throws()
         {
-            StringReader reader = new StringReader(String.Empty);
+            StringReader reader = new StringReader(string.Empty);
             FixedLengthSchema schema = null;
             Assert.ThrowsException<ArgumentNullException>(() => new FixedLengthReader(reader, schema));
         }
@@ -215,7 +215,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                   .AddColumn(new StringColumn("name"), new Window(25))
                   .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthOptions options = new FixedLengthOptions() { RecordSeparator = "BOOM" };
+            FixedLengthOptions options = new FixedLengthOptions { RecordSeparator = "BOOM" };
 
             StringReader stringReader = new StringReader(text);
             FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
@@ -243,7 +243,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10))
                   .AddColumn(new StringColumn("name"), new Window(25))
                   .AddColumn(new DateTimeColumn("created"), new Window(10));
-            FixedLengthOptions options = new FixedLengthOptions() { HasRecordSeparator = false };
+            FixedLengthOptions options = new FixedLengthOptions { HasRecordSeparator = false };
 
             StringReader stringReader = new StringReader(text);
             FixedLengthReader parser = new FixedLengthReader(stringReader, schema, options);
@@ -269,7 +269,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new Int32Column("id"), new Window(10) { Alignment = FixedAlignment.LeftAligned })
                   .AddColumn(new StringColumn("name"), new Window(25) { Alignment = FixedAlignment.LeftAligned })
                   .AddColumn(new DateTimeColumn("created") { InputFormat = "M/d/yyyy", OutputFormat = "M/d/yyyy" }, new Window(10) { Alignment = FixedAlignment.LeftAligned });
-            FixedLengthOptions options = new FixedLengthOptions() { FillCharacter = '@' };
+            FixedLengthOptions options = new FixedLengthOptions { FillCharacter = '@' };
             object[] sources = new object[] { 123, "Bob", new DateTime(2013, 1, 19) };
 
             StringWriter stringWriter = new StringWriter();
@@ -361,8 +361,8 @@ a weird row that should be skipped
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
-            var options = new FixedLengthOptions() { FillCharacter = '@' };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions { FillCharacter = '@' };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -387,8 +387,8 @@ a weird row that should be skipped
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true, FillCharacter = '@' };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true, FillCharacter = '@' };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -413,8 +413,8 @@ a weird row that should be skipped
             mapper.Property(p => p.Name, new Window(100)).ColumnName("name");
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
-            var options = new FixedLengthOptions() { FillCharacter = '@' };
+            var bob = new Person { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions { FillCharacter = '@' };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -442,8 +442,8 @@ a weird row that should be skipped
             mapper.Ignored(new Window(1) { FillCharacter = '|' });
             mapper.Property(p => p.Created, new Window(8)).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
-            var options = new FixedLengthOptions() { FillCharacter = ' ' };
+            var bob = new Person { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
+            var options = new FixedLengthOptions { FillCharacter = ' ' };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -525,7 +525,7 @@ a weird row that should be skipped
             var mapper = FixedLengthTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = null };
+            Person person = new Person { IsActive = null };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });
@@ -544,7 +544,7 @@ a weird row that should be skipped
             var mapper = FixedLengthTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = false };
+            Person person = new Person { IsActive = false };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });
@@ -563,7 +563,7 @@ a weird row that should be skipped
             var mapper = FixedLengthTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive, 10).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = true };
+            Person person = new Person { IsActive = true };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });
@@ -623,7 +623,7 @@ a weird row that should be skipped
             string rawData = "123                      Bob                                                                                                 20130119\r\n234                      Sam                                                                                                 20130119\r345                      Ron                                                                                                 20130119\n456                      Carl                                                                                                20130119\r\n";
             StringReader stringReader = new StringReader(rawData);
 
-            var options = new FixedLengthOptions() { HasRecordSeparator = true, RecordSeparator = null };
+            var options = new FixedLengthOptions { HasRecordSeparator = true, RecordSeparator = null };
             var people = mapper.Read(stringReader, options).ToArray();
 
             Assert.AreEqual(4, people.Length);
@@ -646,8 +646,8 @@ a weird row that should be skipped
             StringReader stringReader = new StringReader(lines);
             FixedLengthReader parser = new FixedLengthReader(stringReader, schema);
 
-            List<object[]> records = new List<object[]>()
-            {
+            List<object[]> records = new List<object[]>
+                                     {
                 AssertExtra(parser, "This"),
                 AssertExtra(parser, "is"),
                 AssertExtra(parser, "extra")
@@ -655,7 +655,7 @@ a weird row that should be skipped
             Assert.IsFalse(parser.Read());
 
             StringWriter stringWriter = new StringWriter();
-            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema);
+            FixedLengthWriter writer = new FixedLengthWriter(stringWriter, schema, new FixedLengthOptions { RecordSeparator = "\n" });
             foreach (object[] record in records)
             {
                 writer.Write(record);
@@ -665,7 +665,7 @@ a weird row that should be skipped
             Assert.AreEqual(lines, formatted, "The records did not round-trip.");
         }
 
-        private static object[] AssertExtra(FixedLengthReader reader, String expected)
+        private static object[] AssertExtra(FixedLengthReader reader, string expected)
         {
             Assert.IsTrue(reader.Read(), "Could not read the next record.");
             object[] values = reader.GetValues();
@@ -703,7 +703,7 @@ a weird row that should be skipped
             Assert.AreEqual("extra", people[2].Extra);
 
             StringWriter stringWriter = new StringWriter();
-            mapper.Write(stringWriter, people);
+            mapper.Write(stringWriter, people, new FixedLengthOptions { RecordSeparator = "\n" });
 
             string formatted = stringWriter.ToString();
             Assert.AreEqual(lines, formatted, "The records did not round-trip.");
@@ -711,7 +711,7 @@ a weird row that should be skipped
 
         internal class ExtraPerson : Person
         {
-            public String Extra { get; set; }
+            public string Extra { get; set; }
         }
     }
 }

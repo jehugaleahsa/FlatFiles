@@ -17,20 +17,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
+            var results = mapper.Read(reader, new FixedLengthOptions { IsFirstRecordHeader = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -48,20 +48,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordPartitioned += (sender, e) =>
             {
@@ -83,20 +83,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true, IncludeSkippedRecords = true }, 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordPartitioned += (sender, e) =>
             {
@@ -118,20 +118,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true, IncludeSkippedRecords = true }, 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
+            var results = mapper.Read(reader, new FixedLengthOptions { IsFirstRecordHeader = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(2, results[0].RecordNumber);
@@ -149,20 +149,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false, IncludeSkippedRecords = true }, 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordPartitioned += (sender, e) =>
             {
@@ -184,20 +184,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false, IncludeSkippedRecords = true }, 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
+            var results = mapper.Read(reader, new FixedLengthOptions { IsFirstRecordHeader = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -216,20 +216,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new FixedLengthOptions() { IsFirstRecordHeader = true }).ToArray();
+            var results = mapper.Read(reader, new FixedLengthOptions { IsFirstRecordHeader = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -248,20 +248,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordPartitioned += (sender, e) =>
             {
@@ -285,14 +285,14 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions()
-            {
+            mapper.Write(writer, people, new FixedLengthOptions
+                                         {
                 IsFirstRecordHeader = true,
                 HasRecordSeparator = false
             });
@@ -302,8 +302,8 @@ namespace FlatFiles.Test
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions()
-            {
+            var options = new FixedLengthOptions
+                          {
                 IsFirstRecordHeader = true,
                 HasRecordSeparator = false
             };
@@ -333,20 +333,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new ComplicatedPerson() { PersonId = 1, Name = "Bob", CreatedOn = new DateTime(2018, 04, 25) },
-                new ComplicatedPerson() { PersonId = 2, Name = "Tom", CreatedOn = new DateTime(2018, 04, 26) },
-                new ComplicatedPerson() { PersonId = 3, Name = "Jane", CreatedOn = new DateTime(2018, 04, 27) }
+                new ComplicatedPerson { PersonId = 1, Name = "Bob", CreatedOn = new DateTime(2018, 04, 25) },
+                new ComplicatedPerson { PersonId = 2, Name = "Tom", CreatedOn = new DateTime(2018, 04, 26) },
+                new ComplicatedPerson { PersonId = 3, Name = "Jane", CreatedOn = new DateTime(2018, 04, 27) }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new FixedLengthOptions() { IsFirstRecordHeader = true });
+            mapper.Write(writer, people, new FixedLengthOptions { IsFirstRecordHeader = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"), 10)
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new FixedLengthOptions() { IsFirstRecordHeader = true };
+            var options = new FixedLengthOptions { IsFirstRecordHeader = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordPartitioned += (sender, e) =>
             {

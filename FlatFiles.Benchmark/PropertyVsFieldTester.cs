@@ -13,8 +13,8 @@ namespace FlatFiles.Benchmark
 
         public PropertyVsFieldTester()
         {
-            PropertyPerson propertyPerson = new PropertyPerson()
-            {
+            PropertyPerson propertyPerson = new PropertyPerson
+                                            {
                 FirstName = "John",
                 LastName = "Smith",
                 Age = 29,
@@ -31,8 +31,8 @@ namespace FlatFiles.Benchmark
             };
             propertyPeople = Enumerable.Repeat(0, 10000).Select(i => propertyPerson).ToArray();
 
-            FieldPerson fieldPerson = new FieldPerson()
-            {
+            FieldPerson fieldPerson = new FieldPerson
+                                      {
                 FirstName = "John",
                 LastName = "Smith",
                 Age = 29,

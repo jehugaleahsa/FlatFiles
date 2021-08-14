@@ -30,7 +30,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         public sealed override string Format(IColumnContext? context, object? value)
         {
-            return OnFormat(context) ?? String.Empty;
+            return OnFormat(context) ?? string.Empty;
         }
 
         /// <summary>

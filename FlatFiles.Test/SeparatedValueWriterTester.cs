@@ -11,7 +11,7 @@ namespace FlatFiles.Test
         public void ShouldNotWriteSchemaIfNoSchemaProvided()
         {
             StringWriter stringWriter = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, new SeparatedValueOptions { IsFirstRecordSchema = true });
             writer.Write(new string[] { "a" });
 
             string output = stringWriter.ToString();
@@ -26,15 +26,15 @@ namespace FlatFiles.Test
             // Explicitly indicate that the first record is NOT the schema
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("Col1"));
-            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema, new SeparatedValueOptions()
-            {
+            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema, new SeparatedValueOptions
+                                                                                         {
                 IsFirstRecordSchema = false
             });
             writer.WriteSchema();  // Explicitly write the schema
             writer.Write(new string[] { "a" });
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
-            var reader = new SeparatedValueReader(stringReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var reader = new SeparatedValueReader(stringReader, new SeparatedValueOptions { IsFirstRecordSchema = true });
             var parsedSchema = reader.GetSchema();
             Assert.AreEqual(schema.ColumnDefinitions.Count, parsedSchema.ColumnDefinitions.Count);
             Assert.AreEqual(schema.ColumnDefinitions[0].ColumnName, parsedSchema.ColumnDefinitions[0].ColumnName);
@@ -50,8 +50,8 @@ namespace FlatFiles.Test
             // Explicitly indicate that the first record is NOT the schema
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("Col1"));
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false
             };
             SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema, options);

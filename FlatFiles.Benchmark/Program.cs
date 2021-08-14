@@ -19,8 +19,8 @@ namespace FlatFiles.Benchmark
 
         private static void RunBenchmarks()
         {
-            var configuration = new ManualConfig()
-            {
+            var configuration = new ManualConfig
+                                {
                 Options = ConfigOptions.KeepBenchmarkFiles
             };
             configuration.AddColumn(StatisticColumn.Min);

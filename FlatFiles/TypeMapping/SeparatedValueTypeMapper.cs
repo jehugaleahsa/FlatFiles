@@ -188,7 +188,7 @@ namespace FlatFiles.TypeMapping
                 var columnDefinition = GetColumnDefinition(memberExpression.Type, column.ColumnName!);
                 if (columnDefinition == null)
                 {
-                    throw new FlatFileException(String.Format(null, Resources.NoAutoMapPropertyType, column.ColumnName));
+                    throw new FlatFileException(string.Format(null, Resources.NoAutoMapPropertyType, column.ColumnName));
                 }
                 var lambdaExpression = Expression.Lambda<Action<IColumnContext?, object?, object?>>(body, contextParameter, entityParameter, valueParameter);
                 var compiledSetter = lambdaExpression.Compile();
@@ -205,7 +205,7 @@ namespace FlatFiles.TypeMapping
             {
                 if (!propertyInfo.CanWrite)
                 {
-                    throw new FlatFileException(String.Format(null, Resources.ReadOnlyProperty, column.ColumnName));
+                    throw new FlatFileException(string.Format(null, Resources.ReadOnlyProperty, column.ColumnName));
                 }
                 return Expression.Property(Expression.Convert(entityParameter, entityType), propertyInfo);
             }
@@ -265,7 +265,7 @@ namespace FlatFiles.TypeMapping
         public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions? options = null, IAutoMapResolver? resolver = null)
         {
             var optionsCopy = options == null 
-                ? new SeparatedValueOptions() { IsFirstRecordSchema = true } 
+                ? new SeparatedValueOptions { IsFirstRecordSchema = true } 
                 : options.Clone();
             var entityType = typeof(TEntity);
             var typedMapper = Define<TEntity>(() => throw new InvalidOperationException("Unexpected entity creation within autom-mapped writer."));
@@ -279,7 +279,7 @@ namespace FlatFiles.TypeMapping
             foreach (var member in members)
             {
                 var columnName = nameResolver.GetColumnName(member);
-                if (String.IsNullOrWhiteSpace(columnName))
+                if (string.IsNullOrWhiteSpace(columnName))
                 {
                     continue;
                 }
@@ -817,11 +817,11 @@ namespace FlatFiles.TypeMapping
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column)
         {
             var columnName = column.ColumnName;
-            if (String.IsNullOrWhiteSpace(columnName))
+            if (string.IsNullOrWhiteSpace(columnName))
             {
                 throw new ArgumentException(Resources.BlankColumnName, nameof(column));
             }
-            var mapping = lookup.GetOrAddCustomMapping(columnName, (fileIndex, workIndex) =>
+            var mapping = lookup.GetOrAddCustomMapping(columnName!, (fileIndex, workIndex) =>
             {
                 return new CustomMapping<TEntity>(column, fileIndex, workIndex);
             });

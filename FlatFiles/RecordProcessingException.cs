@@ -8,13 +8,13 @@ namespace FlatFiles
     public sealed class RecordProcessingException : FlatFileException
     {
         internal RecordProcessingException(IRecordContext context, string message)
-            : base(String.Format(null, message, context.PhysicalRecordNumber))
+            : base(string.Format(null, message, context.PhysicalRecordNumber))
         {
             RecordContext = context;
         }
 
         internal RecordProcessingException(IRecordContext context, string message, Exception innerException)
-            : base(String.Format(null, message, context.PhysicalRecordNumber), innerException)
+            : base(string.Format(null, message, context.PhysicalRecordNumber), innerException)
         {
             RecordContext = context;
         }

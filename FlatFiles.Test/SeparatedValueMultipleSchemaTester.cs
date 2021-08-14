@@ -19,7 +19,7 @@ namespace FlatFiles.Test
         {
             var stringWriter = new StringWriter();
             var injector = GetSchemaInjector();
-            var writer = new SeparatedValueWriter(stringWriter, injector);
+            var writer = new SeparatedValueWriter(stringWriter, injector, new SeparatedValueOptions { RecordSeparator = "\n" });
             writer.Write(new object[] { "First Batch", 2 });
             writer.Write(new object[] { 1, "Bob Smith", new DateTime(2018, 06, 04), 12.34m });
             writer.Write(new object[] { 2, "Jane Doe", new DateTime(2018, 06, 05), 34.56m });
@@ -108,7 +108,7 @@ namespace FlatFiles.Test
         {
             var stringWriter = new StringWriter();
             var injector = GetTypeMapperInjector();
-            var writer = injector.GetWriter(stringWriter);
+            var writer = injector.GetWriter(stringWriter, new SeparatedValueOptions { RecordSeparator = "\n" });
             writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
             writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
             writer.Write(new DataRecord { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });
@@ -157,7 +157,7 @@ namespace FlatFiles.Test
         {
             var stringWriter = new StringWriter();
             var injector = GetTypeMapperInjector();
-            var writer = injector.GetWriter(stringWriter);
+            var writer = injector.GetWriter(stringWriter, new SeparatedValueOptions { RecordSeparator = "\n" });
             writer.Write(new HeaderRecord { BatchName = "First Batch", RecordCount = 2 });
             writer.Write(new DataRecord { Id = 1, Name = "Bob Smith", CreatedOn = new DateTime(2018, 06, 04), TotalAmount = 12.34m });
             writer.Write(new DataRecord { Id = 2, Name = "Jane Doe", CreatedOn = new DateTime(2018, 06, 05), TotalAmount = 34.56m });

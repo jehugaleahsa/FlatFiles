@@ -41,7 +41,7 @@ namespace FlatFiles
         protected override ulong OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
-            return UInt64.Parse(value, NumberStyles, provider);
+            return ulong.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

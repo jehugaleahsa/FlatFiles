@@ -102,7 +102,7 @@ namespace FlatFiles.TypeMapping
                 MethodInfo? setter = propertyInfo.GetSetMethod(true);
                 if (setter == null)
                 {
-                    string message = String.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
+                    string message = string.Format(null, Resources.ReadOnlyProperty, propertyInfo.Name);
                     throw new FlatFileException(message);
                 }
                 generator.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -139,12 +139,7 @@ namespace FlatFiles.TypeMapping
             generator.Emit(OpCodes.Dup);
             generator.Emit(OpCodes.Stloc, indexBuilder);
 
-            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(new[] 
-            { 
-                typeof(IRecordContext),
-                typeof(int),
-                typeof(int)
-            })!;
+            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(typeof(IRecordContext), typeof(int), typeof(int))!;
             generator.Emit(OpCodes.Newobj, contextCtorInfo);
             generator.Emit(OpCodes.Stloc, contextBuilder);
 
@@ -221,7 +216,7 @@ namespace FlatFiles.TypeMapping
                 var getter = propertyInfo.GetGetMethod(true);
                 if (getter == null)
                 {
-                    string message = String.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
+                    string message = string.Format(null, Resources.WriteOnlyProperty, propertyInfo.Name);
                     throw new FlatFileException(message);
                 }
                 generator.Emit(OpCodes.Callvirt, getter);
@@ -261,12 +256,7 @@ namespace FlatFiles.TypeMapping
             var logicalIndexGetter = logicalIndexGetInfo.GetGetMethod()!;
             generator.Emit(OpCodes.Callvirt, logicalIndexGetter);
 
-            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(new[]
-            {
-                typeof(IRecordContext),
-                typeof(int),
-                typeof(int)
-            })!;
+            var contextCtorInfo = MemberAccessorBuilder.GetConstructor<ColumnContext>(typeof(IRecordContext), typeof(int), typeof(int))!;
             generator.Emit(OpCodes.Newobj, contextCtorInfo);
             generator.Emit(OpCodes.Stloc, contextBuilder);
 

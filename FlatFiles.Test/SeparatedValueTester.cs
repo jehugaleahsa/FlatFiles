@@ -10,9 +10,9 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldNotFindRecordsInEmptyFile()
         {
-            var source = String.Empty;
+            var source = string.Empty;
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             Assert.IsFalse(reader.Read(), "No records should be read from an empty file.");
         }
@@ -22,7 +22,7 @@ namespace FlatFiles.Test
         {
             var source = "Hello";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -36,7 +36,7 @@ namespace FlatFiles.Test
         {
             var source = "Hello,World";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -50,7 +50,7 @@ namespace FlatFiles.Test
         {
             var source = "Hello\r\nWorld\r\n";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -65,7 +65,7 @@ namespace FlatFiles.Test
         {
             var source = "Hello\r\nWorld";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -80,8 +80,8 @@ namespace FlatFiles.Test
         {
             var source = "a\rb\r\n";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r\n", 
                 Separator = "\r" 
@@ -99,8 +99,8 @@ namespace FlatFiles.Test
         {
             var source = "a\r\nb";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r\n", 
                 Separator = "\r" 
@@ -119,8 +119,8 @@ namespace FlatFiles.Test
         {
             var source = "a\r\nb\r";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r", 
                 Separator = "\r\n" 
@@ -138,8 +138,8 @@ namespace FlatFiles.Test
         {
             var source = "a\rb";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r", 
                 Separator = "\r\n" 
@@ -158,7 +158,7 @@ namespace FlatFiles.Test
         {
             var source = ",";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -172,7 +172,7 @@ namespace FlatFiles.Test
         {
             var source = ",,\r\n,,";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -187,7 +187,7 @@ namespace FlatFiles.Test
         {
             var source = "\r\n";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -201,7 +201,7 @@ namespace FlatFiles.Test
         {
             var source = "\r\n\r\n";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -216,7 +216,7 @@ namespace FlatFiles.Test
         {
             var source = " a";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -232,8 +232,8 @@ namespace FlatFiles.Test
             var stringReader = new StringReader(source);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 PreserveWhiteSpace = true 
             };
@@ -250,8 +250,8 @@ namespace FlatFiles.Test
         {
             var source = "  a, \t\n  b";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\r\n"
             };
@@ -271,8 +271,8 @@ namespace FlatFiles.Test
             //SeparatedValueSchema schema = new SeparatedValueSchema();
             //schema.AddColumn(new StringColumn("a") { Trim = false });
             //schema.AddColumn(new StringColumn("b") { Trim = false });
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r\n", 
                 PreserveWhiteSpace = true 
@@ -290,7 +290,7 @@ namespace FlatFiles.Test
         {
             var source = "a ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -306,8 +306,8 @@ namespace FlatFiles.Test
             var stringReader = new StringReader(source);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false, 
                 PreserveWhiteSpace = true 
             };
@@ -324,8 +324,8 @@ namespace FlatFiles.Test
         {
             var source = "a  ,b \t\n  ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\r\n"
             };
@@ -345,7 +345,7 @@ namespace FlatFiles.Test
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
             schema.AddColumn(new StringColumn("b") { Trim = false });
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, RecordSeparator = "\r\n", PreserveWhiteSpace = true };
             var reader = new SeparatedValueReader(stringReader, schema, options);
             var expected = new object[][]
             {
@@ -359,7 +359,7 @@ namespace FlatFiles.Test
         {
             var source = " a ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -375,7 +375,7 @@ namespace FlatFiles.Test
             var stringReader = new StringReader(source);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
             var reader = new SeparatedValueReader(stringReader, schema, options);
             var expected = new object[][]
             {
@@ -389,7 +389,7 @@ namespace FlatFiles.Test
         {
             var source = "  a  , \t\n  b \t\n  ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -406,8 +406,8 @@ namespace FlatFiles.Test
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
             schema.AddColumn(new StringColumn("b") { Trim = false });
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r\n", 
                 PreserveWhiteSpace = true 
@@ -425,7 +425,7 @@ namespace FlatFiles.Test
         {
             var source = " \t\n\r ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, RecordSeparator = "\r\n" };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -441,8 +441,8 @@ namespace FlatFiles.Test
             var stringReader = new StringReader(source);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false, NullFormatter = NullFormatter.ForValue(null) });
-            var options = new SeparatedValueOptions() 
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false, 
                 RecordSeparator = "\r\n", 
                 PreserveWhiteSpace = true 
@@ -460,7 +460,7 @@ namespace FlatFiles.Test
         {
             var source = " a b ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -476,7 +476,7 @@ namespace FlatFiles.Test
             var stringReader = new StringReader(source);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new StringColumn("a") { Trim = false });
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, PreserveWhiteSpace = true };
             var reader = new SeparatedValueReader(stringReader, schema, options);
             var expected = new object[][]
             {
@@ -490,7 +490,7 @@ namespace FlatFiles.Test
         {
             var source = " a  b ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, Separator = "  " };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, Separator = "  " };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -504,8 +504,8 @@ namespace FlatFiles.Test
         {
             var source = "axxcb";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() 
-            { 
+            var options = new SeparatedValueOptions
+                          { 
                 IsFirstRecordSchema = false, 
                 Separator = "xxa", 
                 RecordSeparator = "xxb" 
@@ -523,7 +523,7 @@ namespace FlatFiles.Test
         {
             var source = "axxxb";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false, Separator = "xxxx" };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false, Separator = "xxxx" };
             var reader = new SeparatedValueReader(stringReader, options);
             var expected = new object[][]
             {
@@ -537,8 +537,8 @@ namespace FlatFiles.Test
         {
             var source = "'a'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -555,8 +555,8 @@ namespace FlatFiles.Test
         {
             var source = "' a  '";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -575,8 +575,8 @@ namespace FlatFiles.Test
         {
             var source = "'a,b'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -593,8 +593,8 @@ namespace FlatFiles.Test
         {
             var source = "'a''b'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -611,8 +611,8 @@ namespace FlatFiles.Test
         {
             var source = "   'a'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -629,8 +629,8 @@ namespace FlatFiles.Test
         {
             var source = "'a' ";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -647,8 +647,8 @@ namespace FlatFiles.Test
         {
             var source = "'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -661,8 +661,8 @@ namespace FlatFiles.Test
         {
             var source = "'a'b";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -678,8 +678,8 @@ His favorite travel spots are Tannis, Venice and Chicago.
 When he''s not traveling, he''s at home with his lovely wife, children and leather armchair.'
 Mary,Smith,'1821 Grover''s Village',West Chattingham,WA,43221,'Likes cats.'";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Quote = '\''
             };
@@ -701,8 +701,8 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         {
             var source = "26087,C Country C,,1,3,7,Randy E,(555) 555-5500,,\"P.O.Box 60,\",,,Woodsland,CA,56281,,,,0292315c-0daa-df11-9397-0019b9e7d4cd,,0,8713cbdd-fb50-dc11-a545-000423c05bf1,40,79527,,False";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 PreserveWhiteSpace = true
             };
@@ -747,8 +747,8 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         {
             var source = "x\ty\tabc\"def\tz";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Separator = "\t"
             };
@@ -767,8 +767,8 @@ When he's not traveling, he's at home with his lovely wife, children and leather
                 "\t0\t0\tmonetary\tD\tC\tDebt Conversion, Converted Instrument, Amount" +
                 "\tThe value of the financial instrument(s) that the original debt is being converted into in a noncash (or part noncash) transaction. \"Part noncash refers to that portion of the transaction not resulting in cash receipts or cash payments in the period.";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Separator = "\t",
                 PreserveWhiteSpace = false,
@@ -800,8 +800,8 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         {
             var source = "This\tis\t\"not\"the\tend\"\tof\tthe\tmessage";
             var stringReader = new StringReader(source);
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = false,
                 Separator = "\t"
             };
@@ -820,7 +820,7 @@ When he's not traveling, he's at home with his lovely wife, children and leather
         {
             for (var recordIndex = 0; recordIndex != expected.Length; ++recordIndex)
             {
-                Assert.IsTrue(reader.Read(), String.Format("The record could not be read (Record {0}).", recordIndex));
+                Assert.IsTrue(reader.Read(), string.Format("The record could not be read (Record {0}).", recordIndex));
                 var actualValues = reader.GetValues();
                 var expectedValues = expected[recordIndex];
                 AssertRecord(expectedValues, actualValues);
