@@ -13,7 +13,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestNullableExtensions_AllNull()
         {
-            string data = String.Join(",", typeof(NullableValues).GetProperties().Select(x => (string)null));
+            string data = string.Join(",", typeof(NullableValues).GetProperties().Select(x => (string)null));
             var schema = GetSchema();
             var stringReader = new StringReader(data);
             var csvReader = new SeparatedValueReader(stringReader, schema);
@@ -36,20 +36,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestNullableExtensions_AllNotNull()
         {
-            string data = String.Join(",", new object[] 
-            {
-                (byte)0,  // Byte
-                (short)1,  // Short
-                2,  // Int
-                3L,  // Long
-                4f,  // Float
-                5.0,  // Double
-                6m,  // Decimal
-                "abc",  // String
-                new DateTime(2018, 07, 08),  // DateTime
-                new Guid("{2E13CDEB-6A06-4A79-A446-B057F2881406}"),  // Guid
-                DayOfWeek.Sunday  // Enum
-            });
+            string data = string.Join(",", (byte)0, (short)1, 2, 3L, 4f, 5.0, 6m, "abc", new DateTime(2018, 07, 08), new Guid("{2E13CDEB-6A06-4A79-A446-B057F2881406}"), DayOfWeek.Sunday);
             var schema = GetSchema();
             var stringReader = new StringReader(data);
             var csvReader = new SeparatedValueReader(stringReader, schema);

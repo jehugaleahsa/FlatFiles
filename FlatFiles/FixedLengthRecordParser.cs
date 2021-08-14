@@ -176,12 +176,12 @@ namespace FlatFiles
 
             public string ReadRecord()
             {
-                return new String(buffer, 0, length);
+                return new string(buffer, 0, length);
             }
 
             public Task<string> ReadRecordAsync()
             {
-                return Task.FromResult(new String(buffer, 0, length));
+                return Task.FromResult(new string(buffer, 0, length));
             }
         }
     }

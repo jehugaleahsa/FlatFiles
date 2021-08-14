@@ -616,14 +616,11 @@ namespace FlatFiles.TypeMapping
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column, Window window)
         {
             var columnName = column.ColumnName;
-            if (String.IsNullOrWhiteSpace(columnName))
+            if (string.IsNullOrWhiteSpace(columnName))
             {
                 throw new ArgumentException(Resources.BlankColumnName, nameof(column));
             }
-            var mapping = lookup.GetOrAddCustomMapping(columnName, (physicalIndex, logicalIndex) =>
-            {
-                return new CustomMapping<TEntity>(column, physicalIndex, logicalIndex);
-            });
+            var mapping = lookup.GetOrAddCustomMapping(columnName!, (physicalIndex, logicalIndex) => new CustomMapping<TEntity>(column, physicalIndex, logicalIndex));
             windowLookup[mapping] = window;
             return mapping;
         }
@@ -639,13 +636,11 @@ namespace FlatFiles.TypeMapping
             return typedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, FixedLengthOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
             return typedReader.ReadAllAsync();
         }
-#endif
 
         public IFixedLengthTypedReader<TEntity> GetReader(TextReader reader, FixedLengthOptions? options = null)
         {
@@ -680,7 +675,6 @@ namespace FlatFiles.TypeMapping
             return typedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, FixedLengthOptions? options = null)
         {
             if (entities == null)
@@ -690,7 +684,6 @@ namespace FlatFiles.TypeMapping
             var typedWriter = GetWriter(writer, options);
             return typedWriter.WriteAllAsync(entities);
         }
-#endif
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, FixedLengthOptions? options = null)
         {
@@ -902,14 +895,12 @@ namespace FlatFiles.TypeMapping
             return untypedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         IAsyncEnumerable<object> IDynamicFixedLengthTypeMapper.ReadAsync(TextReader reader, FixedLengthOptions? options)
         {
             IDynamicFixedLengthTypeMapper untypedMapper = this;
             var untypedReader = untypedMapper.GetReader(reader, options);
             return untypedReader.ReadAllAsync();
         }
-#endif
 
         IFixedLengthTypedReader<object> IDynamicFixedLengthTypeMapper.GetReader(TextReader reader, FixedLengthOptions? options)
         {
@@ -930,14 +921,12 @@ namespace FlatFiles.TypeMapping
             return untypedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         Task IDynamicFixedLengthTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, FixedLengthOptions? options)
         {
             IDynamicFixedLengthTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
             return untypedWriter.WriteAllAsync(entities);
         }
-#endif
 
         ITypedWriter<object> IDynamicFixedLengthTypeMapper.GetWriter(TextWriter writer, FixedLengthOptions? options)
         {

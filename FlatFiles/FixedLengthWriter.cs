@@ -201,7 +201,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a newline should be written after the data.</param>
-        public void WriteRaw(String data, bool writeRecordSeparator = false)
+        public void WriteRaw(string data, bool writeRecordSeparator = false)
         {
             recordWriter.WriteRaw(data);
             if (writeRecordSeparator)
@@ -216,7 +216,7 @@ namespace FlatFiles
         /// </summary>
         /// <param name="data">The data to write to the output.</param>
         /// <param name="writeRecordSeparator">Indicates whether a record separator should be written after the data.</param>
-        public async Task WriteRawAsync(String data, bool writeRecordSeparator = false)
+        public async Task WriteRawAsync(string data, bool writeRecordSeparator = false)
         {
             await recordWriter.WriteRawAsync(data);
             if (writeRecordSeparator)

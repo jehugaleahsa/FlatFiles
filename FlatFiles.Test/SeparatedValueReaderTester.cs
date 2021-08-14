@@ -49,7 +49,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestCtor_SchemaNull_Throws()
         {
-            TextReader reader = new StringReader(String.Empty);
+            TextReader reader = new StringReader(string.Empty);
             SeparatedValueSchema schema = null;
             Assert.ThrowsException<ArgumentNullException>(() => new SeparatedValueReader(reader, schema));
         }
@@ -185,7 +185,7 @@ namespace FlatFiles.Test
         {
             string text = "a,b,c";
             var stringReader = new StringReader(text);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = false };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = false };
             IReader parser = new SeparatedValueReader(stringReader, options);
             var schema = parser.GetSchema();
             Assert.IsNull(schema, "No schema was provided or located in the file. Null should be returned.");
@@ -199,7 +199,7 @@ namespace FlatFiles.Test
         {
             string text = "a,b,c";
             StringReader stringReader = new StringReader(text);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             IReader parser = new SeparatedValueReader(stringReader, options);
             ISchema schema = parser.GetSchema();
             Assert.IsTrue(schema.ColumnDefinitions.All(d => d is StringColumn), "Not all of the columns were treated as strings.");
@@ -222,7 +222,7 @@ namespace FlatFiles.Test
                   .AddColumn(new DateTimeColumn("created"));
 
             StringReader stringReader = new StringReader(text);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             IReader parser = new SeparatedValueReader(stringReader, schema, options);
             ISchema actual = parser.GetSchema();
             Assert.AreSame(schema, actual);
@@ -367,7 +367,7 @@ This is not a real record
             const string text = @"id,name,created
 123,Bob";
             StringReader stringReader = new StringReader(text);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
             Assert.ThrowsException<RecordProcessingException>(() => parser.Read());
         }
@@ -381,7 +381,7 @@ This is not a real record
             const string text = @"id,name,created
 123,Bob,1/19/2013,Hello";
             StringReader stringReader = new StringReader(text);
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             SeparatedValueReader parser = new SeparatedValueReader(stringReader, options);
             Assert.IsTrue(parser.Read(), "The record could not be read.");
             Assert.AreEqual(parser.GetSchema().ColumnDefinitions.Count, parser.GetValues().Length);
@@ -394,7 +394,7 @@ This is not a real record
         [TestMethod]
         public void TestGetValues_BlankTrailingSection_ReturnsNull()
         {
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             SeparatedValueSchema schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"))
                 .AddColumn(new StringColumn("name"))
@@ -427,7 +427,7 @@ This is not a real record
         {
             using (MemoryStream stream = new MemoryStream())
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+                SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
                 SeparatedValueSchema schema = new SeparatedValueSchema();
                 schema.AddColumn(new Int32Column("id"))
                     .AddColumn(new StringColumn("name"))
@@ -461,7 +461,7 @@ This is not a real record
         {
             using (MemoryStream stream = new MemoryStream())
             {
-                SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+                SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
                 SeparatedValueSchema schema = new SeparatedValueSchema();
                 schema.AddColumn(new StringColumn("leading"))
                     .AddColumn(new Int32Column("id"))
@@ -530,8 +530,8 @@ This is not a real record
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
             mapper.Property(p => p.ParentId).ColumnName("parent_id");
 
-            var bob = new Person() { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), ParentId = null };
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
+            var bob = new Person { Id = 123, Name = "Bob", Created = new DateTime(2013, 1, 19), ParentId = null };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true, Separator = "\t" };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -558,8 +558,8 @@ This is not a real record
             mapper.Property(p => p.Name).ColumnName("name");
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true, Separator = "\t" };
+            var bob = new Person { Id = 123, Name = null, Created = new DateTime(2013, 1, 19) };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true, Separator = "\t" };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob }, options);
@@ -588,7 +588,7 @@ This is not a real record
             mapper.Ignored();
             mapper.Property(p => p.Created).ColumnName("created").InputFormat("yyyyMMdd").OutputFormat("yyyyMMdd");
 
-            var bob = new Person() { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
+            var bob = new Person { Id = 123, Name = "Bob Smith", Created = new DateTime(2013, 1, 19) };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { bob });
@@ -651,7 +651,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var mapper = SeparatedValueTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = null };
+            Person person = new Person { IsActive = null };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });
@@ -670,7 +670,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var mapper = SeparatedValueTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = false };
+            Person person = new Person { IsActive = false };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });
@@ -689,7 +689,7 @@ Stephen,Tyler,""7452 Terrace """"At the Plaza"""" road"",SomeTown,SD, 91234
             var mapper = SeparatedValueTypeMapper.Define<Person>();
             mapper.Property(x => x.IsActive).ColumnName("is_active");
 
-            Person person = new Person() { IsActive = true };
+            Person person = new Person { IsActive = true };
 
             StringWriter stringWriter = new StringWriter();
             mapper.Write(stringWriter, new Person[] { person });

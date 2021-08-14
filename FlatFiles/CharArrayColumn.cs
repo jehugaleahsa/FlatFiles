@@ -45,7 +45,7 @@ namespace FlatFiles
         /// <returns>The formatted value.</returns>
         protected override string OnFormat(IColumnContext? context, char[] value)
         {
-            return new String(value);
+            return new string(value);
         }
     }
 }

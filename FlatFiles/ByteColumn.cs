@@ -41,7 +41,7 @@ namespace FlatFiles
         protected override byte OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
-            return Byte.Parse(value, NumberStyles, provider);
+            return byte.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

@@ -188,7 +188,7 @@ namespace FlatFiles.TypeMapping
                 var columnDefinition = GetColumnDefinition(memberExpression.Type, column.ColumnName!);
                 if (columnDefinition == null)
                 {
-                    throw new FlatFileException(String.Format(null, Resources.NoAutoMapPropertyType, column.ColumnName));
+                    throw new FlatFileException(string.Format(null, Resources.NoAutoMapPropertyType, column.ColumnName));
                 }
                 var lambdaExpression = Expression.Lambda<Action<IColumnContext?, object?, object?>>(body, contextParameter, entityParameter, valueParameter);
                 var compiledSetter = lambdaExpression.Compile();
@@ -205,7 +205,7 @@ namespace FlatFiles.TypeMapping
             {
                 if (!propertyInfo.CanWrite)
                 {
-                    throw new FlatFileException(String.Format(null, Resources.ReadOnlyProperty, column.ColumnName));
+                    throw new FlatFileException(string.Format(null, Resources.ReadOnlyProperty, column.ColumnName));
                 }
                 return Expression.Property(Expression.Convert(entityParameter, entityType), propertyInfo);
             }
@@ -265,7 +265,7 @@ namespace FlatFiles.TypeMapping
         public static ITypedWriter<TEntity> GetAutoMappedWriter<TEntity>(TextWriter writer, SeparatedValueOptions? options = null, IAutoMapResolver? resolver = null)
         {
             var optionsCopy = options == null 
-                ? new SeparatedValueOptions() { IsFirstRecordSchema = true } 
+                ? new SeparatedValueOptions { IsFirstRecordSchema = true } 
                 : options.Clone();
             var entityType = typeof(TEntity);
             var typedMapper = Define<TEntity>(() => throw new InvalidOperationException("Unexpected entity creation within autom-mapped writer."));
@@ -279,7 +279,7 @@ namespace FlatFiles.TypeMapping
             foreach (var member in members)
             {
                 var columnName = nameResolver.GetColumnName(member);
-                if (String.IsNullOrWhiteSpace(columnName))
+                if (string.IsNullOrWhiteSpace(columnName))
                 {
                     continue;
                 }
@@ -817,11 +817,11 @@ namespace FlatFiles.TypeMapping
         public ICustomMapping<TEntity> CustomMapping(IColumnDefinition column)
         {
             var columnName = column.ColumnName;
-            if (String.IsNullOrWhiteSpace(columnName))
+            if (string.IsNullOrWhiteSpace(columnName))
             {
                 throw new ArgumentException(Resources.BlankColumnName, nameof(column));
             }
-            var mapping = lookup.GetOrAddCustomMapping(columnName, (fileIndex, workIndex) =>
+            var mapping = lookup.GetOrAddCustomMapping(columnName!, (fileIndex, workIndex) =>
             {
                 return new CustomMapping<TEntity>(column, fileIndex, workIndex);
             });
@@ -839,13 +839,11 @@ namespace FlatFiles.TypeMapping
             return typedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, SeparatedValueOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
             return typedReader.ReadAllAsync();
         }
-#endif
 
         public ISeparatedValueTypedReader<TEntity> GetReader(TextReader reader, SeparatedValueOptions? options = null)
         {
@@ -886,7 +884,6 @@ namespace FlatFiles.TypeMapping
             return typedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, SeparatedValueOptions? options = null)
         {
             if (entities == null)
@@ -896,7 +893,6 @@ namespace FlatFiles.TypeMapping
             var typedWriter = GetWriter(writer, options);
             return typedWriter.WriteAllAsync(entities);
         }
-#endif
 
         public ITypedWriter<TEntity> GetWriter(TextWriter writer, SeparatedValueOptions? options = null)
         {
@@ -1107,14 +1103,12 @@ namespace FlatFiles.TypeMapping
             return untypedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         IAsyncEnumerable<object> IDynamicSeparatedValueTypeMapper.ReadAsync(TextReader reader, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedReader = untypedMapper.GetReader(reader, options);
             return untypedReader.ReadAllAsync();
         }
-#endif
 
         ISeparatedValueTypedReader<object> IDynamicSeparatedValueTypeMapper.GetReader(TextReader reader, SeparatedValueOptions? options)
         {
@@ -1135,14 +1129,12 @@ namespace FlatFiles.TypeMapping
             return untypedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         Task IDynamicSeparatedValueTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, SeparatedValueOptions? options)
         {
             IDynamicSeparatedValueTypeMapper untypedMapper = this;
             var untypedWriter = untypedMapper.GetWriter(writer, options);
             return untypedWriter.WriteAllAsync(entities);
         }
-#endif
 
         ITypedWriter<object> IDynamicSeparatedValueTypeMapper.GetWriter(TextWriter writer, SeparatedValueOptions? options)
         {

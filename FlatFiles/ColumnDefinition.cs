@@ -42,7 +42,7 @@ namespace FlatFiles
             internal set 
             {
                 value = value?.Trim();
-                if (!IsIgnored && String.IsNullOrEmpty(value))
+                if (!IsIgnored && string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException(Resources.BlankColumnName);
                 }
@@ -182,12 +182,12 @@ namespace FlatFiles
 #pragma warning disable CS0618 // Type or member is obsolete
             if (Preprocessor != null)
             {
-                value = Preprocessor(value) ?? String.Empty;
+                value = Preprocessor(value) ?? string.Empty;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
             if (OnParsing != null)
             {
-                value = OnParsing(context, value) ?? String.Empty;
+                value = OnParsing(context, value) ?? string.Empty;
             }
             object? result = ParseValue(context, value);
             if (OnParsed != null)
@@ -245,7 +245,7 @@ namespace FlatFiles
             string result = FormatValue(context, value);
             if (OnFormatted != null)
             {
-                result = OnFormatted(context, result) ?? String.Empty;
+                result = OnFormatted(context, result) ?? string.Empty;
             }
             return result;
         }
@@ -254,7 +254,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return NullFormatter.FormatNull(context) ?? String.Empty;
+                return NullFormatter.FormatNull(context) ?? string.Empty;
             }
             else
             {

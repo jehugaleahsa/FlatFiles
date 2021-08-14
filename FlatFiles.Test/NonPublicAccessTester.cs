@@ -22,8 +22,8 @@ namespace FlatFiles.Test
 
             string rawData = @"ABC123,Doing Fine,20180115,20180115145100,true";
             StringReader reader = new StringReader(rawData);
-            var data = mapper.Read(reader, new SeparatedValueOptions()
-            {
+            var data = mapper.Read(reader, new SeparatedValueOptions
+                                           {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\n",
                 Separator = ",",
@@ -52,8 +52,8 @@ namespace FlatFiles.Test
 
             string rawData = @"ABC123,Doing Fine,20180115,20180115145100,true";
             StringReader reader = new StringReader(rawData);
-            var data = mapper.Read(reader, new SeparatedValueOptions()
-            {
+            var data = mapper.Read(reader, new SeparatedValueOptions
+                                           {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\n",
                 Separator = ",",

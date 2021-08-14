@@ -129,7 +129,7 @@ namespace FlatFiles.TypeMapping
             var mappers = mappings
                 .Where(m => m.Member != null)
                 .Where(m => Member?.Name != m.Member!.ParentAccessor?.Name)
-                .Where(m => m.Member!.Name.StartsWith(Member?.Name ?? String.Empty))
+                .Where(m => m.Member!.Name.StartsWith(Member?.Name ?? string.Empty))
                 .Select(GetParentAccessor)
                 .GroupBy(p => p.Name)
                 .Select(g => g.First())
@@ -140,7 +140,7 @@ namespace FlatFiles.TypeMapping
 
         private IMemberAccessor GetParentAccessor(IMemberMapping mapping)
         {
-            string accessorName = Member?.Name ?? String.Empty;
+            string accessorName = Member?.Name ?? string.Empty;
             var childAccessor = mapping.Member!;
             var parentAccessor = childAccessor.ParentAccessor;
             while (parentAccessor != null && accessorName != parentAccessor.Name)

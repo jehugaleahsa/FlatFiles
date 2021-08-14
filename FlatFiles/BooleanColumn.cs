@@ -19,12 +19,12 @@ namespace FlatFiles
         /// <summary>
         /// Gets or sets the value representing true.
         /// </summary>
-        public string? TrueString { get; set; } = Boolean.TrueString;
+        public string? TrueString { get; set; } = bool.TrueString;
 
         /// <summary>
         /// Gets or sets the value representing false.
         /// </summary>
-        public string? FalseString { get; set; } = Boolean.FalseString;
+        public string? FalseString { get; set; } = bool.FalseString;
 
         /// <summary>
         /// Parses the given value into its equivilent boolean value.
@@ -34,11 +34,11 @@ namespace FlatFiles
         /// <returns>True if the value equals the TrueString; otherwise, false.</returns>
         protected override bool OnParse(IColumnContext? context, string value)
         {
-            if (String.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(value, TrueString, StringComparison.CurrentCultureIgnoreCase))
             {
                 return true;
             }
-            if (String.Equals(value, FalseString, StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(value, FalseString, StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }
@@ -54,7 +54,7 @@ namespace FlatFiles
         protected override string OnFormat(IColumnContext? context, bool value)
         {
             string? formatted = value ? TrueString : FalseString;
-            return formatted ?? String.Empty;
+            return formatted ?? string.Empty;
         }
     }
 }

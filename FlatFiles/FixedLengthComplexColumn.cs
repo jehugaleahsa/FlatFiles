@@ -57,7 +57,7 @@ namespace FlatFiles
         {
             if (values == null)
             {
-                return String.Empty;
+                return string.Empty;
             }
             var writer = new StringWriter();
             var recordWriter = new FixedLengthRecordWriter(writer, schema, Options);

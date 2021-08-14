@@ -106,7 +106,7 @@ namespace FlatFiles.Benchmark
             string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
             using var stream = File.OpenRead(path);
             using var textReader = new StreamReader(stream);
-            var people = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(textReader, new SeparatedValueOptions { IsFirstRecordSchema = true }).ToArray();
         }
 
         private class SampleData

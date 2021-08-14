@@ -16,20 +16,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"))
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var results = mapper.Read(reader, new SeparatedValueOptions { IsFirstRecordSchema = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -47,20 +47,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"))
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordRead += (sender, e) =>
             {
@@ -82,20 +82,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true, IncludeSkippedRecords = true })
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordRead += (sender, e) =>
             {
@@ -117,20 +117,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = true, IncludeSkippedRecords = true })
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var results = mapper.Read(reader, new SeparatedValueOptions { IsFirstRecordSchema = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(2, results[0].RecordNumber);
@@ -148,20 +148,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false, IncludeSkippedRecords = true })
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordRead += (sender, e) =>
             {
@@ -183,20 +183,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber") { IncludeSchema = false, IncludeSkippedRecords = true })
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var results = mapper.Read(reader, new SeparatedValueOptions { IsFirstRecordSchema = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -215,20 +215,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"))
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader reader = new StringReader(output);
-            var results = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var results = mapper.Read(reader, new SeparatedValueOptions { IsFirstRecordSchema = true }).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual("Bob", results[0].Name);
             Assert.AreEqual(1, results[0].RecordNumber);
@@ -247,20 +247,20 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "Bob" },
-                new Person() { Name = "Tom" },
-                new Person() { Name = "Jane" }
+                new Person { Name = "Bob" },
+                new Person { Name = "Tom" },
+                new Person { Name = "Jane" }
             };
 
             StringWriter writer = new StringWriter();
-            mapper.Write(writer, people, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            mapper.Write(writer, people, new SeparatedValueOptions { IsFirstRecordSchema = true });
             string output = writer.ToString();
 
             mapper.CustomMapping(new RecordNumberColumn("RecordNumber"))
                 .WithReader((p, v) => p.RecordNumber = (int)v)
                 .WithWriter(p => p.RecordNumber);
             StringReader stringReader = new StringReader(output);
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             var reader = mapper.GetReader(stringReader, options);
             reader.RecordRead += (sender, e) =>
             {

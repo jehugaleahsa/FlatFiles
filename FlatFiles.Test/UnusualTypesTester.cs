@@ -13,12 +13,12 @@ namespace FlatFiles.Test
         public void ShouldRoundTripMaxValues()
         {
             var mapper = getWeirdMapper();
-            var thing = new WeirdThing()
-            {
-                Small = SByte.MaxValue,
-                Big = UInt16.MaxValue,
-                Bigger = UInt32.MaxValue,
-                Huge = UInt64.MaxValue
+            var thing = new WeirdThing
+                        {
+                Small = sbyte.MaxValue,
+                Big = ushort.MaxValue,
+                Bigger = uint.MaxValue,
+                Huge = ulong.MaxValue
             };
             var deserialized = roundTrip(mapper, thing);
             assertEqual(thing, deserialized);
@@ -28,12 +28,12 @@ namespace FlatFiles.Test
         public void ShouldRoundTripMinValues()
         {
             var mapper = getWeirdMapper();
-            var thing = new WeirdThing()
-            {
-                Small = SByte.MinValue,
-                Big = UInt16.MinValue,
-                Bigger = UInt32.MinValue,
-                Huge = UInt64.MinValue
+            var thing = new WeirdThing
+                        {
+                Small = sbyte.MinValue,
+                Big = ushort.MinValue,
+                Bigger = uint.MinValue,
+                Huge = ulong.MinValue
             };
             var deserialized = roundTrip(mapper, thing);
             assertEqual(thing, deserialized);

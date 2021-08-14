@@ -66,7 +66,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldPassCorrectIndexesWhenWriting()
         {
-            var data = new[] { new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 06, 30), IsActive = true } };
+            var data = new[] { new Person { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 06, 30), IsActive = true } };
             var mapper = SeparatedValueTypeMapper.Define(() => new Person());
             var colPhysicalIndexes = new List<int>();
             var colLogicalIndexes = new List<int>();

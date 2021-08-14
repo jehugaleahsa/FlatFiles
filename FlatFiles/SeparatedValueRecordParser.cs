@@ -181,10 +181,10 @@ namespace FlatFiles
             {
                 return;
             }
-            if (Char.IsWhiteSpace(token[token.Length - 1]))
+            if (char.IsWhiteSpace(token[token.Length - 1]))
             {
                 int trailingSize = 1;
-                while (Char.IsWhiteSpace(token[token.Length - trailingSize - 1]))
+                while (char.IsWhiteSpace(token[token.Length - trailingSize - 1]))
                 {
                     ++trailingSize;
                 }

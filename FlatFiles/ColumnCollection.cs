@@ -79,7 +79,7 @@ namespace FlatFiles
             {
                 throw new ArgumentNullException(nameof(definition));
             }
-            if (!String.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName!))
+            if (!string.IsNullOrEmpty(definition.ColumnName) && ordinals.ContainsKey(definition.ColumnName!))
             {
                 throw new ArgumentException(Resources.DuplicateColumnName, nameof(definition));
             }
@@ -97,7 +97,7 @@ namespace FlatFiles
             {
                 ++IgnoredCount;
             }
-            if (!String.IsNullOrEmpty(definition.ColumnName))
+            if (!string.IsNullOrEmpty(definition.ColumnName))
             {
                 ordinals.Add(definition.ColumnName!, definitions.Count - 1);
             }

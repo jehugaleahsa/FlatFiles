@@ -108,7 +108,7 @@ namespace FlatFiles
                 }
                 else
                 {
-                    values[index] = value ?? String.Empty;
+                    values[index] = value ?? string.Empty;
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                value = String.Empty;
+                value = string.Empty;
             }
             if (value.Length > window.Width)
             {

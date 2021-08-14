@@ -55,8 +55,8 @@ namespace FlatFiles.Benchmark
             using (var response = http.GetResponse())
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var entities = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                mapper.Write(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                var entities = mapper.Read(textReader, new SeparatedValueOptions { IsFirstRecordSchema = true });
+                mapper.Write(textWriter, entities, new SeparatedValueOptions { IsFirstRecordSchema = true });
             }
             return textWriter.ToString();
         }
@@ -107,8 +107,8 @@ namespace FlatFiles.Benchmark
             using (var response = await http.GetResponseAsync().ConfigureAwait(false))
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var entities = mapper.ReadAsync(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                await mapper.WriteAsync(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ConfigureAwait(false);
+                var entities = mapper.ReadAsync(textReader, new SeparatedValueOptions { IsFirstRecordSchema = true });
+                await mapper.WriteAsync(textWriter, entities, new SeparatedValueOptions { IsFirstRecordSchema = true }).ConfigureAwait(false);
             }
             return textWriter.ToString();
 
@@ -227,8 +227,8 @@ namespace FlatFiles.Benchmark
             protected override GeoLocation OnParse(IColumnContext context, string value)
             {
                 string[] parts = value.Substring(1, value.Length - 2).Split(',', 2);
-                var result = new GeoLocation()
-                {
+                var result = new GeoLocation
+                             {
                     Latitude = Convert.ToDecimal(parts[0].Trim()),
                     Longitude = Convert.ToDecimal(parts[1].Trim())
                 };

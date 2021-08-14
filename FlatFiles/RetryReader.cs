@@ -74,7 +74,7 @@ namespace FlatFiles
 
         public bool IsWhitespace()
         {
-            if (queue.Count == 0 || !Char.IsWhiteSpace(queue.Peek()))
+            if (queue.Count == 0 || !char.IsWhiteSpace(queue.Peek()))
             {
                 return false;
             }

@@ -41,7 +41,7 @@ namespace FlatFiles
         protected override short OnParse(IColumnContext? context, string value)
         {
             var provider = GetFormatProvider(context, FormatProvider);
-            return Int16.Parse(value, NumberStyles, provider);
+            return short.Parse(value, NumberStyles, provider);
         }
 
         /// <summary>

@@ -115,7 +115,7 @@ namespace FlatFiles.Test
             var daysColumn = new DoubleColumn("Duration");
             var durationColumn = TimeSpanColumn.FromDays(daysColumn);
             
-            var actual = (TimeSpan?)durationColumn.Parse(null, String.Empty);
+            var actual = (TimeSpan?)durationColumn.Parse(null, string.Empty);
             Assert.IsNull(actual);
         }
 
@@ -126,7 +126,7 @@ namespace FlatFiles.Test
             var durationColumn = TimeSpanColumn.FromDays(daysColumn);
 
             var actual = durationColumn.Format(null, null);
-            Assert.AreEqual(String.Empty, actual);
+            Assert.AreEqual(string.Empty, actual);
         }
 
         [TestMethod]

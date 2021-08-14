@@ -1,6 +1,4 @@
-﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
-
-using System;
+﻿using System;
 using System.Data;
 
 namespace FlatFiles
@@ -53,5 +51,3 @@ namespace FlatFiles
         ulong GetUInt64(int i);
     }
 }
-
-#endif

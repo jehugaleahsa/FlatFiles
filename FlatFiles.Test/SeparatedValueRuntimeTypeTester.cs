@@ -39,8 +39,8 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "John", IQ = null, BirthDate = new DateTime(1954, 10, 29), TopSpeed = 3.4m },
-                new Person() { Name = "Susan", IQ = 132, BirthDate = new DateTime(1984, 3, 15), TopSpeed = 10.1m }
+                new Person { Name = "John", IQ = null, BirthDate = new DateTime(1954, 10, 29), TopSpeed = 3.4m },
+                new Person { Name = "Susan", IQ = 132, BirthDate = new DateTime(1984, 3, 15), TopSpeed = 10.1m }
             };
 
             StringWriter writer = new StringWriter();
@@ -67,8 +67,8 @@ namespace FlatFiles.Test
 
             var people = new[]
             {
-                new Person() { Name = "John", IQ = null, BirthDate = new DateTime(1954, 10, 29), TopSpeed = 3.4m },
-                new Person() { Name = "Susan", IQ = 132, BirthDate = new DateTime(1984, 3, 15), TopSpeed = 10.1m }
+                new Person { Name = "John", IQ = null, BirthDate = new DateTime(1954, 10, 29), TopSpeed = 3.4m },
+                new Person { Name = "Susan", IQ = 132, BirthDate = new DateTime(1984, 3, 15), TopSpeed = 10.1m }
             };
 
             StringWriter writer = new StringWriter();

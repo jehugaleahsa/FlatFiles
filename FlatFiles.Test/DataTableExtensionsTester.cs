@@ -32,7 +32,7 @@ namespace FlatFiles.Test
         public void TestReadFlatFile_DataTableNull_Throws()
         {
             DataTable table = null;
-            StringReader stringReader = new StringReader(String.Empty);
+            StringReader stringReader = new StringReader(string.Empty);
             IReader parser = new SeparatedValueReader(stringReader);
             Assert.ThrowsException<ArgumentNullException>(() => DataTableExtensions.ReadFlatFile(table, parser));
         }
@@ -59,7 +59,7 @@ namespace FlatFiles.Test
                 .AddColumn(new StringColumn("name"))
                 .AddColumn(new DateTimeColumn("created") { InputFormat = "MM/dd/yyyy", OutputFormat = "MM/dd/yyyy" })
                 .AddColumn(new DecimalColumn("avg"));
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
 
             StringWriter stringWriter = new StringWriter();
             SeparatedValueWriter builder = new SeparatedValueWriter(stringWriter, schema, options);
@@ -94,13 +94,13 @@ namespace FlatFiles.Test
             DataColumn createdColumn = table.Columns.Add("created", typeof(DateTime));
             DataColumn avgColumn = table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
-            DataRow row = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            DataRow row = table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
             row.AcceptChanges();
 
             const string text = @"id,name,created,avg
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
             IReader csvReader = new SeparatedValueReader(stringReader, options);
             table.ReadFlatFile(csvReader);
@@ -130,13 +130,13 @@ namespace FlatFiles.Test
             DataColumn createdColumn = table.Columns.Add("created", typeof(DateTime));
             DataColumn avgColumn = table.Columns.Add("avg", typeof(string));
             table.Constraints.Add("PK_blah", idColumn, true);
-            DataRow row = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), "12.34" });
+            DataRow row = table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), "12.34");
             row.AcceptChanges();
 
             const string text = @"id,name,created
 2,John,07/17/2018
 3,Susan,07/18/2018";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -170,7 +170,7 @@ namespace FlatFiles.Test
             DataColumn createdColumn = table.Columns.Add("created", typeof(DateTime));
             DataColumn avgColumn = table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
-            DataRow row = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            DataRow row = table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
             row.AcceptChanges();
 
             row.SetField(avgColumn, 99.99m);  // Change but do not accept
@@ -179,7 +179,7 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -221,7 +221,7 @@ namespace FlatFiles.Test
             DataColumn createdColumn = table.Columns.Add("created", typeof(DateTime));
             DataColumn avgColumn = table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
-            DataRow row = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            DataRow row = table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
             row.AcceptChanges();
 
             row.SetField(avgColumn, 99.99m);  // Change but do not accept
@@ -230,7 +230,7 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -273,7 +273,7 @@ namespace FlatFiles.Test
             DataColumn createdColumn = table.Columns.Add("created", typeof(DateTime));
             DataColumn avgColumn = table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
-            DataRow row = table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
+            DataRow row = table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
             row.AcceptChanges();
 
             row.SetField(avgColumn, 99.99m);  // Change but do not accept
@@ -282,7 +282,7 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            SeparatedValueOptions options = new SeparatedValueOptions { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -321,15 +321,15 @@ namespace FlatFiles.Test
             table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
 
-            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
-            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
-            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
-            table.Rows.Add(new object[] { 4, null, null, null });
+            table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
+            table.Rows.Add(2, "John", new DateTime(2018, 07, 17), 23.45m);
+            table.Rows.Add(3, "Susan", new DateTime(2018, 07, 18), 34.56m);
+            table.Rows.Add(4, null, null, null);
 
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = true,
-                RecordSeparator = "\r\n",
+                RecordSeparator = "\n",
                 FormatProvider = CultureInfo.InvariantCulture
             };
             var stringWriter = new StringWriter();
@@ -360,11 +360,11 @@ namespace FlatFiles.Test
             table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
 
-            table.Rows.Add(new object[] { 1, "Bob", 12.34m });
-            table.Rows.Add(new object[] { 2, "John", 23.45m });
-            table.Rows.Add(new object[] { 3, "Susan", 34.56m });
+            table.Rows.Add(1, "Bob", 12.34m);
+            table.Rows.Add(2, "John", 23.45m);
+            table.Rows.Add(3, "Susan", 34.56m);
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true, RecordSeparator = "\n" };
             var stringWriter = new StringWriter();
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -393,11 +393,11 @@ namespace FlatFiles.Test
             table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
 
-            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
-            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
-            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
+            table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
+            table.Rows.Add(2, "John", new DateTime(2018, 07, 17), 23.45m);
+            table.Rows.Add(3, "Susan", new DateTime(2018, 07, 18), 34.56m);
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new SeparatedValueOptions { IsFirstRecordSchema = true, RecordSeparator = "\n" };
             var stringWriter = new StringWriter();
             var schema = new SeparatedValueSchema();
             schema.AddColumn(new Int32Column("id"));
@@ -427,8 +427,8 @@ namespace FlatFiles.Test
             schema.AddColumn(new IgnoredColumn("Ignored"));
             schema.AddColumn(new StringColumn("C"));
 
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = true
             };
 
@@ -458,14 +458,14 @@ namespace FlatFiles.Test
             table.Columns.Add("avg", typeof(decimal));
             table.Constraints.Add("PK_blah", idColumn, true);
 
-            table.Rows.Add(new object[] { 1, "Bob", new DateTime(2018, 07, 16), 12.34m });
-            table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
-            table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
+            table.Rows.Add(1, "Bob", new DateTime(2018, 07, 16), 12.34m);
+            table.Rows.Add(2, "John", new DateTime(2018, 07, 17), 23.45m);
+            table.Rows.Add(3, "Susan", new DateTime(2018, 07, 18), 34.56m);
 
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = true,
-                RecordSeparator = "\r\n",
+                RecordSeparator = "\n",
                 FormatProvider = CultureInfo.InvariantCulture
             };
             var stringWriter = new StringWriter();
@@ -513,8 +513,8 @@ namespace FlatFiles.Test
                 NumberStyles = NumberStyles.Currency
             });
 
-            var options = new SeparatedValueOptions()
-            {
+            var options = new SeparatedValueOptions
+                          {
                 IsFirstRecordSchema = true
             };
             var reader = new SeparatedValueReader(new StringReader(data), schema, options);

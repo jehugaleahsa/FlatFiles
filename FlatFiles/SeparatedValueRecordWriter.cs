@@ -67,7 +67,7 @@ namespace FlatFiles
             }
             var formattedValues = FormatValues(recordContext, values);
             EscapeValues(formattedValues);
-            var joined = String.Join(Options.Separator, formattedValues);
+            var joined = string.Join(Options.Separator, formattedValues);
             return joined;
         }
 
@@ -108,7 +108,7 @@ namespace FlatFiles
 
         private static string ToString(object? value)
         {
-            return value?.ToString() ?? String.Empty;
+            return value?.ToString() ?? string.Empty;
         }
 
         private void EscapeValues(string[] values)
@@ -123,7 +123,7 @@ namespace FlatFiles
         {
             if (value == null)
             {
-                return String.Empty;
+                return string.Empty;
             }
             if (NeedsEscaped(value))
             {
@@ -143,12 +143,12 @@ namespace FlatFiles
                 return false;
             }
             // Don't escape empty strings.
-            if (value == String.Empty)
+            if (value == string.Empty)
             {
                 return false;
             }
             // Escape strings beginning or ending in whitespace.
-            if (Char.IsWhiteSpace(value[0]) || Char.IsWhiteSpace(value[value.Length - 1]))
+            if (char.IsWhiteSpace(value[0]) || char.IsWhiteSpace(value[value.Length - 1]))
             {
                 return true;
             }
@@ -201,7 +201,7 @@ namespace FlatFiles
         private string JoinSchema(SeparatedValueSchema schema)
         {
             var names = GetColumnNames(schema);
-            var joined = String.Join(Options.Separator, names);
+            var joined = string.Join(Options.Separator, names);
             return joined;
         }
 
