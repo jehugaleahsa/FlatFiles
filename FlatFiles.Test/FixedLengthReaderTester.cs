@@ -713,5 +713,44 @@ a weird row that should be skipped
         {
             public String Extra { get; set; }
         }
+
+        [TestMethod]
+        public void TestTypeMapper_IsHandled_ContinuesExecution()
+        {
+            var mapper = FixedLengthTypeMapper.Define<Profile>();
+            mapper.Property(x => x.Id, 3);
+            mapper.Property(x => x.Name, 3);
+            mapper.Property(x => x.DeptNo, 4);
+
+            string[] lines = new string[]
+            {
+                "123Bob171",
+                "124Jor1233",
+                "123Bob1714"
+            };
+            StringReader stringReader = new StringReader(String.Join(Environment.NewLine, lines));
+            var reader = mapper.GetReader(stringReader);
+            reader.RecordError += (sender, e) =>
+            {
+                Assert.AreEqual(1, e.RecordContext.PhysicalRecordNumber);
+                e.IsHandled = true;
+            };
+
+            var records = reader.ReadAll().ToList();
+            Assert.AreEqual(2, records.Count);
+            var first = records[0];
+            Assert.AreEqual(124, first.Id);
+            var second = records[1];
+            Assert.AreEqual(123, second.Id);
+        }
+
+        internal class Profile
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public int DeptNo { get; set; }
+        }
     }
 }
