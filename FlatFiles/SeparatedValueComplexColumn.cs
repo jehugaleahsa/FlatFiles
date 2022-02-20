@@ -48,6 +48,12 @@ namespace FlatFiles
         /// </summary>
         public SeparatedValueOptions? Options { get; set; }
 
+        /// <inheritdoc/>
+        public override bool IsComplex { get; } = true;
+
+        /// <inheritdoc/>
+        protected override bool IsTrimmed => false;
+
         /// <summary>
         /// Extracts a single record from the embedded data.
         /// </summary>

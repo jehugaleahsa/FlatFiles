@@ -385,10 +385,13 @@ namespace FlatFiles
                     else
                     {
                         value = record.Substring(offset, window.Width);
-                        var alignment = window.Alignment ?? options.Alignment;
-                        value = alignment == FixedAlignment.LeftAligned
-                            ? value.TrimEnd(window.FillCharacter ?? options.FillCharacter)
-                            : value.TrimStart(window.FillCharacter ?? options.FillCharacter);
+                        if (!definition.IsComplex)
+                        {
+                            var alignment = window.Alignment ?? options.Alignment;
+                            value = alignment == FixedAlignment.LeftAligned
+                                ? value.TrimEnd(window.FillCharacter ?? options.FillCharacter)
+                                : value.TrimStart(window.FillCharacter ?? options.FillCharacter);
+                        }
                         offset += window.Width;
                     }
                     values[valueIndex] = value;

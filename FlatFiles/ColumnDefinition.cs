@@ -60,6 +60,9 @@ namespace FlatFiles
         /// </summary>
         public bool IsNullable { get; set; } = true;
 
+        /// <inheritdoc/>
+        public virtual bool IsComplex { get; } = false;
+
         /// <summary>
         /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
         /// </summary>

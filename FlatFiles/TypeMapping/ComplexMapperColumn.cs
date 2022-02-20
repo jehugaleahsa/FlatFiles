@@ -27,6 +27,8 @@ namespace FlatFiles.TypeMapping
 
         public bool IsNullable => true;
 
+        public bool IsComplex => column.IsComplex;
+
         public IDefaultValue DefaultValue
         {
             get => column.DefaultValue;

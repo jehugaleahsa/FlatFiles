@@ -28,6 +28,12 @@ namespace FlatFiles
         /// </summary>
         public FixedLengthOptions? Options { get; set; }
 
+        /// <inheritdoc/>
+        protected override bool IsTrimmed => false;
+
+        /// <inheritdoc/>
+        public override bool IsComplex => true;
+
         /// <summary>
         /// Extracts a single record from the embedded data.
         /// </summary>

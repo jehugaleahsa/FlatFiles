@@ -103,5 +103,80 @@ namespace FlatFiles.Test
 
             public string StageName { get; set; }
         }
+
+        [TestMethod]
+        public void TestRead_FixedLengthColumn_InsideFixedLength_TrailingWhitespace_NoTrimmingPerformed()
+        {
+            var petMapper = FixedLengthTypeMapper.Define<Pet>();
+            petMapper.Property(x => x.Name, new Window(10));
+            petMapper.Property(x => x.UniversalPetIdentifier, new Window(5));
+            petMapper.Ignored(new Window(2));
+
+            var personMapper = FixedLengthTypeMapper.Define<Person>();
+            personMapper.Property(x => x.Name, new Window(10));
+            personMapper.Ignored(new Window(1));
+            personMapper.ComplexProperty(x => x.Pet1, petMapper, new Window(17));
+            personMapper.ComplexProperty(x => x.Pet2, petMapper, new Window(17));
+
+            var line = "John       Doggy     dog01  Rain      cat01  ";
+
+            var reader = personMapper.GetReader(new StringReader(line));
+            var people = reader.ReadAll().ToList();
+
+            Assert.AreEqual(1, people.Count);
+            var person = people[0];
+            Assert.AreEqual("John", person.Name);
+            Pet pet1 = person.Pet1;
+            Assert.AreEqual("Doggy", pet1.Name);
+            Assert.AreEqual("dog01", pet1.UniversalPetIdentifier);
+            Pet pet2 = person.Pet2;
+            Assert.AreEqual("Rain", pet2.Name);
+            Assert.AreEqual("cat01", pet2.UniversalPetIdentifier);
+        }
+
+        [TestMethod]
+        public void TestRead_FixedLengthColumn_InsideDelimited_TrailingWhitespace_NoTrimmingPerformed()
+        {
+            var petMapper = FixedLengthTypeMapper.Define<Pet>();
+            petMapper.Property(x => x.Name, new Window(10));
+            petMapper.Property(x => x.UniversalPetIdentifier, new Window(5));
+            petMapper.Ignored(new Window(2));
+
+            var personMapper = SeparatedValueTypeMapper.Define<Person>();
+            personMapper.Property(x => x.Name);
+            personMapper.ComplexProperty(x => x.Pet1, petMapper);
+            personMapper.ComplexProperty(x => x.Pet2, petMapper);
+
+            var line = "John,Doggy     dog01  ,Rain      cat01  ";
+
+            var reader = personMapper.GetReader(new StringReader(line));
+            var people = reader.ReadAll().ToList();
+
+            Assert.AreEqual(1, people.Count);
+            var person = people[0];
+            Assert.AreEqual("John", person.Name);
+            Pet pet1 = person.Pet1;
+            Assert.AreEqual("Doggy", pet1.Name);
+            Assert.AreEqual("dog01", pet1.UniversalPetIdentifier);
+            Pet pet2 = person.Pet2;
+            Assert.AreEqual("Rain", pet2.Name);
+            Assert.AreEqual("cat01", pet2.UniversalPetIdentifier);
+        }
+
+        internal class Person
+        {
+            public string Name { get; set; }
+
+            public Pet Pet1 { get; set; }
+
+            public Pet Pet2 { get; set; }
+        }
+
+        internal class Pet
+        {
+            public string Name { get; set; }
+
+            public string UniversalPetIdentifier { get; set; }
+        }
     }
 }

@@ -23,6 +23,11 @@ namespace FlatFiles
         bool IsNullable { get; }
 
         /// <summary>
+        /// Gets whether the column contains a nested object structure.
+        /// </summary>
+        bool IsComplex { get; }
+
+        /// <summary>
         /// Gets or sets the default value to use when a null is encountered on a non-nullable column.
         /// </summary>
         IDefaultValue DefaultValue { get; set; }

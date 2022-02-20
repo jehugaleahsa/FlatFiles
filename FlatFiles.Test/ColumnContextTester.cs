@@ -149,6 +149,8 @@ namespace FlatFiles.Test
 
             public bool IsNullable => column.IsNullable;
 
+            public bool IsComplex => column.IsComplex;
+
             public IDefaultValue DefaultValue
             {
                 get => column.DefaultValue;

@@ -148,7 +148,6 @@ namespace FlatFiles
                 }
                 tokenType = GetSeparator();
             }
-            TrimTokenEnd();
             AddToken();
             return tokenType;
         }
@@ -170,26 +169,8 @@ namespace FlatFiles
                 }
                 tokenType = GetSeparator();
             }
-            TrimTokenEnd();
             AddToken();
             return tokenType;
-        }
-
-        private void TrimTokenEnd()
-        {
-            if (Options.PreserveWhiteSpace)
-            {
-                return;
-            }
-            if (Char.IsWhiteSpace(token[token.Length - 1]))
-            {
-                int trailingSize = 1;
-                while (Char.IsWhiteSpace(token[token.Length - trailingSize - 1]))
-                {
-                    ++trailingSize;
-                }
-                token.Length -= trailingSize;
-            }
         }
 
         private TokenType GetQuotedToken()
