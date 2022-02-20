@@ -53,7 +53,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunPropertyTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<PropertyPerson>(() => new PropertyPerson());
+            var mapper = DelimitedTypeMapper.Define<PropertyPerson>(() => new PropertyPerson());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);
@@ -79,7 +79,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunFieldTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define<FieldPerson>(() => new FieldPerson());
+            var mapper = DelimitedTypeMapper.Define<FieldPerson>(() => new FieldPerson());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);

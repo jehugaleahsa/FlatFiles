@@ -16,7 +16,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestAddColumn_NullDefinition_Throws()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             Assert.ThrowsException<ArgumentNullException>(() => schema.AddColumn(null));
         }
 
@@ -26,7 +26,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestAddColumn_DuplicateColumnName_Throws()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("Name"));
             Assert.ThrowsException<ArgumentException>(() => schema.AddColumn(new Int32Column("name")));
         }
@@ -37,14 +37,14 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestParseValues_ParsesValues()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("first_name"))
                   .AddColumn(new StringColumn("last_name"))
                   .AddColumn(new DateTimeColumn("birth_date") { InputFormat = "yyyyMMdd" })
                   .AddColumn(new Int32Column("weight"));
             string[] values = new string[] { "bob", "smith", "20120123", "185" };
-            var executionContext = new SeparatedValueExecutionContext(schema, new SeparatedValueOptions());
-            var recordContext = new SeparatedValueRecordContext(executionContext);
+            var executionContext = new DelimitedExecutionContext(schema, new DelimitedOptions());
+            var recordContext = new DelimitedRecordContext(executionContext);
             object[] parsed = schema.ParseValues(recordContext, values);
             object[] expected = new object[] { "bob", "smith", new DateTime(2012, 1, 23), 185 };
             CollectionAssert.AreEqual(expected, parsed);
@@ -57,7 +57,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestColumnDefinitions_NoColumns_CountZero()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreEqual(0, collection.Count);
         }
@@ -69,7 +69,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestColumnDefinitions_WithColumns_CountEqualsColumnCount()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id")).AddColumn(new StringColumn("name")).AddColumn(new DateTimeColumn("created"));
             ColumnCollection collection = schema.ColumnDefinitions;
             Assert.AreEqual(3, collection.Count);
@@ -81,7 +81,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestColumnDefinitions_FindByIndex()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             IColumnDefinition id = new Int32Column("id");
             IColumnDefinition name = new StringColumn("name");
             IColumnDefinition created = new DateTimeColumn("created");
@@ -98,7 +98,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestColumnDefinitions_GetEnumerable_Explicit()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             IColumnDefinition id = new Int32Column("id");
             IColumnDefinition name = new StringColumn("name");
             IColumnDefinition created = new DateTimeColumn("created");

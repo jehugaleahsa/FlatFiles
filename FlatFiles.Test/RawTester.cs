@@ -11,13 +11,13 @@ namespace FlatFiles.Test
         public void TestReadWrite_Comments()
         {
             StringWriter output = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(output);
+            DelimitedWriter writer = new DelimitedWriter(output);
             writer.Write(new[] { "a", "b", "c" });
             writer.WriteRaw("# Hello, world!!!", true);
             writer.Write(new[] { "d", "e", "f" });
 
             StringReader input = new StringReader(output.ToString());
-            SeparatedValueReader reader = new SeparatedValueReader(input);
+            DelimitedReader reader = new DelimitedReader(input);
             reader.RecordRead += (sender, e) =>
             {
                 e.IsSkipped = e.Values.Length > 0 && e.Values[0].StartsWith("#");
@@ -33,13 +33,13 @@ namespace FlatFiles.Test
         public async Task TestReadWriteAsync_Comments()
         {
             StringWriter output = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(output);
+            DelimitedWriter writer = new DelimitedWriter(output);
             await writer.WriteAsync(new[] { "a", "b", "c" });
             await writer.WriteRawAsync("# Hello, world!!!", true);
             await writer.WriteAsync(new[] { "d", "e", "f" });
 
             StringReader input = new StringReader(output.ToString());
-            SeparatedValueReader reader = new SeparatedValueReader(input);
+            DelimitedReader reader = new DelimitedReader(input);
             reader.RecordRead += (sender, e) =>
             {
                 e.IsSkipped = e.Values.Length > 0 && e.Values[0].StartsWith("#");

@@ -49,14 +49,14 @@ customer_id,name,created,avg_sales
 ```
 
 ```csharp
-var mapper = SeparatedValueTypeMapper.Define<Customer>();
+var mapper = DelimitedTypeMapper.Define<Customer>();
 mapper.Property(c => c.CustomerId).ColumnName("customer_id");
 mapper.Property(c => c.Name).ColumnName("name");
 mapper.Property(c => c.Created).ColumnName("created").InputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).ColumnName("avg_sales");
 using (var reader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
 {
-    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+    var options = new DelimitedOptions() { IsFirstRecordSchema = true };
     var customers = mapper.Read(reader, options).ToList();
 }
 ```
@@ -72,7 +72,7 @@ mapper.Property(c => c.Created).OutputFormat("yyyyMMdd");
 mapper.Property(c => c.AverageSales).OutputFormat("N2");
 using (var writer = new StreamWriter(File.OpenCreate(@"C:\path\to\file2.csv")))
 {
-    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+    var options = new DelimitedOptions() { IsFirstRecordSchema = true };
     mapper.Write(writer, customers, options);
 }
 ```
@@ -92,7 +92,7 @@ Under the hood, type mapping internally defines a schema, giving each column a n
 You can work directly with schemas if you don't plan on using the type mappers. For instance, this is how we would define a CSV file schema:
 
 ```csharp
-var schema = new SeparatedValueSchema();
+var schema = new DelimitedSchema();
 schema.AddColumn(new Int64Column("customer_id"))
       .AddColumn(new StringColumn("name"))
       .AddColumn(new DateTimeColumn("created") { InputFormat = "yyyyMMdd", OutputFormat = "yyyyMMdd" })
@@ -109,20 +109,20 @@ schema.AddColumn(new Int64Column("customer_id"), 10)
   .AddColumn(new DoubleColumn("avg_sales") { OutputFormat = "N2" }, 10);
 ```
 
-The `FixedLengthSchema` class is the same as the `SeparatedValueSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the back of values that exceed their width.
+The `FixedLengthSchema` class is the same as the `DelimitedSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the back of values that exceed their width.
 
 *Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the [Ignored Fields](#Ignored%20Fields) section below to learn about ways to to handle this.
 
 ## Delimited Files
-If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you want to use the `SeparatedValueTypeMapper`. Internally, the mapper uses the `SeparatedValueReader` and `SeparatedValueWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as a `StreamReader` or a `StringReader`, and write data to a `TextWriter`, such as a `StreamWriter` or a `StringWriter`. Internally, the mapper will build a `SeparatedValueSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `SeparatedValueOptions` object that allows you to customize the read/write behavior to suit your needs.
+If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you want to use the `DelimitedTypeMapper`. Internally, the mapper uses the `DelimitedReader` and `DelimitedWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as a `StreamReader` or a `StringReader`, and write data to a `TextWriter`, such as a `StreamWriter` or a `StringWriter`. Internally, the mapper will build a `DelimitedSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `DelimitedOptions` object that allows you to customize the read/write behavior to suit your needs.
 
-Within separated value files, fields can be surrounded with double quotes (`"`). This way they can include the separator within the field. You can override the "quote" character in the `SeparatedValueOptions` class, if needed. The `SeparatedValueOptions` class supports a `Separator` property for specifying the string/character that separates your fields. A comma (`,`) is the default separator; you'd obviously want to change this to tab (`\t`) for a TSV file.
+Within delimited files, fields can be surrounded with double quotes (`"`). This way they can include the separator within the field. You can override the "quote" character in the `DelimitedOptions` class, if needed. The `DelimitedOptions` class supports a `Separator` property for specifying the string/character that separates your fields. A comma (`,`) is the default separator; you'd obviously want to change this to tab (`\t`) for a TSV file.
 
 The `RecordSeparator` property specifies what string/character is used to separate records. By default, FlatFiles will look for `\r`, `\n` or `\r\n`, which are the default line separators for Mac, Linux and Windows, respectively. When writing files, `Environment.NewLine` is used by default; this means by default you'll get different output if you run the same code on different platforms. If you need to target a specific platform, be sure to set the `RecordSeparator` property explicitly.
 
-When working directly with the `SeparatedValueReader` class, the `IsFirstRecordSchema` option tells the reader to treat the first record in the file as the schema. This is useful when you don't know the schema ahead of time or you are just dumping files into staging tables. If you provide a schema, this setting tells the reader to simply skip the first record. If you are using it to determine the schema from the file, the reader treats every column as a `string` - it doesn't try to interpret the type from the data. While occasionally useful, you will normally want to provide a schema to give you the most control over the parsing process - that's what FlatFiles is good at!
+When working directly with the `DelimitedReader` class, the `IsFirstRecordSchema` option tells the reader to treat the first record in the file as the schema. This is useful when you don't know the schema ahead of time or you are just dumping files into staging tables. If you provide a schema, this setting tells the reader to simply skip the first record. If you are using it to determine the schema from the file, the reader treats every column as a `string` - it doesn't try to interpret the type from the data. While occasionally useful, you will normally want to provide a schema to give you the most control over the parsing process - that's what FlatFiles is good at!
 
-When working directly with the `SeparatedValueWriter` class, setting `IsFirstRecordSchema` to `true` option causes a header to be written to the file upon writing the first record.
+When working directly with the `DelimitedWriter` class, setting `IsFirstRecordSchema` to `true` option causes a header to be written to the file upon writing the first record.
 
 ## Fixed Length Files
 If you have a file with fixed length columns, you will want to use the `FixedLengthTypeMapper` class. Internally, the mapper uses the `FixedLengthReader` and `FixedLengthWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as `StreamReader` or `StringReader`, and write data to a `TextWriter`, such as `StreamWriter` or `StringWriter`. Internally, the mapper will build a `FixedLengthSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `FixedLengthOptions` object that allows you to customize the read/write behavior to suit your needs.
@@ -133,7 +133,7 @@ The `RecordSeparator` property specifies what string/character is used to separa
 
 By default, FlatFiles assumes there is a separator string/character between each record.  If you set the `HasRecordSeparator` to `false`, FlatFiles will read the next record immediately following the last character of the previous record. When writing, it will not insert a separator, writing immediately after the last character of the previous record.
 
-If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, the first record in the file will be skipped when reading. Unlike the `SeparatedValueReader`, you must *always provide a schema for fixed-length files*, since the width of the columns cannot be determined from the file format. When writing, a header will be written to the file upon writing the first record.
+If the `FixedLengthOptions`'s `IsFirstRecordHeader` property is set to `true`, the first record in the file will be skipped when reading. Unlike the `DelimitedReader`, you must *always provide a schema for fixed-length files*, since the width of the columns cannot be determined from the file format. When writing, a header will be written to the file upon writing the first record.
 
 ## Handling Nulls
 Each column can be marked as "nullable", using the `IsNullable` property. By default, all columns are nullable, meaning `null` is considered a valid value. Setting `IsNullable` to `false` will cause FlatFiles to throw an exception whenever a `null` is encountered.
@@ -196,7 +196,7 @@ The `RecordNumberColumn` class provides options for controlling how the record n
 By default, `RecordNumberColumn` will only count records that are actually returned, starting from `1`, then `2`, `3`, `4`, `5` and so on. If you count the schema, records will always start at `2`. Including the schema and skipped records is what you probably want if you're trying to simulate line number. The only time the record # wouldn't be the same as the line # is if a record spanned multiple lines. Here's an example showing how to capture this *pseudo* line number:
 
 ```csharp
-var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+var mapper = DelimitedTypeMapper.Define(() => new Person());
 mapper.Property(x => x.Name);
 mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
 {
@@ -204,7 +204,7 @@ mapper.CustomMapping(new RecordNumberColumn("RecordNumber")
     IncludeSkippedRecords = true
 }).WithReader(p => p.RecordNumber);
 
-var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+var options = new DelimitedOptions() { IsFirstRecordSchema = true };
 var results = mapper.Read(reader, options).ToArray();
 ```
 
@@ -242,7 +242,7 @@ Within `IColumnContext`, the following information is currently provided:
         * `Options` - The options passed to the reader/writer.
 
 ## Skipping Records
-If you work directly with `SeparatedValueReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
+If you work directly with `DelimitedReader` or `FixedLengthReader`, you can call `Skip` to arbitrarily skip records in the input file. However, you often need the ability to inspect the record to determine whether it needs skipped. But what if you are trying to skip records *because* they can't be parsed? If you need more control over what records to skip, FlatFiles provides events for inspecting records during the parsing process. These events can be wired up whether you use type mappers or are working directly with readers.
 
 Parsing a record goes through the following life-cycle:
 1) Read text until a record terminator (usually a newline) is found.
@@ -251,7 +251,7 @@ Parsing a record goes through the following life-cycle:
 
 For CSV files, breaking a record into columns is automatically performed while searching for the record terminator. Prior to trying to convert the text to ints, date/times, etc., FlatFiles provides you the opportunity to inspect the raw string values and skip records.
 
-The `SeparatedValueReader` class provides a `RecordRead` event, which allows you to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
+The `DelimitedReader` class provides a `RecordRead` event, which allows you to skip unwanted records. For example, you could use the code below to find and skip CSV records missing the necessary number of columns:
 
 ```csharp
 reader.RecordRead += (sender, e) =>
@@ -299,7 +299,7 @@ public class ErrorDetail
 } 
 //...
 var details = new List<ErrorDetail>();
-var csvReader = new SeparatedValueReader(textReader, schema);
+var csvReader = new DelimitedReader(textReader, schema);
 csvReader.ColumnError += (sender, e) =>
 {
     var columnContext = e.ColumnContext;
@@ -324,7 +324,7 @@ Some flat file formats will contain multiple schemas. Often, data appears within
 FlatFiles provides support for these file formats using the `SchemaSelector` and `TypeMapperSelector` classes. Once you define the schemas or type mappers, you can register them with the selector.
 
 ```csharp
-var selector = new SeparatedValueTypeMapperSelector();
+var selector = new DelimitedTypeMapperSelector();
 var dataMapper = getDataTypeMapper();
 selector.When(x => x.Length == 10).Use(dataMapper);
 selector.When(x => x.Length == 2).Use(getHeaderTypeMapper());
@@ -338,17 +338,17 @@ Each type mapper is associated with a predicate, which accepts the preprocessed 
 
 Once your selector is configured, you can call `GetReader`, passing in the `TextReader` and the options object. From there you can register events and read the objects from the file. Since different types can be returned, the reader will return instances of `object`.
 
-If you want to work directly with schemas and readers, you can build a `SchemaSelector` by registering schemas with predicates in a similar fashion. The `SeparatedValueReader` and `FixedLengthReader` classes provide a constructor accepting a `SchemaSelector`. *Note that whenever you work with selectors, calls to `GetSchema` will return `null`.*
+If you want to work directly with schemas and readers, you can build a `SchemaSelector` by registering schemas with predicates in a similar fashion. The `DelimitedReader` and `FixedLengthReader` classes provide a constructor accepting a `SchemaSelector`. *Note that whenever you work with selectors, calls to `GetSchema` will return `null`.*
 
 ```csharp
-var selector = new SeparatedValueSchemaSelector();
+var selector = new DelimitedSchemaSelector();
 var recordSchema = getDataSchema();
 selector.When(values => values.Length == 10).Use(recordSchema);
 selector.When(values => values.Length == 2).Use(getHeaderSchema());
 selector.When(values => values.Length == 3).Use(getFooterSchema());
 selector.WithDefault(recordSchema);
 
-var reader = new SeparatedValueReader(fileStream, selector);
+var reader = new DelimitedReader(fileStream, selector);
 while (reader.Read())
 {
     object[] values = reader.GetValues();
@@ -380,7 +380,7 @@ The `Property` methods are best when your file's schema pretty much matches one-
 First, let's see how to use the `CustomMapping` method to simulate the `Property` methods:
 
 ```csharp
-var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+var mapper = DelimitedTypeMapper.Define(() => new Person());
 mapper.CustomMapping(new StringColumn("FirstName"))
     .WithReader(p => p.FirstName)
     .WithWriter(p => p.FirstName);
@@ -396,7 +396,7 @@ Here is a more complicated example where two columns are used to build a `Geoloc
 public class Geolocation { public decimal Longitude; public decimal Latitude; }
 public class Person { public Geolocation Location { get; set; } }
 //...
-var mapper = SeparatedValueTypeMapper.Define(() => new Person() 
+var mapper = DelimitedTypeMapper.Define(() => new Person() 
 { 
     Location = new Geolocation() 
 });
@@ -452,7 +452,7 @@ The code below illustrates how you could define a mapper for a type that is only
 
 ```csharp
 // Assume there is a runtime-generated type called "entityType" and a "TextReader".
-var mapper = SeparatedValueMapper.DefineDynamic(entityType);
+var mapper = DelimitedMapper.DefineDynamic(entityType);
 mapper.Int32Property("Id");
 mapper.StringProperty("Name");
 var entities = mapper.Read(reader).ToArray();
@@ -465,7 +465,7 @@ FlatFile's type mappers can serialize and deserialize extremely quickly by gener
 As of version 1.0, mappers support a new method `OptimizeMapping` that can be used to switch to (A.K.A., slow) reflection. For example:
 
 ```csharp
-var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+var mapper = DelimitedTypeMapper.Define<Person>(() => new Person());
 mapper.Property(x => x.Id);
 mapper.Property(x => x.Name);
 mapper.OptimizeMapping(false);  // Use normal reflection to get and set properties
@@ -492,7 +492,7 @@ If you are using `DataTable`s, you can read and write to a `DataTable` using the
 var customerTable = new DataTable("Customer");
 using (var streamReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv")))
 {
-    var reader = new SeparatedValueReader(streamReader, schema);
+    var reader = new DelimitedReader(streamReader, schema);
     customerTable.ReadFlatFile(reader);
 }
 ```
@@ -504,7 +504,7 @@ For low-level ADO.NET file reading, you can use the `FlatFileDataReader` class. 
 // The DataReader Approach
 using (var fileReader = new StreamReader(File.OpenRead(@"C:\path\to\file.csv"))
 {
-    var csvReader = new SeparatedValueReader(fileReader, schema);
+    var csvReader = new DelimitedReader(fileReader, schema);
     var dataReader = new FlatFileDataReader(csvReader);
     var customers = new List<Customer>();
     while (dataReader.Read())

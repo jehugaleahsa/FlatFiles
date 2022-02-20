@@ -61,7 +61,7 @@ namespace FlatFiles.Test
 2,Susan,2018-07-04,false,,{24C250EB-87C9-45DE-B01F-71A7754C6AAD},5
 ";
             var reader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var csvReader = new DelimitedReader(reader, new DelimitedOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             return dataReader;
         }
@@ -135,14 +135,14 @@ namespace FlatFiles.Test
 2,Susan,2018-07-04,false,,{24C250EB-87C9-45DE-B01F-71A7754C6AAD}
 ";
             var reader = new StringReader(data);
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("Id"));
             schema.AddColumn(new StringColumn("Name"));
             schema.AddColumn(new DateTimeColumn("CreatedOn"));
             schema.AddColumn(new BooleanColumn("IsActive"));
             schema.AddColumn(new Int32Column("VisitCount"));
             schema.AddColumn(new GuidColumn("UniqueId"));
-            var csvReader = new SeparatedValueReader(reader, schema);
+            var csvReader = new DelimitedReader(reader, schema);
             var dataReader = new FlatFileDataReader(csvReader);
             return dataReader;
         }
@@ -154,18 +154,18 @@ namespace FlatFiles.Test
 @"A,B,C
 1,2,3
 4,5,6";
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("A"));
             schema.AddColumn(new IgnoredColumn("Ignored"));
             schema.AddColumn(new StringColumn("C"));
 
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true
             };
 
             var textReader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(textReader, schema, options);
+            var csvReader = new DelimitedReader(textReader, schema, options);
             using (var dataReader = new FlatFileDataReader(csvReader))
             {
                 Assert.AreEqual("A", dataReader.GetName(0));

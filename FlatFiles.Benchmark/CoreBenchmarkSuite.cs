@@ -41,7 +41,7 @@ namespace FlatFiles.Benchmark
         public void RunFlatFiles_NoSchema()
         {
             var reader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(reader);
+            var csvReader = new DelimitedReader(reader);
             var people = new List<object[]>();
             while (csvReader.Read())
             {
@@ -52,7 +52,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunFlatFiles_TypeMapper()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);
@@ -68,13 +68,13 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             var reader = new StringReader(data);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public async Task RunFlatFiles_TypeMapper_Async()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            var mapper = DelimitedTypeMapper.Define<Person>(() => new Person());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);
@@ -90,7 +90,7 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             var textReader = new StringReader(data);
-            var reader = mapper.GetReader(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var reader = mapper.GetReader(textReader, new DelimitedOptions() { IsFirstRecordSchema = true });
             var people = new List<Person>();
             await foreach (var person in reader.ReadAllAsync().ConfigureAwait(false))
             {
@@ -101,7 +101,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunFlatFiles_TypeMapper_Quoted()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);
@@ -117,13 +117,13 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             var reader = new StringReader(quotedData);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public void RunFlatFiles_TypeMapper_Fields()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new FieldPerson());
+            var mapper = DelimitedTypeMapper.Define(() => new FieldPerson());
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
             mapper.Property(x => x.Age);
@@ -139,13 +139,13 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             var reader = new StringReader(data);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public void RunFlatFiles_TypeMapper_Unoptimized()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.OptimizeMapping(false);
             mapper.Property(x => x.FirstName);
             mapper.Property(x => x.LastName);
@@ -162,13 +162,13 @@ namespace FlatFiles.Benchmark
             mapper.Property(x => x.IsActive);
 
             var reader = new StringReader(data);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public void RunFlatFiles_TypeMapper_CustomMapping()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.CustomMapping(new StringColumn("FirstName")).WithReader(p => p.FirstName);
             mapper.CustomMapping(new StringColumn("LastName")).WithReader(p => p.LastName);
             mapper.CustomMapping(new Int32Column("Age")).WithReader(p => p.Age);
@@ -184,13 +184,13 @@ namespace FlatFiles.Benchmark
             mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader(p => p.IsActive);
 
             var reader = new StringReader(data);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public void RunFlatFiles_TypeMapper_CustomMapping_Unoptimized()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.OptimizeMapping(false);
             mapper.CustomMapping(new StringColumn("FirstName")).WithReader(p => p.FirstName);
             mapper.CustomMapping(new StringColumn("LastName")).WithReader(p => p.LastName);
@@ -207,14 +207,14 @@ namespace FlatFiles.Benchmark
             mapper.CustomMapping(new BooleanColumn("IsActive")).WithReader(p => p.IsActive);
 
             var reader = new StringReader(data);
-            var people = mapper.Read(reader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(reader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         [Benchmark]
         public void RunFlatFiles_AutoMapped()
         {
             var reader = new StringReader(data);
-            var csvReader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(reader);
+            var csvReader = DelimitedTypeMapper.GetAutoMappedReader<Person>(reader);
             var people = new List<Person>();
             foreach (var person in csvReader.ReadAll())
             {
@@ -226,7 +226,7 @@ namespace FlatFiles.Benchmark
         public async Task RunFlatFiles_AutoMapped_Async()
         {
             var reader = new StringReader(data);
-            var csvReader = await SeparatedValueTypeMapper.GetAutoMappedReaderAsync<Person>(reader);
+            var csvReader = await DelimitedTypeMapper.GetAutoMappedReaderAsync<Person>(reader);
             var people = new List<Person>();
             while (await csvReader.ReadAsync().ConfigureAwait(false))
             {
@@ -239,7 +239,7 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var csvReader = new DelimitedReader(reader, schema, new DelimitedOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
             while (dataReader.Read())
@@ -269,7 +269,7 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var csvReader = new DelimitedReader(reader, schema, new DelimitedOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
             while (dataReader.Read())
@@ -299,7 +299,7 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var csvReader = new DelimitedReader(reader, schema, new DelimitedOptions() { IsFirstRecordSchema = true });
             var dataReader = new FlatFileDataReader(csvReader);
             var people = new List<Person>();
             while (dataReader.Read())
@@ -329,14 +329,14 @@ namespace FlatFiles.Benchmark
         {
             var reader = new StringReader(data);
             var schema = GetSchema();
-            var csvReader = new SeparatedValueReader(reader, schema, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+            var csvReader = new DelimitedReader(reader, schema, new DelimitedOptions() { IsFirstRecordSchema = true });
             var dataTable = new DataTable();
             dataTable.ReadFlatFile(csvReader);
         }
 
-        private static SeparatedValueSchema GetSchema()
+        private static DelimitedSchema GetSchema()
         {
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("FirstName"));
             schema.AddColumn(new StringColumn("LastName"));
             schema.AddColumn(new Int32Column("Age"));

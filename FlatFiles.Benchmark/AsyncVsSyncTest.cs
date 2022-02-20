@@ -12,7 +12,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public string SyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
+            var mapper = DelimitedTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -55,8 +55,8 @@ namespace FlatFiles.Benchmark
             using (var response = http.GetResponse())
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var entities = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                mapper.Write(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true });
+                var entities = mapper.Read(textReader, new DelimitedOptions() { IsFirstRecordSchema = true });
+                mapper.Write(textWriter, entities, new DelimitedOptions() { IsFirstRecordSchema = true });
             }
             return textWriter.ToString();
         }
@@ -64,7 +64,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public async Task<string> AsyncTest()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new SampleData());
+            var mapper = DelimitedTypeMapper.Define(() => new SampleData());
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -107,8 +107,8 @@ namespace FlatFiles.Benchmark
             using (var response = await http.GetResponseAsync().ConfigureAwait(false))
             using (var textReader = new StreamReader(response.GetResponseStream()))
             {
-                var entities = mapper.ReadAsync(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true });
-                await mapper.WriteAsync(textWriter, entities, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ConfigureAwait(false);
+                var entities = mapper.ReadAsync(textReader, new DelimitedOptions() { IsFirstRecordSchema = true });
+                await mapper.WriteAsync(textWriter, entities, new DelimitedOptions() { IsFirstRecordSchema = true }).ConfigureAwait(false);
             }
             return textWriter.ToString();
 
@@ -118,7 +118,7 @@ namespace FlatFiles.Benchmark
             //using (var stream = File.OpenRead(path))
             //using (var textReader = new StreamReader(stream))
             //{
-            //    var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            //    var options = new DelimitedOptions() { IsFirstRecordSchema = true };
             //    var reader = mapper.GetReader(textReader, options);
             //    var writer = mapper.GetWriter(textWriter, options);
             //    while (await reader.ReadAsync().ConfigureAwait(false))

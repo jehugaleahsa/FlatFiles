@@ -89,6 +89,15 @@ namespace FlatFiles.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The record did not have the number of columns specified in the schema. Record {0}..
+        /// </summary>
+        internal static string DelimitedRecordWrongNumberOfColumns {
+            get {
+                return ResourceManager.GetString("DelimitedRecordWrongNumberOfColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to add a column to a schema where the same name already exists..
         /// </summary>
         internal static string DuplicateColumnName {
@@ -283,15 +292,6 @@ namespace FlatFiles.Properties {
         internal static string SchemaNotDefined {
             get {
                 return ResourceManager.GetString("SchemaNotDefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The record did not have the number of columns specified in the schema. Record {0}..
-        /// </summary>
-        internal static string SeparatedValueRecordWrongNumberOfColumns {
-            get {
-                return ResourceManager.GetString("SeparatedValueRecordWrongNumberOfColumns", resourceCulture);
             }
         }
         

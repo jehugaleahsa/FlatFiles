@@ -32,7 +32,7 @@ namespace FlatFiles.Test
         {
             StringReader stringReader = new StringReader(content);
             var schema = GetSchema();
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, schema);
+            DelimitedReader reader = new DelimitedReader(stringReader, schema);
             Assert.IsTrue(reader.Read(), "The record could not be read.");
             object[] values = reader.GetValues();
             Assert.IsFalse(reader.Read(), "Too many records were read.");
@@ -43,17 +43,17 @@ namespace FlatFiles.Test
         {
             var schema = GetSchema();
             StringWriter stringWriter = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, schema);
+            DelimitedWriter writer = new DelimitedWriter(stringWriter, schema);
             writer.Write(values);
 
             return stringWriter.ToString();
         }
 
-        private static SeparatedValueSchema GetSchema()
+        private static DelimitedSchema GetSchema()
         {
             var nullHandler = NullFormatter.ForValue("----");
 
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("Name") { NullFormatter = nullHandler });
             schema.AddColumn(new DecimalColumn("Cost") { NullFormatter = nullHandler, FormatProvider = CultureInfo.InvariantCulture });
             schema.AddColumn(new SingleColumn("Available") { NullFormatter = nullHandler });
@@ -66,7 +66,7 @@ namespace FlatFiles.Test
         public void ShouldTreatConstantAsNull_TypeMapper()
         {
             var nullHandler = NullFormatter.ForValue("----");
-            var mapper = SeparatedValueTypeMapper.Define<Product>();
+            var mapper = DelimitedTypeMapper.Define<Product>();
             mapper.Property(p => p.Name).ColumnName("name").NullFormatter(nullHandler);
             mapper.Property(p => p.Cost).ColumnName("cost").NullFormatter(nullHandler).FormatProvider(CultureInfo.InvariantCulture);
             mapper.Property(p => p.Available).ColumnName("available").NullFormatter(nullHandler);

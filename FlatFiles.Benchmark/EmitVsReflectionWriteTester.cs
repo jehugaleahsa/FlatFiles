@@ -8,12 +8,12 @@ namespace FlatFiles.Benchmark
 {
     public class EmitVsReflectionWriteTester
     {
-        private readonly ISeparatedValueTypeMapper<Person> mapper;
+        private readonly IDelimitedTypeMapper<Person> mapper;
         private readonly Person[] people;
 
         public EmitVsReflectionWriteTester()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            var mapper = DelimitedTypeMapper.Define<Person>(() => new Person());
             mapper.Property(x => x.Name).ColumnName("Name");
             mapper.Property(x => x.IQ).ColumnName("IQ");
             mapper.Property(x => x.BirthDate).ColumnName("BirthDate");

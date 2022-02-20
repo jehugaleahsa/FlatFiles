@@ -1,7 +1,7 @@
 ﻿namespace FlatFiles
 {
     /// <summary>
-    ///  Specifies how FlatFiles should quote separated value file fields.
+    ///  Specifies how FlatFiles should quote delimited file fields.
     /// </summary>
     public enum QuoteBehavior
     {

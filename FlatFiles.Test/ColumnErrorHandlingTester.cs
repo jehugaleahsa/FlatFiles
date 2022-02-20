@@ -12,11 +12,11 @@ namespace FlatFiles.Test
         {
             const string data = @"ABC,2018-02-30,{1234-5678-9123-000000}";
             var stringReader = new StringReader(data);
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("Int32"));
             schema.AddColumn(new DateTimeColumn("DateTime"));
             schema.AddColumn(new GuidColumn("Guid"));
-            var csvReader = new SeparatedValueReader(stringReader, schema);
+            var csvReader = new DelimitedReader(stringReader, schema);
             csvReader.ColumnError += (sender, e) =>
             {
                 if (e.ColumnContext.ColumnDefinition.ColumnName == "Int32")

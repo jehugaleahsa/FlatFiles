@@ -14,7 +14,7 @@ namespace FlatFiles.Test
         public void ShouldPassCorrectIndexesWhenReading()
         {
             const string data = "1,,Bob,,2018-06-30,,True";
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             var colPhysicalIndexes = new List<int>();
             var colLogicalIndexes = new List<int>();
             var propPhysicalIndexes = new List<int>();
@@ -67,7 +67,7 @@ namespace FlatFiles.Test
         public void ShouldPassCorrectIndexesWhenWriting()
         {
             var data = new[] { new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 06, 30), IsActive = true } };
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             var colPhysicalIndexes = new List<int>();
             var colLogicalIndexes = new List<int>();
             var propPhysicalIndexes = new List<int>();

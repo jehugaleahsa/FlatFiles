@@ -16,7 +16,7 @@ namespace FlatFiles.Test
             string data = String.Join(",", typeof(NullableValues).GetProperties().Select(x => (string)null));
             var schema = GetSchema();
             var stringReader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(stringReader, schema);
+            var csvReader = new DelimitedReader(stringReader, schema);
             var dataReader = new FlatFileDataReader(csvReader);
             Assert.IsTrue(dataReader.Read(), "A record was not read.");
             Assert.IsNull(dataReader.GetNullableByte(0), "The byte was not null.");
@@ -52,7 +52,7 @@ namespace FlatFiles.Test
             });
             var schema = GetSchema();
             var stringReader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(stringReader, schema);
+            var csvReader = new DelimitedReader(stringReader, schema);
             var dataReader = new FlatFileDataReader(csvReader);
             Assert.IsTrue(dataReader.Read(), "A record was not read.");
             Assert.AreEqual((byte)0, dataReader.GetNullableByte(0), "The byte was not null.");
@@ -69,9 +69,9 @@ namespace FlatFiles.Test
             Assert.IsFalse(dataReader.Read(), "Too many records were read.");
         }
 
-        private static SeparatedValueSchema GetSchema()
+        private static DelimitedSchema GetSchema()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new NullableValues());
+            var mapper = DelimitedTypeMapper.Define(() => new NullableValues());
             mapper.Property(x => x.ByteValue);
             mapper.Property(x => x.ShortValue);
             mapper.Property(x => x.IntValue);

@@ -12,7 +12,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void MapInternalClass()
         {
-            var mapper = SeparatedValueTypeMapper.Define<InternalClass>();
+            var mapper = DelimitedTypeMapper.Define<InternalClass>();
 
             mapper.Property(x => x.Identifier);
             mapper.Property(x => x.Status);
@@ -22,7 +22,7 @@ namespace FlatFiles.Test
 
             string rawData = @"ABC123,Doing Fine,20180115,20180115145100,true";
             StringReader reader = new StringReader(rawData);
-            var data = mapper.Read(reader, new SeparatedValueOptions()
+            var data = mapper.Read(reader, new DelimitedOptions()
             {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\n",
@@ -42,7 +42,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void MapInternalClass_Dynamic()
         {
-            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(InternalClass));
+            var mapper = DelimitedTypeMapper.DefineDynamic(typeof(InternalClass));
 
             mapper.StringProperty("Identifier");
             mapper.StringProperty("Status");
@@ -52,7 +52,7 @@ namespace FlatFiles.Test
 
             string rawData = @"ABC123,Doing Fine,20180115,20180115145100,true";
             StringReader reader = new StringReader(rawData);
-            var data = mapper.Read(reader, new SeparatedValueOptions()
+            var data = mapper.Read(reader, new DelimitedOptions()
             {
                 IsFirstRecordSchema = false,
                 RecordSeparator = "\n",
@@ -72,7 +72,7 @@ namespace FlatFiles.Test
         //[TestMethod]
         //public void MapPrivateClass()
         //{
-        //    var mapper = SeparatedValueTypeMapper.Define<PrivateClass>();
+        //    var mapper = DelimitedTypeMapper.Define<PrivateClass>();
 
         //    mapper.Property(x => x.Identifier);
         //    mapper.Property(x => x.Status);
@@ -81,7 +81,7 @@ namespace FlatFiles.Test
 
         //    string rawData = @"ABC123,Doing Fine,20180115,20180115145100";
         //    StringReader reader = new StringReader(rawData);
-        //    var data = mapper.Read(reader, new SeparatedValueOptions()
+        //    var data = mapper.Read(reader, new DelimitedOptions()
         //    {
         //        IsFirstRecordSchema = false,
         //        RecordSeparator = "\n",
@@ -100,7 +100,7 @@ namespace FlatFiles.Test
         //[TestMethod]
         //public void MapPrivateClass_Dynamic()
         //{
-        //    var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivateClass));
+        //    var mapper = DelimitedTypeMapper.DefineDynamic(typeof(PrivateClass));
 
         //    mapper.StringProperty("Identifier");
         //    mapper.StringProperty("Status");
@@ -109,7 +109,7 @@ namespace FlatFiles.Test
 
         //    string rawData = @"ABC123,Doing Fine,20180115,20180115145100";
         //    StringReader reader = new StringReader(rawData);
-        //    var data = mapper.Read(reader, new SeparatedValueOptions()
+        //    var data = mapper.Read(reader, new DelimitedOptions()
         //    {
         //        IsFirstRecordSchema = false,
         //        RecordSeparator = "\n",
@@ -128,13 +128,13 @@ namespace FlatFiles.Test
         //[TestMethod]
         //public void MapPrivateClass_PrivateCtor_Dynamic()
         //{
-        //    var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(PrivateCtorClass));
+        //    var mapper = DelimitedTypeMapper.DefineDynamic(typeof(PrivateCtorClass));
 
         //    mapper.Int32Property("Id");
 
         //    string rawData = @"123";
         //    StringReader reader = new StringReader(rawData);
-        //    var data = mapper.Read(reader, new SeparatedValueOptions()
+        //    var data = mapper.Read(reader, new DelimitedOptions()
         //    {
         //        IsFirstRecordSchema = false,
         //        RecordSeparator = "\n",

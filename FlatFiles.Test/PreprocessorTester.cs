@@ -16,7 +16,7 @@ namespace FlatFiles.Test
 
             const string input = @"=""12345.67"",=""$123""";
 
-            var mapper = SeparatedValueTypeMapper.Define<Numbers>();
+            var mapper = DelimitedTypeMapper.Define<Numbers>();
 #pragma warning disable CS0618 // Type or member is obsolete
             mapper.Property(x => x.Value).ColumnName("value").Preprocessor(x => x.Trim('"', '=')).NumberStyles(NumberStyles.AllowDecimalPoint);
             mapper.Property(x => x.Money).ColumnName("money").Preprocessor(x => x.Trim('"', '=')).NumberStyles(NumberStyles.Currency);
@@ -38,7 +38,7 @@ namespace FlatFiles.Test
 
             const string input = @"=""12345.67"",=""$123""";
 
-            var mapper = SeparatedValueTypeMapper.Define<Numbers>();
+            var mapper = DelimitedTypeMapper.Define<Numbers>();
             mapper.Property(x => x.Value).ColumnName("value").OnParsing((ctx, x) => x.Trim('"', '=')).NumberStyles(NumberStyles.AllowDecimalPoint);
             mapper.Property(x => x.Money).ColumnName("money").OnParsing((ctx, x) => x.Trim('"', '=')).NumberStyles(NumberStyles.Currency);
 

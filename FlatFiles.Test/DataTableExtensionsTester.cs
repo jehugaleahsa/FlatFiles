@@ -33,7 +33,7 @@ namespace FlatFiles.Test
         {
             DataTable table = null;
             StringReader stringReader = new StringReader(String.Empty);
-            IReader parser = new SeparatedValueReader(stringReader);
+            IReader parser = new DelimitedReader(stringReader);
             Assert.ThrowsException<ArgumentNullException>(() => DataTableExtensions.ReadFlatFile(table, parser));
         }
 
@@ -54,21 +54,21 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestReadFlatFile_ExtractsSchema_PopulatesTable()
         {
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"))
                 .AddColumn(new StringColumn("name"))
                 .AddColumn(new DateTimeColumn("created") { InputFormat = "MM/dd/yyyy", OutputFormat = "MM/dd/yyyy" })
                 .AddColumn(new DecimalColumn("avg"));
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
 
             StringWriter stringWriter = new StringWriter();
-            SeparatedValueWriter builder = new SeparatedValueWriter(stringWriter, schema, options);
+            DelimitedWriter builder = new DelimitedWriter(stringWriter, schema, options);
             var data = new object[] { 123, "Bob", new DateTime(2012, 12, 31), 3.14159m };
             builder.Write(data);
 
             StringReader stringReader = new StringReader(stringWriter.ToString());
             DataTable table = new DataTable();
-            IReader parser = new SeparatedValueReader(stringReader, schema, options);
+            IReader parser = new DelimitedReader(stringReader, schema, options);
             table.ReadFlatFile(parser);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -100,9 +100,9 @@ namespace FlatFiles.Test
             const string text = @"id,name,created,avg
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
-            IReader csvReader = new SeparatedValueReader(stringReader, options);
+            IReader csvReader = new DelimitedReader(stringReader, options);
             table.ReadFlatFile(csvReader);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -136,13 +136,13 @@ namespace FlatFiles.Test
             const string text = @"id,name,created
 2,John,07/17/2018
 3,Susan,07/18/2018";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created"));
-            IReader csvReader = new SeparatedValueReader(stringReader, schema, options);
+            IReader csvReader = new DelimitedReader(stringReader, schema, options);
             table.ReadFlatFile(csvReader);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -179,14 +179,14 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created"));
             schema.AddColumn(new DecimalColumn("avg"));
-            IReader csvReader = new SeparatedValueReader(stringReader, schema, options);
+            IReader csvReader = new DelimitedReader(stringReader, schema, options);
             table.ReadFlatFile(csvReader, LoadOption.PreserveChanges);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -230,14 +230,14 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created"));
             schema.AddColumn(new DecimalColumn("avg"));
-            IReader csvReader = new SeparatedValueReader(stringReader, schema, options);
+            IReader csvReader = new DelimitedReader(stringReader, schema, options);
             table.ReadFlatFile(csvReader, LoadOption.Upsert);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -282,14 +282,14 @@ namespace FlatFiles.Test
 1,Robert,07/19/2018,78.90
 2,John,07/17/2018,23.45
 3,Susan,07/18/2018,34.56";
-            SeparatedValueOptions options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            DelimitedOptions options = new DelimitedOptions() { IsFirstRecordSchema = true };
             StringReader stringReader = new StringReader(text);
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created"));
             schema.AddColumn(new DecimalColumn("avg"));
-            IReader csvReader = new SeparatedValueReader(stringReader, schema, options);
+            IReader csvReader = new DelimitedReader(stringReader, schema, options);
             table.ReadFlatFile(csvReader, LoadOption.OverwriteChanges);
 
             Assert.AreEqual(4, table.Columns.Count);
@@ -326,19 +326,19 @@ namespace FlatFiles.Test
             table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
             table.Rows.Add(new object[] { 4, null, null, null });
 
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true,
                 RecordSeparator = "\r\n",
                 FormatProvider = CultureInfo.InvariantCulture
             };
             var stringWriter = new StringWriter();
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created") { OutputFormat = "MM/dd/yyyy" });
             schema.AddColumn(new DecimalColumn("avg"));
-            var csvWriter = new SeparatedValueWriter(stringWriter, schema, options);
+            var csvWriter = new DelimitedWriter(stringWriter, schema, options);
             table.WriteFlatFile(csvWriter);
 
             string output = stringWriter.ToString();
@@ -364,14 +364,14 @@ namespace FlatFiles.Test
             table.Rows.Add(new object[] { 2, "John", 23.45m });
             table.Rows.Add(new object[] { 3, "Susan", 34.56m });
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new DelimitedOptions() { IsFirstRecordSchema = true };
             var stringWriter = new StringWriter();
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DateTimeColumn("created") { OutputFormat = "MM/dd/yyyy" });
             schema.AddColumn(new DecimalColumn("avg"));
-            var csvWriter = new SeparatedValueWriter(stringWriter, schema, options);
+            var csvWriter = new DelimitedWriter(stringWriter, schema, options);
             table.WriteFlatFile(csvWriter);
 
             string output = stringWriter.ToString();
@@ -397,13 +397,13 @@ namespace FlatFiles.Test
             table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
             table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
 
-            var options = new SeparatedValueOptions() { IsFirstRecordSchema = true };
+            var options = new DelimitedOptions() { IsFirstRecordSchema = true };
             var stringWriter = new StringWriter();
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new StringColumn("name"));
             schema.AddColumn(new DecimalColumn("avg"));
-            var csvWriter = new SeparatedValueWriter(stringWriter, schema, options);
+            var csvWriter = new DelimitedWriter(stringWriter, schema, options);
             table.WriteFlatFile(csvWriter);
 
             string output = stringWriter.ToString();
@@ -422,18 +422,18 @@ namespace FlatFiles.Test
 @"A,B,C
 1,2,3
 4,5,6";
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new StringColumn("A"));
             schema.AddColumn(new IgnoredColumn("Ignored"));
             schema.AddColumn(new StringColumn("C"));
 
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true
             };
 
             var textReader = new StringReader(data);
-            var csvReader = new SeparatedValueReader(textReader, schema, options);
+            var csvReader = new DelimitedReader(textReader, schema, options);
 
             DataTable dataTable = new DataTable();
             dataTable.ReadFlatFile(csvReader);
@@ -462,14 +462,14 @@ namespace FlatFiles.Test
             table.Rows.Add(new object[] { 2, "John", new DateTime(2018, 07, 17), 23.45m });
             table.Rows.Add(new object[] { 3, "Susan", new DateTime(2018, 07, 18), 34.56m });
 
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true,
                 RecordSeparator = "\r\n",
                 FormatProvider = CultureInfo.InvariantCulture
             };
             var stringWriter = new StringWriter();
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new IgnoredColumn("i0"));
             schema.AddColumn(new Int32Column("id"));
             schema.AddColumn(new IgnoredColumn("i1"));
@@ -479,7 +479,7 @@ namespace FlatFiles.Test
             schema.AddColumn(new IgnoredColumn("i3"));
             schema.AddColumn(new DecimalColumn("avg"));
             schema.AddColumn(new IgnoredColumn("i4"));
-            var csvWriter = new SeparatedValueWriter(stringWriter, schema, options);
+            var csvWriter = new DelimitedWriter(stringWriter, schema, options);
             table.WriteFlatFile(csvWriter);
 
             string output = stringWriter.ToString();
@@ -497,7 +497,7 @@ namespace FlatFiles.Test
             string data = @"ID,Description,Date,Time,Price,Date,Time,Price
 ""1"",""Net Profit"",""8/3/2020"",""9:58:48"",""$111.11"",""8/3/2020"",""10:41:10"",""$333.33""
 ""2"",""Net Loss"",""8/3/2020"",""14:41:10"",""$444.44"",""8/3/2020"",""16:29:08"",""$222.22""";
-            var schema = new SeparatedValueSchema();
+            var schema = new DelimitedSchema();
             schema.AddColumn(new Int32Column("ID"));
             schema.AddColumn(new StringColumn("Description"));
             schema.AddColumn(new DateTimeColumn("PurchaseDate"));
@@ -513,11 +513,11 @@ namespace FlatFiles.Test
                 NumberStyles = NumberStyles.Currency
             });
 
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true
             };
-            var reader = new SeparatedValueReader(new StringReader(data), schema, options);
+            var reader = new DelimitedReader(new StringReader(data), schema, options);
 
             DataTable dataTable = new DataTable();
             dataTable.ReadFlatFile(reader);

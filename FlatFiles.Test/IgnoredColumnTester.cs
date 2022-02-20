@@ -43,7 +43,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestIgnoredMapping_HandlePreAndPostProcessing()
         {
-            ISeparatedValueTypeMapper<IgnoredOnly> mapper = SeparatedValueTypeMapper.Define(() => new IgnoredOnly());
+            IDelimitedTypeMapper<IgnoredOnly> mapper = DelimitedTypeMapper.Define(() => new IgnoredOnly());
             mapper.Ignored()
                 .ColumnName("Ignored")
                 .NullFormatter(NullFormatter.ForValue("NULL"))

@@ -8,13 +8,13 @@ namespace FlatFiles.Benchmark
 {
     public class DirectVsDynamicTester
     {
-        private readonly ISeparatedValueTypeMapper<Person> directMapper;
-        private readonly IDynamicSeparatedValueTypeMapper dynamicMapper;
+        private readonly IDelimitedTypeMapper<Person> directMapper;
+        private readonly IDynamicDelimitedTypeMapper dynamicMapper;
         private readonly Person[] people;
 
         public DirectVsDynamicTester()
         {
-            var directMapper = SeparatedValueTypeMapper.Define<Person>(() => new Person());
+            var directMapper = DelimitedTypeMapper.Define<Person>(() => new Person());
             directMapper.Property(x => x.Name).ColumnName("Name");
             directMapper.Property(x => x.IQ).ColumnName("IQ");
             directMapper.Property(x => x.BirthDate).ColumnName("BirthDate");
@@ -22,7 +22,7 @@ namespace FlatFiles.Benchmark
             directMapper.Property(x => x.IsActive).ColumnName("IsActive");
             this.directMapper = directMapper;
 
-            var dynamicMapper = SeparatedValueTypeMapper.DefineDynamic(typeof(Person));
+            var dynamicMapper = DelimitedTypeMapper.DefineDynamic(typeof(Person));
             dynamicMapper.StringProperty("Name").ColumnName("Name");
             dynamicMapper.Int32Property("IQ").ColumnName("IQ");
             dynamicMapper.DateTimeProperty("BirthDate").ColumnName("BirthDate");

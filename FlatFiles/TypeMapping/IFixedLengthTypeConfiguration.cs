@@ -319,7 +319,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="mapper">A type mapper describing the schema of the complex type.</param>
         /// <param name="window">Specifies how the fixed-width column appears in a flat file.</param>
         /// <returns>An object to configure the property mapping.</returns>
-        ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper, Window window);
+        IDelimitedComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IDelimitedTypeMapper<TProp> mapper, Window window);
 
         /// <summary>
         /// Associates the property with the type mapper and returns an object for configuration.

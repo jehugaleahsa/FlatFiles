@@ -64,13 +64,13 @@ namespace FlatFiles
         private sealed class SeparatorRecordReader : IRecordReader
         {
             private readonly RetryReader reader;
-            private readonly ISeparatorMatcher matcher;
+            private readonly IRecordSeparatorMatcher matcher;
             private readonly StringBuilder builder;
 
             public SeparatorRecordReader(TextReader reader, string? separator)
             {
                 this.reader = new RetryReader(reader);
-                matcher = SeparatorMatcher.GetMatcher(this.reader, separator);
+                matcher = RecordSeparatorMatcher.GetMatcher(this.reader, separator);
                 builder = new StringBuilder();
             }
 

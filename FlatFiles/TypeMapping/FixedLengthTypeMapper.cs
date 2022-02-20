@@ -548,17 +548,17 @@ namespace FlatFiles.TypeMapping
             return mapping;
         }
 
-        public ISeparatedValueComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        public IDelimitedComplexPropertyMapping ComplexProperty<TProp>(Expression<Func<TEntity, TProp>> accessor, IDelimitedTypeMapper<TProp> mapper, Window window)
         {
             var member = GetMember(accessor);
             return GetComplexMapping(member, mapper, window);
         }
 
-        private ISeparatedValueComplexPropertyMapping GetComplexMapping<TProp>(IMemberAccessor member, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        private IDelimitedComplexPropertyMapping GetComplexMapping<TProp>(IMemberAccessor member, IDelimitedTypeMapper<TProp> mapper, Window window)
         {
             var mapping = lookup.GetOrAddMember(member, (physicalIndex, logicalIndex) =>
             {
-                return new SeparatedValueComplexPropertyMapping<TProp>(mapper, member, physicalIndex, logicalIndex);
+                return new DelimitedComplexPropertyMapping<TProp>(mapper, member, physicalIndex, logicalIndex);
             });
             windowLookup[mapping] = window;
             return mapping;
@@ -848,7 +848,7 @@ namespace FlatFiles.TypeMapping
             return GetTimeSpanMapping(member, window, IsNullable(member));
         }
 
-        ISeparatedValueComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string memberName, ISeparatedValueTypeMapper<TProp> mapper, Window window)
+        IDelimitedComplexPropertyMapping IDynamicFixedLengthTypeConfiguration.ComplexProperty<TProp>(string memberName, IDelimitedTypeMapper<TProp> mapper, Window window)
         {
             var member = GetMember<string>(memberName);
             return GetComplexMapping(member, mapper, window);

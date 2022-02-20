@@ -580,10 +580,10 @@ a weird row that should be skipped
         public void TestReader_BadDecimal_ThrowsException()
         {
             const string data = "bad";
-            SeparatedValueSchema schema = new SeparatedValueSchema();
+            DelimitedSchema schema = new DelimitedSchema();
             schema.AddColumn(new DecimalColumn("value"));
             
-            SeparatedValueReader reader = new SeparatedValueReader(new StringReader(data), schema);
+            DelimitedReader reader = new DelimitedReader(new StringReader(data), schema);
             Assert.ThrowsException<RecordProcessingException>(() => reader.Read());
         }
 

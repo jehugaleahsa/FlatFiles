@@ -168,7 +168,7 @@
   <data name="BadPropertySelector" xml:space="preserve">
     <value>The property selector did not select a property.</value>
   </data>
-  <data name="SeparatedValueRecordWrongNumberOfColumns" xml:space="preserve">
+  <data name="DelimitedRecordWrongNumberOfColumns" xml:space="preserve">
     <value>The record did not have the number of columns specified in the schema. Record {0}.</value>
   </data>
   <data name="UnmatchedQuote" xml:space="preserve">

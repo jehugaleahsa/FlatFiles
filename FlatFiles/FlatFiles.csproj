@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp3.0;netstandard2.1;netstandard2.0;netstandard1.6;net451</TargetFrameworks>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Description>Reads and writes CSV, fixed-length and other flat file formats with a focus on schema definition, configuration and speed. Supports mapping directly between files and classes.</Description>
-    <Copyright>Copyright @ 2021</Copyright>
+    <Copyright>Copyright @ 2022</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jehugaleahsa/FlatFiles</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jehugaleahsa/FlatFiles.git</RepositoryUrl>
@@ -13,14 +13,14 @@
     <PackageReleaseNotes>Add explicit support for .net standard 2.1. Add explicit support for methods working with IAsyncEnumerable.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>4.16.0</Version>
+    <Version>5.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>4.16.0.0</AssemblyVersion>
-    <FileVersion>4.16.0.0</FileVersion>
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
     <Nullable>enable</Nullable>

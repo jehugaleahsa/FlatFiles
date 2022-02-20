@@ -39,9 +39,9 @@ namespace FlatFiles.Test
             assertEqual(thing, deserialized);
         }
 
-        private static ISeparatedValueTypeMapper<WeirdThing> getWeirdMapper()
+        private static IDelimitedTypeMapper<WeirdThing> getWeirdMapper()
         {
-            var mapper = SeparatedValueTypeMapper.Define<WeirdThing>(() => new WeirdThing());
+            var mapper = DelimitedTypeMapper.Define<WeirdThing>(() => new WeirdThing());
             mapper.Property(x => x.Small);
             mapper.Property(x => x.Big);
             mapper.Property(x => x.Bigger);
@@ -49,7 +49,7 @@ namespace FlatFiles.Test
             return mapper;
         }
 
-        private static WeirdThing roundTrip(ISeparatedValueTypeMapper<WeirdThing> mapper, WeirdThing thing)
+        private static WeirdThing roundTrip(IDelimitedTypeMapper<WeirdThing> mapper, WeirdThing thing)
         {
             using (StringWriter writer = new StringWriter())
             {

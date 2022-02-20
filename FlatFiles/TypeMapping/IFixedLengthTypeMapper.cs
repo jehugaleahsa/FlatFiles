@@ -41,7 +41,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="writer">A writer over the fixed-length document.</param>
         /// <param name="entities">The entities to write to the document.</param>
-        /// <param name="options">The options controlling how the separated value document is written.</param>
+        /// <param name="options">The options controlling how the fixed-length document is written.</param>
         void Write(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions? options = null);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="writer">A writer over the fixed-length document.</param>
         /// <param name="entities">The entities to write to the document.</param>
-        /// <param name="options">The options controlling how the separated value document is written.</param>
+        /// <param name="options">The options controlling how the fixed-length document is written.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<TEntity> entities, FixedLengthOptions? options = null);
 
 #if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
@@ -58,7 +58,7 @@ namespace FlatFiles.TypeMapping
         /// </summary>
         /// <param name="writer">A writer over the fixed-length document.</param>
         /// <param name="entities">The entities to write to the document.</param>
-        /// <param name="options">The options controlling how the separated value document is written.</param>
+        /// <param name="options">The options controlling how the fixed-length document is written.</param>
         Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, FixedLengthOptions? options = null);
 #endif
 

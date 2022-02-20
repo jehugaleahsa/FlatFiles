@@ -12,7 +12,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestMappingNestedMember()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            var mapper = DelimitedTypeMapper.Define<Person>();
             mapper.Property(x => x.Id).ColumnName("Id");
             mapper.Property(x => x.Name).ColumnName("Name");
             mapper.Property(x => x.Address1.Street).ColumnName("Street");
@@ -50,7 +50,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestMappingNestedMemberDynamically()
         {
-            var mapper = SeparatedValueTypeMapper.DefineDynamic(typeof(Person));
+            var mapper = DelimitedTypeMapper.DefineDynamic(typeof(Person));
             mapper.Int32Property("Id").ColumnName("Id");
             mapper.StringProperty("Name").ColumnName("Name");
             mapper.StringProperty("Address1.Street").ColumnName("Street");
@@ -172,7 +172,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestMappingNestedMembers_MultipleSameType()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Person>();
+            var mapper = DelimitedTypeMapper.Define<Person>();
             mapper.Property(x => x.Id).ColumnName("Id");
             mapper.Property(x => x.Name).ColumnName("Name");
             mapper.Property(x => x.Address1.Street).ColumnName("Street1");
@@ -268,7 +268,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestMappingNestedMembers_DeepNesting()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Level1>();
+            var mapper = DelimitedTypeMapper.Define<Level1>();
             mapper.Property(x => x.Id).ColumnName("Id");
             mapper.Property(x => x.Level2.Name).ColumnName("Name");
             mapper.Property(x => x.Level2.Level3.Level4.Address.Street).ColumnName("Street1");
@@ -321,7 +321,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void TestMappingNestedMembers_DeepNesting_RecurringMemberNames()
         {
-            var mapper = SeparatedValueTypeMapper.Define<Level1>();
+            var mapper = DelimitedTypeMapper.Define<Level1>();
             mapper.Property(x => x.Id).ColumnName("Id");
             mapper.Property(x => x.Level2.Name).ColumnName("Name");
             mapper.Property(x => x.Level2.Level3.Level4.Address.Street).ColumnName("Street1");

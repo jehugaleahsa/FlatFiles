@@ -15,7 +15,7 @@ namespace FlatFiles.Test
             const string message = @"Tom,Hanselman,2016-06-0426         Walking Ice,Ace
 ";
             StringReader stringReader = new StringReader(message);
-            SeparatedValueSchema outerSchema = new SeparatedValueSchema();
+            DelimitedSchema outerSchema = new DelimitedSchema();
             outerSchema.AddColumn(new StringColumn("FirstName"));
             outerSchema.AddColumn(new StringColumn("LastName"));
 
@@ -26,7 +26,7 @@ namespace FlatFiles.Test
             outerSchema.AddColumn(new FixedLengthComplexColumn("PlayerStats", innerSchema));
             outerSchema.AddColumn(new StringColumn("Nickname"));
 
-            SeparatedValueReader reader = new SeparatedValueReader(stringReader, outerSchema);
+            DelimitedReader reader = new DelimitedReader(stringReader, outerSchema);
             Assert.IsTrue(reader.Read(), "A record should have been read.");
             object[] values = reader.GetValues();
             Assert.AreEqual("Tom", values[0]);
@@ -39,7 +39,7 @@ namespace FlatFiles.Test
             Assert.AreEqual("Ace", values[3]);
 
             StringWriter stringWriter = new StringWriter();
-            SeparatedValueWriter writer = new SeparatedValueWriter(stringWriter, outerSchema);
+            DelimitedWriter writer = new DelimitedWriter(stringWriter, outerSchema);
             writer.Write(values);
 
             string output = stringWriter.GetStringBuilder().ToString();
@@ -58,7 +58,7 @@ namespace FlatFiles.Test
             nestedMapper.Property(s => s.Age, 2);
             nestedMapper.Property(s => s.StageName, new Window(20) { Alignment = FixedAlignment.RightAligned });
 
-            var mapper = SeparatedValueTypeMapper.Define<Player>();
+            var mapper = DelimitedTypeMapper.Define<Player>();
             mapper.Property(p => p.FirstName);
             mapper.Property(p => p.LastName);
             mapper.ComplexProperty(p => p.Statistics, nestedMapper);
@@ -142,7 +142,7 @@ namespace FlatFiles.Test
             petMapper.Property(x => x.UniversalPetIdentifier, new Window(5));
             petMapper.Ignored(new Window(2));
 
-            var personMapper = SeparatedValueTypeMapper.Define<Person>();
+            var personMapper = DelimitedTypeMapper.Define<Person>();
             personMapper.Property(x => x.Name);
             personMapper.ComplexProperty(x => x.Pet1, petMapper);
             personMapper.ComplexProperty(x => x.Pet2, petMapper);

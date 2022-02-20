@@ -66,7 +66,7 @@ namespace FlatFiles.Benchmark
         [Benchmark]
         public void RunFlatFiles()
         {
-            var mapper = SeparatedValueTypeMapper.Define<SampleData>();
+            var mapper = DelimitedTypeMapper.Define<SampleData>();
             mapper.Property(x => x.YearStart).ColumnName("YearStart");
             mapper.Property(x => x.YearEnd).ColumnName("YearEnd");
             mapper.Property(x => x.LocationAbbreviation).ColumnName("LocationAbbr");
@@ -106,7 +106,7 @@ namespace FlatFiles.Benchmark
             string path = Path.Combine(directory, "TestFiles", "SampleData.csv");
             using var stream = File.OpenRead(path);
             using var textReader = new StreamReader(stream);
-            var people = mapper.Read(textReader, new SeparatedValueOptions() { IsFirstRecordSchema = true }).ToArray();
+            var people = mapper.Read(textReader, new DelimitedOptions() { IsFirstRecordSchema = true }).ToArray();
         }
 
         private class SampleData

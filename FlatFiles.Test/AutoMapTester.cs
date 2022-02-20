@@ -15,7 +15,7 @@ namespace FlatFiles.Test
         public void ShouldDeduceSchemaForType()
         {
             var stringWriter = new StringWriter();
-            var writer = SeparatedValueTypeMapper.GetAutoMappedWriter<Person>(stringWriter);
+            var writer = DelimitedTypeMapper.GetAutoMappedWriter<Person>(stringWriter);
             var expected = new[]
             {
                 new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 07, 01), IsActive = true, VisitCount = 1 },
@@ -26,7 +26,7 @@ namespace FlatFiles.Test
             string output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(stringReader);
+            var reader = DelimitedTypeMapper.GetAutoMappedReader<Person>(stringReader);
             var results = reader.ReadAll().ToArray();
 
             Assert.AreEqual(3, results.Length, "The wrong number of records were read.");
@@ -39,7 +39,7 @@ namespace FlatFiles.Test
         public async Task ShouldDeduceSchemaForTypeAsync()
         {
             var stringWriter = new StringWriter();
-            var writer = SeparatedValueTypeMapper.GetAutoMappedWriter<Person>(stringWriter);
+            var writer = DelimitedTypeMapper.GetAutoMappedWriter<Person>(stringWriter);
             var expected = new[]
             {
                 new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 07, 01), IsActive = true, VisitCount = 1 },
@@ -50,7 +50,7 @@ namespace FlatFiles.Test
             string output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = await SeparatedValueTypeMapper.GetAutoMappedReaderAsync<Person>(stringReader);
+            var reader = await DelimitedTypeMapper.GetAutoMappedReaderAsync<Person>(stringReader);
             var results = new List<Person>();
             while (await reader.ReadAsync())
             {
@@ -68,7 +68,7 @@ namespace FlatFiles.Test
         {
             var stringWriter = new StringWriter();
             var nameResolver = AutoMapResolver.For(m => $"Prefix_{m.Name}_Postfix");
-            var writer = SeparatedValueTypeMapper.GetAutoMappedWriter<Person>(stringWriter, null, nameResolver);
+            var writer = DelimitedTypeMapper.GetAutoMappedWriter<Person>(stringWriter, null, nameResolver);
             var expected = new[]
             {
                 new Person() { Id = 1, Name = "Bob", CreatedOn = new DateTime(2018, 07, 01), IsActive = true, VisitCount = 1 },
@@ -79,7 +79,7 @@ namespace FlatFiles.Test
             string output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(stringReader, null, AutoMapMatcher.For(nameResolver));
+            var reader = DelimitedTypeMapper.GetAutoMappedReader<Person>(stringReader, null, AutoMapMatcher.For(nameResolver));
             var results = reader.ReadAll().ToArray();
 
             Assert.AreEqual(3, results.Length, "The wrong number of records were read.");
@@ -91,13 +91,13 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldWriteHeadersWhenNoRecordsProvided_Writer()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
             var stringWriter = new StringWriter();
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true
             };
@@ -107,7 +107,7 @@ namespace FlatFiles.Test
             var output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = new SeparatedValueReader(stringReader, options);
+            var reader = new DelimitedReader(stringReader, options);
             Assert.IsFalse(reader.Read(), "No records should have been written.");
 
             var schema = reader.GetSchema();
@@ -120,13 +120,13 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldWriteHeadersWhenNoRecordsProvided_Mapper()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
             var stringWriter = new StringWriter();
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = true
             };
@@ -134,7 +134,7 @@ namespace FlatFiles.Test
             var output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = new SeparatedValueReader(stringReader, options);
+            var reader = new DelimitedReader(stringReader, options);
             Assert.IsFalse(reader.Read(), "No records should have been written.");
 
             var schema = reader.GetSchema();
@@ -147,13 +147,13 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldNotWriteHeaderWhenHeaderNotConfigured()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.Property(x => x.Id);
             mapper.Property(x => x.Name);
             mapper.Property(x => x.CreatedOn);
             mapper.Property(x => x.IsActive);
             var stringWriter = new StringWriter();
-            var options = new SeparatedValueOptions()
+            var options = new DelimitedOptions()
             {
                 IsFirstRecordSchema = false
             };
@@ -172,7 +172,7 @@ namespace FlatFiles.Test
             var output = stringWriter.ToString();
 
             var stringReader = new StringReader(output);
-            var reader = new SeparatedValueReader(stringReader, mapper.GetSchema(), options);
+            var reader = new DelimitedReader(stringReader, mapper.GetSchema(), options);
             Assert.IsTrue(reader.Read(), "The first record should have been written.");
             Assert.IsFalse(reader.Read(), "Too many records were written.");
         }
@@ -181,7 +181,7 @@ namespace FlatFiles.Test
         public void ShouldReturnEmptySchemaWhenFileEmpty()
         {
             var stringReader = new StringReader(String.Empty);
-            var reader = SeparatedValueTypeMapper.GetAutoMappedReader<Person>(stringReader);
+            var reader = DelimitedTypeMapper.GetAutoMappedReader<Person>(stringReader);
             var results = reader.ReadAll().ToArray();
 
             Assert.AreEqual(0, results.Length, "The wrong number of records were read.");

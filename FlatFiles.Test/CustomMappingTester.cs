@@ -55,9 +55,9 @@ namespace FlatFiles.Test
             AssertPeopleEqual(data, people, 2);
         }
 
-        private static ISeparatedValueTypeMapper<Person> GetTypeMapper()
+        private static IDelimitedTypeMapper<Person> GetTypeMapper()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Person());
+            var mapper = DelimitedTypeMapper.Define(() => new Person());
             mapper.CustomMapping(new Int32Column("Id")).WithReader((ctx, person, value) =>
             {
                 person.Id = (int)value;
@@ -268,9 +268,9 @@ namespace FlatFiles.Test
             AssertPropertyEqual(data, properties, 1);
         }
 
-        private static ISeparatedValueTypeMapper<RealtyProperty> GetNestedTypeMapper()
+        private static IDelimitedTypeMapper<RealtyProperty> GetNestedTypeMapper()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new RealtyProperty()
+            var mapper = DelimitedTypeMapper.Define(() => new RealtyProperty()
             {
                 Address = new Address(),
                 Coordinates = new Geolocation()
@@ -377,7 +377,7 @@ namespace FlatFiles.Test
         [TestMethod]
         public void ShouldConvertLongToTimeSpan()
         {
-            var mapper = SeparatedValueTypeMapper.Define(() => new Session());
+            var mapper = DelimitedTypeMapper.Define(() => new Session());
             mapper.CustomMapping(new Int64Column("Duration")).WithReader((s, d) => s.Duration = TimeSpan.FromSeconds((long)d));
 
             var reader = new StringReader($"{24 * 60 * 60}"); // 24 hours
