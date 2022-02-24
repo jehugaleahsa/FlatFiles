@@ -8,13 +8,14 @@ namespace FlatFiles
     internal sealed class FixedLengthRecordWriter
     {
         private readonly TextWriter writer;
+        private readonly FixedLengthSchema? schema;
         private readonly FixedLengthSchemaInjector? injector;
         private FixedLengthRecordContext? recordContext;
 
         public FixedLengthRecordWriter(TextWriter writer, FixedLengthSchema? schema, FixedLengthOptions? options)
         {
             this.writer = writer;
-            Schema = schema;
+            this.schema = schema;
             Options = options == null ? new FixedLengthOptions() : options.Clone();
         }
 
@@ -26,7 +27,7 @@ namespace FlatFiles
 
         public FixedLengthRecordContext? Metadata => recordContext;
 
-        public FixedLengthSchema? Schema { get; }
+        public FixedLengthSchema? ActualSchema => schema;
 
         public FixedLengthOptions Options { get; }
 
@@ -70,9 +71,9 @@ namespace FlatFiles
             return formattedColumns;
         }
 
-        private FixedLengthSchema GetSchema(object?[] values)
+        public FixedLengthSchema GetSchema(object?[] values)
         {
-            return injector == null ? Schema! : injector.GetSchema(values);
+            return injector == null ? schema! : injector.GetSchema(values);
         }
 
         private FixedLengthRecordContext NewRecordContext(FixedLengthSchema schema, string? record, string[]? values)
@@ -115,12 +116,12 @@ namespace FlatFiles
 
         public void WriteSchema()
         {
-            if (injector != null)
+            if (schema == null)
             {
                 return;
             }
-            var definitions = Schema!.ColumnDefinitions;
-            var windows = Schema.Windows;
+            var definitions = schema.ColumnDefinitions;
+            var windows = schema.Windows;
             int columnCount = definitions.Count;
             for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {
@@ -134,12 +135,12 @@ namespace FlatFiles
 
         public async Task WriteSchemaAsync()
         {
-            if (injector != null)
+            if (schema == null)
             {
                 return;
             }
-            var definitions = Schema!.ColumnDefinitions;
-            var windows = Schema.Windows;
+            var definitions = schema.ColumnDefinitions;
+            var windows = schema.Windows;
             int columnCount = definitions.Count;
             for (int columnIndex = 0; columnIndex != columnCount; ++columnIndex)
             {

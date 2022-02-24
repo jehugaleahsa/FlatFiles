@@ -89,12 +89,12 @@ namespace FlatFiles
 
         private sealed class DelimitedSchemaInjectorWhenBuilder : IDelimitedSchemaInjectorWhenBuilder
         {
-            private readonly DelimitedSchemaInjector selector;
+            private readonly DelimitedSchemaInjector injector;
             private readonly Func<object?[], bool> predicate;
 
-            public DelimitedSchemaInjectorWhenBuilder(DelimitedSchemaInjector selector, Func<object?[], bool> predicate)
+            public DelimitedSchemaInjectorWhenBuilder(DelimitedSchemaInjector injector, Func<object?[], bool> predicate)
             {
-                this.selector = selector;
+                this.injector = injector;
                 this.predicate = predicate;
             }
 
@@ -104,7 +104,7 @@ namespace FlatFiles
                 {
                     throw new ArgumentNullException(nameof(schema));
                 }
-                selector.Add(schema, predicate);
+                injector.Add(schema, predicate);
             }
         }
     }

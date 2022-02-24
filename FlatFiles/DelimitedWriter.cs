@@ -93,7 +93,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public DelimitedSchema? GetSchema()
         {
-            return recordWriter.Schema;
+            return recordWriter.ActualSchema;
         }
 
         ISchema? IWriter.GetSchema()
@@ -111,7 +111,7 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Schema != null)
+            if (recordWriter.ActualSchema != null)
             {
                 recordWriter.WriteSchema();
                 recordWriter.WriteRecordSeparator();
@@ -130,7 +130,7 @@ namespace FlatFiles
             {
                 return;
             }
-            if (recordWriter.Schema != null)
+            if (recordWriter.ActualSchema != null)
             {
                 await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                 await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);
@@ -152,7 +152,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.ActualSchema != null)
                 {
                     recordWriter.WriteSchema();
                     recordWriter.WriteRecordSeparator();
@@ -191,7 +191,7 @@ namespace FlatFiles
             }
             if (!isSchemaWritten)
             {
-                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.Schema != null)
+                if (recordWriter.Options.IsFirstRecordSchema && recordWriter.ActualSchema != null)
                 {
                     await recordWriter.WriteSchemaAsync().ConfigureAwait(false);
                     await recordWriter.WriteRecordSeparatorAsync().ConfigureAwait(false);

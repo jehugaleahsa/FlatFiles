@@ -67,8 +67,6 @@ namespace FlatFiles.TypeMapping
         public ITypedWriter<object> GetWriter(TextWriter writer, FixedLengthOptions? options = null)
         {
             var injector = new FixedLengthSchemaInjector();
-            var valueWriter = new FixedLengthWriter(writer, injector, options);
-            var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             foreach (var matcher in matchers)
             {
                 var schema = matcher.Reset();
@@ -79,6 +77,9 @@ namespace FlatFiles.TypeMapping
                 var schema = defaultMatcher.Reset();
                 injector.WithDefault(schema);
             }
+
+            var valueWriter = new FixedLengthWriter(writer, injector, options);
+            var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             return multiWriter;
         }
 

@@ -356,7 +356,7 @@ namespace FlatFiles
             {
                 return schema;
             }
-            var recordContext = GetMetadata(record);
+            var recordContext = GetMetadata(null, record);
             ProcessError(new RecordProcessingException(recordContext, Resources.MissingMatcher));
             return null;
         }
@@ -483,7 +483,7 @@ namespace FlatFiles
             {
                 // If we cannot read the next record, we cannot process it or allow it to be ignored.
                 // We must treat it as a fatal error.
-                var recordContext = GetMetadata(null);
+                var recordContext = GetMetadata(null, null);
                 throw new RecordProcessingException(recordContext, Resources.InvalidRecordFormatNumber, exception);
             }
         }
@@ -504,7 +504,7 @@ namespace FlatFiles
             }
             catch (DelimitedSyntaxException exception)
             {
-                var recordContext = GetMetadata(null);
+                var recordContext = GetMetadata(null, null);
                 throw new RecordProcessingException(recordContext, Resources.InvalidRecordFormatNumber, exception);
             }
         }
@@ -532,13 +532,13 @@ namespace FlatFiles
             return copy;
         }
 
-        private IRecordContext GetMetadata(string? record)
+        private IRecordContext GetMetadata(DelimitedSchema? schema, string? record)
         {
             if (this.recordContext != null)
             {
                 return this.recordContext;
             }
-            var executionContext = new GenericExecutionContext(null, parser.Options.Clone());
+            var executionContext = new GenericExecutionContext(schema, parser.Options.Clone());
             var recordContext = new GenericRecordContext(executionContext)
             {
                 PhysicalRecordNumber = physicalRecordNumber,
@@ -550,7 +550,7 @@ namespace FlatFiles
 
         IRecordContext IReaderWithMetadata.GetMetadata()
         {
-            return GetMetadata(null);
+            return GetMetadata(null, null);
         }
 
         internal void SetSchema(DelimitedSchema schema)

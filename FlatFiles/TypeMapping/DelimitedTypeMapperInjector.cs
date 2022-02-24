@@ -74,8 +74,6 @@ namespace FlatFiles.TypeMapping
         public ITypedWriter<object> GetWriter(TextWriter writer, DelimitedOptions? options = null)
         {
             var injector = new DelimitedSchemaInjector();
-            var valueWriter = new DelimitedWriter(writer, injector, options);
-            var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             foreach (var matcher in matchers)
             {
                 var schema = matcher.Reset();
@@ -86,6 +84,9 @@ namespace FlatFiles.TypeMapping
                 var schema = defaultMatcher.Reset();
                 injector.WithDefault(schema);
             }
+
+            var valueWriter = new DelimitedWriter(writer, injector, options);
+            var multiWriter = new MultiplexingTypedWriter(valueWriter, this);
             return multiWriter;
         }
 

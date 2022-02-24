@@ -77,7 +77,7 @@ namespace FlatFiles
         /// <returns>The schema used to build the output.</returns>
         public FixedLengthSchema? GetSchema()
         {
-            return recordWriter.Schema;
+            return recordWriter.ActualSchema;
         }
 
         ISchema? IWriter.GetSchema()
@@ -245,7 +245,8 @@ namespace FlatFiles
             {
                 return recordWriter.Metadata;
             }
-            var executionContext = new GenericExecutionContext(recordWriter.Schema, recordWriter.Options.Clone());
+            var schema = recordWriter.GetSchema(new object[0]);
+            var executionContext = new GenericExecutionContext(schema, recordWriter.Options.Clone());
             var recordContext = new GenericRecordContext(executionContext)
             {
                 PhysicalRecordNumber = recordWriter.PhysicalRecordNumber,

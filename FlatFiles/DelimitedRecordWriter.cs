@@ -8,6 +8,7 @@ namespace FlatFiles
     internal sealed class DelimitedRecordWriter
     {
         private readonly TextWriter writer;
+        private readonly DelimitedSchema? schema;
         private readonly DelimitedSchemaInjector? injector;
         private readonly string quoteString;
         private readonly string doubleQuoteString;
@@ -16,7 +17,7 @@ namespace FlatFiles
         public DelimitedRecordWriter(TextWriter writer, DelimitedSchema? schema, DelimitedOptions? options)
         {
             this.writer = writer;
-            this.Schema = schema;
+            this.schema = schema;
             this.Options = options == null ? new DelimitedOptions() : options.Clone();
             this.quoteString = Options.Quote.ToString();
             this.doubleQuoteString = Options.Quote.ToString() + Options.Quote;
@@ -28,7 +29,9 @@ namespace FlatFiles
             this.injector = injector;
         }
 
-        public DelimitedSchema? Schema { get; }
+        public DelimitedSchema? ActualSchema => schema;
+
+        public DelimitedSchema? Schema => GetSchema(new object[0]);
 
         public DelimitedOptions Options { get; }
 
@@ -85,7 +88,7 @@ namespace FlatFiles
         {
             if (injector == null)
             {
-                return Schema;
+                return schema;
             }
             return injector.GetSchema(values);
         }
@@ -172,29 +175,21 @@ namespace FlatFiles
 
         public void WriteSchema()
         {
-            if (injector != null)
+            if (schema == null)
             {
                 return;
             }
-            if (Schema == null)
-            {
-                return;
-            }
-            var joined = JoinSchema(Schema);
+            var joined = JoinSchema(schema);
             writer.Write(joined);
         }
 
         public async Task WriteSchemaAsync()
         {
-            if (injector != null)
+            if (schema == null)
             {
                 return;
             }
-            if (Schema == null)
-            {
-                return;
-            }
-            var joined = JoinSchema(Schema);
+            var joined = JoinSchema(schema);
             await writer.WriteAsync(joined).ConfigureAwait(false);
         }
 

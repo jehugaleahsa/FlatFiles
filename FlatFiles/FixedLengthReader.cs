@@ -403,7 +403,7 @@ namespace FlatFiles
 
         private FixedLengthSchema? GetSchema(string record)
         {
-            if (record == null || schemaSelector == null)
+            if (schemaSelector == null)
             {
                 return this.schema;
             }
@@ -412,7 +412,7 @@ namespace FlatFiles
             {
                 return schema;
             }
-            var recordContext = GetMetadata(record);
+            var recordContext = GetMetadata(null, record);
             ProcessError(new RecordProcessingException(recordContext, Resources.MissingMatcher));
             return null;
         }
@@ -478,13 +478,13 @@ namespace FlatFiles
             return copy;
         }
 
-        private IRecordContext GetMetadata(string? record)
+        private IRecordContext GetMetadata(FixedLengthSchema? schema, string? record)
         {
             if (this.recordContext != null)
             {
                 return this.recordContext;
             }
-            var executionContext = new GenericExecutionContext(null, options.Clone());
+            var executionContext = new GenericExecutionContext(schema, options.Clone());
             var recordContext = new GenericRecordContext(executionContext)
             {
                 PhysicalRecordNumber = physicalRecordNumber,
@@ -496,7 +496,7 @@ namespace FlatFiles
 
         IRecordContext IReaderWithMetadata.GetMetadata()
         {
-            return GetMetadata(null);
+            return GetMetadata(null, null);
         }
     }
 }
