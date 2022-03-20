@@ -111,7 +111,7 @@ schema.AddColumn(new Int64Column("customer_id"), 10)
 
 The `FixedLengthSchema` class is the same as the `DelimitedSchema` class, except it associates a `Window` to each column. A `Window` records the `Width` of the column in the file. It also allows you to specify the `Alignment` (left or right) in cases where the value doesn't fill the entire width of the column (the default is left aligned). The `FillCharacter` property can be used to say what character is used as padding. You can also set the `TruncationPolicy` to say whether to chop off the front or the back of values that exceed their width.
 
-*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the [Ignored Fields](#Ignored%20Fields) section below to learn about ways to to handle this.
+*Note* Some fixed-length files may have columns that are not used. The fixed-length schema doesn't provide a way to specify a starting index for a column. Look at the [Ignored Fields](#ignored-fields) section below to learn about ways to to handle this.
 
 ## Delimited Files
 If you are working with delimited files, such as comma-separated (CSV) or tab-separated (TSV) files, you want to use the `DelimitedTypeMapper`. Internally, the mapper uses the `DelimitedReader` and `DelimitedWriter` classes, both of which work in terms of raw `object` arrays. In effect, all the mapper does is map the values in the array to the properties in your data objects. These classes read data from a `TextReader`, such as a `StreamReader` or a `StringReader`, and write data to a `TextWriter`, such as a `StreamWriter` or a `StringWriter`. Internally, the mapper will build a `DelimitedSchema` based on the property/column configuration; this is where you customize the schema to match your file format. For more global settings, there is also a `DelimitedOptions` object that allows you to customize the read/write behavior to suit your needs.
@@ -472,7 +472,7 @@ mapper.OptimizeMapping(false);  // Use normal reflection to get and set properti
 ```
 
 ## Non-Public Classes and Members
-As of FlatFiles 3.0, you can no longer map to non-public classes and members (aka., `internal`, `protected` or `private`) without taking additional steps. The simplest solution is to make your classes and members `public`. Alternatively, you can [disable optimizations](#Disabling%20Optimization) which will cause FlatFiles to use normal reflection, which should be able to access anything, at the cost of some runtime overhead.
+As of FlatFiles 3.0, you can no longer map to non-public classes and members (aka., `internal`, `protected` or `private`) without taking additional steps. The simplest solution is to make your classes and members `public`. Alternatively, you can [disable optimizations](#disabling-optimization) which will cause FlatFiles to use normal reflection, which should be able to access anything, at the cost of some runtime overhead.
 
 Another option is to grant FlatFiles access to your `internal` classes and members by adding the following line to you `Assembly.cs` file:
 
