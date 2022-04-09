@@ -341,6 +341,7 @@ Once your selector is configured, you can call `GetReader`, passing in the `Text
 If you want to work directly with schemas and readers, you can build a `SchemaSelector` by registering schemas with predicates in a similar fashion. The `DelimitedReader` and `FixedLengthReader` classes provide a constructor accepting a `SchemaSelector`. *Note that whenever you work with selectors, calls to `GetSchema` will return `null`.*
 
 ```csharp
+// Delimited example with `object` type using the DelimitedReader.
 var selector = new DelimitedSchemaSelector();
 var recordSchema = getDataSchema();
 selector.When(values => values.Length == 10).Use(recordSchema);
@@ -354,6 +355,17 @@ while (reader.Read())
     object[] values = reader.GetValues();
     processRecord(values);
 }
+
+// FixedLength example with a strongly-typed Person mapper and using the selector's GetReader().
+var selector = new FixedLengthTypeMapperSelector();
+var recordSchema = FixedLengthTypeMapper.Define<Person>();
+selector.When(values => values.Length == 10).Use(recordSchema);
+selector.When(values => values.Length == 2).Use(getHeaderSchema());
+selector.When(values => values.Length == 3).Use(getFooterSchema());
+selector.WithDefault(recordSchema);
+
+var reader = selector.GetReader(fileStream);
+var people = reader.ReadAll().Cast<Person>();
 ```
 
 If you want to *create* multi-schema files, there are "injector" equivalents for each "selector" class. For example:
