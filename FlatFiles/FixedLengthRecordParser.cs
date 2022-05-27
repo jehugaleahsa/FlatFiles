@@ -65,13 +65,11 @@ namespace FlatFiles
         {
             private readonly RetryReader reader;
             private readonly IRecordSeparatorMatcher matcher;
-            private readonly StringBuilder builder;
 
             public SeparatorRecordReader(TextReader reader, string? separator)
             {
                 this.reader = new RetryReader(reader);
                 matcher = RecordSeparatorMatcher.GetMatcher(this.reader, separator);
-                builder = new StringBuilder();
             }
 
             public bool IsEndOfStream()
@@ -100,14 +98,12 @@ namespace FlatFiles
                 }
                 while (!matcher.IsMatch() && reader.Read())
                 {
-                    builder.Append(reader.Current);
                     if (reader.ShouldLoadBuffer(matcher.Size))
                     {
                         reader.LoadBuffer();
                     }
                 }
-                string record = builder.ToString();
-                builder.Clear();
+                string record = matcher.Trim(reader.GetRecord());
                 return record;
             }
 
@@ -119,14 +115,12 @@ namespace FlatFiles
                 }
                 while (!matcher.IsMatch() && reader.Read())
                 {
-                    builder.Append(reader.Current);
                     if (reader.ShouldLoadBuffer(matcher.Size))
                     {
                         await reader.LoadBufferAsync().ConfigureAwait(false);
                     }
                 }
-                string record = builder.ToString();
-                builder.Clear();
+                string record = matcher.Trim(reader.GetRecord());
                 return record;
             }
         }
