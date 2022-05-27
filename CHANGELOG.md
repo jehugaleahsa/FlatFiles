@@ -1,6 +1,8 @@
+## 5.0.2 (2022-05-26)
+**Summary** - An out of memory exception was being caused by me creating a `StringBuilder` for the `FixedLengthParser` class, while the `RetryReader` is also buffering strings using a `StringBuilder`. I never called `GetRecord()` on the `RetryRecord`, so the memory in the `RetryReader` never got freed.
+
 ## 5.0.1 (2022-02-24)
 **Summary** - An exception was being thrown by the `ColumnContext` class because the schema was missing when using injectors. For this release, I found a workaround to get injectors working again, but I am not happy with the solution. I will revisit this when I have more time to investigate a more all-encompassing solution.
-
 
 ## 5.0.0 (2022-02-20)
 **Summary** - Rename classes/methods/etc. from "separated value" to "delimited". Break out each class into its own file. Introduce nullable references compile setting and improve null safety.
