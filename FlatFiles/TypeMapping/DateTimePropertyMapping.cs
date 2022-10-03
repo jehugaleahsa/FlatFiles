@@ -50,6 +50,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IDateTimePropertyMapping Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IDateTimePropertyMapping Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

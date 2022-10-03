@@ -39,6 +39,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IByteArrayPropertyMapping Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IByteArrayPropertyMapping Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

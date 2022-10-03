@@ -44,6 +44,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IBooleanPropertyMapping Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IBooleanPropertyMapping Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

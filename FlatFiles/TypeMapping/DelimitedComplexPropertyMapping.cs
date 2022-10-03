@@ -10,6 +10,7 @@ namespace FlatFiles.TypeMapping
         private DelimitedOptions? options;
         private INullFormatter nullFormatter = FlatFiles.NullFormatter.Default;
         private IDefaultValue defaultValue = FlatFiles.DefaultValue.Disabled();
+        private bool isNullable = true;
         private Func<string, string?>? preprocessor;
         private Func<IColumnContext?, string, string?>? onParsing;
         private Func<IColumnContext?, object?, object?>? onParsed;
@@ -39,6 +40,7 @@ namespace FlatFiles.TypeMapping
                     Options = options,
                     NullFormatter = nullFormatter,
                     DefaultValue = defaultValue,
+                    IsNullable = isNullable,
 #pragma warning disable CS0618 // Type or member is obsolete
                     Preprocessor = preprocessor,
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -89,6 +91,12 @@ namespace FlatFiles.TypeMapping
         public IDelimitedComplexPropertyMapping DefaultValue(IDefaultValue defaultValue)
         {
             this.defaultValue = defaultValue ?? FlatFiles.DefaultValue.Disabled();
+            return this;
+        }
+
+        public IDelimitedComplexPropertyMapping Nullable(bool isNullable)
+        {
+            this.isNullable = isNullable;
             return this;
         }
 

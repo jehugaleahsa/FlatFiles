@@ -38,6 +38,13 @@ namespace FlatFiles.TypeMapping
         IDelimitedComplexPropertyMapping DefaultValue(IDefaultValue defaultValue);
 
         /// <summary>
+        /// Sets whether the column is nullable.
+        /// </summary>
+        /// <param name="isNullable">Whether to set the column nullable or not.</param>
+        /// <returns>The property mapping for further configuration.</returns>
+        IDelimitedComplexPropertyMapping Nullable(bool isNullable);
+
+        /// <summary>
         /// Sets a function to preprocess in the input before parsing it.
         /// </summary>
         /// <param name="preprocessor">A preprocessor function.</param>

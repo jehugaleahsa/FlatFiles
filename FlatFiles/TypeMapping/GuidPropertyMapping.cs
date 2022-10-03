@@ -44,6 +44,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IGuidPropertyMapping Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IGuidPropertyMapping Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

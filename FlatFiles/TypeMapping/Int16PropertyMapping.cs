@@ -51,6 +51,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IInt16PropertyMapping Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IInt16PropertyMapping Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete

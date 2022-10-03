@@ -45,6 +45,12 @@ namespace FlatFiles.TypeMapping
             return this;
         }
 
+        public IEnumPropertyMapping<TEnum> Nullable(bool isNullable)
+        {
+            column.IsNullable = isNullable;
+            return this;
+        }
+
         public IEnumPropertyMapping<TEnum> Preprocessor(Func<string, string?>? preprocessor)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
