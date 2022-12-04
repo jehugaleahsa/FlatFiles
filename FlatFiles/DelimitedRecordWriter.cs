@@ -84,7 +84,7 @@ namespace FlatFiles
             };
         }
 
-        private DelimitedSchema? GetSchema(object?[] values)
+        internal DelimitedSchema? GetSchema(object?[] values)
         {
             if (injector == null)
             {

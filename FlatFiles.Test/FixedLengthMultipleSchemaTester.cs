@@ -221,6 +221,78 @@ namespace FlatFiles.Test
             return mapper;
         }
 
+        [TestMethod]
+        public void TestWriter_DynamicMapper_CustomMapping()
+        {
+            var headerMapping = FixedLengthTypeMapper.DefineDynamic(typeof(Header));
+            headerMapping.CustomMapping(new StringColumn("Name"), 10).WithWriter(writeProperty);
+            var headerCreatedColumn = new DateTimeColumn("DateCreated");
+            headerCreatedColumn.OutputFormat = "yyyyMMdd";
+            headerMapping.CustomMapping(headerCreatedColumn, 10).WithWriter(writeProperty);
+
+            var detailMapping = FixedLengthTypeMapper.DefineDynamic(typeof(DetailRow));
+            detailMapping.CustomMapping(new Int64Column("CustomerId"), 10).WithWriter(writeProperty);
+            detailMapping.CustomMapping(new StringColumn("Name2"), 20).WithWriter(writeProperty);
+            var detailCreatedColumn = new DateTimeColumn("Created");
+            detailCreatedColumn.OutputFormat = "yyyyMMdd";
+            detailMapping.CustomMapping(detailCreatedColumn, 10).WithWriter(writeProperty);
+            detailMapping.CustomMapping(new DecimalColumn("AverageSales"), 10).WithWriter(writeProperty);
+
+            var trailerMapping = FixedLengthTypeMapper.DefineDynamic(typeof(Trailer));
+            trailerMapping.CustomMapping(new Int64Column("RecordCount"), 10).WithWriter(writeProperty);
+
+            var selector = new FixedLengthTypeMapperInjector();
+            selector.When(x => x is Header).Use(headerMapping);
+            selector.When(x => x is DetailRow).Use(detailMapping);
+            selector.When(x => x is Trailer).Use(trailerMapping);
+
+            StringWriter stringWriter = new StringWriter();
+            ITypedWriter<object> writer = selector.GetWriter(stringWriter);
+
+            var now = new DateTime(2022, 12, 4, 14, 4, 00);
+            var header = new Header()
+            {
+                DateCreated = now,
+                Name = "File-2"
+            };
+            var detail1 = new DetailRow()
+            {
+                CustomerId = 3333,
+                AverageSales = 12.32m,
+                Created = now,
+                Name2 = "Customer1"
+            };
+            var detail2 = new DetailRow()
+            {
+                CustomerId = 9999,
+                AverageSales = 20.32m,
+                Created = now,
+                Name2 = "Customer2"
+            };
+            var trailer = new Trailer()
+            {
+                RecordCount = 1
+            };
+
+            writer.Write(header);
+            writer.Write(detail1);
+            writer.Write(detail2);
+            writer.Write(trailer);
+
+            var expected = @"File-2    20221204  
+3333      Customer1           20221204  12.32     
+9999      Customer2           20221204  20.32     
+1         
+";
+            Assert.AreEqual(expected, stringWriter.ToString());
+        }
+
+        static void writeProperty(IColumnContext ctx, object record, object[] values)
+        {
+            var prop = record.GetType().GetProperties()[ctx.LogicalIndex];
+            values[ctx.LogicalIndex] = prop.GetValue(record, null);
+        }
+
         public class HeaderRecord
         {
             public string BatchName { get; set; }
@@ -246,6 +318,25 @@ namespace FlatFiles.Test
             public DateTime? CreatedOn { get; set; }
 
             public decimal TotalAmount { get; set; }
+        }
+
+        public class Header
+        {
+            public string Name { get; set; }
+            public DateTime DateCreated { get; set; }
+        }
+
+        public class DetailRow
+        {
+            public long CustomerId { get; set; }
+            public string Name2 { get; set; }
+            public DateTime Created { get; set; }
+            public decimal AverageSales { get; set; }
+        }
+
+        public class Trailer
+        {
+            public long RecordCount { get; set; }
         }
     }
 }

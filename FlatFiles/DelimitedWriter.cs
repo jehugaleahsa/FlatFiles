@@ -267,18 +267,24 @@ namespace FlatFiles
             {
                 return recordWriter.Metadata;
             }
-            var executionContext = new GenericExecutionContext(recordWriter.Schema, recordWriter.Options.Clone());
+            return GetUncachedMetadata(recordWriter.ActualSchema);
+        }
+
+        IRecordContext IWriterWithMetadata.GetMetadata()
+        {
+            var schema = recordWriter.GetSchema(new object[0]); // Will work for TypedWriters using Schema Injector
+            return GetUncachedMetadata(schema);
+        }
+
+        private IRecordContext GetUncachedMetadata(DelimitedSchema? schema)
+        {
+            var executionContext = new GenericExecutionContext(schema, recordWriter.Options.Clone());
             var recordContext = new GenericRecordContext(executionContext)
             {
                 PhysicalRecordNumber = recordWriter.PhysicalRecordNumber,
                 LogicalRecordNumber = recordWriter.LogicalRecordNumber
             };
             return recordContext;
-        }
-
-        IRecordContext IWriterWithMetadata.GetMetadata()
-        {
-            return GetMetadata();
         }
     }
 }
