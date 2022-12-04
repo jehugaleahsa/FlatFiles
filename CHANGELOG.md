@@ -1,3 +1,6 @@
+## 5.0.4 (2022-12-04)
+**Summary** - The delimited and fixed-length writers use a cached record context. The schema information can only be determined after writing a record. This doesn't work well with the type mappers, injectors, and custom mappings since the context is needed prior writing the values. When switching from writing one type to another, the writer's cached context was still referring to the previously written type's schema, leading to the wrong context being passed to the custom mappers. This manifested itself as an `ArgumentOutOfRangeException`, trying to find a column in the wrong schema.
+
 ## 5.0.3 (2022-10-02)
 **Summary** - In order for DefaultValue to work, columns have be marked as `IsNullable=false`; however, there was no setter on the property mappers to specify nullable.
 

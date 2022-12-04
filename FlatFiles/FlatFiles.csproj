@@ -13,14 +13,14 @@
     <PackageReleaseNotes>Support specifying nullability using type mappers, so DefaultValue works as expected.</PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>FlatFiles.snk</AssemblyOriginatorKeyFile>
-    <Version>5.0.3</Version>
+    <Version>5.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>5.0.3.0</AssemblyVersion>
-    <FileVersion>5.0.3.0</FileVersion>
+    <AssemblyVersion>5.0.4.0</AssemblyVersion>
+    <FileVersion>5.0.4.0</FileVersion>
     <PackageLicenseFile>UNLICENSE.txt</PackageLicenseFile>
     <PackageIcon>icon.png</PackageIcon>
     <Nullable>enable</Nullable>
