@@ -839,7 +839,7 @@ namespace FlatFiles.TypeMapping
             return typedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public IAsyncEnumerable<TEntity> ReadAsync(TextReader reader, DelimitedOptions? options = null)
         {
             var typedReader = GetReader(reader, options);
@@ -886,7 +886,7 @@ namespace FlatFiles.TypeMapping
             return typedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         public Task WriteAsync(TextWriter writer, IAsyncEnumerable<TEntity> entities, DelimitedOptions? options = null)
         {
             if (entities == null)
@@ -1107,7 +1107,7 @@ namespace FlatFiles.TypeMapping
             return untypedReader.ReadAll();
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         IAsyncEnumerable<object> IDynamicDelimitedTypeMapper.ReadAsync(TextReader reader, DelimitedOptions? options)
         {
             IDynamicDelimitedTypeMapper untypedMapper = this;
@@ -1135,7 +1135,7 @@ namespace FlatFiles.TypeMapping
             return untypedWriter.WriteAllAsync(entities);
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         Task IDynamicDelimitedTypeMapper.WriteAsync(TextWriter writer, IAsyncEnumerable<object> entities, DelimitedOptions? options)
         {
             IDynamicDelimitedTypeMapper untypedMapper = this;

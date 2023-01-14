@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <StartupObject>FlatFiles.Benchmark.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
-    <PackageReference Include="CsvHelper" Version="27.1.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.4" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
   </ItemGroup>
 
   <ItemGroup>
