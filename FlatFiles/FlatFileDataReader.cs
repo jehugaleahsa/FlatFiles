@@ -1,4 +1,4 @@
-﻿#if NET451 || NETSTANDARD2_0 || NETCOREAPP
+﻿#if NET462 || NETSTANDARD2_0 || NETCOREAPP || NET6_0
 
 using System;
 using System.Data;
@@ -230,7 +230,7 @@ namespace FlatFiles
         {
             var values = GetValues();
             var bytes = (byte[])values[i]!;
-#if NET451
+#if NET462
             Array.Copy(bytes, fieldOffset, buffer, bufferoffset, length);
 #else
             Array.Copy(bytes, (int)fieldOffset, buffer, bufferoffset, length);
@@ -266,7 +266,7 @@ namespace FlatFiles
             }
             var values = GetValues();
             var chars = (char[])values[i]!;
-#if NET451
+#if NET462
             Array.Copy(chars, fieldoffset, buffer, bufferoffset, length);
 #else
             Array.Copy(chars, (int)fieldoffset, buffer, bufferoffset, length);

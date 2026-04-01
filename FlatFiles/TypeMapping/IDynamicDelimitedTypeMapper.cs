@@ -17,7 +17,7 @@ namespace FlatFiles.TypeMapping
         /// <returns>The entities that are extracted from the file.</returns>
         IEnumerable<object> Read(TextReader reader, DelimitedOptions? options = null);
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         /// <summary>
         /// Reads the entities from the given reader.
         /// </summary>
@@ -51,7 +51,7 @@ namespace FlatFiles.TypeMapping
         /// <param name="options">The options used to format the output.</param>
         Task WriteAsync(TextWriter writer, IEnumerable<object> entities, DelimitedOptions? options = null);
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         /// <summary>
         /// Writes the given entities to the given stream.
         /// </summary>

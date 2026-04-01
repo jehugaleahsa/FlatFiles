@@ -46,7 +46,7 @@ namespace FlatFiles.TypeMapping
             }
         }
 
-#if !NET451 && !NETSTANDARD1_6 && !NETSTANDARD2_0
+#if !NET462 && !NETSTANDARD1_6 && !NETSTANDARD2_0
         /// <summary>
         /// Writes all of the entities to the typed writer.
         /// </summary>
